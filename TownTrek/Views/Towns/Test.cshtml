@@ -1,0 +1,36 @@
+@{
+    ViewData["Title"] = "Database Connection Test";
+}
+
+<div class="container mt-4">
+    <h2>Database Connection Test</h2>
+    
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            <h4>Connection Error:</h4>
+            <p>@ViewBag.Error</p>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-success">
+            <h4>Database Connection Status</h4>
+            <ul class="list-unstyled">
+                <li><strong>Can Connect:</strong> @ViewBag.CanConnect</li>
+                <li><strong>Database Name:</strong> @ViewBag.DatabaseName</li>
+                <li><strong>Towns Count:</strong> @ViewBag.TownCount</li>
+            </ul>
+        </div>
+        
+        <div class="mt-4">
+            <h4>Connection Details</h4>
+            <p>If you can see this page with "Can Connect: True", your Entity Framework setup is working correctly!</p>
+            <p>The database has been created and is accessible from your application.</p>
+        </div>
+    }
+    
+    <div class="mt-4">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Back to Home</a>
+    </div>
+</div>
