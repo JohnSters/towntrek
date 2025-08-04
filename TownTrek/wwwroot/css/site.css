@@ -1,4 +1,4 @@
-/* MyTown - Main Stylesheet */
+/* TownTrek - Main Stylesheet */
 /* This file imports all component stylesheets and contains global site styles */
 
 /* Import Design System Variables */
@@ -13,6 +13,7 @@
 @import url('./forms.css');
 @import url('./navigation.css');
 @import url('./footer.css');
+@import url('./auth.css');
 
 /* Import Page-Specific Styles */
 @import url('./landing.css');

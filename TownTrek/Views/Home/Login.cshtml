@@ -1,0 +1,123 @@
+@{
+    ViewData["Title"] = "Login - TownTrek";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Welcome Back</h1>
+            <p>Sign in to your TownTrek account and connect with your community</p>
+        </div>
+
+        <form class="auth-form" id="loginForm" method="post" asp-action="Login">
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="your@email.com"
+                    required
+                    autocomplete="email"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                />
+            </div>
+
+            <div class="checkbox-group">
+                <input 
+                    type="checkbox" 
+                    id="rememberMe" 
+                    name="rememberMe" 
+                    class="checkbox-input"
+                />
+                <label for="rememberMe" class="checkbox-label">
+                    Keep me signed in for 30 days
+                </label>
+            </div>
+
+            <button type="submit" class="auth-btn auth-btn-primary">
+                Sign In
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p style="color: var(--dark-gray); margin-bottom: var(--space-md);">
+                Don't have an account? 
+                <a asp-area="" asp-controller="Home" asp-action="Register" class="auth-link">Join TownTrek today</a>
+            </p>
+            <p>
+                <a asp-area="" asp-controller="Home" asp-action="ForgotPassword" class="auth-link">Forgot your password?</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Business Benefits Section -->
+<section style="background-color: var(--light-gray); padding: var(--space-2xl) 0;">
+    <div class="container">
+        <div class="text-center" style="margin-bottom: var(--space-xl);">
+            <h2 style="color: var(--charcoal); margin-bottom: var(--space-md);">
+                Connect with South African Communities
+            </h2>
+            <p style="color: var(--dark-gray); font-size: var(--body-large); max-width: 600px; margin: 0 auto;">
+                Whether you're a business owner or community member, TownTrek brings local connections together
+            </p>
+        </div>
+
+        <div class="grid grid-3">
+            <div class="text-center">
+                <div style="width: 60px; height: 60px; background-color: var(--carolina-blue); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-md);">
+                    <span style="font-size: 24px;">🏪</span>
+                </div>
+                <h3 style="color: var(--charcoal); font-size: var(--h5-size); margin-bottom: var(--space-sm);">
+                    Easy Management
+                </h3>
+                <p style="color: var(--dark-gray); font-size: var(--body-small);">
+                    Update your business information, hours, and photos in minutes
+                </p>
+            </div>
+
+            <div class="text-center">
+                <div style="width: 60px; height: 60px; background-color: var(--hunyadi-yellow); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-md);">
+                    <span style="font-size: 24px;">📱</span>
+                </div>
+                <h3 style="color: var(--charcoal); font-size: var(--h5-size); margin-bottom: var(--space-sm);">
+                    Mobile Discovery
+                </h3>
+                <p style="color: var(--dark-gray); font-size: var(--body-small);">
+                    Customers find you easily through our mobile app
+                </p>
+            </div>
+
+            <div class="text-center">
+                <div style="width: 60px; height: 60px; background-color: var(--lapis-lazuli); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-md);">
+                    <span style="font-size: 24px;">🇿🇦</span>
+                </div>
+                <h3 style="color: var(--charcoal); font-size: var(--h5-size); margin-bottom: var(--space-sm);">
+                    Local Focus
+                </h3>
+                <p style="color: var(--dark-gray); font-size: var(--body-small);">
+                    Built specifically for South African small towns and communities
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+}

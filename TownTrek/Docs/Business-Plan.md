@@ -1,16 +1,16 @@
-# MyTown Business Plan
+# TownTrek Business Plan
 ## South African Small Business Information Gateway
 
 ### Executive Summary
 
-MyTown is a digital platform designed to serve as an information gateway for small businesses in South African towns and communities. The platform focuses on providing comprehensive business information, contact details, and location services without handling bookings or transactions. The solution consists of a web-based administration portal for business owners and a mobile application for consumers to discover and access business information.
+TownTrek is a digital platform designed to serve as an information gateway for small businesses in South African towns and communities. The platform focuses on providing comprehensive business information, contact details, and location services without handling bookings or transactions. The solution consists of a web-based administration portal for business owners and a mobile application for consumers to discover and access business information.
 
 ---
 
 ## Business Model Overview
 
 ### Core Concept
-MyTown operates as a **Business Information Gateway** rather than a booking platform. The focus is on:
+TownTrek operates as a **Business Information Gateway** rather than a booking platform. The focus is on:
 - **Information Display**: Business details, contact information, operating hours
 - **Location Services**: Directions, maps, and accessibility information
 - **Content Management**: Business owners manage their own listings
@@ -371,7 +371,7 @@ MyTown operates as a **Business Information Gateway** rather than a booking plat
 
 ---
 
-*This business plan serves as a foundation for the MyTown application development and should be reviewed and updated as the project progresses.*
+*This business plan serves as a foundation for the TownTrek application development and should be reviewed and updated as the project progresses.*
 
 **Document Version**: 1.0  
 **Last Updated**: January 2025  

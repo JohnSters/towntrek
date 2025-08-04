@@ -28,6 +28,16 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult Login()
+    {
+        return View();
+    }
+
+    public IActionResult ForgotPassword()
+    {
+        return View();
+    }
+
     public IActionResult Download()
     {
         return View();

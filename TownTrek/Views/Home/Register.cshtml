@@ -1,58 +1,309 @@
 @{
-    ViewData["Title"] = "Register Your Business - MyTown";
+    ViewData["Title"] = "Get Started - TownTrek";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<section style="padding: 4rem 0; background-color: var(--light-gray);">
-    <div class="container-sm">
-        <div class="text-center" style="margin-bottom: 3rem;">
-            <h1>Register Your Business</h1>
-            <p class="text-large">Join thousands of South African businesses on MyTown</p>
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Join TownTrek Community</h1>
+            <p>Create your account to connect with South African businesses and communities</p>
         </div>
-        
-        <div class="card" style="max-width: 500px; margin: 0 auto;">
-            <h3>Get Started Today</h3>
-            <p>Start your 30-day free trial and begin connecting with customers in your community.</p>
-            
-            <form style="margin-top: 2rem;">
-                <div style="margin-bottom: 1rem;">
-                    <label for="businessName" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Business Name</label>
-                    <input type="text" id="businessName" name="businessName" class="form-input" style="width: 100%;" required>
+
+        <form class="auth-form" id="registerForm" method="post" asp-action="Register">
+            <!-- Account Type Selection -->
+            <div class="form-group">
+                <label class="form-label">Account Type</label>
+                <div class="account-type-selection">
+                    <div class="account-type-card" data-type="business">
+                        <div class="account-type-icon">🏪</div>
+                        <div class="account-type-name">Business Owner</div>
+                        <div class="account-type-desc">Manage business listings and connect with customers</div>
+                        <div class="account-type-price">From R199/month</div>
+                    </div>
+                    
+                    <div class="account-type-card" data-type="community">
+                        <div class="account-type-icon">👥</div>
+                        <div class="account-type-name">Community Member</div>
+                        <div class="account-type-desc">Discover businesses, leave reviews, and connect</div>
+                        <div class="account-type-price">Free</div>
+                    </div>
                 </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Email Address</label>
-                    <input type="email" id="email" name="email" class="form-input" style="width: 100%;" required>
+                <input type="hidden" id="accountType" name="accountType" value="business" />
+            </div>
+
+            <!-- Personal Information -->
+            <div class="form-group">
+                <label for="fullName" class="form-label">Full Name</label>
+                <input 
+                    type="text" 
+                    id="fullName" 
+                    name="fullName" 
+                    class="form-input" 
+                    placeholder="John Smith"
+                    required
+                    autocomplete="name"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    class="form-input" 
+                    placeholder="your@email.com"
+                    required
+                    autocomplete="email"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input 
+                    type="tel" 
+                    id="phone" 
+                    name="phone" 
+                    class="form-input" 
+                    placeholder="+27 82 123 4567"
+                    required
+                    autocomplete="tel"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="location" class="form-label">Location</label>
+                <input 
+                    type="text" 
+                    id="location" 
+                    name="location" 
+                    class="form-input" 
+                    placeholder="Stellenbosch, Western Cape"
+                    required
+                    autocomplete="address-level2"
+                />
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password" class="form-label">Create Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-input" 
+                    placeholder="Minimum 8 characters"
+                    required
+                    autocomplete="new-password"
+                />
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    name="confirmPassword" 
+                    class="form-input" 
+                    placeholder="Re-enter your password"
+                    required
+                    autocomplete="new-password"
+                />
+            </div>
+
+            <!-- Plan Selection (Only for Business Owners) -->
+            <div class="plan-selection" id="planSelection" style="display: none;">
+                <label class="form-label">Choose Your Business Plan</label>
+                <div class="plan-cards">
+                    <div class="plan-card" data-plan="basic">
+                        <div class="plan-name">Basic</div>
+                        <div class="plan-price">R199</div>
+                        <div class="plan-period">/month</div>
+                    </div>
+                    
+                    <div class="plan-card featured" data-plan="standard">
+                        <div class="plan-name">Standard</div>
+                        <div class="plan-price">R399</div>
+                        <div class="plan-period">/month</div>
+                    </div>
+                    
+                    <div class="plan-card" data-plan="premium">
+                        <div class="plan-name">Premium</div>
+                        <div class="plan-price">R599</div>
+                        <div class="plan-period">/month</div>
+                    </div>
                 </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label for="phone" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" class="form-input" style="width: 100%;" required>
-                </div>
-                
-                <div style="margin-bottom: 1rem;">
-                    <label for="town" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Town/City</label>
-                    <input type="text" id="town" name="town" class="form-input" style="width: 100%;" required>
-                </div>
-                
-                <div style="margin-bottom: 2rem;">
-                    <label for="category" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Business Category</label>
-                    <select id="category" name="category" class="form-select" style="width: 100%;" required>
-                        <option value="">Select a category</option>
-                        <option value="shops">Shops & Retail</option>
-                        <option value="restaurants">Restaurants & Food</option>
-                        <option value="markets">Markets & Vendors</option>
-                        <option value="accommodation">Accommodation</option>
-                        <option value="tours">Tours & Experiences</option>
-                        <option value="events">Events</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="btn btn-cta btn-lg" style="width: 100%;">Start Free Trial</button>
-            </form>
-            
-            <p style="text-align: center; margin-top: 1rem; font-size: var(--body-small); color: var(--dark-gray);">
-                No credit card required. Cancel anytime.
+                <input type="hidden" id="selectedPlan" name="selectedPlan" value="standard" />
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="checkbox-group">
+                <input 
+                    type="checkbox" 
+                    id="acceptTerms" 
+                    name="acceptTerms" 
+                    class="checkbox-input"
+                    required
+                />
+                <label for="acceptTerms" class="checkbox-label">
+                    I agree to the <a asp-area="" asp-controller="Home" asp-action="Terms" target="_blank">Terms of Service</a> 
+                    and <a asp-area="" asp-controller="Home" asp-action="Privacy" target="_blank">Privacy Policy</a>
+                </label>
+            </div>
+
+            <div class="checkbox-group">
+                <input 
+                    type="checkbox" 
+                    id="marketingEmails" 
+                    name="marketingEmails" 
+                    class="checkbox-input"
+                />
+                <label for="marketingEmails" class="checkbox-label">
+                    Send me helpful tips and updates about growing my business (optional)
+                </label>
+            </div>
+
+            <button type="submit" class="auth-btn auth-btn-primary" id="submitBtn">
+                Create Account
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p style="color: var(--dark-gray);">
+                Already have an account? 
+                <a asp-area="" asp-controller="Home" asp-action="Login" class="auth-link">Sign in here</a>
             </p>
         </div>
     </div>
+</div>
+
+<!-- Account Types Explanation -->
+<section style="background-color: var(--light-gray); padding: var(--space-2xl) 0;">
+    <div class="container">
+        <div class="text-center" style="margin-bottom: var(--space-xl);">
+            <h2 style="color: var(--charcoal); margin-bottom: var(--space-md);">
+                Two Ways to Join TownTrek
+            </h2>
+            <p style="color: var(--dark-gray); font-size: var(--body-large);">
+                Choose the account type that's right for you
+            </p>
+        </div>
+
+        <div class="grid grid-2" style="max-width: 800px; margin: 0 auto;">
+            <!-- Business Owner -->
+            <div style="background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;">
+                <div style="width: 60px; height: 60px; background-color: var(--hunyadi-yellow); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-md);">
+                    <span style="font-size: 24px;">🏪</span>
+                </div>
+                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Business Owner</h3>
+                <p style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-md);">
+                    Perfect for business owners who want to showcase their services and connect with customers
+                </p>
+                
+                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Create and manage business listings</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Upload photos and documents</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Respond to customer reviews</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Access business analytics</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Priority customer support</li>
+                </ul>
+                
+                <div style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--medium-gray);">
+                    <div style="font-size: var(--body-small); color: var(--lapis-lazuli); font-weight: var(--font-semibold);">From R199/month</div>
+                </div>
+            </div>
+
+            <!-- Community Member -->
+            <div style="background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;">
+                <div style="width: 60px; height: 60px; background-color: var(--carolina-blue); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-md);">
+                    <span style="font-size: 24px;">👥</span>
+                </div>
+                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Community Member</h3>
+                <p style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-md);">
+                    Ideal for customers who want to discover local businesses and share their experiences
+                </p>
+                
+                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Discover local businesses</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Leave reviews and ratings</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Save favorite businesses</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Get directions and contact info</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Join community discussions</li>
+                </ul>
+                
+                <div style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--medium-gray);">
+                    <div style="font-size: var(--body-small); color: var(--lapis-lazuli); font-weight: var(--font-semibold);">Free Forever</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </section>
+
+<!-- Business Plans Section (Only shown when business account is selected) -->
+<section style="background-color: var(--white); padding: var(--space-2xl) 0;">
+    <div class="container">
+        <div class="text-center" style="margin-bottom: var(--space-xl);">
+            <h2 style="color: var(--charcoal); margin-bottom: var(--space-md);">
+                Business Plans & Pricing
+            </h2>
+            <p style="color: var(--dark-gray); font-size: var(--body-large);">
+                Simple, transparent pricing for South African businesses
+            </p>
+        </div>
+
+        <div class="grid grid-3">
+            <!-- Basic Plan -->
+            <div style="background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;">
+                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Basic</h3>
+                <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R199</div>
+                <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
+                
+                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 1 business listing</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Basic information management</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 5 image uploads</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Standard support</li>
+                </ul>
+            </div>
+
+            <!-- Standard Plan -->
+            <div style="background: var(--white); border: 2px solid var(--hunyadi-yellow); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center; position: relative;">
+                <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--hunyadi-yellow); color: var(--charcoal); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-sm); font-size: var(--body-xs); font-weight: var(--font-semibold);">Most Popular</div>
+                
+                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Standard</h3>
+                <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R399</div>
+                <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
+                
+                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 3 business listings</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Advanced information management</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 15 image uploads</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ PDF document uploads</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Priority support</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Basic analytics</li>
+                </ul>
+            </div>
+
+            <!-- Premium Plan -->
+            <div style="background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;">
+                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Premium</h3>
+                <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R599</div>
+                <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
+                
+                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 10 business listings</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Full feature access</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Unlimited image uploads</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Advanced analytics</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Featured placement</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Dedicated support</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+}
