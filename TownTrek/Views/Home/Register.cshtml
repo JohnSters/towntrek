@@ -1,0 +1,58 @@
+@{
+    ViewData["Title"] = "Register Your Business - MyTown";
+}
+
+<section style="padding: 4rem 0; background-color: var(--light-gray);">
+    <div class="container-sm">
+        <div class="text-center" style="margin-bottom: 3rem;">
+            <h1>Register Your Business</h1>
+            <p class="text-large">Join thousands of South African businesses on MyTown</p>
+        </div>
+        
+        <div class="card" style="max-width: 500px; margin: 0 auto;">
+            <h3>Get Started Today</h3>
+            <p>Start your 30-day free trial and begin connecting with customers in your community.</p>
+            
+            <form style="margin-top: 2rem;">
+                <div style="margin-bottom: 1rem;">
+                    <label for="businessName" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Business Name</label>
+                    <input type="text" id="businessName" name="businessName" class="form-input" style="width: 100%;" required>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label for="email" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-input" style="width: 100%;" required>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label for="phone" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" class="form-input" style="width: 100%;" required>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <label for="town" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Town/City</label>
+                    <input type="text" id="town" name="town" class="form-input" style="width: 100%;" required>
+                </div>
+                
+                <div style="margin-bottom: 2rem;">
+                    <label for="category" style="display: block; margin-bottom: 0.5rem; font-weight: var(--font-medium);">Business Category</label>
+                    <select id="category" name="category" class="form-select" style="width: 100%;" required>
+                        <option value="">Select a category</option>
+                        <option value="shops">Shops & Retail</option>
+                        <option value="restaurants">Restaurants & Food</option>
+                        <option value="markets">Markets & Vendors</option>
+                        <option value="accommodation">Accommodation</option>
+                        <option value="tours">Tours & Experiences</option>
+                        <option value="events">Events</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-cta btn-lg" style="width: 100%;">Start Free Trial</button>
+            </form>
+            
+            <p style="text-align: center; margin-top: 1rem; font-size: var(--body-small); color: var(--dark-gray);">
+                No credit card required. Cancel anytime.
+            </p>
+        </div>
+    </div>
+</section>

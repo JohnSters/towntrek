@@ -3,16 +3,21 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TownTrek</title>
+    <title>@ViewData["Title"] - MyTown</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TownTrek.styles.css" asp-append-version="true" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TownTrek</a>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <strong>MyTown</strong>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,25 +25,60 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" href="#features">Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#pricing">Pricing</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <div class="navbar-nav">
+                        <a class="btn btn-primary" href="/register" style="margin-left: 1rem;">Get Started</a>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main role="main">
+        @RenderBody()
+    </main>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer">
         <div class="container">
-            &copy; 2025 - TownTrek - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="grid grid-3" style="align-items: start;">
+                <div>
+                    <h5 style="color: white; margin-bottom: 1rem;">MyTown</h5>
+                    <p style="font-size: var(--body-small); opacity: 0.8;">
+                        Connecting South African communities with local businesses.
+                    </p>
+                </div>
+                <div>
+                    <h6 style="color: white; margin-bottom: 1rem;">Quick Links</h6>
+                    <ul style="list-style: none; padding: 0; font-size: var(--body-small);">
+                        <li style="margin-bottom: 0.5rem;"><a href="#features">Features</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="#pricing">Pricing</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="/register">Get Started</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="/download">Mobile App</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h6 style="color: white; margin-bottom: 1rem;">Legal</h6>
+                    <ul style="list-style: none; padding: 0; font-size: var(--body-small);">
+                        <li style="margin-bottom: 0.5rem;"><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="/terms">Terms of Service</a></li>
+                        <li style="margin-bottom: 0.5rem;"><a href="/support">Support</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border-color: var(--dark-gray); margin: 2rem 0 1rem;">
+            <div class="text-center" style="font-size: var(--body-small); opacity: 0.8;">
+                &copy; 2025 MyTown. All rights reserved. Made with ❤️ for South African communities.
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
