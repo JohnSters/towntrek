@@ -17,7 +17,6 @@
   padding: var(--space-2xl);
   width: 100%;
   max-width: 480px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /* Auth Header */
@@ -71,7 +70,6 @@
 .form-input:focus {
   outline: none;
   border-color: var(--lapis-lazuli);
-  box-shadow: 0 0 0 3px rgba(51, 101, 138, 0.1);
 }
 
 .form-input:invalid,
@@ -104,7 +102,6 @@
 .form-select:focus {
   outline: none;
   border-color: var(--lapis-lazuli);
-  box-shadow: 0 0 0 3px rgba(51, 101, 138, 0.1);
 }
 
 /* Checkbox */

@@ -1,6 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using TownTrek.Data;
-
 namespace TownTrek;
 
 public class Program
@@ -9,10 +6,6 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
-
-        // Add services to the container.
-        builder.Services.AddDbContext<TownTrekDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
         
         builder.Services.AddControllersWithViews();
 

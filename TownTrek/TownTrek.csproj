@@ -25,4 +25,9 @@
     <ProjectReference Include="..\TownTrek.ServiceDefaults\TownTrek.ServiceDefaults.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>
