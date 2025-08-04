@@ -1,0 +1,36 @@
+/* Card Components */
+.card {
+  background-color: var(--white);
+  border: 1px solid var(--medium-gray);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  transition: all var(--transition-normal);
+}
+
+.card:hover {
+  border-color: var(--carolina-blue);
+  transform: translateY(-2px);
+}
+
+.card-featured {
+  background-color: var(--white);
+  border: 2px solid var(--hunyadi-yellow);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: transform var(--transition-normal);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Responsive Card Styles */
+@media (max-width: 480px) {
+  .card {
+    padding: var(--space-md);
+  }
+}

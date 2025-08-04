@@ -1,0 +1,63 @@
+/* Form Elements */
+.form-input,
+.form-select {
+  border: 2px solid var(--medium-gray);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  font-size: var(--body-medium);
+  font-family: inherit;
+  transition: border-color var(--transition-normal);
+  background-color: var(--white);
+}
+
+.form-input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: var(--lapis-lazuli);
+  box-shadow: 0 0 0 3px rgba(51, 101, 138, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--dark-gray);
+  opacity: 0.7;
+}
+
+/* Form Labels */
+.form-label {
+  display: block;
+  margin-bottom: var(--space-sm);
+  font-weight: var(--font-medium);
+  color: var(--charcoal);
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: var(--space-md);
+}
+
+/* Form Validation States */
+.form-input.is-invalid,
+.form-select.is-invalid {
+  border-color: var(--orange-pantone);
+}
+
+.form-input.is-valid,
+.form-select.is-valid {
+  border-color: #28a745;
+}
+
+.invalid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-xs);
+  font-size: var(--body-small);
+  color: var(--orange-pantone);
+}
+
+.valid-feedback {
+  display: block;
+  width: 100%;
+  margin-top: var(--space-xs);
+  font-size: var(--body-small);
+  color: #28a745;
+}

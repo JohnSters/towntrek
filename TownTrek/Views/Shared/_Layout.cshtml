@@ -8,6 +8,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- MyTown Design System CSS -->
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/buttons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cards.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/navigation.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+    
+    <!-- Main Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TownTrek.styles.css" asp-append-version="true" />
 </head>
@@ -50,33 +62,39 @@
 
     <footer class="footer">
         <div class="container">
-            <div class="grid grid-3" style="align-items: start;">
+            <div class="footer-grid">
                 <div>
-                    <h5 style="color: white; margin-bottom: 1rem;">MyTown</h5>
-                    <p style="font-size: var(--body-small); opacity: 0.8;">
-                        Connecting South African communities with local businesses.
+                    <h5>MyTown</h5>
+                    <p>
+                        Connecting South African communities with local businesses. 
+                        Discover shops, restaurants, markets, and services across South Africa's vibrant small towns.
                     </p>
+                    <div style="margin-top: var(--space-lg);">
+                        <span style="font-size: var(--body-xs); opacity: 0.7;">🇿🇦 Proudly South African</span>
+                    </div>
                 </div>
                 <div>
-                    <h6 style="color: white; margin-bottom: 1rem;">Quick Links</h6>
-                    <ul style="list-style: none; padding: 0; font-size: var(--body-small);">
-                        <li style="margin-bottom: 0.5rem;"><a href="#features">Features</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="#pricing">Pricing</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/register">Get Started</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/download">Mobile App</a></li>
+                    <h6>Quick Links</h6>
+                    <ul>
+                        <li><a href="/#features">Features</a></li>
+                        <li><a href="/#pricing">Pricing</a></li>
+                        <li><a href="/register">Get Started</a></li>
+                        <li><a href="/download">Mobile App</a></li>
+                        <li><a href="/#business-owners">For Business</a></li>
                     </ul>
                 </div>
                 <div>
-                    <h6 style="color: white; margin-bottom: 1rem;">Legal</h6>
-                    <ul style="list-style: none; padding: 0; font-size: var(--body-small);">
-                        <li style="margin-bottom: 0.5rem;"><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/terms">Terms of Service</a></li>
-                        <li style="margin-bottom: 0.5rem;"><a href="/support">Support</a></li>
+                    <h6>Legal & Support</h6>
+                    <ul>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
+                        <li><a href="/terms">Terms of Service</a></li>
+                        <li><a href="mailto:support@mytown.co.za">Support</a></li>
+                        <li><a href="mailto:hello@mytown.co.za">Contact Us</a></li>
                     </ul>
                 </div>
             </div>
-            <hr style="border-color: var(--dark-gray); margin: 2rem 0 1rem;">
-            <div class="text-center" style="font-size: var(--body-small); opacity: 0.8;">
+            <hr>
+            <div class="footer-bottom">
                 &copy; 2025 MyTown. All rights reserved. Made with ❤️ for South African communities.
             </div>
         </div>
