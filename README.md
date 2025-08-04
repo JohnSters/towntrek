@@ -51,9 +51,35 @@ The easiest way to run the application is through the Aspire AppHost, which will
 
 - ASP.NET Core 8.0
 - .NET Aspire
+- Entity Framework Core 9.0 with SQL Server
 - Bootstrap 5
 - jQuery
-- Entity Framework Core (ready for database integration)
+
+## Database Setup
+
+The application uses Entity Framework Core with SQL Server. The database connection is configured in `appsettings.json` and `appsettings.Development.json`.
+
+### Database Configuration
+
+- **Development Database**: `TownTrekDb_Dev`
+- **Production Database**: `TownTrekDb`
+- **Server**: SQL Server with SQL Authentication
+
+### Running Migrations
+
+To update the database schema:
+
+```bash
+cd TownTrek
+dotnet ef database update
+```
+
+To create a new migration:
+
+```bash
+cd TownTrek
+dotnet ef migrations add YourMigrationName
+```
 
 ## Contributing
 
