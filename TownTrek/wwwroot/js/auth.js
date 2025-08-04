@@ -244,14 +244,19 @@ class AuthManager {
             toggleBtn.className = 'password-toggle';
             toggleBtn.textContent = 'Show';
             
-            // Make parent relative
-            const formGroup = field.closest('.form-group');
-            formGroup.style.position = 'relative';
+            // Create wrapper div
+            const wrapper = document.createElement('div');
+            wrapper.className = 'password-input-wrapper';
+            
+            // Insert wrapper before the input
+            field.parentNode.insertBefore(wrapper, field);
+            
+            // Move input into wrapper
+            wrapper.appendChild(field);
+            wrapper.appendChild(toggleBtn);
             
             // Add padding to input
             field.style.paddingRight = '60px';
-            
-            formGroup.appendChild(toggleBtn);
 
             toggleBtn.addEventListener('click', () => {
                 const isPassword = field.type === 'password';

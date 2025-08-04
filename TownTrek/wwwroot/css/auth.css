@@ -432,6 +432,14 @@
   padding: var(--space-xs);
   border-radius: var(--radius-sm);
   transition: all var(--transition-normal);
+  z-index: 10;
+}
+
+/* Password input wrapper for proper positioning */
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .password-toggle:hover {
