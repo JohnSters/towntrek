@@ -119,13 +119,13 @@
                             @if (tier.UpdatedAt.HasValue)
                             {
                                 <div class="update-info">
-                                    <div>@tier.UpdatedAt.Value.ToString("MMM dd, yyyy")</div>
+                                    <div>@(tier.UpdatedAt.Value.ToString("MMM dd, yyyy"))</div>
                                     <div class="updated-by">by @tier.UpdatedByName</div>
                                 </div>
                             }
                             else
                             {
-                                <span class="text-muted">@tier.CreatedAt.ToString("MMM dd, yyyy")</span>
+                                <span class="text-muted">@(tier.CreatedAt.ToString("MMM dd, yyyy"))</span>
                             }
                         </td>
                         <td>
@@ -196,7 +196,7 @@
                             }
                         </div>
                         <div class="activity-time">
-                            @change.ChangeDate.ToString("MMM dd, yyyy") by @change.ChangedBy.FirstName @change.ChangedBy.LastName
+                            @(change.ChangeDate.ToString("MMM dd, yyyy")) by @change.ChangedBy.FirstName @change.ChangedBy.LastName
                         </div>
                     </div>
                 </div>

@@ -1,0 +1,258 @@
+@model TownTrek.Models.ViewModels.PriceChangeViewModel
+@{
+    ViewData["Title"] = "Change Price - " + Model.TierName;
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Change Price</h1>
+            <p class="page-description">Update the monthly price for @Model.TierName subscription tier.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Index")" class="auth-btn auth-btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Tiers
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Warning for Price Increases -->
+@if (Model.AffectedCustomersCount > 0)
+{
+    <div class="alert alert-info">
+        <strong>Customer Impact:</strong> This price change will affect @Model.AffectedCustomersCount active customer(s). 
+        Price increases require at least 30 days notice.
+    </div>
+}
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Price Change for @Model.TierName</h3>
+    </div>
+    
+    <form method="post" asp-action="ChangePrice" class="add-business-form">
+        @Html.AntiForgeryToken()
+        <input asp-for="SubscriptionTierId" type="hidden" />
+        <input asp-for="TierName" type="hidden" />
+        <input asp-for="CurrentPrice" type="hidden" />
+        <input asp-for="AffectedCustomersCount" type="hidden" />
+        
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-error">
+                <strong>Please correct the following errors:</strong>
+                <ul style="margin: 0.5rem 0 0 1rem;">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <!-- Current vs New Price -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h3 class="form-section-title">
+                    <span class="step-number">💰</span>
+                    Price Information
+                </h3>
+                <p class="form-section-description">Review the current price and set the new price.</p>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Current Monthly Price</label>
+                    <div class="form-input" style="background-color: var(--light-gray); color: var(--dark-gray); font-weight: 600; font-size: var(--body-large);">
+                        R@(Model.CurrentPrice.ToString("N0")) /month
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="NewPrice" class="form-label required"></label>
+                    <input asp-for="NewPrice" class="form-input" type="number" step="0.01" min="0" style="font-weight: 600; font-size: var(--body-large);" />
+                    <span asp-validation-for="NewPrice" class="error-message"></span>
+                </div>
+                
+                <div class="form-group form-group-full" id="priceChangeInfo" style="display: none;">
+                    <div class="alert" id="priceChangeAlert">
+                        <div id="priceChangeText"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Details -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h3 class="form-section-title">
+                    <span class="step-number">📝</span>
+                    Change Details
+                </h3>
+                <p class="form-section-description">Provide details about this price change for record keeping.</p>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group form-group-full">
+                    <label asp-for="ChangeReason" class="form-label"></label>
+                    <textarea asp-for="ChangeReason" class="form-textarea" rows="3" placeholder="e.g., Market adjustment, increased costs, feature improvements"></textarea>
+                    <span asp-validation-for="ChangeReason" class="error-message"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="EffectiveDate" class="form-label"></label>
+                    <input asp-for="EffectiveDate" class="form-input" type="date" />
+                    <span asp-validation-for="EffectiveDate" class="error-message"></span>
+                    <div class="form-help">Price increases require at least 30 days notice to customers.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Notification -->
+        @if (Model.AffectedCustomersCount > 0)
+        {
+            <div class="form-section">
+                <div class="form-section-header">
+                    <h3 class="form-section-title">
+                        <span class="step-number">📧</span>
+                        Customer Notification
+                    </h3>
+                    <p class="form-section-description">Choose whether to notify affected customers about this price change.</p>
+                </div>
+                
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input asp-for="SendNotification" class="service-checkbox" />
+                        <label asp-for="SendNotification" class="checkbox-label">
+                            Send email notification to @Model.AffectedCustomersCount affected customer(s)
+                            <div style="font-size: var(--body-xs); color: var(--dark-gray); margin-top: 0.25rem;">
+                                Customers will receive an email explaining the price change and effective date.
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Summary -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h3 class="form-section-title">
+                    <span class="step-number">📊</span>
+                    Impact Summary
+                </h3>
+            </div>
+            
+            <div class="admin-card" style="background-color: var(--light-gray);">
+                <div style="padding: var(--space-md);">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Affected Customers</label>
+                            <div style="font-size: var(--h4-size); font-weight: var(--font-bold); color: var(--lapis-lazuli);">
+                                @Model.AffectedCustomersCount
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Revenue Impact (Monthly)</label>
+                            <div id="revenueImpact" style="font-size: var(--h4-size); font-weight: var(--font-bold);">
+                                R0
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="@Url.Action("Index")" class="auth-btn auth-btn-secondary">Cancel</a>
+            <button type="submit" class="auth-btn auth-btn-cta" id="submitBtn">Update Price</button>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-subscription.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPrice = @Model.CurrentPrice;
+            const affectedCustomers = @Model.AffectedCustomersCount;
+            const newPriceInput = document.getElementById('NewPrice');
+            const priceChangeInfo = document.getElementById('priceChangeInfo');
+            const priceChangeAlert = document.getElementById('priceChangeAlert');
+            const priceChangeText = document.getElementById('priceChangeText');
+            const revenueImpact = document.getElementById('revenueImpact');
+            const submitBtn = document.getElementById('submitBtn');
+            const effectiveDateInput = document.getElementById('EffectiveDate');
+            
+            function updatePriceChangeInfo() {
+                const newPrice = parseFloat(newPriceInput.value) || 0;
+                const priceDiff = newPrice - currentPrice;
+                const revenueChange = priceDiff * affectedCustomers;
+                
+                if (newPrice > 0 && newPrice !== currentPrice) {
+                    priceChangeInfo.style.display = 'block';
+                    
+                    if (priceDiff > 0) {
+                        // Price increase
+                        priceChangeAlert.className = 'alert alert-error';
+                        priceChangeText.innerHTML = `
+                            <strong>Price Increase:</strong> R${priceDiff.toFixed(2)} per month (+${((priceDiff/currentPrice)*100).toFixed(1)}%)<br>
+                            <strong>Important:</strong> Price increases require at least 30 days notice to customers.
+                        `;
+                        submitBtn.textContent = 'Schedule Price Increase';
+                        
+                        // Set minimum effective date to 30 days from now
+                        const minDate = new Date();
+                        minDate.setDate(minDate.getDate() + 30);
+                        effectiveDateInput.min = minDate.toISOString().split('T')[0];
+                        
+                    } else {
+                        // Price decrease
+                        priceChangeAlert.className = 'alert alert-success';
+                        priceChangeText.innerHTML = `
+                            <strong>Price Decrease:</strong> R${Math.abs(priceDiff).toFixed(2)} per month (${((Math.abs(priceDiff)/currentPrice)*100).toFixed(1)}% reduction)<br>
+                            <strong>Good news:</strong> Price decreases can take effect immediately.
+                        `;
+                        submitBtn.textContent = 'Apply Price Decrease';
+                        
+                        // Remove minimum date restriction
+                        effectiveDateInput.min = new Date().toISOString().split('T')[0];
+                    }
+                    
+                    // Update revenue impact
+                    if (revenueChange > 0) {
+                        revenueImpact.innerHTML = `+R${revenueChange.toFixed(0)}`;
+                        revenueImpact.style.color = 'var(--lapis-lazuli)';
+                    } else if (revenueChange < 0) {
+                        revenueImpact.innerHTML = `-R${Math.abs(revenueChange).toFixed(0)}`;
+                        revenueImpact.style.color = 'var(--orange-pantone)';
+                    } else {
+                        revenueImpact.innerHTML = 'R0';
+                        revenueImpact.style.color = 'var(--dark-gray)';
+                    }
+                } else {
+                    priceChangeInfo.style.display = 'none';
+                    submitBtn.textContent = 'Update Price';
+                    revenueImpact.innerHTML = 'R0';
+                    revenueImpact.style.color = 'var(--dark-gray)';
+                }
+            }
+            
+            newPriceInput.addEventListener('input', updatePriceChangeInfo);
+            
+            // Initial calculation
+            updatePriceChangeInfo();
+        });
+    </script>
+}

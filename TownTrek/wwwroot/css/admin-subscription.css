@@ -1,0 +1,333 @@
+/* Admin Subscription Management Styles */
+
+/* Form Sections */
+.form-section {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.form-section-header {
+    margin-bottom: 2rem;
+}
+
+.form-section-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--charcoal);
+    margin-bottom: 0.5rem;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background-color: var(--lapis-lazuli);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.form-section-description {
+    color: var(--dark-gray);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+/* Form Grid */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Form Elements */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-label {
+    font-weight: 500;
+    color: var(--charcoal);
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.form-label.required::after {
+    content: " *";
+    color: var(--orange-pantone);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+    border: 2px solid var(--medium-gray);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    background-color: white;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: var(--lapis-lazuli);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-help {
+    font-size: 0.75rem;
+    color: var(--dark-gray);
+    margin-top: 0.25rem;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.75rem;
+    border: 1px solid var(--medium-gray);
+    border-radius: 8px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.checkbox-item:hover {
+    border-color: var(--carolina-blue);
+    background-color: var(--light-gray);
+}
+
+.service-checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    accent-color: var(--lapis-lazuli);
+}
+
+.checkbox-label {
+    font-size: 0.875rem;
+    color: var(--charcoal);
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--medium-gray);
+}
+
+@media (max-width: 768px) {
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+
+    .form-actions .auth-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Alert Messages */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+/* Error Messages */
+.error-message {
+    color: var(--orange-pantone);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+.error-message:empty {
+    display: none;
+}
+
+/* Tier Info Styles */
+.tier-info .tier-name {
+    font-weight: 600;
+    color: var(--charcoal);
+}
+
+.tier-info .tier-description {
+    font-size: var(--body-small);
+    color: var(--dark-gray);
+    margin-top: 2px;
+}
+
+.price-info {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.price-info .price {
+    font-weight: 600;
+    color: var(--lapis-lazuli);
+    font-size: var(--body-medium);
+}
+
+.price-info .price-period {
+    font-size: var(--body-small);
+    color: var(--dark-gray);
+}
+
+.limits-info {
+    font-size: var(--body-small);
+    line-height: 1.4;
+}
+
+.limits-info > div {
+    margin-bottom: 2px;
+}
+
+.subscription-count {
+    font-weight: 600;
+    color: var(--charcoal);
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--body-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background-color: rgba(134, 187, 216, 0.2);
+    color: var(--lapis-lazuli);
+}
+
+.status-inactive {
+    background-color: rgba(108, 117, 125, 0.2);
+    color: var(--dark-gray);
+}
+
+.update-info .updated-by {
+    font-size: var(--body-xs);
+    color: var(--dark-gray);
+    margin-top: 2px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    padding: 6px;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    color: var(--charcoal);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+}
+
+.btn-action:hover {
+    background: var(--light-gray);
+    transform: translateY(-1px);
+}
+
+.btn-action.btn-warning {
+    border-color: var(--hunyadi-yellow);
+    color: var(--hunyadi-yellow);
+}
+
+.btn-action.btn-warning:hover {
+    background: var(--hunyadi-yellow);
+    color: var(--charcoal);
+}
+
+.btn-action.btn-danger {
+    border-color: var(--orange-pantone);
+    color: var(--orange-pantone);
+}
+
+.btn-action.btn-danger:hover {
+    background: var(--orange-pantone);
+    color: var(--white);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .checkbox-group {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-section-title {
+        font-size: 1.25rem;
+    }
+    
+    .step-number {
+        width: 1.75rem;
+        height: 1.75rem;
+        font-size: 0.75rem;
+    }
+}
