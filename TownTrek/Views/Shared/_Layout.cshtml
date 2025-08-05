@@ -22,6 +22,8 @@
     <!-- Main Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TownTrek.styles.css" asp-append-version="true" />
+    
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
