@@ -10,7 +10,6 @@ class AuthManager {
         this.setupAccountTypeSelection();
         this.setupPlanSelection();
         this.setupFormValidation();
-        this.setupPasswordToggle();
         this.setupFormSubmission();
     }
 
@@ -234,37 +233,7 @@ class AuthManager {
         }
     }
 
-    // Password Toggle
-    setupPasswordToggle() {
-        const passwordFields = document.querySelectorAll('input[type="password"]');
-        
-        passwordFields.forEach(field => {
-            const toggleBtn = document.createElement('button');
-            toggleBtn.type = 'button';
-            toggleBtn.className = 'password-toggle';
-            toggleBtn.textContent = 'Show';
-            
-            // Create wrapper div
-            const wrapper = document.createElement('div');
-            wrapper.className = 'password-input-wrapper';
-            
-            // Insert wrapper before the input
-            field.parentNode.insertBefore(wrapper, field);
-            
-            // Move input into wrapper
-            wrapper.appendChild(field);
-            wrapper.appendChild(toggleBtn);
-            
-            // Add padding to input
-            field.style.paddingRight = '60px';
 
-            toggleBtn.addEventListener('click', () => {
-                const isPassword = field.type === 'password';
-                field.type = isPassword ? 'text' : 'password';
-                toggleBtn.textContent = isPassword ? 'Hide' : 'Show';
-            });
-        });
-    }
 
     // Form Submission
     setupFormSubmission() {

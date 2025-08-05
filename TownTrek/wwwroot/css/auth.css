@@ -414,40 +414,7 @@
   outline-offset: 2px;
 }
 
-/* Password Toggle Button */
-.password-toggle {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: var(--body-small);
-  color: var(--lapis-lazuli);
-  font-weight: var(--font-medium);
-  padding: var(--space-xs);
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-normal);
-  z-index: 10;
-}
 
-/* Password input wrapper for proper positioning */
-.password-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.password-toggle:hover {
-  background-color: rgba(51, 101, 138, 0.1);
-  color: var(--charcoal);
-}
-
-.password-toggle:focus {
-  outline: 2px solid var(--lapis-lazuli);
-  outline-offset: 2px;
-}
 
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
@@ -455,8 +422,7 @@
   .plan-card,
   .form-input,
   .form-select,
-  .account-type-card,
-  .password-toggle {
+  .account-type-card {
     transition: none;
   }
   
