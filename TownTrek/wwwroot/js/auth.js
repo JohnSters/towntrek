@@ -111,14 +111,15 @@ class AuthManager {
 
         // Only update for business accounts
         if (accountTypeInput.value === 'business') {
-            const planPrices = {
-                'basic': 'R199',
-                'standard': 'R399',
-                'premium': 'R599'
-            };
-
-            const price = planPrices[planType] || 'R399';
-            submitBtn.textContent = `Start ${price}/month Plan`;
+            // Get the selected plan card to extract the price
+            const selectedPlanCard = document.querySelector(`.plan-card[data-plan="${planType}"]`);
+            if (selectedPlanCard) {
+                const priceElement = selectedPlanCard.querySelector('.plan-price');
+                const price = priceElement ? priceElement.textContent : 'R399';
+                submitBtn.textContent = `Start ${price}/month Plan`;
+            } else {
+                submitBtn.textContent = 'Create Business Account';
+            }
         }
     }
 

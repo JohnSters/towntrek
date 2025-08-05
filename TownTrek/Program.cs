@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+
 using TownTrek.Data;
+using TownTrek.Services;
 
 namespace TownTrek;
 
@@ -13,7 +15,11 @@ public class Program
         // Add Entity Framework
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-        
+        // Add these service registrations
+        builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
+        builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
+
         builder.Services.AddControllersWithViews();
 
         var app = builder.Build();
