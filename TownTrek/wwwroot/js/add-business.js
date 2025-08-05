@@ -142,15 +142,30 @@ function initializeFormValidation() {
     const form = document.querySelector('.add-business-form');
     const requiredFields = form.querySelectorAll('[required]');
 
-    // Real-time validation
+    // Real-time validation - only after user interaction
     requiredFields.forEach(field => {
+        let hasInteracted = false;
+
+        // Mark field as interacted when user focuses and then leaves
         field.addEventListener('blur', function () {
-            validateField(this);
+            hasInteracted = true;
+            if (hasInteracted) {
+                validateField(this);
+            }
         });
 
+        // Clear errors on input, but only validate if already interacted
         field.addEventListener('input', function () {
             clearFieldError(this);
+            if (hasInteracted) {
+                validateField(this);
+            }
         });
+
+        // Mark as interacted on first input
+        field.addEventListener('input', function () {
+            hasInteracted = true;
+        }, { once: true });
     });
 
     // Form submission
@@ -164,7 +179,6 @@ function initializeFormValidation() {
 
 function validateField(field) {
     const value = field.value.trim();
-    const fieldName = field.name;
 
     // Clear previous errors
     clearFieldError(field);
@@ -243,24 +257,21 @@ function showFieldError(field, message) {
     field.classList.add('error');
     field.classList.remove('success');
 
-    // Remove existing error message
-    const existingError = field.parentNode.querySelector('.error-message');
-    if (existingError) {
-        existingError.remove();
+    // Use existing ASP.NET validation span or create new one
+    let errorElement = field.parentNode.querySelector('.error-message');
+    if (!errorElement) {
+        errorElement = document.createElement('span');
+        errorElement.className = 'error-message';
+        field.parentNode.appendChild(errorElement);
     }
-
-    // Add new error message
-    const errorElement = document.createElement('span');
-    errorElement.className = 'error-message';
     errorElement.textContent = message;
-    field.parentNode.appendChild(errorElement);
 }
 
 function clearFieldError(field) {
     field.classList.remove('error');
     const errorMessage = field.parentNode.querySelector('.error-message');
     if (errorMessage) {
-        errorMessage.remove();
+        errorMessage.textContent = '';
     }
 }
 
@@ -301,11 +312,13 @@ function submitForm() {
 
     // Show loading state
     submitButton.disabled = true;
+    const isEdit = submitButton.textContent.includes('Update');
+
     submitButton.innerHTML = `
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="animate-spin">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
         </svg>
-        Creating Business...
+        ${isEdit ? 'Updating Business...' : 'Creating Business...'}
     `;
 
     // Submit the form
