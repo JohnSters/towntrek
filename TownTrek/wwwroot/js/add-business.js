@@ -1,5 +1,5 @@
 // Add Business Form JavaScript
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeOperatingHours();
     initializeFileUploads();
     initializeFormValidation();
@@ -8,13 +8,13 @@ document.addEventListener('DOMContentLoaded', function() {
 // Operating Hours Functionality
 function initializeOperatingHours() {
     const dayCheckboxes = document.querySelectorAll('.day-checkbox');
-    
+
     dayCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
+        checkbox.addEventListener('change', function () {
             const dayName = this.value.toLowerCase();
             const openInput = document.querySelector(`input[name="${dayName}Open"]`);
             const closeInput = document.querySelector(`input[name="${dayName}Close"]`);
-            
+
             if (this.checked) {
                 openInput.disabled = false;
                 closeInput.disabled = false;
@@ -36,17 +36,17 @@ function initializeOperatingHours() {
 function initializeFileUploads() {
     const logoUpload = document.getElementById('businessLogo');
     const imagesUpload = document.getElementById('businessImages');
-    
+
     // Logo upload
-    logoUpload.addEventListener('change', function(e) {
+    logoUpload.addEventListener('change', function (e) {
         handleFileUpload(e, 'logo');
     });
-    
+
     // Images upload
-    imagesUpload.addEventListener('change', function(e) {
+    imagesUpload.addEventListener('change', function (e) {
         handleFileUpload(e, 'images');
     });
-    
+
     // Drag and drop functionality
     const uploadAreas = document.querySelectorAll('.file-upload-area');
     uploadAreas.forEach(area => {
@@ -59,7 +59,7 @@ function initializeFileUploads() {
 function handleFileUpload(event, type) {
     const files = event.target.files;
     const uploadArea = event.target.closest('.file-upload-area');
-    
+
     if (files.length > 0) {
         updateUploadAreaDisplay(uploadArea, files, type);
         validateFileSize(files);
@@ -69,7 +69,7 @@ function handleFileUpload(event, type) {
 function updateUploadAreaDisplay(uploadArea, files, type) {
     const uploadContent = uploadArea.querySelector('.file-upload-content');
     const fileCount = files.length;
-    
+
     if (type === 'logo' && fileCount === 1) {
         uploadContent.innerHTML = `
             <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="upload-icon">
@@ -96,14 +96,14 @@ function updateUploadAreaDisplay(uploadArea, files, type) {
 function validateFileSize(files) {
     const maxSize = 2 * 1024 * 1024; // 2MB
     let hasError = false;
-    
+
     Array.from(files).forEach(file => {
         if (file.size > maxSize) {
             showError(`File "${file.name}" is too large. Maximum size is 2MB.`);
             hasError = true;
         }
     });
-    
+
     return !hasError;
 }
 
@@ -125,11 +125,11 @@ function handleDrop(e) {
     const uploadArea = e.currentTarget;
     const fileInput = uploadArea.querySelector('.file-input');
     const files = e.dataTransfer.files;
-    
+
     // Reset styles
     uploadArea.style.borderColor = '#e9ecef';
     uploadArea.style.backgroundColor = 'transparent';
-    
+
     if (files.length > 0) {
         fileInput.files = files;
         const event = new Event('change', { bubbles: true });
@@ -141,20 +141,20 @@ function handleDrop(e) {
 function initializeFormValidation() {
     const form = document.querySelector('.add-business-form');
     const requiredFields = form.querySelectorAll('[required]');
-    
+
     // Real-time validation
     requiredFields.forEach(field => {
-        field.addEventListener('blur', function() {
+        field.addEventListener('blur', function () {
             validateField(this);
         });
-        
-        field.addEventListener('input', function() {
+
+        field.addEventListener('input', function () {
             clearFieldError(this);
         });
     });
-    
+
     // Form submission
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
         e.preventDefault();
         if (validateForm()) {
             submitForm();
@@ -165,34 +165,34 @@ function initializeFormValidation() {
 function validateField(field) {
     const value = field.value.trim();
     const fieldName = field.name;
-    
+
     // Clear previous errors
     clearFieldError(field);
-    
+
     // Required field validation
     if (field.hasAttribute('required') && !value) {
         showFieldError(field, 'This field is required');
         return false;
     }
-    
+
     // Email validation
     if (field.type === 'email' && value && !isValidEmail(value)) {
         showFieldError(field, 'Please enter a valid email address');
         return false;
     }
-    
+
     // Phone validation
     if (field.type === 'tel' && value && !isValidPhone(value)) {
         showFieldError(field, 'Please enter a valid phone number');
         return false;
     }
-    
+
     // URL validation
     if (field.type === 'url' && value && !isValidUrl(value)) {
         showFieldError(field, 'Please enter a valid URL');
         return false;
     }
-    
+
     // Show success state
     field.classList.add('success');
     return true;
@@ -202,53 +202,53 @@ function validateForm() {
     const form = document.querySelector('.add-business-form');
     const requiredFields = form.querySelectorAll('[required]');
     let isValid = true;
-    
+
     requiredFields.forEach(field => {
         if (!validateField(field)) {
             isValid = false;
         }
     });
-    
+
     // Validate operating hours
     if (!validateOperatingHours()) {
         isValid = false;
         showError('Please select at least one operating day with valid hours');
     }
-    
+
     return isValid;
 }
 
 function validateOperatingHours() {
     const checkedDays = document.querySelectorAll('.day-checkbox:checked');
-    
+
     if (checkedDays.length === 0) {
         return false;
     }
-    
+
     let hasValidHours = true;
     checkedDays.forEach(checkbox => {
         const dayName = checkbox.value.toLowerCase();
         const openInput = document.querySelector(`input[name="${dayName}Open"]`);
         const closeInput = document.querySelector(`input[name="${dayName}Close"]`);
-        
+
         if (!openInput.value || !closeInput.value) {
             hasValidHours = false;
         }
     });
-    
+
     return hasValidHours;
 }
 
 function showFieldError(field, message) {
     field.classList.add('error');
     field.classList.remove('success');
-    
+
     // Remove existing error message
     const existingError = field.parentNode.querySelector('.error-message');
     if (existingError) {
         existingError.remove();
     }
-    
+
     // Add new error message
     const errorElement = document.createElement('span');
     errorElement.className = 'error-message';
@@ -298,7 +298,7 @@ function isValidUrl(url) {
 function submitForm() {
     const form = document.querySelector('.add-business-form');
     const submitButton = form.querySelector('button[type="submit"]');
-    
+
     // Show loading state
     submitButton.disabled = true;
     submitButton.innerHTML = `
@@ -307,7 +307,7 @@ function submitForm() {
         </svg>
         Creating Business...
     `;
-    
+
     // Submit the form
     form.submit();
 }
