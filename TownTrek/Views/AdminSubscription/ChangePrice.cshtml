@@ -36,7 +36,7 @@
         <h3 class="admin-card-title">Price Change for @Model.TierName</h3>
     </div>
     
-    <form method="post" asp-action="ChangePrice" class="add-business-form">
+    <form method="post" asp-action="ChangePrice" asp-route-id="@Model.SubscriptionTierId" class="subscription-form">
         @Html.AntiForgeryToken()
         <input asp-for="SubscriptionTierId" type="hidden" />
         <input asp-for="TierName" type="hidden" />

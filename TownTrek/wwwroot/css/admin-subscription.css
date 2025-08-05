@@ -1,5 +1,10 @@
 /* Admin Subscription Management Styles */
 
+/* Main Form Container */
+.subscription-form {
+    max-width: 100%;
+}
+
 /* Form Sections */
 .form-section {
     margin-bottom: 3rem;
