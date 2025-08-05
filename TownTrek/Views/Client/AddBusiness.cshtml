@@ -1,0 +1,337 @@
+@{
+    ViewData["Title"] = "Add New Business";
+    Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Add New Business</h1>
+            <p class="page-description">Create a new business listing to showcase your services to the community.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Dashboard", "Client")" class="auth-btn auth-btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Add Business Form -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Business Information</h3>
+        <p class="admin-card-description">Fill in the details below to create your business listing</p>
+    </div>
+    
+    <form class="add-business-form" method="post" enctype="multipart/form-data">
+        <!-- Step 1: Basic Information -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">1</span>
+                    Basic Information
+                </h4>
+                <p class="form-section-description">Essential details about your business</p>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="businessName" class="form-label required">Business Name</label>
+                    <input type="text" id="businessName" name="BusinessName" class="form-input" placeholder="Enter your business name" required>
+                    <span class="form-help">This will be displayed as your main business title</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="businessCategory" class="form-label required">Business Category</label> 
+                   <select id="businessCategory" name="BusinessCategory" class="form-select" required>
+                        <option value="">Select a category</option>
+                        <option value="shops-retail">Shops & Retail</option>
+                        <option value="restaurants-food">Restaurants & Food Services</option>
+                        <option value="markets-vendors">Markets & Vendors</option>
+                        <option value="accommodation">Accommodation</option>
+                        <option value="tours-experiences">Tours & Experiences</option>
+                        <option value="events">Events</option>
+                    </select>
+                    <span class="form-help">Choose the category that best describes your business</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="townId" class="form-label required">Town/Location</label>
+                    <select id="townId" name="TownId" class="form-select" required>
+                        <option value="">Select your town</option>
+                        <option value="1">Stellenbosch</option>
+                        <option value="2">Hermanus</option>
+                        <option value="3">Knysna</option>
+                        <option value="4">Oudtshoorn</option>
+                        <option value="5">Swellendam</option>
+                        <!-- Towns will be populated from database -->
+                    </select>
+                    <span class="form-help">Select the town where your business is located</span>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="businessDescription" class="form-label required">Business Description</label>
+                    <textarea id="businessDescription" name="BusinessDescription" class="form-textarea" rows="4" placeholder="Describe your business, services, and what makes you unique..." required></textarea>
+                    <span class="form-help">Provide a detailed description to help customers understand your business</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Contact Information -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">2</span>
+                    Contact Information
+                </h4>
+                <p class="form-section-description">How customers can reach you</p>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="phoneNumber" class="form-label required">Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="PhoneNumber" class="form-input" placeholder="+27 21 123 4567" required>
+                    <span class="form-help">Include country code for international visibility</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="emailAddress" class="form-label">Email Address</label>
+                    <input type="email" id="emailAddress" name="EmailAddress" class="form-input" placeholder="info@yourbusiness.co.za">
+                    <span class="form-help">Optional - for customer inquiries</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="website" class="form-label">Website</label>
+                    <input type="url" id="website" name="Website" class="form-input" placeholder="https://www.yourbusiness.co.za">
+                    <span class="form-help">Optional - your business website or social media page</span>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="physicalAddress" class="form-label required">Physical Address</label>
+                    <textarea id="physicalAddress" name="PhysicalAddress" class="form-textarea" rows="3" placeholder="123 Main Street, Town Center, Postal Code" required></textarea>
+                    <span class="form-help">Full street address where customers can find you</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Operating Hours -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">3</span>
+                    Operating Hours
+                </h4>
+                <p class="form-section-description">When customers can visit or contact you</p>
+            </div>
+            
+            <div class="operating-hours-grid">
+                <div class="day-hours-group">
+                    <div class="day-header">
+                        <input type="checkbox" id="monday" name="OperatingDays" value="Monday" class="day-checkbox">
+                        <label for="monday" class="day-label">Monday</label>
+                    </div>
+                    <div class="time-inputs">
+                        <input type="time" name="MondayOpen" class="time-input" disabled>
+                        <span class="time-separator">to</span>
+                        <input type="time" name="MondayClose" class="time-input" disabled>
+                    </div>
+                </div>
+
+                <div class="day-hours-group">
+                    <div class="day-header">
+                        <input type="checkbox" id="tuesday" name="OperatingDays" value="Tuesday" class="day-checkbox">
+                        <label for="tuesday" class="day-label">Tuesday</label>
+                    </div>
+                    <div class="time-inputs">
+                        <input type="time" name="TuesdayOpen" class="time-input" disabled>
+                        <span class="time-separator">to</span>
+                        <input type="time" name="TuesdayClose" class="time-input" disabled>
+                    </div>
+                </div>
+
+                <div class="day-hours-group">
+                    <div class="day-header">
+                        <input type="checkbox" id="wednesday" name="OperatingDays" value="Wednesday" class="day-checkbox">
+                        <label for="wednesday" class="day-label">Wednesday</label>
+                    </div>
+                    <div class="time-inputs">
+                        <input type="time" name="WednesdayOpen" class="time-input" disabled>
+                        <span class="time-separator">to</span>
+                        <input type="time" name="WednesdayClose" class="time-input" disabled>
+                    </div>
+                </div>
+
+                <div class="day-hours-group">
+                    <div class="day-header">
+                        <input type="checkbox" id="thursday" name="OperatingDays" value="Thursday" class="day-checkbox">
+                        <label for="thursday" class="day-label">Thursday</label>
+                    </div>
+                    <div class="time-inputs">
+                        <input type="time" name="ThursdayOpen" class="time-input" disabled>
+                        <span class="time-separator">to</span>
+                        <input type="time" name="ThursdayClose" class="time-input" disabled>
+                    </div>
+                </div>
+
+                <div class="day-hours-group">
+                    <div class="day-header">
+                        <input type="checkbox" id="friday" name="OperatingDays" value="Friday" class="day-checkbox">
+                        <label for="friday" class="day-label">Friday</label>
+                    </div>
+                    <div class="time-inputs">
+                        <input type="time" name="FridayOpen" class="time-input" disabled>
+                        <span class="time-separator">to</span>
+                        <input type="time" name="FridayClose" class="time-input" disabled>
+                    </div>
+                </div>
+
+                <div class="day-hours-group">
+                    <div class="day-header">
+                        <input type="checkbox" id="saturday" name="OperatingDays" value="Saturday" class="day-checkbox">
+                        <label for="saturday" class="day-label">Saturday</label>
+                    </div>
+                    <div class="time-inputs">
+                        <input type="time" name="SaturdayOpen" class="time-input" disabled>
+                        <span class="time-separator">to</span>
+                        <input type="time" name="SaturdayClose" class="time-input" disabled>
+                    </div>
+                </div>
+
+                <div class="day-hours-group">
+                    <div class="day-header">
+                        <input type="checkbox" id="sunday" name="OperatingDays" value="Sunday" class="day-checkbox">
+                        <label for="sunday" class="day-label">Sunday</label>
+                    </div>
+                    <div class="time-inputs">
+                        <input type="time" name="SundayOpen" class="time-input" disabled>
+                        <span class="time-separator">to</span>
+                        <input type="time" name="SundayClose" class="time-input" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Business Images -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">4</span>
+                    Business Images
+                </h4>
+                <p class="form-section-description">Upload photos to showcase your business</p>
+            </div>
+            
+            <div class="image-upload-section">
+                <div class="form-group">
+                    <label for="businessLogo" class="form-label">Business Logo</label>
+                    <div class="file-upload-area" id="logoUploadArea">
+                        <input type="file" id="businessLogo" name="BusinessLogo" accept="image/*" class="file-input">
+                        <div class="file-upload-content">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="upload-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <p class="upload-text">Click to upload your business logo</p>
+                            <p class="upload-hint">PNG, JPG up to 2MB</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="businessImages" class="form-label">Business Photos</label>
+                    <div class="file-upload-area" id="imagesUploadArea">
+                        <input type="file" id="businessImages" name="BusinessImages" accept="image/*" multiple class="file-input">
+                        <div class="file-upload-content">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="upload-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="upload-text">Click to upload business photos</p>
+                            <p class="upload-hint">Multiple images allowed - PNG, JPG up to 2MB each</p>
+                        </div>
+                    </div>
+                    <span class="form-help">Upload photos of your business, products, or services (maximum 10 images)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Additional Information -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">5</span>
+                    Additional Information
+                </h4>
+                <p class="form-section-description">Extra details to help customers</p>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group form-group-full">
+                    <label class="form-label">Services Offered</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="Services" value="delivery" class="service-checkbox">
+                            <span class="checkbox-label">Delivery Available</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="Services" value="takeaway" class="service-checkbox">
+                            <span class="checkbox-label">Takeaway/Collection</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="Services" value="wheelchair" class="service-checkbox">
+                            <span class="checkbox-label">Wheelchair Accessible</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="Services" value="parking" class="service-checkbox">
+                            <span class="checkbox-label">Parking Available</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="Services" value="wifi" class="service-checkbox">
+                            <span class="checkbox-label">Free WiFi</span>
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="Services" value="cards" class="service-checkbox">
+                            <span class="checkbox-label">Card Payments Accepted</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="specialOffers" class="form-label">Special Offers or Promotions</label>
+                    <textarea id="specialOffers" name="SpecialOffers" class="form-textarea" rows="3" placeholder="Describe any current promotions, discounts, or special offers..."></textarea>
+                    <span class="form-help">Optional - highlight any current deals or promotions</span>
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label for="additionalNotes" class="form-label">Additional Notes</label>
+                    <textarea id="additionalNotes" name="AdditionalNotes" class="form-textarea" rows="3" placeholder="Any other information customers should know..."></textarea>
+                    <span class="form-help">Optional - any other relevant information</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="button" class="auth-btn auth-btn-secondary" onclick="history.back()">
+                Cancel
+            </button>
+            <button type="submit" class="auth-btn auth-btn-cta">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Create Business Listing
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/add-business.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/add-business.js" asp-append-version="true"></script>
+}

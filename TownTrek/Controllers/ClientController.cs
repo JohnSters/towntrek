@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TownTrek.Models;
 
 namespace TownTrek.Controllers
 {
@@ -11,14 +12,31 @@ namespace TownTrek.Controllers
         }
 
         // Business Management
-        public IActionResult Businesses()
+        public IActionResult ManageBusinesses()
         {
             return View();
         }
 
-        public IActionResult CreateBusiness()
+        public IActionResult AddBusiness()
         {
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddBusiness(AddBusinessViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // TODO: Process the form submission
+                // Validate the model, save to database, etc.
+                
+                // For now, redirect back to dashboard on success
+                TempData["SuccessMessage"] = "Business added successfully!";
+                return RedirectToAction("Dashboard");
+            }
+            
+            // If model is invalid, return to form with validation errors
+            return View(model);
         }
 
         public IActionResult EditBusiness(int id)
