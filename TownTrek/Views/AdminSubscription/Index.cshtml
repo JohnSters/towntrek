@@ -52,7 +52,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
             </svg>
         </div>
-        <div class="stat-value">R@Model.TotalMonthlyRevenue.ToString("N0")</div>
+        <div class="stat-value">R@(Model.TotalMonthlyRevenue.ToString("N0"))</div>
         <div class="stat-label">Monthly Revenue</div>
         <div class="stat-change">Recurring income</div>
     </div>
@@ -96,7 +96,7 @@
                         </td>
                         <td>
                             <div class="price-info">
-                                <span class="price">R@tier.MonthlyPrice.ToString("N0")</span>
+                                <span class="price">R@(tier.MonthlyPrice.ToString("N0"))</span>
                                 <span class="price-period">/month</span>
                             </div>
                         </td>
@@ -189,7 +189,7 @@
                             @change.SubscriptionTier.DisplayName price @(change.NewPrice > change.OldPrice ? "increased" : "decreased")
                         </div>
                         <div class="activity-description">
-                            From R@change.OldPrice.ToString("N0") to R@change.NewPrice.ToString("N0")
+                            From R@(change.OldPrice.ToString("N0")) to R@(change.NewPrice.ToString("N0"))
                             @if (!string.IsNullOrEmpty(change.ChangeReason))
                             {
                                 <span> - @change.ChangeReason</span>
