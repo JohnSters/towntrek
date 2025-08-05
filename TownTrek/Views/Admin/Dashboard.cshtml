@@ -1,0 +1,188 @@
+@model TownTrek.Models.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Administration Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Administration Dashboard</h1>
+            <p class="page-description">Manage towns, businesses, users, and system settings for TownTrek.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("AddTown", "Admin")" class="auth-btn auth-btn-cta">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add New Town
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="stats-grid" style="grid-template-columns: repeat(5, 1fr);">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalTowns</div>
+        <div class="stat-label">Total Towns</div>
+        <div class="stat-change">Across all provinces</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalBusinesses</div>
+        <div class="stat-label">Total Businesses</div>
+        <div class="stat-change positive">@Model.ActiveBusinesses active</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.PendingApprovals</div>
+        <div class="stat-label">Pending Approvals</div>
+        <div class="stat-change">Require review</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalPopulation.ToString("N0")</div>
+        <div class="stat-label">Total Population</div>
+        <div class="stat-change">Across all towns</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon secondary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TownsWithLandmarks</div>
+        <div class="stat-label">Towns with Landmarks</div>
+        <div class="stat-change">@((double)Model.TownsWithLandmarks / Math.Max(Model.TotalTowns, 1) * 100).ToString("F0")% coverage</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Quick Actions</h3>
+    </div>
+    
+    <div class="quick-actions-grid">
+        <a href="@Url.Action("AddTown", "Admin")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+            </div>
+            <div class="quick-action-title">Add Town</div>
+            <div class="quick-action-description">Register a new South African town</div>
+        </a>
+
+        <a href="@Url.Action("Towns", "Admin")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </div>
+            <div class="quick-action-title">Manage Towns</div>
+            <div class="quick-action-description">View and edit existing towns</div>
+        </a>
+
+        <a href="@Url.Action("Businesses", "Admin")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                </svg>
+            </div>
+            <div class="quick-action-title">Review Businesses</div>
+            <div class="quick-action-description">Approve and manage business listings</div>
+        </a>
+
+        <a href="@Url.Action("Users", "Admin")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+            </svg>
+        </div>
+        <div class="quick-action-title">Manage Users</div>
+        <div class="quick-action-description">View and manage user accounts</div>
+    </a>
+</div>
+</div>
+
+<!-- Recent Activity -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Recent System Activity</h3>
+        <div class="admin-card-actions">
+            <button class="header-btn" title="Refresh">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    <div class="activity-list">
+        <div class="activity-item">
+            <div class="activity-icon success">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">New business approved</div>
+                <div class="activity-description">"Stellenbosch Coffee Co" has been approved and is now live</div>
+                <div class="activity-time">2 hours ago</div>
+            </div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-icon primary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">New town added</div>
+                <div class="activity-description">Hermanus, Western Cape has been added to the system</div>
+                <div class="activity-time">4 hours ago</div>
+            </div>
+        </div>
+
+        <div class="activity-item">
+            <div class="activity-icon warning">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="activity-content">
+                <div class="activity-title">Business pending approval</div>
+                <div class="activity-description">"Mountain View Restaurant" is waiting for admin approval</div>
+                <div class="activity-time">6 hours ago</div>
+            </div>
+        </div>
+    </div>
+</div>

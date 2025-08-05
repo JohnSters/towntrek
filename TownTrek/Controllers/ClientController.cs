@@ -1,10 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using TownTrek.Data;
 using TownTrek.Models;
 
 namespace TownTrek.Controllers
 {
     public class ClientController : Controller
     {
+        private readonly ApplicationDbContext _context;
+
+        public ClientController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+
         // Dashboard - Main overview page
         public IActionResult Dashboard()
         {
@@ -17,8 +26,16 @@ namespace TownTrek.Controllers
             return View();
         }
 
-        public IActionResult AddBusiness()
+        public async Task<IActionResult> AddBusiness()
         {
+            // Load towns for dropdown
+            ViewBag.Towns = await _context.Towns
+                .Where(t => t.IsActive)
+                .OrderBy(t => t.Province)
+                .ThenBy(t => t.Name)
+                .Select(t => new { t.Id, t.Name, t.Province })
+                .ToListAsync();
+
             return View();
         }
 

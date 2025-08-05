@@ -64,12 +64,13 @@
                     <label for="townId" class="form-label required">Town/Location</label>
                     <select id="townId" name="TownId" class="form-select" required>
                         <option value="">Select your town</option>
-                        <option value="1">Stellenbosch</option>
-                        <option value="2">Hermanus</option>
-                        <option value="3">Knysna</option>
-                        <option value="4">Oudtshoorn</option>
-                        <option value="5">Swellendam</option>
-                        <!-- Towns will be populated from database -->
+                        @if (ViewBag.Towns != null)
+                        {
+                            @foreach (var town in (IEnumerable<dynamic>)ViewBag.Towns)
+                            {
+                                <option value="@town.Id">@town.Name, @town.Province</option>
+                            }
+                        }
                     </select>
                     <span class="form-help">Select the town where your business is located</span>
                 </div>
