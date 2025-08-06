@@ -304,10 +304,10 @@ namespace TownTrek.Services
             return currentCount < maxBusinesses;
         }
 
-        public async Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync()
+        public Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync()
         {
             // This would typically come from a database table, but for now we'll use the predefined categories
-            return new List<BusinessCategoryOption>
+            var categories = new List<BusinessCategoryOption>
             {
                 new() { Value = "shops-retail", Text = "Shops & Retail", Description = "Local shops and retail businesses", IconClass = "fas fa-shopping-bag" },
                 new() { Value = "restaurants-food", Text = "Restaurants & Food Services", Description = "Restaurants, cafes, and food services", IconClass = "fas fa-utensils" },
@@ -316,12 +316,13 @@ namespace TownTrek.Services
                 new() { Value = "tours-experiences", Text = "Tours & Experiences", Description = "Tour guides and experience providers", IconClass = "fas fa-map-marked-alt" },
                 new() { Value = "events", Text = "Events", Description = "Local events and entertainment", IconClass = "fas fa-calendar-alt" }
             };
+            return Task.FromResult(categories);
         }
 
-        public async Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category)
+        public Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category)
         {
             // Return subcategories based on main category
-            return category switch
+            var subcategories = category switch
             {
                 "shops-retail" => new List<BusinessCategoryOption>
                 {
@@ -352,6 +353,7 @@ namespace TownTrek.Services
                 },
                 _ => new List<BusinessCategoryOption>()
             };
+            return Task.FromResult(subcategories);
         }
 
         private List<BusinessHourViewModel> GetDefaultBusinessHours()

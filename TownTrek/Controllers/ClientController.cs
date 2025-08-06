@@ -217,7 +217,7 @@ namespace TownTrek.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ValidateAddress([FromBody] AddressValidationRequest request)
+        public IActionResult ValidateAddress([FromBody] AddressValidationRequest request)
         {
             // This would integrate with Google Maps Geocoding API
             // For now, return a mock response
@@ -261,6 +261,12 @@ namespace TownTrek.Controllers
 
             // Set subscription tier for layout display
             ViewData["UserSubscriptionTier"] = currentSubscription?.SubscriptionTier;
+
+            // Clear any inappropriate success messages for existing users
+            if (user != null && user.HasActiveSubscription)
+            {
+                TempData.Remove("SuccessMessage");
+            }
 
             return View(model);
         }

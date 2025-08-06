@@ -206,7 +206,7 @@ namespace TownTrek.Controllers
         // TODO: Implement forgot password functionality
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(string email)
+        public IActionResult ForgotPassword(string email)
         {
             // Implementation for password reset
             return View();
