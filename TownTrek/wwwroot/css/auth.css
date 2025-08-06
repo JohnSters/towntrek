@@ -16,7 +16,13 @@
   border-radius: var(--radius-xl);
   padding: var(--space-2xl);
   width: 100%;
-  max-width: 480px;
+  max-width: 800px;
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    max-width: 480px;
+  }
 }
 
 /* Auth Header */
@@ -43,6 +49,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+}
+
+/* Reduce gap between plan selection and checkboxes */
+.auth-form .plan-selection+.checkbox-group {
+  margin-top: calc(var(--space-lg) * -0.6);
 }
 
 .form-group {
@@ -260,9 +271,21 @@
 
 .plan-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--space-md);
   margin-top: var(--space-md);
+}
+
+@media (max-width: 768px) {
+  .plan-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .plan-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .plan-card {
@@ -288,6 +311,7 @@
 .plan-card.featured {
   border-color: var(--hunyadi-yellow);
   position: relative;
+  padding-top: calc(var(--space-md) + 20px);
 }
 
 .plan-card.featured::before {
@@ -302,6 +326,8 @@
   font-weight: var(--font-semibold);
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-sm);
+  white-space: nowrap;
+  z-index: 10;
 }
 
 .plan-name {
@@ -321,6 +347,13 @@
 .plan-period {
   font-size: var(--body-xs);
   color: var(--dark-gray);
+}
+
+.plan-description {
+  font-size: var(--body-xs);
+  color: var(--dark-gray);
+  margin-top: var(--space-xs);
+  font-style: italic;
 }
 
 /* Auth Links */
@@ -381,8 +414,13 @@
 }
 
 @keyframes loading {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  0% {
+    left: -100%;
+  }
+
+  100% {
+    left: 100%;
+  }
 }
 
 /* Responsive Design */
@@ -390,16 +428,16 @@
   .auth-container {
     padding: var(--space-md);
   }
-  
+
   .auth-card {
     padding: var(--space-xl);
   }
-  
+
   .plan-cards,
   .account-type-selection {
     grid-template-columns: 1fr;
   }
-  
+
   .auth-header h1 {
     font-size: var(--h3-size);
   }
@@ -416,8 +454,31 @@
 
 
 
+/* Pricing Grid for Business Plans Section */
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .pricing-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 /* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
+
   .auth-btn,
   .plan-card,
   .form-input,
@@ -425,7 +486,7 @@
   .account-type-card {
     transition: none;
   }
-  
+
   .loading::after {
     animation: none;
   }

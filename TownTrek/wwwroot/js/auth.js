@@ -111,14 +111,15 @@ class AuthManager {
 
         // Only update for business accounts
         if (accountTypeInput.value === 'business') {
-            const planPrices = {
-                'basic': 'R199',
-                'standard': 'R399',
-                'premium': 'R599'
-            };
-
-            const price = planPrices[planType] || 'R399';
-            submitBtn.textContent = `Start ${price}/month Plan`;
+            // Get the selected plan card to extract the price
+            const selectedPlanCard = document.querySelector(`.plan-card[data-plan="${planType}"]`);
+            if (selectedPlanCard) {
+                const priceElement = selectedPlanCard.querySelector('.plan-price');
+                const price = priceElement ? priceElement.textContent : 'R399';
+                submitBtn.textContent = `Start ${price}/month Plan`;
+            } else {
+                submitBtn.textContent = 'Create Business Account';
+            }
         }
     }
 
@@ -245,10 +246,7 @@ class AuthManager {
     }
 
     handleFormSubmit(e) {
-        e.preventDefault();
-        
         const form = e.target;
-        const submitBtn = form.querySelector('.auth-btn-primary');
         const inputs = form.querySelectorAll('.form-input[required]');
         
         // Validate all required fields
@@ -267,30 +265,37 @@ class AuthManager {
         }
 
         if (!isFormValid) {
+            e.preventDefault();
             this.showMessage('Please correct the errors above', 'error');
             return;
         }
 
-        // Show loading state
-        this.setLoadingState(submitBtn, true);
+        // For login form, allow normal submission to server
+        if (form.id === 'loginForm') {
+            // Show loading state but don't prevent submission
+            const submitBtn = form.querySelector('.auth-btn-primary, .auth-btn');
+            if (submitBtn) {
+                this.setLoadingState(submitBtn, true);
+            }
+            // Let the form submit normally to the server
+            return;
+        }
 
-        // Simulate form submission (replace with actual submission)
-        setTimeout(() => {
-            this.setLoadingState(submitBtn, false);
+        // For registration form, still prevent and show demo message
+        if (form.id === 'registerForm') {
+            e.preventDefault();
+            const submitBtn = form.querySelector('.auth-btn-primary, .auth-btn');
             
-            // For demo purposes - replace with actual form submission
-            if (form.id === 'loginForm') {
-                this.showMessage('Login successful! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = '/dashboard';
-                }, 1500);
-            } else if (form.id === 'registerForm') {
+            this.setLoadingState(submitBtn, true);
+            
+            setTimeout(() => {
+                this.setLoadingState(submitBtn, false);
                 this.showMessage('Registration successful! Please check your email.', 'success');
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 2000);
-            }
-        }, 2000);
+            }, 2000);
+        }
     }
 
     setLoadingState(button, isLoading) {

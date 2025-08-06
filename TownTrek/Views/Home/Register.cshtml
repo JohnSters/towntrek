@@ -116,25 +116,45 @@
             <div class="plan-selection" id="planSelection" style="display: none;">
                 <label class="form-label">Choose Your Business Plan</label>
                 <div class="plan-cards">
-                    <div class="plan-card" data-plan="basic">
-                        <div class="plan-name">Basic</div>
-                        <div class="plan-price">R199</div>
-                        <div class="plan-period">/month</div>
-                    </div>
-                    
-                    <div class="plan-card featured" data-plan="standard">
-                        <div class="plan-name">Standard</div>
-                        <div class="plan-price">R399</div>
-                        <div class="plan-period">/month</div>
-                    </div>
-                    
-                    <div class="plan-card" data-plan="premium">
-                        <div class="plan-name">Premium</div>
-                        <div class="plan-price">R599</div>
-                        <div class="plan-period">/month</div>
-                    </div>
+                    @if (ViewBag.SubscriptionTiers != null)
+                    {
+                        @foreach (var tier in (List<TownTrek.Models.SubscriptionTier>)ViewBag.SubscriptionTiers)
+                        {
+                            var isFeatured = tier.Name.Equals("Standard", StringComparison.OrdinalIgnoreCase);
+                            <div class="plan-card @(isFeatured ? "featured" : "")" data-plan="@tier.Id" data-tier-name="@tier.Name.ToLower()">
+                                <div class="plan-name">@tier.DisplayName</div>
+                                <div class="plan-price">R@(tier.MonthlyPrice.ToString("N0"))</div>
+                                <div class="plan-period">/month</div>
+                                @if (!string.IsNullOrEmpty(tier.Description))
+                                {
+                                    <div class="plan-description">@tier.Description</div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <!-- Fallback if no tiers are loaded -->
+                        <div class="plan-card" data-plan="1" data-tier-name="basic">
+                            <div class="plan-name">Basic</div>
+                            <div class="plan-price">R199</div>
+                            <div class="plan-period">/month</div>
+                        </div>
+                        
+                        <div class="plan-card featured" data-plan="2" data-tier-name="standard">
+                            <div class="plan-name">Standard</div>
+                            <div class="plan-price">R399</div>
+                            <div class="plan-period">/month</div>
+                        </div>
+                        
+                        <div class="plan-card" data-plan="3" data-tier-name="premium">
+                            <div class="plan-name">Premium</div>
+                            <div class="plan-price">R599</div>
+                            <div class="plan-period">/month</div>
+                        </div>
+                    }
                 </div>
-                <input type="hidden" id="selectedPlan" name="selectedPlan" value="standard" />
+                <input type="hidden" id="selectedPlan" name="selectedPlan" value="2" />
             </div>
 
             <!-- Terms and Conditions -->
@@ -252,57 +272,66 @@
             </p>
         </div>
 
-        <div class="grid grid-3">
-            <!-- Basic Plan -->
-            <div style="background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;">
-                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Basic</h3>
-                <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R199</div>
-                <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
-                
-                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 1 business listing</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Basic information management</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 5 image uploads</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Standard support</li>
-                </ul>
-            </div>
-
-            <!-- Standard Plan -->
-            <div style="background: var(--white); border: 2px solid var(--hunyadi-yellow); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center; position: relative;">
-                <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--hunyadi-yellow); color: var(--charcoal); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-sm); font-size: var(--body-xs); font-weight: var(--font-semibold);">Most Popular</div>
-                
-                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Standard</h3>
-                <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R399</div>
-                <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
-                
-                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 3 business listings</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Advanced information management</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 15 image uploads</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ PDF document uploads</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Priority support</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Basic analytics</li>
-                </ul>
-            </div>
-
-            <!-- Premium Plan -->
-            <div style="background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;">
-                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Premium</h3>
-                <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R599</div>
-                <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
-                
-                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ 10 business listings</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Full feature access</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Unlimited image uploads</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Advanced analytics</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Featured placement</li>
-                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Dedicated support</li>
-                </ul>
-            </div>
+        <div class="pricing-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); max-width: 1200px; margin: 0 auto;">
+            @if (ViewBag.SubscriptionTiers != null)
+            {
+                @foreach (var tier in (List<TownTrek.Models.SubscriptionTier>)ViewBag.SubscriptionTiers)
+                {
+                    var isFeatured = tier.Name.Equals("Standard", StringComparison.OrdinalIgnoreCase);
+                    var borderStyle = isFeatured ? "border: 2px solid var(--hunyadi-yellow);" : "border: 1px solid var(--medium-gray);";
+                    
+                    <div style="background: var(--white); @borderStyle border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center; position: relative; @(isFeatured ? "padding-top: calc(var(--space-xl) + 20px);" : "")">
+                        @if (isFeatured)
+                        {
+                            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--hunyadi-yellow); color: var(--charcoal); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-sm); font-size: var(--body-xs); font-weight: var(--font-semibold); white-space: nowrap; z-index: 10;">Most Popular</div>
+                        }
+                        
+                        <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm); @(isFeatured ? "margin-top: var(--space-sm);" : "")">@tier.DisplayName</h3>
+                        <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R@(tier.MonthlyPrice.ToString("N0"))</div>
+                        <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
+                        
+                        @if (!string.IsNullOrEmpty(tier.Description))
+                        {
+                            <p style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-md);">@tier.Description</p>
+                        }
+                        
+                        <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                            @{
+                                var maxBusinesses = tier.Limits.FirstOrDefault(l => l.LimitType == "MaxBusinesses")?.LimitValue ?? 1;
+                                var maxImages = tier.Limits.FirstOrDefault(l => l.LimitType == "MaxImages")?.LimitValue ?? 5;
+                                var maxPDFs = tier.Limits.FirstOrDefault(l => l.LimitType == "MaxPDFs")?.LimitValue ?? 0;
+                            }
+                            
+                            <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">
+                                ✓ @(maxBusinesses == -1 ? "Unlimited" : maxBusinesses.ToString()) business listing@(maxBusinesses != 1 ? "s" : "")
+                            </li>
+                            <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">
+                                ✓ @(maxImages == -1 ? "Unlimited" : maxImages.ToString()) image uploads per business
+                            </li>
+                            @if (maxPDFs > 0 || maxPDFs == -1)
+                            {
+                                <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">
+                                    ✓ @(maxPDFs == -1 ? "Unlimited" : maxPDFs.ToString()) PDF document uploads
+                                </li>
+                            }
+                            
+                            @foreach (var feature in tier.Features.Where(f => f.IsEnabled))
+                            {
+                                <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">
+                                    ✓ @feature.FeatureName
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            }
         </div>
     </div>
 </section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
 
 @section Scripts {
     <script src="~/js/auth.js" asp-append-version="true"></script>

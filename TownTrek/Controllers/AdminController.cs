@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
@@ -5,6 +6,7 @@ using TownTrek.Models;
 
 namespace TownTrek.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,8 +23,8 @@ namespace TownTrek.Controllers
             {
                 TotalTowns = await _context.Towns.CountAsync(),
                 TotalBusinesses = await _context.Businesses.CountAsync(),
-                ActiveBusinesses = await _context.Businesses.CountAsync(b => b.IsActive),
-                PendingApprovals = await _context.Businesses.CountAsync(b => !b.IsApproved),
+                ActiveBusinesses = await _context.Businesses.CountAsync(b => b.Status == "Active"),
+                PendingApprovals = await _context.Businesses.CountAsync(b => b.Status == "Pending"),
                 TotalPopulation = await _context.Towns.Where(t => t.Population.HasValue).SumAsync(t => t.Population!.Value),
                 TownsWithLandmarks = await _context.Towns.CountAsync(t => !string.IsNullOrEmpty(t.Landmarks))
             };

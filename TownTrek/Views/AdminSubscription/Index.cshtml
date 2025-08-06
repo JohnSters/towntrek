@@ -1,0 +1,317 @@
+@model TownTrek.Models.ViewModels.SubscriptionTierListViewModel
+@{
+    ViewData["Title"] = "Subscription Tiers Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Subscription Tiers Management</h1>
+            <p class="page-description">Manage subscription plans, pricing, and tier limits for TownTrek business accounts.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Create")" class="auth-btn auth-btn-cta">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Create New Tier
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Tiers.Count(t => t.IsActive)</div>
+        <div class="stat-label">Active Tiers</div>
+        <div class="stat-change">@Model.Tiers.Count total</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalActiveSubscriptions</div>
+        <div class="stat-label">Active Subscriptions</div>
+        <div class="stat-change positive">Paying customers</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+        </div>
+        <div class="stat-value">R@(Model.TotalMonthlyRevenue.ToString("N0"))</div>
+        <div class="stat-label">Monthly Revenue</div>
+        <div class="stat-change">Recurring income</div>
+    </div>
+</div>
+
+<!-- Subscription Tiers Table -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Subscription Tiers</h3>
+        <div class="admin-card-actions">
+            <a href="@Url.Action("Create")" class="header-btn" title="Create New Tier">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+            </a>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Tier</th>
+                    <th>Price</th>
+                    <th>Limits</th>
+                    <th>Active Subscriptions</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tier in Model.Tiers.OrderBy(t => t.SortOrder))
+                {
+                    <tr>
+                        <td>
+                            <div class="tier-info">
+                                <div class="tier-name">@tier.DisplayName</div>
+                                <div class="tier-description">@tier.Description</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="price-info">
+                                <span class="price">R@(tier.MonthlyPrice.ToString("N0"))</span>
+                                <span class="price-period">/month</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="limits-info">
+                                <div>@(tier.MaxBusinesses == -1 ? "Unlimited" : tier.MaxBusinesses.ToString()) businesses</div>
+                                <div>@(tier.MaxImages == -1 ? "Unlimited" : tier.MaxImages.ToString()) images</div>
+                                <div>@(tier.MaxPDFs == -1 ? "Unlimited" : tier.MaxPDFs == 0 ? "No" : tier.MaxPDFs.ToString()) PDFs</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="subscription-count">@tier.ActiveSubscriptionsCount</span>
+                        </td>
+                        <td>
+                            <span class="status-badge @(tier.IsActive ? "status-active" : "status-inactive")">
+                                @(tier.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>
+                            @if (tier.UpdatedAt.HasValue)
+                            {
+                                <div class="update-info">
+                                    <div>@(tier.UpdatedAt.Value.ToString("MMM dd, yyyy"))</div>
+                                    <div class="updated-by">by @tier.UpdatedByName</div>
+                                </div>
+                            }
+                            else
+                            {
+                                <span class="text-muted">@(tier.CreatedAt.ToString("MMM dd, yyyy"))</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="@Url.Action("Details", new { id = tier.Id })" class="btn-action" title="View Details">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </a>
+                                <a href="@Url.Action("Edit", new { id = tier.Id })" class="btn-action" title="Edit Tier">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                </a>
+                                <a href="@Url.Action("ChangePrice", new { id = tier.Id })" class="btn-action btn-warning" title="Change Price">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                    </svg>
+                                </a>
+                                @if (tier.IsActive && tier.ActiveSubscriptionsCount == 0)
+                                {
+                                    <form method="post" action="@Url.Action("Deactivate", new { id = tier.Id })" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn-action btn-danger" title="Deactivate Tier" 
+                                                onclick="return confirm('Are you sure you want to deactivate this tier?')">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Recent Price Changes -->
+@if (Model.RecentPriceChanges.Any())
+{
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">Recent Price Changes</h3>
+        </div>
+        
+        <div class="activity-list">
+            @foreach (var change in Model.RecentPriceChanges.Take(5))
+            {
+                <div class="activity-item">
+                    <div class="activity-icon @(change.NewPrice > change.OldPrice ? "warning" : "success")">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">
+                            @change.SubscriptionTier.DisplayName price @(change.NewPrice > change.OldPrice ? "increased" : "decreased")
+                        </div>
+                        <div class="activity-description">
+                            From R@(change.OldPrice.ToString("N0")) to R@(change.NewPrice.ToString("N0"))
+                            @if (!string.IsNullOrEmpty(change.ChangeReason))
+                            {
+                                <span> - @change.ChangeReason</span>
+                            }
+                        </div>
+                        <div class="activity-time">
+                            @(change.ChangeDate.ToString("MMM dd, yyyy")) by @change.ChangedBy.FirstName @change.ChangedBy.LastName
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<style>
+.tier-info .tier-name {
+    font-weight: 600;
+    color: var(--charcoal);
+}
+
+.tier-info .tier-description {
+    font-size: var(--body-small);
+    color: var(--dark-gray);
+    margin-top: 2px;
+}
+
+.price-info {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.price-info .price {
+    font-weight: 600;
+    color: var(--lapis-lazuli);
+    font-size: var(--body-medium);
+}
+
+.price-info .price-period {
+    font-size: var(--body-small);
+    color: var(--dark-gray);
+}
+
+.limits-info {
+    font-size: var(--body-small);
+    line-height: 1.4;
+}
+
+.limits-info > div {
+    margin-bottom: 2px;
+}
+
+.subscription-count {
+    font-weight: 600;
+    color: var(--charcoal);
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    font-size: var(--body-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-active {
+    background-color: rgba(134, 187, 216, 0.2);
+    color: var(--lapis-lazuli);
+}
+
+.status-inactive {
+    background-color: rgba(108, 117, 125, 0.2);
+    color: var(--dark-gray);
+}
+
+.update-info .updated-by {
+    font-size: var(--body-xs);
+    color: var(--dark-gray);
+    margin-top: 2px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action {
+    padding: 6px;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-sm);
+    background: var(--white);
+    color: var(--charcoal);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-normal);
+}
+
+.btn-action:hover {
+    background: var(--light-gray);
+    transform: translateY(-1px);
+}
+
+.btn-action.btn-warning {
+    border-color: var(--hunyadi-yellow);
+    color: var(--hunyadi-yellow);
+}
+
+.btn-action.btn-warning:hover {
+    background: var(--hunyadi-yellow);
+    color: var(--charcoal);
+}
+
+.btn-action.btn-danger {
+    border-color: var(--orange-pantone);
+    color: var(--orange-pantone);
+}
+
+.btn-action.btn-danger:hover {
+    background: var(--orange-pantone);
+    color: var(--white);
+}
+</style>
