@@ -143,47 +143,58 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<bool> HasActiveSubscriptionAsync(string userId)
-        {
-            var result = await ValidateUserSubscriptionAsync(userId);
-            return result.HasActiveSubscription && result.IsPaymentValid;
-        }
 
-        public async Task<bool> IsPaymentValidAsync(string userId)
-        {
-            var subscription = await _context.Subscriptions
-                .Where(s => s.UserId == userId && s.IsActive)
-                .FirstOrDefaultAsync();
-
-            if (subscription == null) return false;
-
-            return IsPaymentStatusValid(subscription.PaymentStatus);
-        }
 
         public async Task<SubscriptionTier?> GetUserSubscriptionTierAsync(string userId)
         {
-            var subscription = await _context.Subscriptions
-                .Include(s => s.SubscriptionTier)
-                .ThenInclude(st => st.Limits)
-                .Include(s => s.SubscriptionTier)
-                .ThenInclude(st => st.Features)
-                .Where(s => s.UserId == userId && s.IsActive)
-                .FirstOrDefaultAsync();
-
-            return subscription?.SubscriptionTier;
+            var (user, tier) = await GetUserAndSubscriptionTierAsync(userId);
+            return tier;
         }
 
         public async Task<SubscriptionLimits> GetUserLimitsAsync(string userId)
         {
-            var tier = await GetUserSubscriptionTierAsync(userId);
+            var (user, tier) = await GetUserAndSubscriptionTierAsync(userId);
             
             if (tier == null)
             {
-                // Return default free tier limits
                 return await GetFreeTierLimitsAsync(userId);
             }
 
             return await GetUserLimitsWithUsageAsync(userId, tier);
+        }
+
+        private async Task<(ApplicationUser? user, SubscriptionTier? tier)> GetUserAndSubscriptionTierAsync(string userId)
+        {
+            var user = await _context.Users
+                .Include(u => u.Subscriptions.Where(s => s.IsActive))
+                .ThenInclude(s => s.SubscriptionTier)
+                .ThenInclude(st => st.Limits)
+                .Include(u => u.Subscriptions.Where(s => s.IsActive))
+                .ThenInclude(s => s.SubscriptionTier)
+                .ThenInclude(st => st.Features)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return (null, null);
+
+            var activeSubscription = user.Subscriptions.FirstOrDefault(s => s.IsActive);
+            SubscriptionTier? tier = null;
+
+            // If no active subscription record, check if user has subscription flags set
+            if (activeSubscription == null && user.HasActiveSubscription && !string.IsNullOrEmpty(user.CurrentSubscriptionTier))
+            {
+                var tierName = user.CurrentSubscriptionTier.ToUpper();
+                tier = await _context.SubscriptionTiers
+                    .Include(st => st.Limits)
+                    .Include(st => st.Features)
+                    .FirstOrDefaultAsync(st => st.Name.ToUpper() == tierName);
+            }
+            else
+            {
+                tier = activeSubscription?.SubscriptionTier;
+            }
+
+            return (user, tier);
         }
 
         public async Task<bool> CanAccessFeatureAsync(string userId, string featureKey)

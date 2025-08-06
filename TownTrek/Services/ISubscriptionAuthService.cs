@@ -5,8 +5,6 @@ namespace TownTrek.Services
     public interface ISubscriptionAuthService
     {
         Task<SubscriptionAuthResult> ValidateUserSubscriptionAsync(string userId);
-        Task<bool> HasActiveSubscriptionAsync(string userId);
-        Task<bool> IsPaymentValidAsync(string userId);
         Task<SubscriptionTier?> GetUserSubscriptionTierAsync(string userId);
         Task<SubscriptionLimits> GetUserLimitsAsync(string userId);
         Task<bool> CanAccessFeatureAsync(string userId, string featureKey);
