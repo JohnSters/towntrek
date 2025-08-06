@@ -36,6 +36,7 @@ namespace TownTrek.Controllers
         public async Task<IActionResult> Towns()
         {
             var towns = await _context.Towns
+                .Include(t => t.Businesses)
                 .OrderBy(t => t.Province)
                 .ThenBy(t => t.Name)
                 .ToListAsync();
