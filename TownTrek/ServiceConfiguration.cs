@@ -12,6 +12,9 @@ namespace TownTrek
             services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
             services.AddScoped<IRegistrationService, RegistrationService>();
             services.AddScoped<IEmailService, EmailService>();
+            
+            // Register business management services
+            services.AddScoped<IBusinessService, BusinessService>();
         }
     }
 }

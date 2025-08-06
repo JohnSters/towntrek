@@ -1,77 +1,212 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
+using TownTrek.Services;
+using System.Security.Claims;
 
 namespace TownTrek.Controllers
 {
+    [Authorize]
     public class ClientController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBusinessService _businessService;
+        private readonly ISubscriptionTierService _subscriptionService;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<ClientController> _logger;
 
-        public ClientController(ApplicationDbContext context)
+        public ClientController(
+            ApplicationDbContext context,
+            IBusinessService businessService,
+            ISubscriptionTierService subscriptionService,
+            UserManager<ApplicationUser> userManager,
+            ILogger<ClientController> logger)
         {
             _context = context;
+            _businessService = businessService;
+            _subscriptionService = subscriptionService;
+            _userManager = userManager;
+            _logger = logger;
         }
 
         // Dashboard - Main overview page
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var businesses = await _businessService.GetUserBusinessesAsync(userId);
+            
+            var dashboardModel = new ClientDashboardViewModel
+            {
+                TotalBusinesses = businesses.Count,
+                ActiveBusinesses = businesses.Count(b => b.Status == "Active"),
+                PendingBusinesses = businesses.Count(b => b.Status == "Pending"),
+                RecentBusinesses = businesses.Take(5).ToList(),
+                TotalViews = businesses.Sum(b => b.ViewCount)
+            };
+
+            return View(dashboardModel);
         }
 
         // Business Management
-        public IActionResult ManageBusinesses()
+        public async Task<IActionResult> ManageBusinesses()
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var businesses = await _businessService.GetUserBusinessesAsync(userId);
+            return View(businesses);
         }
 
         public async Task<IActionResult> AddBusiness()
         {
-            // Load towns for dropdown
-            ViewBag.Towns = await _context.Towns
-                .Where(t => t.IsActive)
-                .OrderBy(t => t.Province)
-                .ThenBy(t => t.Name)
-                .Select(t => new { t.Id, t.Name, t.Province })
-                .ToListAsync();
-
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult AddBusiness(AddBusinessViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                // TODO: Process the form submission
-                // Validate the model, save to database, etc.
-                
-                // For now, redirect back to dashboard on success
-                TempData["SuccessMessage"] = "Business added successfully!";
-                return RedirectToAction("Dashboard");
-            }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             
-            // If model is invalid, return to form with validation errors
+            // Check if user can add more businesses
+            if (!await _businessService.CanUserAddBusinessAsync(userId))
+            {
+                TempData["ErrorMessage"] = "You have reached your subscription limit for businesses. Please upgrade your plan.";
+                return RedirectToAction("Subscription");
+            }
+
+            var model = await _businessService.GetAddBusinessViewModelAsync(userId);
             return View(model);
         }
 
-        public IActionResult EditBusiness(int id)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddBusiness(AddBusinessViewModel model)
         {
-            ViewBag.BusinessId = id;
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            if (ModelState.IsValid)
+            {
+                var result = await _businessService.CreateBusinessAsync(model, userId);
+                
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = "Business listing created successfully! It will be reviewed and activated within 24 hours.";
+                    return RedirectToAction("ManageBusinesses");
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.ErrorMessage;
+                }
+            }
+            
+            // Reload the view model data if there are validation errors
+            model = await _businessService.GetAddBusinessViewModelAsync(userId);
+            return View(model);
+        }
+
+        public async Task<IActionResult> EditBusiness(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var business = await _businessService.GetBusinessByIdAsync(id, userId);
+            
+            if (business == null)
+            {
+                TempData["ErrorMessage"] = "Business not found or you don't have permission to edit it.";
+                return RedirectToAction("ManageBusinesses");
+            }
+
+            // Convert business to view model
+            var model = await ConvertBusinessToViewModel(business);
+            return View("AddBusiness", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBusiness(int id, AddBusinessViewModel model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+            if (ModelState.IsValid)
+            {
+                var result = await _businessService.UpdateBusinessAsync(id, model, userId);
+                
+                if (result.IsSuccess)
+                {
+                    TempData["SuccessMessage"] = "Business listing updated successfully!";
+                    return RedirectToAction("ManageBusinesses");
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = result.ErrorMessage;
+                }
+            }
+            
+            // Reload the view model data if there are validation errors
+            model = await _businessService.GetAddBusinessViewModelAsync(userId);
+            return View("AddBusiness", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteBusiness(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var result = await _businessService.DeleteBusinessAsync(id, userId);
+            
+            if (result.IsSuccess)
+            {
+                TempData["SuccessMessage"] = "Business listing deleted successfully.";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+            }
+            
+            return RedirectToAction("ManageBusinesses");
+        }
+
+        // AJAX endpoints for dynamic form behavior
+        [HttpGet]
+        public async Task<IActionResult> GetSubCategories(string category)
+        {
+            var subCategories = await _businessService.GetSubCategoriesAsync(category);
+            return Json(subCategories);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ValidateAddress([FromBody] AddressValidationRequest request)
+        {
+            // This would integrate with Google Maps Geocoding API
+            // For now, return a mock response
+            return Json(new { 
+                isValid = true, 
+                latitude = -26.2041, 
+                longitude = 28.0473,
+                formattedAddress = request.Address
+            });
         }
 
         // Profile Management
-        public IActionResult Profile()
+        public async Task<IActionResult> Profile()
         {
-            return View();
+            var user = await _userManager.GetUserAsync(User);
+            return View(user);
         }
 
         // Subscription & Billing
-        public IActionResult Subscription()
+        public async Task<IActionResult> Subscription()
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var user = await _context.Users
+                .Include(u => u.Subscriptions.Where(s => s.IsActive))
+                .ThenInclude(s => s.SubscriptionTier)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+
+            var availableTiers = await _subscriptionService.GetActiveTiersForRegistrationAsync();
+            
+            var model = new ClientSubscriptionViewModel
+            {
+                CurrentSubscription = user?.Subscriptions.FirstOrDefault(s => s.IsActive),
+                AvailableTiers = availableTiers,
+                BusinessCount = await _context.Businesses.CountAsync(b => b.UserId == userId && b.Status != "Deleted")
+            };
+
+            return View(model);
         }
 
         public IActionResult Billing()
@@ -80,9 +215,19 @@ namespace TownTrek.Controllers
         }
 
         // Analytics & Reports
-        public IActionResult Analytics()
+        public async Task<IActionResult> Analytics()
         {
-            return View();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var businesses = await _businessService.GetUserBusinessesAsync(userId);
+            
+            var analyticsModel = new ClientAnalyticsViewModel
+            {
+                Businesses = businesses,
+                TotalViews = businesses.Sum(b => b.ViewCount),
+                // Add more analytics data as needed
+            };
+
+            return View(analyticsModel);
         }
 
         // Support & Help
@@ -101,5 +246,77 @@ namespace TownTrek.Controllers
         {
             return View();
         }
+
+        private async Task<AddBusinessViewModel> ConvertBusinessToViewModel(Business business)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var model = await _businessService.GetAddBusinessViewModelAsync(userId);
+            
+            // Populate with existing business data
+            model.BusinessName = business.Name;
+            model.BusinessCategory = business.Category;
+            model.SubCategory = business.SubCategory;
+            model.TownId = business.TownId;
+            model.BusinessDescription = business.Description;
+            model.ShortDescription = business.ShortDescription;
+            model.PhoneNumber = business.PhoneNumber;
+            model.PhoneNumber2 = business.PhoneNumber2;
+            model.EmailAddress = business.EmailAddress;
+            model.Website = business.Website;
+            model.PhysicalAddress = business.PhysicalAddress;
+            model.Latitude = business.Latitude;
+            model.Longitude = business.Longitude;
+
+            // Convert business hours
+            model.BusinessHours = business.BusinessHours.Select(bh => new BusinessHourViewModel
+            {
+                DayOfWeek = bh.DayOfWeek,
+                DayName = GetDayName(bh.DayOfWeek),
+                IsOpen = bh.IsOpen,
+                OpenTime = bh.OpenTime?.ToString(@"hh\:mm"),
+                CloseTime = bh.CloseTime?.ToString(@"hh\:mm"),
+                IsSpecialHours = bh.IsSpecialHours,
+                SpecialHoursNote = bh.SpecialHoursNote
+            }).ToList();
+
+            // Convert services
+            model.Services = business.BusinessServices.Where(s => s.IsActive).Select(s => s.ServiceType).ToList();
+
+            return model;
+        }
+
+        private string GetDayName(int dayOfWeek)
+        {
+            var days = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+            return days[dayOfWeek];
+        }
+    }
+
+    // Supporting view models
+    public class ClientDashboardViewModel
+    {
+        public int TotalBusinesses { get; set; }
+        public int ActiveBusinesses { get; set; }
+        public int PendingBusinesses { get; set; }
+        public List<Business> RecentBusinesses { get; set; } = new();
+        public int TotalViews { get; set; }
+    }
+
+    public class ClientSubscriptionViewModel
+    {
+        public Subscription? CurrentSubscription { get; set; }
+        public List<SubscriptionTier> AvailableTiers { get; set; } = new();
+        public int BusinessCount { get; set; }
+    }
+
+    public class ClientAnalyticsViewModel
+    {
+        public List<Business> Businesses { get; set; } = new();
+        public int TotalViews { get; set; }
+    }
+
+    public class AddressValidationRequest
+    {
+        public string Address { get; set; } = string.Empty;
     }
 }

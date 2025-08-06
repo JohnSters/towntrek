@@ -34,5 +34,6 @@ namespace TownTrek.Models
 
         // Navigation properties
         public virtual ICollection<Business> Businesses { get; set; } = new List<Business>();
+        public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
     }
 }

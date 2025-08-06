@@ -111,10 +111,13 @@ namespace TownTrek.Controllers
             }
         }
 
-        [HttpPost("ChangePrice")]
+        [HttpPost("ChangePrice/{id:int}")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePrice(PriceChangeViewModel model)
+        public async Task<IActionResult> ChangePrice(int id, PriceChangeViewModel model)
         {
+            if (id != model.SubscriptionTierId)
+                return BadRequest();
+
             if (!ModelState.IsValid)
                 return View(model);
 
@@ -180,6 +183,13 @@ namespace TownTrek.Controllers
                 return NotFound();
 
             return View(model);
+        }
+
+        // Debug action to test if routing works
+        [HttpGet("Test/{id:int}")]
+        public IActionResult Test(int id)
+        {
+            return Json(new { Message = "Test successful", Id = id });
         }
     }
 }

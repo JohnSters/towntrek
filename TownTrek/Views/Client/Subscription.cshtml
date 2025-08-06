@@ -1,0 +1,295 @@
+@model TownTrek.Controllers.ClientSubscriptionViewModel
+@{
+    ViewData["Title"] = "Subscription & Billing";
+    Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Subscription & Billing</h1>
+            <p class="page-description">Manage your subscription plan and billing information.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Dashboard", "Client")" class="auth-btn auth-btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-error">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<!-- Current Subscription Status -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Current Subscription</h3>
+        <p class="admin-card-description">Your current plan and usage</p>
+    </div>
+    
+    @if (Model.CurrentSubscription != null)
+    {
+        <div class="subscription-current">
+            <div class="subscription-info">
+                <h4>@Model.CurrentSubscription.SubscriptionTier.DisplayName</h4>
+                <p class="subscription-price">R@Model.CurrentSubscription.MonthlyPrice.ToString("F2")/month</p>
+                <p class="subscription-status">
+                    Status: <span class="badge badge-success">Active</span>
+                </p>
+                <p class="subscription-dates">
+                    Started: @Model.CurrentSubscription.StartDate.ToString("MMM dd, yyyy")
+                    @if (Model.CurrentSubscription.EndDate.HasValue)
+                    {
+                        <br />
+                        <text>Expires: @Model.CurrentSubscription.EndDate.Value.ToString("MMM dd, yyyy")</text>
+                    }
+                </p>
+            </div>
+            
+            <div class="usage-stats">
+                <h5>Usage Statistics</h5>
+                <div class="usage-item">
+                    <span>Businesses:</span>
+                    @{
+                        var maxBusinesses = Model.CurrentSubscription.SubscriptionTier.Limits.FirstOrDefault(l => l.LimitType == "MaxBusinesses")?.LimitValue;
+                        var businessLimit = maxBusinesses == -1 ? "Unlimited" : maxBusinesses?.ToString() ?? "1";
+                    }
+                    <span>@Model.BusinessCount / @businessLimit</span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="no-subscription">
+            <div class="empty-state">
+                <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-state-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+                <h3 class="empty-state-title">No Active Subscription</h3>
+                <p class="empty-state-description">You need an active subscription to add and manage business listings.</p>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Available Plans -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Available Plans</h3>
+        <p class="admin-card-description">Choose the plan that best fits your business needs</p>
+    </div>
+    
+    <div class="subscription-plans">
+        @foreach (var tier in Model.AvailableTiers)
+        {
+            <div class="plan-card @(Model.CurrentSubscription?.SubscriptionTierId == tier.Id ? "current-plan" : "")">
+                <div class="plan-header">
+                    <h4 class="plan-name">@tier.DisplayName</h4>
+                    <p class="plan-price">R@tier.MonthlyPrice.ToString("F2")<span>/month</span></p>
+                </div>
+                
+                <div class="plan-description">
+                    <p>@tier.Description</p>
+                </div>
+                
+                <div class="plan-features">
+                    <h5>Features:</h5>
+                    <ul>
+                        @foreach (var limit in tier.Limits)
+                        {
+                            <li>
+                                @switch (limit.LimitType)
+                                {
+                                    case "MaxBusinesses":
+                                        <span>@(limit.LimitValue == -1 ? "Unlimited" : limit.LimitValue.ToString()) Business Listings</span>
+                                        break;
+                                    case "MaxImages":
+                                        <span>@(limit.LimitValue == -1 ? "Unlimited" : limit.LimitValue.ToString()) Images per Business</span>
+                                        break;
+                                    case "MaxPDFs":
+                                        <span>@(limit.LimitValue == -1 ? "Unlimited" : limit.LimitValue == 0 ? "No" : limit.LimitValue.ToString()) PDF Documents</span>
+                                        break;
+                                }
+                            </li>
+                        }
+                        @foreach (var feature in tier.Features.Where(f => f.IsEnabled))
+                        {
+                            <li>@feature.FeatureName</li>
+                        }
+                    </ul>
+                </div>
+                
+                <div class="plan-actions">
+                    @if (Model.CurrentSubscription?.SubscriptionTierId == tier.Id)
+                    {
+                        <button class="auth-btn auth-btn-secondary" disabled>Current Plan</button>
+                    }
+                    else
+                    {
+                        <button class="auth-btn auth-btn-cta" onclick="selectPlan(@tier.Id)">
+                            @(Model.CurrentSubscription == null ? "Subscribe" : "Upgrade")
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .subscription-current {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        .subscription-info h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--charcoal);
+        }
+        
+        .subscription-price {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--lapis-lazuli);
+            margin: 0 0 1rem 0;
+        }
+        
+        .subscription-status, .subscription-dates {
+            margin: 0.5rem 0;
+            font-size: 0.875rem;
+            color: var(--dark-gray);
+        }
+        
+        .usage-stats h5 {
+            margin: 0 0 1rem 0;
+            color: var(--charcoal);
+        }
+        
+        .usage-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+        
+        .subscription-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .plan-card {
+            border: 2px solid var(--medium-gray);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            transition: border-color 0.2s ease;
+        }
+        
+        .plan-card:hover {
+            border-color: var(--carolina-blue);
+        }
+        
+        .plan-card.current-plan {
+            border-color: var(--hunyadi-yellow);
+            background: rgba(246, 174, 45, 0.05);
+        }
+        
+        .plan-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .plan-name {
+            margin: 0 0 0.5rem 0;
+            color: var(--charcoal);
+        }
+        
+        .plan-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--lapis-lazuli);
+            margin: 0;
+        }
+        
+        .plan-price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--dark-gray);
+        }
+        
+        .plan-description {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .plan-features ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .plan-features li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--light-gray);
+            position: relative;
+            padding-left: 1.5rem;
+        }
+        
+        .plan-features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--lapis-lazuli);
+            font-weight: bold;
+        }
+        
+        .plan-actions {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        
+        .no-subscription {
+            padding: 2rem;
+        }
+        
+        @@media (max-width: 768px) {
+            .subscription-current {
+                grid-template-columns: 1fr;
+            }
+            
+            .subscription-plans {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        function selectPlan(tierId) {
+            // This would integrate with payment processing
+            alert('Payment integration would be implemented here for tier ID: ' + tierId);
+        }
+    </script>
+}

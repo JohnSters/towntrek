@@ -123,7 +123,7 @@
                             var isFeatured = tier.Name.Equals("Standard", StringComparison.OrdinalIgnoreCase);
                             <div class="plan-card @(isFeatured ? "featured" : "")" data-plan="@tier.Id" data-tier-name="@tier.Name.ToLower()">
                                 <div class="plan-name">@tier.DisplayName</div>
-                                <div class="plan-price">R@tier.MonthlyPrice.ToString("N0")</div>
+                                <div class="plan-price">R@(tier.MonthlyPrice.ToString("N0"))</div>
                                 <div class="plan-period">/month</div>
                                 @if (!string.IsNullOrEmpty(tier.Description))
                                 {
@@ -272,7 +272,7 @@
             </p>
         </div>
 
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-lg);">
+        <div class="pricing-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); max-width: 1200px; margin: 0 auto;">
             @if (ViewBag.SubscriptionTiers != null)
             {
                 @foreach (var tier in (List<TownTrek.Models.SubscriptionTier>)ViewBag.SubscriptionTiers)
@@ -280,14 +280,14 @@
                     var isFeatured = tier.Name.Equals("Standard", StringComparison.OrdinalIgnoreCase);
                     var borderStyle = isFeatured ? "border: 2px solid var(--hunyadi-yellow);" : "border: 1px solid var(--medium-gray);";
                     
-                    <div style="background: var(--white); @borderStyle border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center; position: relative;">
+                    <div style="background: var(--white); @borderStyle border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center; position: relative; @(isFeatured ? "padding-top: calc(var(--space-xl) + 20px);" : "")">
                         @if (isFeatured)
                         {
-                            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--hunyadi-yellow); color: var(--charcoal); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-sm); font-size: var(--body-xs); font-weight: var(--font-semibold);">Most Popular</div>
+                            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--hunyadi-yellow); color: var(--charcoal); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-sm); font-size: var(--body-xs); font-weight: var(--font-semibold); white-space: nowrap; z-index: 10;">Most Popular</div>
                         }
                         
-                        <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">@tier.DisplayName</h3>
-                        <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R@tier.MonthlyPrice.ToString("N0")</div>
+                        <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm); @(isFeatured ? "margin-top: var(--space-sm);" : "")">@tier.DisplayName</h3>
+                        <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R@(tier.MonthlyPrice.ToString("N0"))</div>
                         <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
                         
                         @if (!string.IsNullOrEmpty(tier.Description))
@@ -328,6 +328,10 @@
         </div>
     </div>
 </section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
 
 @section Scripts {
     <script src="~/js/auth.js" asp-append-version="true"></script>

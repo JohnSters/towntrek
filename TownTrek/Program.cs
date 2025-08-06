@@ -1,13 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Identity;
 using TownTrek.Data;
 using TownTrek.Services;
+using TownTrek.Models;
 
 namespace TownTrek;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
@@ -15,16 +16,40 @@ public class Program
         // Add Entity Framework
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        // Add Identity services
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        {
+            // Password settings
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = true;
+            options.Password.RequiredLength = 6;
+            
+            // User settings
+            options.User.RequireUniqueEmail = true;
+        })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
+
         // Add these service registrations
         builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
         builder.Services.AddScoped<IRegistrationService, RegistrationService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
 
         builder.Services.AddControllersWithViews();
 
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
+
+        // Seed the database
+        using (var scope = app.Services.CreateScope())
+        {
+            await DbSeeder.SeedAsync(scope.ServiceProvider);
+        }
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
@@ -39,6 +64,7 @@ public class Program
 
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllerRoute(
