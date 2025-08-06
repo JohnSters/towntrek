@@ -97,7 +97,7 @@ namespace TownTrek.Services
         private async Task ActivateSubscriptionAsync(Subscription subscription, string token)
         {
             subscription.IsActive = true;
-            subscription.PaymentStatus = "Active";
+            subscription.PaymentStatus = "Completed"; // Use "Completed" to match our validation logic
             subscription.PayFastToken = token;
             subscription.LastPaymentDate = DateTime.UtcNow;
             subscription.NextBillingDate = DateTime.UtcNow.AddMonths(1);
@@ -113,6 +113,9 @@ namespace TownTrek.Services
                 var tier = await _registrationService.GetSubscriptionTierByIdAsync(subscription.SubscriptionTierId);
                 if (tier != null)
                 {
+                    user.CurrentSubscriptionTier = tier.Name;
+                    
+                    // Add tier-specific role
                     var roleName = $"Client-{tier.Name}";
                     await _userManager.AddToRoleAsync(user, roleName);
                 }
@@ -122,12 +125,22 @@ namespace TownTrek.Services
 
             await _context.SaveChangesAsync();
             
-            _logger.LogInformation("Subscription activated for user {UserId}", subscription.UserId);
+            _logger.LogInformation("Subscription activated for user {UserId} with status 'Completed'", subscription.UserId);
         }
 
         private async Task HandleFailedPaymentAsync(Subscription subscription)
         {
             subscription.PaymentStatus = "Failed";
+            subscription.IsActive = false;
+            
+            // Update user status
+            var user = subscription.User;
+            if (user != null)
+            {
+                user.HasActiveSubscription = false;
+                await _userManager.UpdateAsync(user);
+            }
+            
             await _context.SaveChangesAsync();
             
             _logger.LogWarning("Payment failed for subscription {SubscriptionId}", subscription.Id);

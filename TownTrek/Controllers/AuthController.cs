@@ -127,14 +127,47 @@ namespace TownTrek.Controllers
                 {
                     _logger.LogInformation("User {Email} logged in successfully", email);
                     
+                    // Update last login time
+                    user.LastLoginAt = DateTime.UtcNow;
+                    await _userManager.UpdateAsync(user);
+                    
                     var roles = await _userManager.GetRolesAsync(user);
+                    
+                    // Ensure users with active subscriptions have proper roles
+                    if (user.HasActiveSubscription && !string.IsNullOrEmpty(user.CurrentSubscriptionTier))
+                    {
+                        var expectedClientRole = $"Client-{user.CurrentSubscriptionTier}";
+                        if (!roles.Contains(expectedClientRole))
+                        {
+                            await _userManager.AddToRoleAsync(user, expectedClientRole);
+                            _logger.LogInformation("Added {Role} role to user {Email}", expectedClientRole, user.Email);
+                        }
+                        // Refresh roles after adding
+                        roles = await _userManager.GetRolesAsync(user);
+                    }
+                    
                     if (roles.Contains("Admin"))
                     {
                         return RedirectToAction("Dashboard", "Admin");
                     }
-                    else if (roles.Any(r => r.StartsWith("Client-")))
+                    else if (roles.Any(r => r.StartsWith("Client-")) || user.HasActiveSubscription)
                     {
-                        return RedirectToAction("Dashboard", "Client");
+                        // For business owners/clients, check subscription status and redirect accordingly
+                        var subscriptionAuthService = HttpContext.RequestServices.GetRequiredService<ISubscriptionAuthService>();
+                        var redirectUrl = await subscriptionAuthService.GetRedirectUrlForUserAsync(user.Id);
+                        
+                        if (redirectUrl == "/Client/Dashboard")
+                        {
+                            return RedirectToAction("Dashboard", "Client");
+                        }
+                        else if (redirectUrl.StartsWith("/"))
+                        {
+                            return Redirect(redirectUrl);
+                        }
+                        else
+                        {
+                            return RedirectToAction("Dashboard", "Client");
+                        }
                     }
                     else
                     {
