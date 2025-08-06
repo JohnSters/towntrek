@@ -408,6 +408,70 @@
     }
 }
 
+/* Category-specific sections */
+.category-section {
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+.category-section[style*="display: none"] {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+}
+
+.category-section:not([style*="display: none"]) {
+    opacity: 1;
+    max-height: none;
+}
+
+/* Enhanced form elements for category sections */
+.category-section .form-grid {
+    background: rgba(134, 187, 216, 0.02);
+    border-radius: var(--radius-md, 8px);
+    padding: 1.5rem;
+    margin: 0;
+}
+
+.category-section .form-section-header {
+    background: linear-gradient(135deg, var(--carolina-blue, #86bbd8), var(--lapis-lazuli, #33658a));
+    color: white;
+}
+
+.category-section .form-section-title {
+    color: white;
+}
+
+.category-section .form-section-description {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.category-section .step-number {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Special styling for different category types */
+#marketSection .form-section-header {
+    background: linear-gradient(135deg, #f6ae2d, #e69d1a);
+}
+
+#tourSection .form-section-header {
+    background: linear-gradient(135deg, #6f42c1, #5a2d91);
+}
+
+#eventSection .form-section-header {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+}
+
+#restaurantSection .form-section-header {
+    background: linear-gradient(135deg, #28a745, #1e7e34);
+}
+
+#accommodationSection .form-section-header {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+}
+
 /* Hidden elements */
 .hidden {
     display: none;

@@ -24,10 +24,10 @@ class AuthManager {
             card.addEventListener('click', () => {
                 // Remove selected class from all cards
                 accountTypeCards.forEach(c => c.classList.remove('selected'));
-                
+
                 // Add selected class to clicked card
                 card.classList.add('selected');
-                
+
                 // Update hidden input value
                 const accountType = card.dataset.type;
                 if (accountTypeInput) {
@@ -82,10 +82,10 @@ class AuthManager {
             card.addEventListener('click', () => {
                 // Remove selected class from all cards
                 planCards.forEach(c => c.classList.remove('selected'));
-                
+
                 // Add selected class to clicked card
                 card.classList.add('selected');
-                
+
                 // Update hidden input value
                 if (planInput) {
                     planInput.value = card.dataset.plan;
@@ -106,7 +106,7 @@ class AuthManager {
     updateSubmitButton(planType) {
         const submitBtn = document.getElementById('submitBtn');
         const accountTypeInput = document.getElementById('accountType');
-        
+
         if (!submitBtn || !accountTypeInput) return;
 
         // Only update for business accounts
@@ -126,14 +126,14 @@ class AuthManager {
     // Form Validation
     setupFormValidation() {
         const forms = document.querySelectorAll('.auth-form');
-        
+
         forms.forEach(form => {
             const inputs = form.querySelectorAll('.form-input');
-            
+
             inputs.forEach(input => {
                 input.addEventListener('blur', () => this.validateField(input));
                 input.addEventListener('input', () => this.clearFieldError(input));
-                
+
                 // Format phone numbers as user types
                 if (input.type === 'tel') {
                     input.addEventListener('input', () => this.formatPhoneNumber(input));
@@ -146,7 +146,7 @@ class AuthManager {
         const value = field.value.trim();
         const type = field.type;
         const name = field.name;
-        
+
         let isValid = true;
         let errorMessage = '';
 
@@ -204,7 +204,7 @@ class AuthManager {
 
         if (!isValid) {
             field.classList.add('error');
-            
+
             if (!errorElement) {
                 errorElement = document.createElement('div');
                 errorElement.className = 'field-error';
@@ -215,7 +215,7 @@ class AuthManager {
                 `;
                 formGroup.appendChild(errorElement);
             }
-            
+
             errorElement.textContent = message;
         } else {
             field.classList.remove('error');
@@ -239,7 +239,7 @@ class AuthManager {
     // Form Submission
     setupFormSubmission() {
         const forms = document.querySelectorAll('.auth-form');
-        
+
         forms.forEach(form => {
             form.addEventListener('submit', (e) => this.handleFormSubmit(e));
         });
@@ -248,7 +248,7 @@ class AuthManager {
     handleFormSubmit(e) {
         const form = e.target;
         const inputs = form.querySelectorAll('.form-input[required]');
-        
+
         // Validate all required fields
         let isFormValid = true;
         inputs.forEach(input => {
@@ -281,20 +281,10 @@ class AuthManager {
             return;
         }
 
-        // For registration form, still prevent and show demo message
+        // For registration form, let it submit normally to the server
         if (form.id === 'registerForm') {
-            e.preventDefault();
-            const submitBtn = form.querySelector('.auth-btn-primary, .auth-btn');
-            
-            this.setLoadingState(submitBtn, true);
-            
-            setTimeout(() => {
-                this.setLoadingState(submitBtn, false);
-                this.showMessage('Registration successful! Please check your email.', 'success');
-                setTimeout(() => {
-                    window.location.href = '/login';
-                }, 2000);
-            }, 2000);
+            // Let the form submit normally to the server
+            return;
         }
     }
 
@@ -334,7 +324,7 @@ class AuthManager {
     // Utility Methods
     formatPhoneNumber(input) {
         let value = input.value.replace(/\D/g, '');
-        
+
         // Handle different input formats
         if (value.startsWith('27') && value.length >= 3) {
             // International format starting with 27
@@ -349,13 +339,13 @@ class AuthManager {
             // Assume it's a local number without leading 0
             value = '+27 ' + value.substring(0, 2) + ' ' + value.substring(2, 5) + ' ' + value.substring(5, 9);
         }
-        
+
         // Clean up extra spaces and limit length
         value = value.replace(/\s+/g, ' ').trim();
         if (value.length > 17) { // +27 XX XXX XXXX = 17 chars max
             value = value.substring(0, 17);
         }
-        
+
         input.value = value;
     }
 }

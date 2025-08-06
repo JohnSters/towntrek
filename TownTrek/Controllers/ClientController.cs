@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Services;
+using TownTrek.Attributes;
 using System.Security.Claims;
 
 namespace TownTrek.Controllers
@@ -15,6 +16,7 @@ namespace TownTrek.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IBusinessService _businessService;
         private readonly ISubscriptionTierService _subscriptionService;
+        private readonly ISubscriptionAuthService _subscriptionAuthService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<ClientController> _logger;
 
@@ -22,42 +24,75 @@ namespace TownTrek.Controllers
             ApplicationDbContext context,
             IBusinessService businessService,
             ISubscriptionTierService subscriptionService,
+            ISubscriptionAuthService subscriptionAuthService,
             UserManager<ApplicationUser> userManager,
             ILogger<ClientController> logger)
         {
             _context = context;
             _businessService = businessService;
             _subscriptionService = subscriptionService;
+            _subscriptionAuthService = subscriptionAuthService;
             _userManager = userManager;
             _logger = logger;
         }
 
         // Dashboard - Main overview page
+        [RequireActiveSubscription(allowFreeTier: true)]
         public async Task<IActionResult> Dashboard()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var user = await _userManager.GetUserAsync(User);
+            
+            // Get subscription validation result
+            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
+            
+            // If payment is pending or rejected, show appropriate message
+            if (authResult.HasActiveSubscription && !authResult.IsPaymentValid)
+            {
+                TempData["WarningMessage"] = $"Your payment status is {authResult.PaymentStatus}. Please complete your payment to access all features.";
+                if (!string.IsNullOrEmpty(authResult.RedirectUrl))
+                {
+                    ViewBag.PaymentUrl = authResult.RedirectUrl;
+                }
+            }
+
             var businesses = await _businessService.GetUserBusinessesAsync(userId);
             
             var dashboardModel = new ClientDashboardViewModel
             {
+                User = user,
                 TotalBusinesses = businesses.Count,
                 ActiveBusinesses = businesses.Count(b => b.Status == "Active"),
                 PendingBusinesses = businesses.Count(b => b.Status == "Pending"),
                 RecentBusinesses = businesses.Take(5).ToList(),
-                TotalViews = businesses.Sum(b => b.ViewCount)
+                TotalViews = businesses.Sum(b => b.ViewCount),
+                SubscriptionTier = authResult.SubscriptionTier,
+                UserLimits = authResult.Limits,
+                PaymentStatus = authResult.PaymentStatus,
+                CanAddBusiness = authResult.Limits?.MaxBusinesses == -1 || (authResult.Limits?.CurrentBusinessCount < authResult.Limits?.MaxBusinesses),
+                HasAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics"),
+                HasPrioritySupport = authResult.Limits?.HasPrioritySupport ?? false,
+                HasDedicatedSupport = authResult.Limits?.HasDedicatedSupport ?? false
             };
 
             return View(dashboardModel);
         }
 
         // Business Management
+        [RequireActiveSubscription(allowFreeTier: true)]
         public async Task<IActionResult> ManageBusinesses()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var businesses = await _businessService.GetUserBusinessesAsync(userId);
+            
+            // Get user limits for display
+            var limits = await _subscriptionAuthService.GetUserLimitsAsync(userId);
+            ViewBag.UserLimits = limits;
+            
             return View(businesses);
         }
 
+        [RequireActiveSubscription(allowFreeTier: true)]
         public async Task<IActionResult> AddBusiness()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -65,7 +100,8 @@ namespace TownTrek.Controllers
             // Check if user can add more businesses
             if (!await _businessService.CanUserAddBusinessAsync(userId))
             {
-                TempData["ErrorMessage"] = "You have reached your subscription limit for businesses. Please upgrade your plan.";
+                var limits = await _subscriptionAuthService.GetUserLimitsAsync(userId);
+                TempData["ErrorMessage"] = $"You have reached your subscription limit for businesses ({limits.CurrentBusinessCount}/{limits.MaxBusinesses}). Please upgrade your plan.";
                 return RedirectToAction("Subscription");
             }
 
@@ -215,6 +251,7 @@ namespace TownTrek.Controllers
         }
 
         // Analytics & Reports
+        [RequireActiveSubscription(requiredFeature: "BasicAnalytics")]
         public async Task<IActionResult> Analytics()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -295,11 +332,19 @@ namespace TownTrek.Controllers
     // Supporting view models
     public class ClientDashboardViewModel
     {
+        public ApplicationUser? User { get; set; }
         public int TotalBusinesses { get; set; }
         public int ActiveBusinesses { get; set; }
         public int PendingBusinesses { get; set; }
         public List<Business> RecentBusinesses { get; set; } = new();
         public int TotalViews { get; set; }
+        public SubscriptionTier? SubscriptionTier { get; set; }
+        public SubscriptionLimits? UserLimits { get; set; }
+        public string? PaymentStatus { get; set; }
+        public bool CanAddBusiness { get; set; }
+        public bool HasAnalyticsAccess { get; set; }
+        public bool HasPrioritySupport { get; set; }
+        public bool HasDedicatedSupport { get; set; }
     }
 
     public class ClientSubscriptionViewModel

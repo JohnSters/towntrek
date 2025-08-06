@@ -156,6 +156,9 @@ namespace TownTrek.Services
                 // Handle file uploads (logo, cover image, gallery images)
                 await HandleFileUploadsAsync(business.Id, model);
 
+                // Handle category-specific data
+                await HandleCategorySpecificDataAsync(business.Id, business.Category, model);
+
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation("Business '{BusinessName}' created by user {UserId}", model.BusinessName, userId);
@@ -438,6 +441,159 @@ namespace TownTrek.Services
             }
 
             await Task.CompletedTask;
+        }
+
+        private async Task HandleCategorySpecificDataAsync(int businessId, string category, AddBusinessViewModel model)
+        {
+            switch (category)
+            {
+                case "markets-vendors":
+                    await CreateMarketDetailsAsync(businessId, model);
+                    break;
+                case "tours-experiences":
+                    await CreateTourDetailsAsync(businessId, model);
+                    break;
+                case "events":
+                    await CreateEventDetailsAsync(businessId, model);
+                    break;
+                case "restaurants-food":
+                    await CreateRestaurantDetailsAsync(businessId, model);
+                    break;
+                case "accommodation":
+                    await CreateAccommodationDetailsAsync(businessId, model);
+                    break;
+            }
+        }
+
+        private async Task CreateMarketDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.MarketType)) return;
+
+            var marketDetails = new MarketDetails
+            {
+                BusinessId = businessId,
+                MarketType = model.MarketType,
+                IsRecurring = model.IsRecurringMarket,
+                RecurrencePattern = model.RecurrencePattern,
+                MarketDays = model.MarketDays.Any() ? string.Join(",", model.MarketDays) : null,
+                MarketStartTime = TimeSpan.TryParse(model.MarketStartTime, out var startTime) ? startTime : null,
+                MarketEndTime = TimeSpan.TryParse(model.MarketEndTime, out var endTime) ? endTime : null,
+                EstimatedVendorCount = model.EstimatedVendorCount,
+                VendorTypes = model.VendorTypes,
+                ParkingInfo = model.ParkingInfo,
+                EntryFee = model.EntryFee,
+                HasRestrooms = model.HasRestrooms,
+                HasFoodVendors = model.HasFoodVendors,
+                IsCoveredVenue = model.IsCoveredVenue
+            };
+
+            await _context.MarketDetails.AddAsync(marketDetails);
+        }
+
+        private async Task CreateTourDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.TourType)) return;
+
+            var tourDetails = new TourDetails
+            {
+                BusinessId = businessId,
+                TourType = model.TourType,
+                Duration = model.Duration,
+                MaxGroupSize = model.MaxGroupSize,
+                MinGroupSize = model.MinGroupSize,
+                MinAge = model.MinAge,
+                DifficultyLevel = model.DifficultyLevel,
+                DepartureLocation = model.DepartureLocation,
+                Itinerary = model.Itinerary,
+                IncludedItems = model.IncludedItems,
+                ExcludedItems = model.ExcludedItems,
+                RequiredEquipment = model.RequiredEquipment,
+                PricingInfo = model.PricingInfo,
+                RequiresBooking = model.RequiresBooking,
+                AdvanceBookingDays = model.AdvanceBookingDays,
+                IsWeatherDependent = model.IsWeatherDependent,
+                IsAccessible = model.IsAccessible
+            };
+
+            await _context.TourDetails.AddAsync(tourDetails);
+        }
+
+        private async Task CreateEventDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.EventType) || !model.EventStartDate.HasValue) return;
+
+            var eventDetails = new EventDetails
+            {
+                BusinessId = businessId,
+                EventType = model.EventType,
+                StartDate = model.EventStartDate.Value,
+                EndDate = model.EventEndDate,
+                StartTime = TimeSpan.TryParse(model.EventStartTime, out var startTime) ? startTime : null,
+                EndTime = TimeSpan.TryParse(model.EventEndTime, out var endTime) ? endTime : null,
+                IsRecurring = model.IsRecurringEvent,
+                RecurrencePattern = model.EventRecurrencePattern,
+                Venue = model.Venue,
+                VenueAddress = model.VenueAddress,
+                MaxAttendees = model.MaxAttendees,
+                TicketInfo = model.TicketInfo,
+                OrganizerContact = model.OrganizerContact,
+                RequiresTickets = model.RequiresTickets,
+                IsFreeEvent = model.IsFreeEvent,
+                EventProgram = model.EventProgram,
+                HasParking = model.HasParking,
+                IsOutdoorEvent = model.IsOutdoorEvent
+            };
+
+            await _context.EventDetails.AddAsync(eventDetails);
+        }
+
+        private async Task CreateRestaurantDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.CuisineType)) return;
+
+            var restaurantDetails = new RestaurantDetails
+            {
+                BusinessId = businessId,
+                CuisineType = model.CuisineType,
+                PriceRange = model.PriceRange,
+                HasDelivery = model.HasDelivery,
+                HasTakeaway = model.HasTakeaway,
+                AcceptsReservations = model.AcceptsReservations,
+                SeatingCapacity = model.SeatingCapacity,
+                DietaryOptions = model.DietaryOptions,
+                MenuUrl = model.MenuUrl,
+                HasKidsMenu = model.HasKidsMenu,
+                HasOutdoorSeating = model.HasOutdoorSeating,
+                ServesBreakfast = model.ServesBreakfast,
+                ServesLunch = model.ServesLunch,
+                ServesDinner = model.ServesDinner,
+                ServesAlcohol = model.ServesAlcohol
+            };
+
+            await _context.RestaurantDetails.AddAsync(restaurantDetails);
+        }
+
+        private async Task CreateAccommodationDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.PropertyType)) return;
+
+            var accommodationDetails = new AccommodationDetails
+            {
+                BusinessId = businessId,
+                PropertyType = model.PropertyType,
+                StarRating = model.StarRating,
+                RoomCount = model.RoomCount,
+                MaxGuests = model.MaxGuests,
+                CheckInTime = TimeSpan.TryParse(model.CheckInTime, out var checkIn) ? checkIn : null,
+                CheckOutTime = TimeSpan.TryParse(model.CheckOutTime, out var checkOut) ? checkOut : null,
+                Amenities = model.Amenities,
+                HasWiFi = model.HasWiFi,
+                HasPool = model.HasPool,
+                HasRestaurant = model.HasRestaurant,
+                IsPetFriendly = model.IsPetFriendly
+            };
+
+            await _context.AccommodationDetails.AddAsync(accommodationDetails);
         }
     }
 }
