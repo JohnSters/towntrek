@@ -99,15 +99,24 @@ function initializeCategoryHandling() {
     }
 }
 
-function hideAllCategorySections() {
+function hideAllCategorySections () {
     const sections = document.querySelectorAll('.category-section');
     sections.forEach(section => {
         section.style.display = 'none';
+
+        // Remove 'required' from all inputs in hidden sections
+        const inputs = section.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            if (input.hasAttribute('required')) {
+                input.dataset.originalRequired = 'true'; // store original state
+                input.removeAttribute('required');
+            }
+        });
     });
 }
 
-function showCategorySpecificSection(category) {
-    console.log('Showing category section for:', category);
+function showCategorySpecificSection (category) {
+    hideAllCategorySections(); // make sure others are hidden
 
     const sectionMap = {
         'markets-vendors': 'marketSection',
@@ -117,24 +126,22 @@ function showCategorySpecificSection(category) {
         'accommodation': 'accommodationSection'
     };
 
-    const sectionId = sectionMap[category];
-    console.log('Section ID mapped to:', sectionId);
-
+    const sectionId = sectionMap[ category ];
     if (sectionId) {
         const section = document.getElementById(sectionId);
-        console.log('Section element found:', !!section);
-
         if (section) {
             section.style.display = 'block';
-            console.log('Section displayed');
 
-            // Update step numbers for all visible sections
+            // Restore 'required' attributes
+            const inputs = section.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                if (input.dataset.originalRequired === 'true') {
+                    input.setAttribute('required', '');
+                }
+            });
+
             updateStepNumbers();
-        } else {
-            console.error('Section element not found:', sectionId);
         }
-    } else {
-        console.log('No section mapping found for category:', category);
     }
 }
 
