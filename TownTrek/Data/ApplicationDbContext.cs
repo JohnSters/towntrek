@@ -13,6 +13,10 @@ namespace TownTrek.Data
 
         public DbSet<Town> Towns { get; set; }
         public DbSet<Business> Businesses { get; set; }
+        public DbSet<BusinessHour> BusinessHours { get; set; }
+        public DbSet<BusinessImage> BusinessImages { get; set; }
+        public DbSet<BusinessContact> BusinessContacts { get; set; }
+        public DbSet<BusinessService> BusinessServices { get; set; }
         
         // Subscription Management
         public DbSet<SubscriptionTier> SubscriptionTiers { get; set; }
@@ -50,14 +54,18 @@ namespace TownTrek.Data
                 entity.Property(e => e.EmailAddress).HasMaxLength(100);
                 entity.Property(e => e.Website).HasMaxLength(200);
                 entity.Property(e => e.PhysicalAddress).IsRequired().HasMaxLength(500);
-                entity.Property(e => e.SpecialOffers).HasMaxLength(500);
-                entity.Property(e => e.AdditionalNotes).HasMaxLength(500);
+                entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Pending");
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
 
-                // Foreign key relationship
+                // Foreign key relationships
                 entity.HasOne(e => e.Town)
                       .WithMany(t => t.Businesses)
                       .HasForeignKey(e => e.TownId)
+                      .OnDelete(DeleteBehavior.Restrict);
+                      
+                entity.HasOne(e => e.User)
+                      .WithMany(u => u.Businesses)
+                      .HasForeignKey(e => e.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
@@ -110,7 +118,7 @@ namespace TownTrek.Data
                 entity.Property(e => e.MonthlyPrice).HasColumnType("decimal(10,2)");
                 
                 entity.HasOne(e => e.User)
-                      .WithMany()
+                      .WithMany(u => u.Subscriptions)
                       .HasForeignKey(e => e.UserId)
                       .OnDelete(DeleteBehavior.Restrict);
                       
