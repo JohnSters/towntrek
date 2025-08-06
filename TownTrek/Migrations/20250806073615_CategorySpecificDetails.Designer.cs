@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TownTrek.Data;
 
@@ -11,9 +12,11 @@ using TownTrek.Data;
 namespace TownTrek.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250806073615_CategorySpecificDetails")]
+    partial class CategorySpecificDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1172,7 +1175,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 6, 7, 46, 27, 111, DateTimeKind.Utc).AddTicks(412),
+                            CreatedAt = new DateTime(2025, 8, 6, 7, 36, 14, 678, DateTimeKind.Utc).AddTicks(3347),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -1183,7 +1186,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 6, 7, 46, 27, 111, DateTimeKind.Utc).AddTicks(414),
+                            CreatedAt = new DateTime(2025, 8, 6, 7, 36, 14, 678, DateTimeKind.Utc).AddTicks(3349),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -1194,7 +1197,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 6, 7, 46, 27, 111, DateTimeKind.Utc).AddTicks(416),
+                            CreatedAt = new DateTime(2025, 8, 6, 7, 36, 14, 678, DateTimeKind.Utc).AddTicks(3351),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,

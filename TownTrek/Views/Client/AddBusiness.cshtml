@@ -4,6 +4,15 @@
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
 }
 
+@if (Model == null)
+{
+    <div class="alert alert-error">
+        <h3>Error: Model is null</h3>
+        <p>The business form model was not properly initialized. Please try again or contact support.</p>
+    </div>
+    return;
+}
+
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-content">
@@ -61,16 +70,21 @@
                     <span class="form-help">Choose the category that best describes your business</span>
                 </div>
 
+                <div id="subCategoryContainer" class="form-group" style="display: none;">
+                    <label for="subCategory" class="form-label">Sub Category</label>
+                    <select id="subCategory" name="SubCategory" class="form-select">
+                        <option value="">Select a subcategory (optional)</option>
+                    </select>
+                    <span class="form-help">Choose a more specific category if available</span>
+                </div>
+
                 <div class="form-group">
                     <label for="townId" class="form-label required">Town/Location</label>
                     <select id="townId" name="TownId" class="form-select" required>
                         <option value="">Select your town</option>
-                        @if (ViewBag.Towns != null)
+                        @foreach (var town in Model.AvailableTowns)
                         {
-                            @foreach (var town in (IEnumerable<dynamic>)ViewBag.Towns)
-                            {
-                                <option value="@town.Id">@town.Name, @town.Province</option>
-                            }
+                            <option value="@town.Id">@town.Name, @town.Province</option>
                         }
                     </select>
                     <span class="form-help">Select the town where your business is located</span>
@@ -315,6 +329,431 @@
             </div>
         </div>
 
+        <!-- Category-Specific Sections -->
+        <div id="categorySpecificSections">
+            <!-- Market-Specific Section -->
+            <div id="marketSection" class="form-section category-section" style="display: none;">
+                <div class="form-section-header">
+                    <h4 class="form-section-title">
+                        <span class="step-number">6</span>
+                        Market Details
+                    </h4>
+                    <p class="form-section-description">Specific information for your market</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="marketType" class="form-label">Market Type</label>
+                        <select id="marketType" name="MarketType" class="form-select">
+                            <option value="">Select market type</option>
+                            <option value="farmers">Farmers Market</option>
+                            <option value="craft">Craft Market</option>
+                            <option value="flea">Flea Market</option>
+                            <option value="food">Food Market</option>
+                            <option value="antique">Antique Market</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="estimatedVendorCount" class="form-label">Estimated Vendor Count</label>
+                        <input type="number" id="estimatedVendorCount" name="EstimatedVendorCount" class="form-input" min="1" max="500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="marketStartTime" class="form-label">Market Start Time</label>
+                        <input type="time" id="marketStartTime" name="MarketStartTime" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="marketEndTime" class="form-label">Market End Time</label>
+                        <input type="time" id="marketEndTime" name="MarketEndTime" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="entryFee" class="form-label">Entry Fee (R)</label>
+                        <input type="number" id="entryFee" name="EntryFee" class="form-input" min="0" step="0.01" placeholder="0.00">
+                        <span class="form-help">Leave blank if free entry</span>
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="vendorTypes" class="form-label">Vendor Types</label>
+                        <textarea id="vendorTypes" name="VendorTypes" class="form-textarea" rows="3" placeholder="e.g., Fresh produce, Handmade crafts, Local art, Food vendors..."></textarea>
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label class="form-label">Market Features</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasRestrooms" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Restroom Facilities</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasFoodVendors" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Food Vendors Available</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="IsCoveredVenue" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Covered/Indoor Venue</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tour-Specific Section -->
+            <div id="tourSection" class="form-section category-section" style="display: none;">
+                <div class="form-section-header">
+                    <h4 class="form-section-title">
+                        <span class="step-number">6</span>
+                        Tour Details
+                    </h4>
+                    <p class="form-section-description">Information about your tour or experience</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="tourType" class="form-label">Tour Type</label>
+                        <select id="tourType" name="TourType" class="form-select">
+                            <option value="">Select tour type</option>
+                            <option value="cultural">Cultural Tour</option>
+                            <option value="adventure">Adventure Tour</option>
+                            <option value="wildlife">Wildlife Tour</option>
+                            <option value="historical">Historical Tour</option>
+                            <option value="food">Food Tour</option>
+                            <option value="walking">Walking Tour</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="duration" class="form-label">Duration</label>
+                        <select id="duration" name="Duration" class="form-select">
+                            <option value="">Select duration</option>
+                            <option value="1 hour">1 Hour</option>
+                            <option value="2 hours">2 Hours</option>
+                            <option value="half-day">Half Day (4 hours)</option>
+                            <option value="full-day">Full Day (8 hours)</option>
+                            <option value="multi-day">Multi-Day</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="minGroupSize" class="form-label">Minimum Group Size</label>
+                        <input type="number" id="minGroupSize" name="MinGroupSize" class="form-input" min="1" max="50">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxGroupSize" class="form-label">Maximum Group Size</label>
+                        <input type="number" id="maxGroupSize" name="MaxGroupSize" class="form-input" min="1" max="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="minAge" class="form-label">Minimum Age</label>
+                        <input type="number" id="minAge" name="MinAge" class="form-input" min="0" max="100">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="difficultyLevel" class="form-label">Difficulty Level</label>
+                        <select id="difficultyLevel" name="DifficultyLevel" class="form-select">
+                            <option value="">Select difficulty</option>
+                            <option value="easy">Easy</option>
+                            <option value="moderate">Moderate</option>
+                            <option value="challenging">Challenging</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="departureLocation" class="form-label">Departure Location</label>
+                        <input type="text" id="departureLocation" name="DepartureLocation" class="form-input" placeholder="Where does the tour start?">
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="itinerary" class="form-label">Tour Itinerary</label>
+                        <textarea id="itinerary" name="Itinerary" class="form-textarea" rows="4" placeholder="Describe the tour route and main stops..."></textarea>
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="includedItems" class="form-label">What's Included</label>
+                        <textarea id="includedItems" name="IncludedItems" class="form-textarea" rows="3" placeholder="e.g., Guide, transport, refreshments, equipment..."></textarea>
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="requiredEquipment" class="form-label">What to Bring</label>
+                        <textarea id="requiredEquipment" name="RequiredEquipment" class="form-textarea" rows="3" placeholder="e.g., Comfortable shoes, hat, water bottle, camera..."></textarea>
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label class="form-label">Tour Features</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="RequiresBooking" value="true" class="service-checkbox" checked>
+                                <span class="checkbox-label">Requires Advance Booking</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="IsWeatherDependent" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Weather Dependent</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="IsAccessible" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Wheelchair Accessible</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event-Specific Section -->
+            <div id="eventSection" class="form-section category-section" style="display: none;">
+                <div class="form-section-header">
+                    <h4 class="form-section-title">
+                        <span class="step-number">6</span>
+                        Event Details
+                    </h4>
+                    <p class="form-section-description">Information about your event</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="eventType" class="form-label">Event Type</label>
+                        <select id="eventType" name="EventType" class="form-select">
+                            <option value="">Select event type</option>
+                            <option value="festival">Festival</option>
+                            <option value="concert">Concert</option>
+                            <option value="workshop">Workshop</option>
+                            <option value="conference">Conference</option>
+                            <option value="exhibition">Exhibition</option>
+                            <option value="sports">Sports Event</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventStartDate" class="form-label required">Event Start Date</label>
+                        <input type="date" id="eventStartDate" name="EventStartDate" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventEndDate" class="form-label">Event End Date</label>
+                        <input type="date" id="eventEndDate" name="EventEndDate" class="form-input">
+                        <span class="form-help">Leave blank for single-day events</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventStartTime" class="form-label">Start Time</label>
+                        <input type="time" id="eventStartTime" name="EventStartTime" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="eventEndTime" class="form-label">End Time</label>
+                        <input type="time" id="eventEndTime" name="EventEndTime" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxAttendees" class="form-label">Maximum Attendees</label>
+                        <input type="number" id="maxAttendees" name="MaxAttendees" class="form-input" min="1">
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="venue" class="form-label">Venue Name</label>
+                        <input type="text" id="venue" name="Venue" class="form-input" placeholder="Name of the venue">
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="venueAddress" class="form-label">Venue Address</label>
+                        <input type="text" id="venueAddress" name="VenueAddress" class="form-input" placeholder="Full address of the venue">
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="ticketInfo" class="form-label">Ticket Information</label>
+                        <textarea id="ticketInfo" name="TicketInfo" class="form-textarea" rows="3" placeholder="Ticket prices, where to buy, booking information..."></textarea>
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label class="form-label">Event Features</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="IsFreeEvent" value="true" class="service-checkbox" checked>
+                                <span class="checkbox-label">Free Event</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="IsOutdoorEvent" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Outdoor Event</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasParking" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Parking Available</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant-Specific Section -->
+            <div id="restaurantSection" class="form-section category-section" style="display: none;">
+                <div class="form-section-header">
+                    <h4 class="form-section-title">
+                        <span class="step-number">6</span>
+                        Restaurant Details
+                    </h4>
+                    <p class="form-section-description">Information about your restaurant</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="cuisineType" class="form-label">Cuisine Type</label>
+                        <select id="cuisineType" name="CuisineType" class="form-select">
+                            <option value="">Select cuisine type</option>
+                            <option value="south-african">South African</option>
+                            <option value="italian">Italian</option>
+                            <option value="chinese">Chinese</option>
+                            <option value="indian">Indian</option>
+                            <option value="mexican">Mexican</option>
+                            <option value="seafood">Seafood</option>
+                            <option value="steakhouse">Steakhouse</option>
+                            <option value="vegetarian">Vegetarian</option>
+                            <option value="fast-food">Fast Food</option>
+                            <option value="fusion">Fusion</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="priceRange" class="form-label">Price Range</label>
+                        <select id="priceRange" name="PriceRange" class="form-select">
+                            <option value="">Select price range</option>
+                            <option value="budget">Budget (R50-R100)</option>
+                            <option value="moderate">Moderate (R100-R200)</option>
+                            <option value="expensive">Expensive (R200-R400)</option>
+                            <option value="fine-dining">Fine Dining (R400+)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="seatingCapacity" class="form-label">Seating Capacity</label>
+                        <input type="number" id="seatingCapacity" name="SeatingCapacity" class="form-input" min="1" max="500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="menuUrl" class="form-label">Menu Link</label>
+                        <input type="url" id="menuUrl" name="MenuUrl" class="form-input" placeholder="https://link-to-your-menu.com">
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label for="dietaryOptions" class="form-label">Dietary Options</label>
+                        <input type="text" id="dietaryOptions" name="DietaryOptions" class="form-input" placeholder="e.g., Vegetarian, Vegan, Halal, Gluten-free">
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label class="form-label">Restaurant Features</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasDelivery" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Delivery Available</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasTakeaway" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Takeaway Available</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="AcceptsReservations" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Accepts Reservations</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasKidsMenu" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Kids Menu Available</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasOutdoorSeating" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Outdoor Seating</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="ServesAlcohol" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Serves Alcohol</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accommodation-Specific Section -->
+            <div id="accommodationSection" class="form-section category-section" style="display: none;">
+                <div class="form-section-header">
+                    <h4 class="form-section-title">
+                        <span class="step-number">6</span>
+                        Accommodation Details
+                    </h4>
+                    <p class="form-section-description">Information about your accommodation</p>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="propertyType" class="form-label">Property Type</label>
+                        <select id="propertyType" name="PropertyType" class="form-select">
+                            <option value="">Select property type</option>
+                            <option value="hotel">Hotel</option>
+                            <option value="guesthouse">Guesthouse</option>
+                            <option value="bnb">Bed & Breakfast</option>
+                            <option value="self-catering">Self-catering</option>
+                            <option value="backpackers">Backpackers</option>
+                            <option value="camping">Camping & Caravan</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="starRating" class="form-label">Star Rating</label>
+                        <select id="starRating" name="StarRating" class="form-select">
+                            <option value="">Select rating</option>
+                            <option value="1">1 Star</option>
+                            <option value="2">2 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="5">5 Stars</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roomCount" class="form-label">Number of Rooms</label>
+                        <input type="number" id="roomCount" name="RoomCount" class="form-input" min="1" max="200">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="maxGuests" class="form-label">Maximum Guests</label>
+                        <input type="number" id="maxGuests" name="MaxGuests" class="form-input" min="1" max="500">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="checkInTime" class="form-label">Check-in Time</label>
+                        <input type="time" id="checkInTime" name="CheckInTime" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="checkOutTime" class="form-label">Check-out Time</label>
+                        <input type="time" id="checkOutTime" name="CheckOutTime" class="form-input">
+                    </div>
+
+                    <div class="form-group form-group-full">
+                        <label class="form-label">Amenities</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasWiFi" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Free WiFi</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasPool" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Swimming Pool</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="HasRestaurant" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Restaurant</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="IsPetFriendly" value="true" class="service-checkbox">
+                                <span class="checkbox-label">Pet Friendly</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Form Actions -->
         <div class="form-actions">
             <button type="button" class="auth-btn auth-btn-secondary" onclick="history.back()">
@@ -336,4 +775,10 @@
 
 @section Scripts {
     <script src="~/js/add-business.js" asp-append-version="true"></script>
+    <script>
+        // Additional debugging
+        console.log('AddBusiness view loaded');
+        console.log('Model available towns:', @Html.Raw(Json.Serialize(Model.AvailableTowns?.Count ?? 0)));
+        console.log('Model available categories:', @Html.Raw(Json.Serialize(Model.AvailableCategories?.Count ?? 0)));
+    </script>
 }
