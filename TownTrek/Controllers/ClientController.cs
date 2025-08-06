@@ -75,6 +75,9 @@ namespace TownTrek.Controllers
                 HasDedicatedSupport = authResult.Limits?.HasDedicatedSupport ?? false
             };
 
+            // Set subscription tier for layout display
+            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+
             return View(dashboardModel);
         }
 
@@ -88,6 +91,10 @@ namespace TownTrek.Controllers
             // Get user limits for display
             var limits = await _subscriptionAuthService.GetUserLimitsAsync(userId);
             ViewBag.UserLimits = limits;
+            
+            // Set subscription tier for layout display
+            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
+            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
             
             return View(businesses);
         }
@@ -106,6 +113,11 @@ namespace TownTrek.Controllers
             }
 
             var model = await _businessService.GetAddBusinessViewModelAsync(userId);
+            
+            // Set subscription tier for layout display
+            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
+            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            
             return View(model);
         }
 
@@ -229,18 +241,26 @@ namespace TownTrek.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var user = await _context.Users
-                .Include(u => u.Subscriptions.Where(s => s.IsActive))
+                .Include(u => u.Subscriptions)
                 .ThenInclude(s => s.SubscriptionTier)
+                .ThenInclude(st => st.Limits)
                 .FirstOrDefaultAsync(u => u.Id == userId);
 
             var availableTiers = await _subscriptionService.GetActiveTiersForRegistrationAsync();
             
+            // Get current subscription (including inactive ones for display)
+            var currentSubscription = user?.Subscriptions.FirstOrDefault(s => s.IsActive) 
+                ?? user?.Subscriptions.FirstOrDefault(); // Fallback to any subscription for display
+            
             var model = new ClientSubscriptionViewModel
             {
-                CurrentSubscription = user?.Subscriptions.FirstOrDefault(s => s.IsActive),
+                CurrentSubscription = currentSubscription,
                 AvailableTiers = availableTiers,
                 BusinessCount = await _context.Businesses.CountAsync(b => b.UserId == userId && b.Status != "Deleted")
             };
+
+            // Set subscription tier for layout display
+            ViewData["UserSubscriptionTier"] = currentSubscription?.SubscriptionTier;
 
             return View(model);
         }

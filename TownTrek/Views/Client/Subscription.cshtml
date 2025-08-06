@@ -48,7 +48,7 @@
         <div class="subscription-current">
             <div class="subscription-info">
                 <h4>@Model.CurrentSubscription.SubscriptionTier.DisplayName</h4>
-                <p class="subscription-price">R@Model.CurrentSubscription.MonthlyPrice.ToString("F2")/month</p>
+                <p class="subscription-price">R@(Model.CurrentSubscription.MonthlyPrice.ToString("F2"))/month</p>
                 <p class="subscription-status">
                     Status: <span class="badge badge-success">Active</span>
                 </p>
@@ -67,7 +67,7 @@
                 <div class="usage-item">
                     <span>Businesses:</span>
                     @{
-                        var maxBusinesses = Model.CurrentSubscription.SubscriptionTier.Limits.FirstOrDefault(l => l.LimitType == "MaxBusinesses")?.LimitValue;
+                        var maxBusinesses = Model.CurrentSubscription?.SubscriptionTier?.Limits?.FirstOrDefault(l => l.LimitType == "MaxBusinesses")?.LimitValue;
                         var businessLimit = maxBusinesses == -1 ? "Unlimited" : maxBusinesses?.ToString() ?? "1";
                     }
                     <span>@Model.BusinessCount / @businessLimit</span>
@@ -102,7 +102,7 @@
             <div class="plan-card @(Model.CurrentSubscription?.SubscriptionTierId == tier.Id ? "current-plan" : "")">
                 <div class="plan-header">
                     <h4 class="plan-name">@tier.DisplayName</h4>
-                    <p class="plan-price">R@tier.MonthlyPrice.ToString("F2")<span>/month</span></p>
+                    <p class="plan-price">R@(tier.MonthlyPrice.ToString("F2"))<span>/month</span></p>
                 </div>
                 
                 <div class="plan-description">
