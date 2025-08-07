@@ -206,7 +206,7 @@ namespace TownTrek.Controllers
                 return NotFound();
             }
 
-            // Convert to view model (you'll need to create this)
+            // Convert to view model
             var model = new AddBusinessViewModel
             {
                 Id = business.Id,
@@ -222,10 +222,29 @@ namespace TownTrek.Controllers
                 PhysicalAddress = business.PhysicalAddress,
                 Latitude = business.Latitude,
                 Longitude = business.Longitude,
-                TownId = business.TownId
+                TownId = business.TownId,
+                
+                // Populate business hours
+                BusinessHours = business.BusinessHours?.Select(bh => new BusinessHourViewModel
+                {
+                    DayOfWeek = bh.DayOfWeek,
+                    DayName = GetDayName(bh.DayOfWeek),
+                    IsOpen = bh.IsOpen,
+                    OpenTime = bh.OpenTime?.ToString(@"hh\:mm"),
+                    CloseTime = bh.CloseTime?.ToString(@"hh\:mm"),
+                    IsSpecialHours = bh.IsSpecialHours,
+                    SpecialHoursNote = bh.SpecialHoursNote
+                }).ToList() ?? new List<BusinessHourViewModel>(),
+                
+                // Populate available towns
+                AvailableTowns = await _context.Towns.OrderBy(t => t.Name).ToListAsync(),
+                
+                // Populate available categories
+                AvailableCategories = GetBusinessCategories(),
+                AvailableSubCategories = GetBusinessSubCategories(business.Category)
             };
 
-            return View("AddBusiness", model);
+            return View("EditBusiness", model);
         }
 
         [HttpPost]
@@ -234,12 +253,16 @@ namespace TownTrek.Controllers
         {
             if (ModelState.IsValid)
             {
-                var business = await _context.Businesses.FindAsync(model.Id);
+                var business = await _context.Businesses
+                    .Include(b => b.BusinessHours)
+                    .FirstOrDefaultAsync(b => b.Id == model.Id);
+                
                 if (business == null)
                 {
                     return NotFound();
                 }
 
+                // Update basic information
                 business.Name = model.BusinessName;
                 business.Category = model.BusinessCategory;
                 business.SubCategory = model.SubCategory;
@@ -252,7 +275,38 @@ namespace TownTrek.Controllers
                 business.PhysicalAddress = model.PhysicalAddress;
                 business.Latitude = model.Latitude;
                 business.Longitude = model.Longitude;
+                business.TownId = model.TownId;
                 business.UpdatedAt = DateTime.UtcNow;
+
+                // Update business hours
+                if (model.BusinessHours != null)
+                {
+                    // Remove existing business hours
+                    _context.BusinessHours.RemoveRange(business.BusinessHours);
+                    
+                    // Add new business hours
+                    foreach (var hour in model.BusinessHours.Where(h => h.IsOpen))
+                    {
+                        TimeSpan? openTime = null;
+                        TimeSpan? closeTime = null;
+                        
+                        if (TimeSpan.TryParse(hour.OpenTime, out var open))
+                            openTime = open;
+                        if (TimeSpan.TryParse(hour.CloseTime, out var close))
+                            closeTime = close;
+                        
+                        business.BusinessHours.Add(new BusinessHour
+                        {
+                            BusinessId = business.Id,
+                            DayOfWeek = hour.DayOfWeek,
+                            IsOpen = hour.IsOpen,
+                            OpenTime = openTime,
+                            CloseTime = closeTime,
+                            IsSpecialHours = hour.IsSpecialHours,
+                            SpecialHoursNote = hour.SpecialHoursNote
+                        });
+                    }
+                }
 
                 await _context.SaveChangesAsync();
 
@@ -260,7 +314,12 @@ namespace TownTrek.Controllers
                 return RedirectToAction(nameof(Businesses));
             }
 
-            return View("AddBusiness", model);
+            // If validation fails, repopulate the model and return to view
+            model.AvailableTowns = await _context.Towns.OrderBy(t => t.Name).ToListAsync();
+            model.AvailableCategories = GetBusinessCategories();
+            model.AvailableSubCategories = GetBusinessSubCategories(model.BusinessCategory);
+            
+            return View("EditBusiness", model);
         }
 
         [HttpPost]
@@ -350,6 +409,103 @@ namespace TownTrek.Controllers
         public IActionResult Settings()
         {
             return View();
+        }
+
+        // Helper methods for business categories
+        private List<BusinessCategoryOption> GetBusinessCategories()
+        {
+            return new List<BusinessCategoryOption>
+            {
+                new BusinessCategoryOption { Value = "shops-retail", Text = "Shops & Retail", Description = "Retail stores and shops" },
+                new BusinessCategoryOption { Value = "restaurants-food", Text = "Restaurants & Food Services", Description = "Food and dining establishments" },
+                new BusinessCategoryOption { Value = "markets-vendors", Text = "Markets & Vendors", Description = "Markets and vendor stalls" },
+                new BusinessCategoryOption { Value = "accommodation", Text = "Accommodation", Description = "Hotels, guesthouses, and lodging" },
+                new BusinessCategoryOption { Value = "tours-experiences", Text = "Tours & Experiences", Description = "Tourism and experience services" },
+                new BusinessCategoryOption { Value = "events", Text = "Events", Description = "Events and entertainment" }
+            };
+        }
+
+        private List<BusinessCategoryOption> GetBusinessSubCategories(string category)
+        {
+            var subCategories = new Dictionary<string, List<BusinessCategoryOption>>
+            {
+                ["shops-retail"] = new List<BusinessCategoryOption>
+                {
+                    new BusinessCategoryOption { Value = "clothing-fashion", Text = "Clothing & Fashion" },
+                    new BusinessCategoryOption { Value = "electronics", Text = "Electronics" },
+                    new BusinessCategoryOption { Value = "home-garden", Text = "Home & Garden" },
+                    new BusinessCategoryOption { Value = "books-stationery", Text = "Books & Stationery" },
+                    new BusinessCategoryOption { Value = "sports-outdoor", Text = "Sports & Outdoor" },
+                    new BusinessCategoryOption { Value = "jewelry-accessories", Text = "Jewelry & Accessories" },
+                    new BusinessCategoryOption { Value = "pharmacy-health", Text = "Pharmacy & Health" },
+                    new BusinessCategoryOption { Value = "other-retail", Text = "Other Retail" }
+                },
+                ["restaurants-food"] = new List<BusinessCategoryOption>
+                {
+                    new BusinessCategoryOption { Value = "fine-dining", Text = "Fine Dining" },
+                    new BusinessCategoryOption { Value = "casual-dining", Text = "Casual Dining" },
+                    new BusinessCategoryOption { Value = "fast-food", Text = "Fast Food" },
+                    new BusinessCategoryOption { Value = "cafe-coffee", Text = "Café & Coffee" },
+                    new BusinessCategoryOption { Value = "bakery-pastry", Text = "Bakery & Pastry" },
+                    new BusinessCategoryOption { Value = "pizza-italian", Text = "Pizza & Italian" },
+                    new BusinessCategoryOption { Value = "asian-cuisine", Text = "Asian Cuisine" },
+                    new BusinessCategoryOption { Value = "african-cuisine", Text = "African Cuisine" },
+                    new BusinessCategoryOption { Value = "other-food", Text = "Other Food Services" }
+                },
+                ["markets-vendors"] = new List<BusinessCategoryOption>
+                {
+                    new BusinessCategoryOption { Value = "farmers-market", Text = "Farmers Market" },
+                    new BusinessCategoryOption { Value = "craft-market", Text = "Craft Market" },
+                    new BusinessCategoryOption { Value = "flea-market", Text = "Flea Market" },
+                    new BusinessCategoryOption { Value = "food-market", Text = "Food Market" },
+                    new BusinessCategoryOption { Value = "artisan-market", Text = "Artisan Market" },
+                    new BusinessCategoryOption { Value = "other-market", Text = "Other Market" }
+                },
+                ["accommodation"] = new List<BusinessCategoryOption>
+                {
+                    new BusinessCategoryOption { Value = "hotel", Text = "Hotel" },
+                    new BusinessCategoryOption { Value = "guesthouse", Text = "Guesthouse" },
+                    new BusinessCategoryOption { Value = "bed-breakfast", Text = "Bed & Breakfast" },
+                    new BusinessCategoryOption { Value = "self-catering", Text = "Self-Catering" },
+                    new BusinessCategoryOption { Value = "camping", Text = "Camping" },
+                    new BusinessCategoryOption { Value = "other-accommodation", Text = "Other Accommodation" }
+                },
+                ["tours-experiences"] = new List<BusinessCategoryOption>
+                {
+                    new BusinessCategoryOption { Value = "cultural-tours", Text = "Cultural Tours" },
+                    new BusinessCategoryOption { Value = "adventure-tours", Text = "Adventure Tours" },
+                    new BusinessCategoryOption { Value = "food-tours", Text = "Food Tours" },
+                    new BusinessCategoryOption { Value = "nature-tours", Text = "Nature Tours" },
+                    new BusinessCategoryOption { Value = "city-tours", Text = "City Tours" },
+                    new BusinessCategoryOption { Value = "other-tours", Text = "Other Tours" }
+                },
+                ["events"] = new List<BusinessCategoryOption>
+                {
+                    new BusinessCategoryOption { Value = "festivals", Text = "Festivals" },
+                    new BusinessCategoryOption { Value = "concerts", Text = "Concerts" },
+                    new BusinessCategoryOption { Value = "exhibitions", Text = "Exhibitions" },
+                    new BusinessCategoryOption { Value = "workshops", Text = "Workshops" },
+                    new BusinessCategoryOption { Value = "sports-events", Text = "Sports Events" },
+                    new BusinessCategoryOption { Value = "other-events", Text = "Other Events" }
+                }
+            };
+
+            return subCategories.ContainsKey(category) ? subCategories[category] : new List<BusinessCategoryOption>();
+        }
+
+        private string GetDayName(int dayOfWeek)
+        {
+            return dayOfWeek switch
+            {
+                0 => "Sunday",
+                1 => "Monday",
+                2 => "Tuesday",
+                3 => "Wednesday",
+                4 => "Thursday",
+                5 => "Friday",
+                6 => "Saturday",
+                _ => "Unknown"
+            };
         }
     }
 }
