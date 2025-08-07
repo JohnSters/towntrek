@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Views\AdminTown\**" />
+    <Content Remove="Views\AdminTown\**" />
+    <EmbeddedResource Remove="Views\AdminTown\**" />
+    <None Remove="Views\AdminTown\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -30,6 +37,7 @@
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="Migrations\" />
+    <Folder Include="Views\Account\" />
   </ItemGroup>
 
 </Project>
