@@ -231,26 +231,199 @@
     margin: 0;
 }
 
-/* File Previews */
-.file-preview {
-    display: inline-block;
-    margin: 0.5rem;
-    text-align: center;
+/* Image Preview Container */
+.image-preview-container {
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
-.file-preview img {
-    border-radius: var(--radius-md, 8px);
+.image-preview-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: white;
     border: 1px solid var(--medium-gray, #e9ecef);
+    border-radius: var(--radius-md, 8px);
+    padding: 0.75rem;
+    min-width: 120px;
+    max-width: 150px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.file-preview p {
+.image-preview-item:hover {
+    border-color: var(--carolina-blue, #86bbd8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin-bottom: 0.5rem;
+}
+
+.image-preview-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radius-sm, 4px);
+}
+
+.image-preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    border-radius: var(--radius-sm, 4px);
+}
+
+.image-preview-wrapper:hover .image-preview-overlay {
+    opacity: 1;
+}
+
+.remove-preview-btn {
+    background: var(--orange-pantone, #f26419);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.remove-preview-btn:hover {
+    background: var(--orange-pantone-dark, #d55a15);
+}
+
+.image-preview-info {
+    text-align: center;
+    width: 100%;
+}
+
+.image-preview-name {
     font-size: 0.75rem;
-    color: var(--dark-gray, #6c757d);
-    margin: 0.25rem 0 0 0;
-    max-width: 100px;
+    color: var(--charcoal, #2f4858);
+    margin: 0 0 0.25rem 0;
+    font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.image-preview-size {
+    font-size: 0.625rem;
+    color: var(--dark-gray, #6c757d);
+    margin: 0;
+}
+
+/* Current Images Display (for EditBusiness) */
+.current-images-section {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--light-gray, #f8f9fa);
+    border-radius: var(--radius-md, 8px);
+}
+
+.current-images-title {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--charcoal, #2f4858);
+}
+
+.current-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.current-image-item {
+    position: relative;
+    background: white;
+    border: 1px solid var(--medium-gray, #e9ecef);
+    border-radius: var(--radius-md, 8px);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.current-image-item:hover {
+    border-color: var(--carolina-blue, #86bbd8);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.current-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.current-image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.current-image-item:hover .current-image-overlay {
+    opacity: 1;
+}
+
+.remove-image-btn {
+    background: var(--orange-pantone, #f26419);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.remove-image-btn:hover {
+    background: var(--orange-pantone-dark, #d55a15);
+}
+
+.no-images-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: var(--dark-gray, #6c757d);
+    font-style: italic;
+    padding: 2rem;
+}
+
+.new-images-section {
+    padding: 1.5rem;
+}
+
+.new-images-title {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--charcoal, #2f4858);
 }
 
 /* Services Checkboxes */
@@ -405,6 +578,34 @@
     .form-actions .auth-btn {
         width: 100%;
         justify-content: center;
+    }
+
+    .image-preview-container {
+        gap: 0.75rem;
+    }
+
+    .image-preview-item {
+        min-width: 100px;
+        max-width: 120px;
+    }
+
+    .image-preview-wrapper {
+        width: 80px;
+        height: 80px;
+    }
+
+    .current-images-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 0.75rem;
+    }
+
+    .current-image {
+        height: 100px;
+    }
+
+    .current-images-section,
+    .new-images-section {
+        padding: 1rem;
     }
 }
 

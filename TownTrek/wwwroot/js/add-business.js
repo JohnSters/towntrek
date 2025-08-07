@@ -200,6 +200,35 @@ function initializeFileUploads() {
             handleFilePreview(this, 'imagesPreview', false);
         });
     }
+
+    // Initialize existing image removal functionality for EditBusiness form
+    initializeExistingImageRemoval();
+}
+
+function initializeExistingImageRemoval() {
+    const removeButtons = document.querySelectorAll('.remove-image-btn');
+    
+    removeButtons.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const imageId = this.dataset.imageId;
+            const imageItem = this.closest('.current-image-item');
+            
+            if (confirm('Are you sure you want to remove this image?')) {
+                // Add to hidden input for removal
+                const removalInput = document.createElement('input');
+                removalInput.type = 'hidden';
+                removalInput.name = 'ImagesToRemove';
+                removalInput.value = imageId;
+                document.querySelector('form').appendChild(removalInput);
+                
+                // Remove from display
+                imageItem.remove();
+                
+                // Show notification
+                showNotification('Image marked for removal', 'info');
+            }
+        });
+    });
 }
 
 function handleFilePreview(input, previewContainerId, isSingle) {
@@ -214,17 +243,59 @@ function handleFilePreview(input, previewContainerId, isSingle) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const preview = document.createElement('div');
-                    preview.className = 'file-preview';
+                    preview.className = 'image-preview-item';
                     preview.innerHTML = `
-                        <img src="${e.target.result}" alt="Preview" style="max-width: 100px; max-height: 100px; object-fit: cover;">
-                        <p>${file.name}</p>
+                        <div class="image-preview-wrapper">
+                            <img src="${e.target.result}" alt="Preview" class="image-preview-img">
+                            <div class="image-preview-overlay">
+                                <button type="button" class="remove-preview-btn" data-index="${index}">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="image-preview-info">
+                            <p class="image-preview-name">${file.name}</p>
+                            <p class="image-preview-size">${formatFileSize(file.size)}</p>
+                        </div>
                     `;
                     previewContainer.appendChild(preview);
                 };
                 reader.readAsDataURL(file);
             }
         });
+
+        // Add event listeners for remove buttons
+        previewContainer.querySelectorAll('.remove-preview-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                removeFileFromInput(input, index);
+                this.closest('.image-preview-item').remove();
+            });
+        });
     }
+}
+
+function removeFileFromInput(input, index) {
+    const dt = new DataTransfer();
+    const { files } = input;
+    
+    for (let i = 0; i < files.length; i++) {
+        if (i !== index) {
+            dt.items.add(files[i]);
+        }
+    }
+    
+    input.files = dt.files;
+}
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
 // Address validation and geocoding

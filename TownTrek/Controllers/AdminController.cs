@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using TownTrek.Data;
 using TownTrek.Models;
 
@@ -10,10 +11,12 @@ namespace TownTrek.Controllers
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         // Dashboard - Main admin overview
@@ -199,6 +202,7 @@ namespace TownTrek.Controllers
                 .Include(b => b.Town)
                 .Include(b => b.BusinessHours)
                 .Include(b => b.BusinessServices)
+                .Include(b => b.BusinessImages)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (business == null)
@@ -236,6 +240,9 @@ namespace TownTrek.Controllers
                     SpecialHoursNote = bh.SpecialHoursNote
                 }).ToList() ?? new List<BusinessHourViewModel>(),
                 
+                // Populate existing business images
+                ExistingBusinessImages = business.BusinessImages?.Where(bi => bi.IsActive).OrderBy(bi => bi.DisplayOrder).ToList(),
+                
                 // Populate available towns
                 AvailableTowns = await _context.Towns.OrderBy(t => t.Name).ToListAsync(),
                 
@@ -255,6 +262,7 @@ namespace TownTrek.Controllers
             {
                 var business = await _context.Businesses
                     .Include(b => b.BusinessHours)
+                    .Include(b => b.BusinessImages)
                     .FirstOrDefaultAsync(b => b.Id == model.Id);
                 
                 if (business == null)
@@ -277,6 +285,32 @@ namespace TownTrek.Controllers
                 business.Longitude = model.Longitude;
                 business.TownId = model.TownId;
                 business.UpdatedAt = DateTime.UtcNow;
+
+                // Handle image removals
+                var imagesToRemove = Request.Form["ImagesToRemove"].ToList();
+                if (imagesToRemove.Any())
+                {
+                    var imagesToDelete = business.BusinessImages.Where(bi => imagesToRemove.Contains(bi.Id.ToString())).ToList();
+                    foreach (var image in imagesToDelete)
+                    {
+                        image.IsActive = false;
+                        image.UpdatedAt = DateTime.UtcNow;
+                    }
+                }
+
+                // Handle new image uploads
+                if (model.BusinessLogo != null)
+                {
+                    await SaveBusinessImage(business.Id, model.BusinessLogo, "Logo");
+                }
+
+                if (model.BusinessImages != null && model.BusinessImages.Any())
+                {
+                    foreach (var imageFile in model.BusinessImages)
+                    {
+                        await SaveBusinessImage(business.Id, imageFile, "Gallery");
+                    }
+                }
 
                 // Update business hours
                 if (model.BusinessHours != null)
@@ -506,6 +540,56 @@ namespace TownTrek.Controllers
                 6 => "Saturday",
                 _ => "Unknown"
             };
+        }
+
+        private async Task SaveBusinessImage(int businessId, IFormFile imageFile, string imageType)
+        {
+            if (imageFile == null || imageFile.Length == 0)
+                return;
+
+            // Validate file type
+            var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
+            if (!allowedTypes.Contains(imageFile.ContentType.ToLower()))
+                return;
+
+            // Validate file size (2MB limit)
+            if (imageFile.Length > 2 * 1024 * 1024)
+                return;
+
+            // Generate unique filename
+            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(imageFile.FileName)}";
+            var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "businesses");
+            
+            // Ensure directory exists
+            if (!Directory.Exists(uploadPath))
+                Directory.CreateDirectory(uploadPath);
+
+            var filePath = Path.Combine(uploadPath, fileName);
+
+            // Save file
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await imageFile.CopyToAsync(stream);
+            }
+
+            // Create business image record
+            var businessImage = new BusinessImage
+            {
+                BusinessId = businessId,
+                ImageType = imageType,
+                FileName = fileName,
+                OriginalFileName = imageFile.FileName,
+                FileSize = imageFile.Length,
+                ContentType = imageFile.ContentType,
+                ImageUrl = $"/uploads/businesses/{fileName}",
+                AltText = $"{imageType} for business",
+                DisplayOrder = 0,
+                IsActive = true,
+                IsApproved = true,
+                UploadedAt = DateTime.UtcNow
+            };
+
+            _context.BusinessImages.Add(businessImage);
         }
     }
 }

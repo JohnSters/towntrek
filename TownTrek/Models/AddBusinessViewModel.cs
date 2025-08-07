@@ -75,6 +75,9 @@ namespace TownTrek.Models
         [Display(Name = "Business Photos")]
         public List<IFormFile>? BusinessImages { get; set; }
 
+        // Existing business images (for editing)
+        public List<BusinessImage>? ExistingBusinessImages { get; set; }
+
         // Services
         public List<string> Services { get; set; } = new List<string>();
 
