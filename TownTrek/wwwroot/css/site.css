@@ -1,22 +1,64 @@
-html {
-  font-size: 14px;
+/* TownTrek - Main Stylesheet */
+/* This file imports all component stylesheets and contains global site styles */
+
+/* Import Design System Variables */
+@import url('./variables.css');
+
+/* Import Base Styles */
+@import url('./base.css');
+
+/* Import Component Styles */
+@import url('./buttons.css');
+@import url('./cards.css');
+@import url('./forms.css');
+@import url('./navigation.css');
+@import url('./footer.css');
+@import url('./auth.css');
+
+/* Import Page-Specific Styles */
+@import url('./landing.css');
+@import url('./add-business.css');
+@import url('./add-town.css');
+@import url('./admin-subscription.css');
+@import url('./subscription.css');
+@import url('./client-admin.css');
+
+/* Global Site Overrides */
+/* Add any site-specific global styles here that don't fit in other files */
+
+/* Utility Classes */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
-}
 
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
+  body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
 
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 60px;
+  .btn {
+    border: 1px solid #000;
+    background: transparent !important;
+    color: #000 !important;
+  }
 }

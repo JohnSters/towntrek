@@ -1,0 +1,330 @@
+@model TownTrek.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Get Started - TownTrek";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h1>Join TownTrek Community</h1>
+            <p>Create your account to connect with South African businesses and communities</p>
+        </div>
+
+        <form class="auth-form" id="registerForm" method="post" asp-action="Register">
+            @Html.AntiForgeryToken()
+            
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="error-message">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <div>@error.ErrorMessage</div>
+                    }
+                </div>
+            }
+            
+            <!-- Account Type Selection -->
+            <div class="form-group">
+                <label class="form-label">Account Type</label>
+                <div class="account-type-selection">
+                    <div class="account-type-card" data-type="business">
+                        <div class="account-type-icon">🏪</div>
+                        <div class="account-type-name">Business Owner</div>
+                        <div class="account-type-desc">Manage business listings and connect with customers</div>
+                        <div class="account-type-price">From R199/month</div>
+                    </div>
+                    
+                    <div class="account-type-card" data-type="community">
+                        <div class="account-type-icon">👥</div>
+                        <div class="account-type-name">Community Member</div>
+                        <div class="account-type-desc">Discover businesses, leave reviews, and connect</div>
+                        <div class="account-type-price">Free</div>
+                    </div>
+                </div>
+                <input asp-for="AccountType" type="hidden" id="accountType" value="business" />
+            </div>
+
+            <!-- Personal Information -->
+            <div class="form-group">
+                <label asp-for="FullName" class="form-label">Full Name</label>
+                <input 
+                    asp-for="FullName"
+                    class="form-input" 
+                    placeholder="John Smith"
+                    autocomplete="name"
+                />
+                <span asp-validation-for="FullName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">Email Address</label>
+                <input 
+                    asp-for="Email"
+                    class="form-input" 
+                    placeholder="your@email.com"
+                    autocomplete="email"
+                />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Phone" class="form-label">Phone Number</label>
+                <input 
+                    asp-for="Phone"
+                    class="form-input" 
+                    placeholder="+27 82 123 4567"
+                    autocomplete="tel"
+                />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Location" class="form-label">Location</label>
+                <input 
+                    asp-for="Location"
+                    class="form-input" 
+                    placeholder="Stellenbosch, Western Cape"
+                    autocomplete="address-level2"
+                />
+                <span asp-validation-for="Location" class="text-danger"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label asp-for="Password" class="form-label">Create Password</label>
+                <input 
+                    asp-for="Password"
+                    class="form-input" 
+                    placeholder="Minimum 6 characters"
+                    autocomplete="new-password"
+                />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                <input 
+                    asp-for="ConfirmPassword"
+                    class="form-input" 
+                    placeholder="Re-enter your password"
+                    autocomplete="new-password"
+                />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <!-- Plan Selection (Only for Business Owners) -->
+            <div class="plan-selection" id="planSelection" style="display: none;">
+                <label class="form-label">Choose Your Business Plan</label>
+                <div class="plan-cards">
+                    @if (ViewBag.SubscriptionTiers != null)
+                    {
+                        @foreach (var tier in (List<TownTrek.Models.SubscriptionTier>)ViewBag.SubscriptionTiers)
+                        {
+                            var isFeatured = tier.Name.Equals("Standard", StringComparison.OrdinalIgnoreCase);
+                            <div class="plan-card @(isFeatured ? "featured" : "")" data-plan="@tier.Id" data-tier-name="@tier.Name.ToLower()">
+                                <div class="plan-name">@tier.DisplayName</div>
+                                <div class="plan-price">R@(tier.MonthlyPrice.ToString("N0"))</div>
+                                <div class="plan-period">/month</div>
+                                @if (!string.IsNullOrEmpty(tier.Description))
+                                {
+                                    <div class="plan-description">@tier.Description</div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <!-- Fallback if no tiers are loaded -->
+                        <div class="plan-card" data-plan="1" data-tier-name="basic">
+                            <div class="plan-name">Basic</div>
+                            <div class="plan-price">R199</div>
+                            <div class="plan-period">/month</div>
+                        </div>
+                        
+                        <div class="plan-card featured" data-plan="2" data-tier-name="standard">
+                            <div class="plan-name">Standard</div>
+                            <div class="plan-price">R399</div>
+                            <div class="plan-period">/month</div>
+                        </div>
+                        
+                        <div class="plan-card" data-plan="3" data-tier-name="premium">
+                            <div class="plan-name">Premium</div>
+                            <div class="plan-price">R599</div>
+                            <div class="plan-period">/month</div>
+                        </div>
+                    }
+                </div>
+                <input asp-for="SelectedPlan" type="hidden" id="selectedPlan" value="2" />
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="checkbox-group">
+                <input asp-for="AcceptTerms" class="checkbox-input" />
+                <label asp-for="AcceptTerms" class="checkbox-label">
+                    I agree to the <a asp-area="" asp-controller="Home" asp-action="Terms" target="_blank">Terms of Service</a> 
+                    and <a asp-area="" asp-controller="Home" asp-action="Privacy" target="_blank">Privacy Policy</a>
+                </label>
+                <span asp-validation-for="AcceptTerms" class="text-danger"></span>
+            </div>
+
+            <div class="checkbox-group">
+                <input asp-for="MarketingEmails" class="checkbox-input" />
+                <label asp-for="MarketingEmails" class="checkbox-label">
+                    Send me helpful tips and updates about growing my business (optional)
+                </label>
+            </div>
+
+            <button type="submit" class="auth-btn auth-btn-primary" id="submitBtn">
+                Create Account
+            </button>
+        </form>
+
+        <div class="auth-links">
+            <p style="color: var(--dark-gray);">
+                Already have an account? 
+                <a asp-area="" asp-controller="Home" asp-action="Login" class="auth-link">Sign in here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Account Types Explanation -->
+<section style="background-color: var(--light-gray); padding: var(--space-2xl) 0;">
+    <div class="container">
+        <div class="text-center" style="margin-bottom: var(--space-xl);">
+            <h2 style="color: var(--charcoal); margin-bottom: var(--space-md);">
+                Two Ways to Join TownTrek
+            </h2>
+            <p style="color: var(--dark-gray); font-size: var(--body-large);">
+                Choose the account type that's right for you
+            </p>
+        </div>
+
+        <div class="grid grid-2" style="max-width: 800px; margin: 0 auto;">
+            <!-- Business Owner -->
+            <div style="background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;">
+                <div style="width: 60px; height: 60px; background-color: var(--hunyadi-yellow); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-md);">
+                    <span style="font-size: 24px;">🏪</span>
+                </div>
+                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Business Owner</h3>
+                <p style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-md);">
+                    Perfect for business owners who want to showcase their services and connect with customers
+                </p>
+                
+                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Create and manage business listings</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Upload photos and documents</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Respond to customer reviews</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Access business analytics</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Priority customer support</li>
+                </ul>
+                
+                <div style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--medium-gray);">
+                    <div style="font-size: var(--body-small); color: var(--lapis-lazuli); font-weight: var(--font-semibold);">From R199/month</div>
+                </div>
+            </div>
+
+            <!-- Community Member -->
+            <div style="background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center;">
+                <div style="width: 60px; height: 60px; background-color: var(--carolina-blue); border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-md);">
+                    <span style="font-size: 24px;">👥</span>
+                </div>
+                <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm);">Community Member</h3>
+                <p style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-md);">
+                    Ideal for customers who want to discover local businesses and share their experiences
+                </p>
+                
+                <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Discover local businesses</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Leave reviews and ratings</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Save favorite businesses</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Get directions and contact info</li>
+                    <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">✓ Join community discussions</li>
+                </ul>
+                
+                <div style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--medium-gray);">
+                    <div style="font-size: var(--body-small); color: var(--lapis-lazuli); font-weight: var(--font-semibold);">Free Forever</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Business Plans Section (Only shown when business account is selected) -->
+<section style="background-color: var(--white); padding: var(--space-2xl) 0;">
+    <div class="container">
+        <div class="text-center" style="margin-bottom: var(--space-xl);">
+            <h2 style="color: var(--charcoal); margin-bottom: var(--space-md);">
+                Business Plans & Pricing
+            </h2>
+            <p style="color: var(--dark-gray); font-size: var(--body-large);">
+                Simple, transparent pricing for South African businesses
+            </p>
+        </div>
+
+        <div class="pricing-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); max-width: 1200px; margin: 0 auto;">
+            @if (ViewBag.SubscriptionTiers != null)
+            {
+                @foreach (var tier in (List<TownTrek.Models.SubscriptionTier>)ViewBag.SubscriptionTiers)
+                {
+                    var isFeatured = tier.Name.Equals("Standard", StringComparison.OrdinalIgnoreCase);
+                    var borderStyle = isFeatured ? "border: 2px solid var(--hunyadi-yellow);" : "border: 1px solid var(--medium-gray);";
+                    
+                    <div style="background: var(--white); @borderStyle border-radius: var(--radius-lg); padding: var(--space-xl); text-align: center; position: relative; @(isFeatured ? "padding-top: calc(var(--space-xl) + 20px);" : "")">
+                        @if (isFeatured)
+                        {
+                            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--hunyadi-yellow); color: var(--charcoal); padding: var(--space-xs) var(--space-md); border-radius: var(--radius-sm); font-size: var(--body-xs); font-weight: var(--font-semibold); white-space: nowrap; z-index: 10;">Most Popular</div>
+                        }
+                        
+                        <h3 style="color: var(--charcoal); font-size: var(--h4-size); margin-bottom: var(--space-sm); @(isFeatured ? "margin-top: var(--space-sm);" : "")">@tier.DisplayName</h3>
+                        <div style="font-size: var(--h2-size); font-weight: var(--font-bold); color: var(--lapis-lazuli); margin-bottom: var(--space-xs);">R@(tier.MonthlyPrice.ToString("N0"))</div>
+                        <div style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-lg);">/month</div>
+                        
+                        @if (!string.IsNullOrEmpty(tier.Description))
+                        {
+                            <p style="color: var(--dark-gray); font-size: var(--body-small); margin-bottom: var(--space-md);">@tier.Description</p>
+                        }
+                        
+                        <ul style="list-style: none; padding: 0; margin: 0; text-align: left;">
+                            @{
+                                var maxBusinesses = tier.Limits.FirstOrDefault(l => l.LimitType == "MaxBusinesses")?.LimitValue ?? 1;
+                                var maxImages = tier.Limits.FirstOrDefault(l => l.LimitType == "MaxImages")?.LimitValue ?? 5;
+                                var maxPDFs = tier.Limits.FirstOrDefault(l => l.LimitType == "MaxPDFs")?.LimitValue ?? 0;
+                            }
+                            
+                            <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">
+                                ✓ @(maxBusinesses == -1 ? "Unlimited" : maxBusinesses.ToString()) business listing@(maxBusinesses != 1 ? "s" : "")
+                            </li>
+                            <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">
+                                ✓ @(maxImages == -1 ? "Unlimited" : maxImages.ToString()) image uploads per business
+                            </li>
+                            @if (maxPDFs > 0 || maxPDFs == -1)
+                            {
+                                <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">
+                                    ✓ @(maxPDFs == -1 ? "Unlimited" : maxPDFs.ToString()) PDF document uploads
+                                </li>
+                            }
+                            
+                            @foreach (var feature in tier.Features.Where(f => f.IsEnabled))
+                            {
+                                <li style="padding: var(--space-xs) 0; color: var(--charcoal); font-size: var(--body-small);">
+                                    ✓ @feature.FeatureName
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

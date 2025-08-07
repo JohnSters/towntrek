@@ -1,0 +1,197 @@
+@model TownTrek.Models.ViewModels.SubscriptionTierViewModel
+@{
+    ViewData["Title"] = "Create Subscription Tier";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Create New Subscription Tier</h1>
+            <p class="page-description">Add a new subscription plan for TownTrek business accounts.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Index")" class="auth-btn auth-btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Tiers
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Tier Details</h3>
+    </div>
+    
+    <form method="post" asp-action="Create" class="add-business-form">
+        @Html.AntiForgeryToken()
+        
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-error">
+                <strong>Please correct the following errors:</strong>
+                <ul style="margin: 0.5rem 0 0 1rem;">
+                    @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                </ul>
+            </div>
+        }
+
+        <!-- Basic Information -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h3 class="form-section-title">
+                    <span class="step-number">1</span>
+                    Basic Information
+                </h3>
+                <p class="form-section-description">Define the tier name, display name, and description.</p>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="Name" class="form-label required"></label>
+                    <input asp-for="Name" class="form-input" placeholder="e.g., Basic, Standard, Premium" />
+                    <span asp-validation-for="Name" class="error-message"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="DisplayName" class="form-label required"></label>
+                    <input asp-for="DisplayName" class="form-input" placeholder="e.g., Basic Plan, Standard Plan" />
+                    <span asp-validation-for="DisplayName" class="error-message"></span>
+                </div>
+                
+                <div class="form-group form-group-full">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-textarea" rows="3" placeholder="Brief description of what this tier offers"></textarea>
+                    <span asp-validation-for="Description" class="error-message"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="MonthlyPrice" class="form-label required"></label>
+                    <input asp-for="MonthlyPrice" class="form-input" type="number" step="0.01" min="0" />
+                    <span asp-validation-for="MonthlyPrice" class="error-message"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="SortOrder" class="form-label"></label>
+                    <input asp-for="SortOrder" class="form-input" type="number" min="1" max="100" />
+                    <span asp-validation-for="SortOrder" class="error-message"></span>
+                    <div class="form-help">Lower numbers appear first (1 = first, 100 = last)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Limits -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h3 class="form-section-title">
+                    <span class="step-number">2</span>
+                    Usage Limits
+                </h3>
+                <p class="form-section-description">Set limits for businesses, images, and PDFs. Use -1 for unlimited.</p>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="MaxBusinesses" class="form-label"></label>
+                    <input asp-for="MaxBusinesses" class="form-input" type="number" />
+                    <span asp-validation-for="MaxBusinesses" class="error-message"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="MaxImages" class="form-label"></label>
+                    <input asp-for="MaxImages" class="form-input" type="number" />
+                    <span asp-validation-for="MaxImages" class="error-message"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="MaxPDFs" class="form-label"></label>
+                    <input asp-for="MaxPDFs" class="form-input" type="number" />
+                    <span asp-validation-for="MaxPDFs" class="error-message"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h3 class="form-section-title">
+                    <span class="step-number">3</span>
+                    Features & Support
+                </h3>
+                <p class="form-section-description">Select which features are included in this tier.</p>
+            </div>
+            
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input asp-for="HasBasicSupport" class="service-checkbox" />
+                    <label asp-for="HasBasicSupport" class="checkbox-label">Basic Support</label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input asp-for="HasPrioritySupport" class="service-checkbox" />
+                    <label asp-for="HasPrioritySupport" class="checkbox-label">Priority Support</label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input asp-for="HasDedicatedSupport" class="service-checkbox" />
+                    <label asp-for="HasDedicatedSupport" class="checkbox-label">Dedicated Support</label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input asp-for="HasBasicAnalytics" class="service-checkbox" />
+                    <label asp-for="HasBasicAnalytics" class="checkbox-label">Basic Analytics</label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input asp-for="HasAdvancedAnalytics" class="service-checkbox" />
+                    <label asp-for="HasAdvancedAnalytics" class="checkbox-label">Advanced Analytics</label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input asp-for="HasFeaturedPlacement" class="service-checkbox" />
+                    <label asp-for="HasFeaturedPlacement" class="checkbox-label">Featured Placement</label>
+                </div>
+                
+                <div class="checkbox-item">
+                    <input asp-for="HasPDFUploads" class="service-checkbox" />
+                    <label asp-for="HasPDFUploads" class="checkbox-label">PDF Uploads</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h3 class="form-section-title">
+                    <span class="step-number">4</span>
+                    Status
+                </h3>
+                <p class="form-section-description">Set whether this tier is active and available for new subscriptions.</p>
+            </div>
+            
+            <div class="checkbox-group">
+                <div class="checkbox-item">
+                    <input asp-for="IsActive" class="service-checkbox" />
+                    <label asp-for="IsActive" class="checkbox-label">Active (available for new subscriptions)</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <a href="@Url.Action("Index")" class="auth-btn auth-btn-secondary">Cancel</a>
+            <button type="submit" class="auth-btn auth-btn-cta">Create Tier</button>
+        </div>
+    </form>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/admin-subscription.css" asp-append-version="true" />
+}

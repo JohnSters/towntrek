@@ -1,0 +1,134 @@
+@model TownTrek.Services.SubscriptionLimits
+
+@if (Model != null)
+{
+    <div class="limits-display">
+        <div class="limit-item">
+            <div class="limit-value">@Model.CurrentBusinessCount/@(Model.MaxBusinesses == -1 ? "∞" : Model.MaxBusinesses.ToString())</div>
+            <div class="limit-label">Businesses</div>
+            @if (Model.MaxBusinesses != -1)
+            {
+                var percentage = Model.MaxBusinesses > 0 ? (Model.CurrentBusinessCount * 100 / Model.MaxBusinesses) : 0;
+                var progressClass = percentage >= 90 ? "danger" : percentage >= 75 ? "warning" : "";
+                <div class="limit-progress">
+                    <div class="limit-progress-bar @progressClass" style="width: @Math.Min(percentage, 100)%"></div>
+                </div>
+            }
+        </div>
+
+        <div class="limit-item">
+            <div class="limit-value">@Model.CurrentImageCount/@(Model.MaxImages == -1 ? "∞" : Model.MaxImages.ToString())</div>
+            <div class="limit-label">Images</div>
+            @if (Model.MaxImages != -1)
+            {
+                var percentage = Model.MaxImages > 0 ? (Model.CurrentImageCount * 100 / Model.MaxImages) : 0;
+                var progressClass = percentage >= 90 ? "danger" : percentage >= 75 ? "warning" : "";
+                <div class="limit-progress">
+                    <div class="limit-progress-bar @progressClass" style="width: @Math.Min(percentage, 100)%"></div>
+                </div>
+            }
+        </div>
+
+        @if (Model.HasPDFUploads)
+        {
+            <div class="limit-item">
+                <div class="limit-value">@Model.CurrentPDFCount/@(Model.MaxPDFs == -1 ? "∞" : Model.MaxPDFs.ToString())</div>
+                <div class="limit-label">PDF Documents</div>
+                @if (Model.MaxPDFs != -1)
+                {
+                    var percentage = Model.MaxPDFs > 0 ? (Model.CurrentPDFCount * 100 / Model.MaxPDFs) : 0;
+                    var progressClass = percentage >= 90 ? "danger" : percentage >= 75 ? "warning" : "";
+                    <div class="limit-progress">
+                        <div class="limit-progress-bar @progressClass" style="width: @Math.Min(percentage, 100)%"></div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="feature-list">
+        <div class="feature-item @(Model.HasBasicSupport ? "enabled" : "disabled")">
+            <svg class="feature-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (Model.HasBasicSupport)
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                }
+                else
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                }
+            </svg>
+            Basic Support
+        </div>
+
+        <div class="feature-item @(Model.HasPrioritySupport ? "enabled" : "disabled")">
+            <svg class="feature-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (Model.HasPrioritySupport)
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                }
+                else
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                }
+            </svg>
+            Priority Support
+        </div>
+
+        <div class="feature-item @(Model.HasBasicAnalytics ? "enabled" : "disabled")">
+            <svg class="feature-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (Model.HasBasicAnalytics)
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                }
+                else
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                }
+            </svg>
+            Basic Analytics
+        </div>
+
+        <div class="feature-item @(Model.HasAdvancedAnalytics ? "enabled" : "disabled")">
+            <svg class="feature-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (Model.HasAdvancedAnalytics)
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                }
+                else
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                }
+            </svg>
+            Advanced Analytics
+        </div>
+
+        <div class="feature-item @(Model.HasFeaturedPlacement ? "enabled" : "disabled")">
+            <svg class="feature-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (Model.HasFeaturedPlacement)
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                }
+                else
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                }
+            </svg>
+            Featured Placement
+        </div>
+
+        <div class="feature-item @(Model.HasPDFUploads ? "enabled" : "disabled")">
+            <svg class="feature-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                @if (Model.HasPDFUploads)
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                }
+                else
+                {
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                }
+            </svg>
+            PDF Uploads
+        </div>
+    </div>
+}

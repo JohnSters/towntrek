@@ -1,6 +1,8 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using TownTrek.Models;
+
+using System.Diagnostics;
+
+using TownTrek.Models.ViewModels;
 
 namespace TownTrek.Controllers;
 
@@ -19,6 +21,16 @@ public class HomeController : Controller
     }
 
     public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    public IActionResult Download()
+    {
+        return View();
+    }
+
+    public IActionResult Terms()
     {
         return View();
     }

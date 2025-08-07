@@ -1,24 +1,73 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using TownTrek.Data;
+using TownTrek.Services;
+using TownTrek.Models;
 
 namespace TownTrek;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
         builder.AddServiceDefaults();
-
-        // Add services to the container.
-        builder.Services.AddDbContext<TownTrekDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
         
+        // Add Entity Framework
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        // Add Identity services
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+        {
+            // Password settings
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = true;
+            options.Password.RequiredLength = 6;
+            
+            // User settings
+            options.User.RequireUniqueEmail = true;
+        })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
+
+        // Configure application cookie settings
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/Auth/Login";
+            options.LogoutPath = "/Auth/Logout";
+            options.AccessDeniedPath = "/Auth/AccessDenied";
+            options.ExpireTimeSpan = TimeSpan.FromDays(30);
+            options.SlidingExpiration = true;
+        });
+
+        // Add these service registrations
+        builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
+        builder.Services.AddScoped<ISubscriptionAuthService, SubscriptionAuthService>();
+        builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+        builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddScoped<IPaymentService, PaymentService>();
+        builder.Services.AddScoped<IRoleInitializationService, RoleInitializationService>();
+
         builder.Services.AddControllersWithViews();
 
         var app = builder.Build();
 
         app.MapDefaultEndpoints();
+
+        // Seed the database and initialize roles
+        using (var scope = app.Services.CreateScope())
+        {
+            await DbSeeder.SeedAsync(scope.ServiceProvider);
+            
+            // Initialize roles
+            var roleInitService = scope.ServiceProvider.GetRequiredService<IRoleInitializationService>();
+            await roleInitService.InitializeRolesAsync();
+        }
 
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
@@ -33,7 +82,11 @@ public class Program
 
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
+        
+        // Add subscription redirect middleware
+        app.UseMiddleware<TownTrek.Middleware.SubscriptionRedirectMiddleware>();
 
         app.MapControllerRoute(
             name: "default",

@@ -4,15 +4,34 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - TownTrek</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    
+    <!-- TownTrek Design System CSS -->
+    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/buttons.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cards.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/navigation.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
+    
+    <!-- Main Site CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TownTrek.styles.css" asp-append-version="true" />
+    
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TownTrek</a>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light">
+            <div class="container">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <strong>TownTrek</strong>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,25 +39,67 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link" href="#features">Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#pricing">Pricing</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <div class="navbar-nav">
+                        <a class="nav-link" asp-area="" asp-controller="Auth" asp-action="Login" style="margin-right: 1rem;">Sign In</a>
+                        <a class="btn btn-primary" asp-area="" asp-controller="Auth" asp-action="Register" style="margin-left: 0.5rem;">Join TownTrek</a>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
+    <main role="main">
+        @RenderBody()
+    </main>
 
-    <footer class="border-top footer text-muted">
+    <footer class="footer">
         <div class="container">
-            &copy; 2025 - TownTrek - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            <div class="footer-grid">
+                <div>
+                    <h5>TownTrek</h5>
+                    <p>
+                        Connecting South African communities with local businesses. 
+                        Discover shops, restaurants, markets, and services across South Africa's vibrant small towns.
+                    </p>
+                    <div style="margin-top: var(--space-lg);">
+                        <span style="font-size: var(--body-xs); opacity: 0.7;">🇿🇦 Proudly South African</span>
+                    </div>
+                </div>
+                <div>
+                    <h6>Quick Links</h6>
+                    <ul>
+                        <li><a href="/#features">Features</a></li>
+                        <li><a href="/#pricing">Pricing</a></li>
+                        <li><a asp-area="" asp-controller="Auth" asp-action="Register">Get Started</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Download">Mobile App</a></li>
+                        <li><a href="/#business-owners">For Business</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h6>Legal & Support</h6>
+                    <ul>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy Policy</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Terms">Terms of Service</a></li>
+                        <li><a href="mailto:support@TownTrek.co.za">Support</a></li>
+                        <li><a href="mailto:hello@TownTrek.co.za">Contact Us</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <div class="footer-bottom">
+                &copy; 2025 TownTrek. All rights reserved. Made with ❤️ for South African communities.
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

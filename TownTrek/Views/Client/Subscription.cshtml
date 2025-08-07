@@ -1,0 +1,188 @@
+@model TownTrek.Controllers.ClientSubscriptionViewModel
+@{
+    ViewData["Title"] = "Subscription & Billing";
+    Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Subscription & Billing</h1>
+            <p class="page-description">Manage your subscription plan and billing information.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Dashboard", "Client")" class="btn btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-error">
+        <div class="alert-content">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <strong>Error</strong>
+                <p>@TempData["ErrorMessage"]</p>
+            </div>
+        </div>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        <div class="alert-content">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <strong>Success</strong>
+                <p>@TempData["SuccessMessage"]</p>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Current Subscription Status -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Current Subscription</h3>
+        <p class="card-description">Your current plan and usage</p>
+    </div>
+    
+    @if (Model.CurrentSubscription != null)
+    {
+        <div class="subscription-current">
+            <div class="subscription-info">
+                <h4>@Model.CurrentSubscription.SubscriptionTier.DisplayName</h4>
+                <p class="subscription-price">R@(Model.CurrentSubscription.MonthlyPrice.ToString("F2"))/month</p>
+                <p class="subscription-status">
+                    Status: <span class="subscription-badge badge-success">Active</span>
+                </p>
+                <p class="subscription-dates">
+                    Started: @Model.CurrentSubscription.StartDate.ToString("MMM dd, yyyy")
+                    @if (Model.CurrentSubscription.EndDate.HasValue)
+                    {
+                        <br />
+                        <text>Expires: @Model.CurrentSubscription.EndDate.Value.ToString("MMM dd, yyyy")</text>
+                    }
+                </p>
+            </div>
+            
+            <div class="usage-stats">
+                <h5>Usage Statistics</h5>
+                <div class="limits-display">
+                    <div class="limit-item">
+                        <div class="limit-value">@Model.BusinessCount</div>
+                        <div class="limit-label">Businesses</div>
+                        @{
+                            var maxBusinesses = Model.CurrentSubscription?.SubscriptionTier?.Limits?.FirstOrDefault(l => l.LimitType == "MaxBusinesses")?.LimitValue;
+                            var businessLimit = maxBusinesses == -1 ? "∞" : maxBusinesses?.ToString() ?? "1";
+                            var businessPercentage = maxBusinesses == -1 ? 0 : (maxBusinesses.HasValue ? (Model.BusinessCount * 100) / maxBusinesses.Value : 0);
+                        }
+                        <div class="limit-progress">
+                            <div class="limit-progress-bar @(businessPercentage > 80 ? "warning" : businessPercentage > 95 ? "danger" : "")" 
+                                 style="width: @(businessPercentage)%"></div>
+                        </div>
+                        <div class="limit-label">@Model.BusinessCount / @businessLimit</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="no-subscription">
+            <div class="empty-state">
+                <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-state-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+                <h3 class="empty-state-title">No Active Subscription</h3>
+                <p class="empty-state-description">You need an active subscription to add and manage business listings.</p>
+                <a href="#available-plans" class="btn btn-cta">View Available Plans</a>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Available Plans -->
+<div class="card" id="available-plans">
+    <div class="card-header">
+        <h3 class="card-title">Available Plans</h3>
+        <p class="card-description">Choose the plan that best fits your business needs</p>
+    </div>
+    
+    <div class="subscription-plans">
+        @foreach (var tier in Model.AvailableTiers)
+        {
+            <div class="plan-card @(Model.CurrentSubscription?.SubscriptionTierId == tier.Id ? "current-plan" : "")">
+                <div class="plan-header">
+                    <h4 class="plan-name">@tier.DisplayName</h4>
+                    <p class="plan-price">R@(tier.MonthlyPrice.ToString("F2"))<span>/month</span></p>
+                </div>
+                
+                <div class="plan-description">
+                    <p>@tier.Description</p>
+                </div>
+                
+                <div class="plan-features">
+                    <h5>Features:</h5>
+                    <ul>
+                        @foreach (var limit in tier.Limits)
+                        {
+                            <li>
+                                @switch (limit.LimitType)
+                                {
+                                    case "MaxBusinesses":
+                                        <span>@(limit.LimitValue == -1 ? "Unlimited" : limit.LimitValue.ToString()) Business Listings</span>
+                                        break;
+                                    case "MaxImages":
+                                        <span>@(limit.LimitValue == -1 ? "Unlimited" : limit.LimitValue.ToString()) Images per Business</span>
+                                        break;
+                                    case "MaxPDFs":
+                                        <span>@(limit.LimitValue == -1 ? "Unlimited" : limit.LimitValue == 0 ? "No" : limit.LimitValue.ToString()) PDF Documents</span>
+                                        break;
+                                }
+                            </li>
+                        }
+                        @foreach (var feature in tier.Features.Where(f => f.IsEnabled))
+                        {
+                            <li>@feature.FeatureName</li>
+                        }
+                    </ul>
+                </div>
+                
+                <div class="plan-actions">
+                    @if (Model.CurrentSubscription?.SubscriptionTierId == tier.Id)
+                    {
+                        <button class="btn btn-secondary" disabled>Current Plan</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-cta" onclick="selectPlan(@tier.Id)">
+                            @(Model.CurrentSubscription == null ? "Subscribe" : "Upgrade")
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function selectPlan(tierId) {
+            // This would integrate with payment processing
+            alert('Payment integration would be implemented here for tier ID: ' + tierId);
+        }
+    </script>
+}
