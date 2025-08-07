@@ -57,6 +57,18 @@
     padding: 1.5rem;
 }
 
+/* Category fields - stack vertically and fill full width */
+.category-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    grid-column: 1 / -1;
+}
+
+.category-fields .form-group {
+    width: 100%;
+}
+
 .form-group {
     display: flex;
     flex-direction: column;
@@ -554,6 +566,10 @@
     .form-grid {
         grid-template-columns: 1fr;
         padding: 1rem;
+    }
+    
+    .category-fields {
+        gap: 1rem;
     }
     
     .day-hours-group {
