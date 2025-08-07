@@ -419,31 +419,101 @@ namespace TownTrek.Services
 
         private async Task HandleFileUploadsAsync(int businessId, AddBusinessViewModel model)
         {
-            // This is a placeholder for file upload handling
-            // In a real implementation, you would:
-            // 1. Validate file types and sizes
-            // 2. Generate unique file names
-            // 3. Save files to storage (local, Azure Blob, AWS S3, etc.)
-            // 4. Create BusinessImage records
-            // 5. Update Business entity with file URLs
-
-            // For now, we'll just log that files were received
-            if (model.BusinessLogo != null)
+            try
             {
-                _logger.LogInformation("Logo file received for business {BusinessId}: {FileName}", businessId, model.BusinessLogo.FileName);
+                // Handle business logo
+                if (model.BusinessLogo != null)
+                {
+                    await SaveBusinessImageAsync(businessId, model.BusinessLogo, "Logo");
+                }
+
+                // Handle business images (gallery)
+                if (model.BusinessImages?.Any() == true)
+                {
+                    foreach (var image in model.BusinessImages)
+                    {
+                        await SaveBusinessImageAsync(businessId, image, "Gallery");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error handling file uploads for business {BusinessId}", businessId);
+                throw;
+            }
+        }
+
+        private async Task SaveBusinessImageAsync(int businessId, IFormFile file, string imageType)
+        {
+            if (file == null || file.Length == 0) return;
+
+            // Validate file
+            var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
+            if (!allowedTypes.Contains(file.ContentType.ToLower()))
+            {
+                _logger.LogWarning("Invalid file type {ContentType} for business {BusinessId}", file.ContentType, businessId);
+                return;
             }
 
-            if (model.CoverImage != null)
+            // Check file size (2MB limit)
+            if (file.Length > 2 * 1024 * 1024)
             {
-                _logger.LogInformation("Cover image received for business {BusinessId}: {FileName}", businessId, model.CoverImage.FileName);
+                _logger.LogWarning("File too large {FileSize} for business {BusinessId}", file.Length, businessId);
+                return;
             }
 
-            if (model.BusinessImages?.Any() == true)
+            try
             {
-                _logger.LogInformation("Gallery images received for business {BusinessId}: {Count} files", businessId, model.BusinessImages.Count);
-            }
+                // Generate unique filename
+                var fileExtension = Path.GetExtension(file.FileName);
+                var uniqueFileName = $"{businessId}_{imageType}_{Guid.NewGuid()}{fileExtension}";
+                
+                // Create uploads directory if it doesn't exist
+                var uploadsPath = Path.Combine("wwwroot", "uploads", "businesses");
+                Directory.CreateDirectory(uploadsPath);
+                
+                // Full file path
+                var filePath = Path.Combine(uploadsPath, uniqueFileName);
+                
+                // Save file to disk
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
 
-            await Task.CompletedTask;
+                // Create database record
+                var businessImage = new BusinessImage
+                {
+                    BusinessId = businessId,
+                    ImageType = imageType,
+                    FileName = uniqueFileName,
+                    OriginalFileName = file.FileName,
+                    FileSize = file.Length,
+                    ContentType = file.ContentType,
+                    ImageUrl = $"/uploads/businesses/{uniqueFileName}",
+                    DisplayOrder = imageType == "Logo" ? 0 : await GetNextDisplayOrderAsync(businessId),
+                    IsActive = true,
+                    IsApproved = false, // Requires admin approval
+                    UploadedAt = DateTime.UtcNow
+                };
+
+                await _context.BusinessImages.AddAsync(businessImage);
+                
+                _logger.LogInformation("Image saved for business {BusinessId}: {FileName}", businessId, uniqueFileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving image for business {BusinessId}", businessId);
+                throw;
+            }
+        }
+
+        private async Task<int> GetNextDisplayOrderAsync(int businessId)
+        {
+            var maxOrder = await _context.BusinessImages
+                .Where(bi => bi.BusinessId == businessId)
+                .MaxAsync(bi => (int?)bi.DisplayOrder) ?? 0;
+            return maxOrder + 1;
         }
 
         private async Task HandleCategorySpecificDataAsync(int businessId, string category, AddBusinessViewModel model)

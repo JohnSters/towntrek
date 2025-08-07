@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
+
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;

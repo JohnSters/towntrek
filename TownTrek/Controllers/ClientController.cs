@@ -4,38 +4,28 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
+using TownTrek.Models.ViewModels;
 using TownTrek.Services;
 using TownTrek.Attributes;
 using System.Security.Claims;
-using TownTrek.Models.ViewModels;
 
 namespace TownTrek.Controllers
 {
     [Authorize]
-    public class ClientController : Controller
+    public class ClientController(
+        ApplicationDbContext context,
+        IBusinessService businessService,
+        ISubscriptionTierService subscriptionService,
+        ISubscriptionAuthService subscriptionAuthService,
+        UserManager<ApplicationUser> userManager,
+        ILogger<ClientController> logger) : Controller
     {
-        private readonly ApplicationDbContext _context;
-        private readonly IBusinessService _businessService;
-        private readonly ISubscriptionTierService _subscriptionService;
-        private readonly ISubscriptionAuthService _subscriptionAuthService;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<ClientController> _logger;
-
-        public ClientController(
-            ApplicationDbContext context,
-            IBusinessService businessService,
-            ISubscriptionTierService subscriptionService,
-            ISubscriptionAuthService subscriptionAuthService,
-            UserManager<ApplicationUser> userManager,
-            ILogger<ClientController> logger)
-        {
-            _context = context;
-            _businessService = businessService;
-            _subscriptionService = subscriptionService;
-            _subscriptionAuthService = subscriptionAuthService;
-            _userManager = userManager;
-            _logger = logger;
-        }
+        private readonly ApplicationDbContext _context = context;
+        private readonly IBusinessService _businessService = businessService;
+        private readonly ISubscriptionTierService _subscriptionService = subscriptionService;
+        private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly ILogger<ClientController> _logger = logger;
 
         // Dashboard - Main overview page
         [RequireActiveSubscription(allowFreeTier: true)]
@@ -161,7 +151,12 @@ namespace TownTrek.Controllers
 
             // Convert business to view model
             var model = await ConvertBusinessToViewModel(business);
-            return View("AddBusiness", model);
+            
+            // Set subscription tier for layout display
+            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
+            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            
+            return View("EditBusiness", model);
         }
 
         [HttpPost]
@@ -401,10 +396,148 @@ namespace TownTrek.Controllers
             // Load existing business images
             model.ExistingBusinessImages = business.BusinessImages.Where(bi => bi.IsActive).ToList();
 
+            // Load category-specific data
+            await LoadCategorySpecificDataAsync(model, business);
+
             return model;
         }
 
-        private string GetDayName(int dayOfWeek)
+        private async Task LoadCategorySpecificDataAsync(AddBusinessViewModel model, Business business)
+        {
+            switch (business.Category.ToLower())
+            {
+                case "restaurants-food":
+                    await LoadRestaurantDetailsAsync(model, business.Id);
+                    break;
+                case "accommodation":
+                    await LoadAccommodationDetailsAsync(model, business.Id);
+                    break;
+                case "tours-experiences":
+                    await LoadTourDetailsAsync(model, business.Id);
+                    break;
+                case "events":
+                    await LoadEventDetailsAsync(model, business.Id);
+                    break;
+                case "markets-vendors":
+                    await LoadMarketDetailsAsync(model, business.Id);
+                    break;
+            }
+        }
+
+        private async Task LoadRestaurantDetailsAsync(AddBusinessViewModel model, int businessId)
+        {
+            var restaurantDetails = await _context.RestaurantDetails.FirstOrDefaultAsync(rd => rd.BusinessId == businessId);
+            if (restaurantDetails != null)
+            {
+                model.CuisineType = restaurantDetails.CuisineType;
+                model.PriceRange = restaurantDetails.PriceRange;
+                model.HasDelivery = restaurantDetails.HasDelivery;
+                model.HasTakeaway = restaurantDetails.HasTakeaway;
+                model.AcceptsReservations = restaurantDetails.AcceptsReservations;
+                model.SeatingCapacity = restaurantDetails.SeatingCapacity;
+                model.DietaryOptions = restaurantDetails.DietaryOptions;
+                model.MenuUrl = restaurantDetails.MenuUrl;
+                model.HasKidsMenu = restaurantDetails.HasKidsMenu;
+                model.HasOutdoorSeating = restaurantDetails.HasOutdoorSeating;
+                model.ServesBreakfast = restaurantDetails.ServesBreakfast;
+                model.ServesLunch = restaurantDetails.ServesLunch;
+                model.ServesDinner = restaurantDetails.ServesDinner;
+                model.ServesAlcohol = restaurantDetails.ServesAlcohol;
+            }
+        }
+
+        private async Task LoadAccommodationDetailsAsync(AddBusinessViewModel model, int businessId)
+        {
+            var accommodationDetails = await _context.AccommodationDetails.FirstOrDefaultAsync(ad => ad.BusinessId == businessId);
+            if (accommodationDetails != null)
+            {
+                model.PropertyType = accommodationDetails.PropertyType;
+                model.StarRating = accommodationDetails.StarRating;
+                model.RoomCount = accommodationDetails.RoomCount;
+                model.MaxGuests = accommodationDetails.MaxGuests;
+                model.CheckInTime = accommodationDetails.CheckInTime?.ToString(@"hh\:mm");
+                model.CheckOutTime = accommodationDetails.CheckOutTime?.ToString(@"hh\:mm");
+                model.Amenities = accommodationDetails.Amenities;
+                model.HasWiFi = accommodationDetails.HasWiFi;
+                model.HasPool = accommodationDetails.HasPool;
+                model.HasRestaurant = accommodationDetails.HasRestaurant;
+                model.IsPetFriendly = accommodationDetails.IsPetFriendly;
+            }
+        }
+
+        private async Task LoadTourDetailsAsync(AddBusinessViewModel model, int businessId)
+        {
+            var tourDetails = await _context.TourDetails.FirstOrDefaultAsync(td => td.BusinessId == businessId);
+            if (tourDetails != null)
+            {
+                model.TourType = tourDetails.TourType;
+                model.Duration = tourDetails.Duration;
+                model.MaxGroupSize = tourDetails.MaxGroupSize;
+                model.MinGroupSize = tourDetails.MinGroupSize;
+                model.MinAge = tourDetails.MinAge;
+                model.DifficultyLevel = tourDetails.DifficultyLevel;
+                model.DepartureLocation = tourDetails.DepartureLocation;
+                model.Itinerary = tourDetails.Itinerary;
+                model.IncludedItems = tourDetails.IncludedItems;
+                model.ExcludedItems = tourDetails.ExcludedItems;
+                model.RequiredEquipment = tourDetails.RequiredEquipment;
+                model.PricingInfo = tourDetails.PricingInfo;
+                model.RequiresBooking = tourDetails.RequiresBooking;
+                model.AdvanceBookingDays = tourDetails.AdvanceBookingDays;
+                model.IsWeatherDependent = tourDetails.IsWeatherDependent;
+                model.IsAccessible = tourDetails.IsAccessible;
+            }
+        }
+
+        private async Task LoadEventDetailsAsync(AddBusinessViewModel model, int businessId)
+        {
+            var eventDetails = await _context.EventDetails.FirstOrDefaultAsync(ed => ed.BusinessId == businessId);
+            if (eventDetails != null)
+            {
+                model.EventType = eventDetails.EventType;
+                model.EventStartDate = eventDetails.StartDate;
+                model.EventEndDate = eventDetails.EndDate;
+                model.EventStartTime = eventDetails.StartTime?.ToString(@"hh\:mm");
+                model.EventEndTime = eventDetails.EndTime?.ToString(@"hh\:mm");
+                model.IsRecurringEvent = eventDetails.IsRecurring;
+                model.EventRecurrencePattern = eventDetails.RecurrencePattern;
+                model.Venue = eventDetails.Venue;
+                model.VenueAddress = eventDetails.VenueAddress;
+                model.MaxAttendees = eventDetails.MaxAttendees;
+                model.TicketInfo = eventDetails.TicketInfo;
+                model.OrganizerContact = eventDetails.OrganizerContact;
+                model.RequiresTickets = eventDetails.RequiresTickets;
+                model.IsFreeEvent = eventDetails.IsFreeEvent;
+                model.EventProgram = eventDetails.EventProgram;
+                model.HasParking = eventDetails.HasParking;
+                model.IsOutdoorEvent = eventDetails.IsOutdoorEvent;
+            }
+        }
+
+        private async Task LoadMarketDetailsAsync(AddBusinessViewModel model, int businessId)
+        {
+            var marketDetails = await _context.MarketDetails.FirstOrDefaultAsync(md => md.BusinessId == businessId);
+            if (marketDetails != null)
+            {
+                model.MarketType = marketDetails.MarketType;
+                model.IsRecurringMarket = marketDetails.IsRecurring;
+                model.RecurrencePattern = marketDetails.RecurrencePattern;
+                model.MarketDays = !string.IsNullOrEmpty(marketDetails.MarketDays) 
+                    ? marketDetails.MarketDays.Split(',').ToList() 
+                    : new List<string>();
+                model.MarketStartTime = marketDetails.MarketStartTime?.ToString(@"hh\:mm");
+                model.MarketEndTime = marketDetails.MarketEndTime?.ToString(@"hh\:mm");
+                model.EstimatedVendorCount = marketDetails.EstimatedVendorCount;
+                model.VendorTypes = marketDetails.VendorTypes;
+                model.ParkingInfo = marketDetails.ParkingInfo;
+                model.EntryFee = marketDetails.EntryFee;
+                model.HasRestrooms = marketDetails.HasRestrooms;
+                model.HasFoodVendors = marketDetails.HasFoodVendors;
+                model.IsCoveredVenue = marketDetails.IsCoveredVenue;
+            }
+        }
+
+        private static string GetDayName(int dayOfWeek)
         {
             var days = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
             return days[dayOfWeek];
