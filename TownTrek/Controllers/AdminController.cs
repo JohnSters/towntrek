@@ -197,7 +197,7 @@ namespace TownTrek.Controllers
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
 
-            return View(businesses);
+            return View("~/Views/Admin/Businesses/Index.cshtml", businesses);
         }
 
         public async Task<IActionResult> EditBusiness(int id)
@@ -255,7 +255,7 @@ namespace TownTrek.Controllers
                 AvailableSubCategories = GetBusinessSubCategories(business.Category)
             };
 
-            return View("EditBusiness", model);
+            return View("~/Views/Admin/Businesses/EditBusiness.cshtml", model);
         }
 
         [HttpPost]
@@ -354,7 +354,7 @@ namespace TownTrek.Controllers
             model.AvailableCategories = GetBusinessCategories();
             model.AvailableSubCategories = GetBusinessSubCategories(model.BusinessCategory);
             
-            return View("EditBusiness", model);
+            return View("~/Views/Admin/Businesses/EditBusiness.cshtml", model);
         }
 
         [HttpPost]

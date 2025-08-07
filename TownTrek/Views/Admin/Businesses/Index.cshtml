@@ -1,0 +1,233 @@
+@model List<TownTrek.Models.Business>
+@{
+    ViewData["Title"] = "Manage Businesses";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Manage Businesses</h1>
+            <p class="page-description">Review, approve, and manage all business listings in the system.</p>
+        </div>
+        <div class="page-actions">
+            <button class="auth-btn auth-btn-secondary" onclick="exportBusinesses()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Export Data
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Business Statistics -->
+<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Count</div>
+        <div class="stat-label">Total Businesses</div>
+        <div class="stat-change">@Model.Count(b => b.Status == "Active") active</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Count(b => b.Status == "Pending")</div>
+        <div class="stat-label">Pending Approval</div>
+        <div class="stat-change">Require review</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Count(b => b.Status == "Active")</div>
+        <div class="stat-label">Active Businesses</div>
+        <div class="stat-change">Live on platform</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon secondary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.GroupBy(b => b.Town.Province).Count()</div>
+        <div class="stat-label">Provinces</div>
+        <div class="stat-change">Represented</div>
+    </div>
+</div>
+
+<!-- Businesses Table -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">All Businesses</h3>
+        <div class="admin-card-actions">
+            <button class="header-btn" title="Filter" onclick="toggleFilters()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+            </button>
+            <button class="header-btn" title="Refresh" onclick="location.reload()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    @if (Model.Any())
+    {
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Business Name</th>
+                        <th>Category</th>
+                        <th>Town</th>
+                        <th>Owner</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var business in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="table-cell-content">
+                                    <div class="table-cell-title">@business.Name</div>
+                                    @if (!string.IsNullOrEmpty(business.ShortDescription))
+                                    {
+                                        <div class="table-cell-subtitle">@business.ShortDescription.Substring(0, Math.Min(60, business.ShortDescription.Length))@(business.ShortDescription.Length > 60 ? "..." : "")</div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(business.PhoneNumber))
+                                    {
+                                        <div class="table-cell-subtitle">
+                                            <strong>Phone:</strong> @business.PhoneNumber
+                                        </div>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-cell-content">
+                                    <div class="table-cell-title">@business.Category</div>
+                                    @if (!string.IsNullOrEmpty(business.SubCategory))
+                                    {
+                                        <div class="table-cell-subtitle">@business.SubCategory</div>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-cell-content">
+                                    <div class="table-cell-title">@business.Town.Name</div>
+                                    <div class="table-cell-subtitle">@business.Town.Province</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-cell-content">
+                                    <div class="table-cell-title">@business.User.UserName</div>
+                                    <div class="table-cell-subtitle">@business.User.Email</div>
+                                </div>
+                            </td>
+                            <td>
+                                @switch (business.Status)
+                                {
+                                    case "Pending":
+                                        <span class="badge badge-warning">Pending</span>
+                                        break;
+                                    case "Active":
+                                        <span class="badge badge-success">Active</span>
+                                        break;
+                                    case "Inactive":
+                                        <span class="badge badge-secondary">Inactive</span>
+                                        break;
+                                    case "Suspended":
+                                        <span class="badge badge-danger">Suspended</span>
+                                        break;
+                                    default:
+                                        <span class="badge badge-secondary">@business.Status</span>
+                                        break;
+                                }
+                            </td>
+                            <td>@business.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="table-actions">
+                                    <!-- View/Edit Button -->
+                                    <a href="@Url.Action("EditBusiness", "Admin", new { id = business.Id })" class="table-action-btn" title="Edit">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </a>
+
+                                    <!-- Approve Button (only for pending businesses) -->
+                                    @if (business.Status == "Pending")
+                                    {
+                                        <button type="button" class="table-action-btn success" title="Approve" onclick="confirmApproveBusiness('@business.Name', @business.Id)">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </button>
+                                    }
+
+                                    <!-- Reject Button (only for pending businesses) -->
+                                    @if (business.Status == "Pending")
+                                    {
+                                        <button type="button" class="table-action-btn warning" title="Reject" onclick="confirmRejectBusiness('@business.Name', @business.Id)">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    }
+
+                                    <!-- Suspend Button (only for active businesses) -->
+                                    @if (business.Status == "Active")
+                                    {
+                                        <button type="button" class="table-action-btn warning" title="Suspend" onclick="confirmSuspendBusiness('@business.Name', @business.Id)">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                            </svg>
+                                        </button>
+                                    }
+
+                                    <!-- Delete Button (for all statuses except deleted) -->
+                                    @if (business.Status != "Deleted")
+                                    {
+                                        <button type="button" class="table-action-btn danger" title="Delete" onclick="confirmDeleteBusiness('@business.Name', @business.Id)">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-state-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            <h3 class="empty-state-title">No Businesses Found</h3>
+            <p class="empty-state-description">No business listings have been submitted yet.</p>
+        </div>
+    }
+</div>

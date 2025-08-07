@@ -34,12 +34,12 @@ namespace TownTrek.Controllers
                 TempData.Remove("SuccessMessage");
             }
 
-            return View("~/Views/Client/Subscription.cshtml", model);
+            return View("~/Views/Client/Subscription/Index.cshtml", model);
         }
 
         public IActionResult Billing()
         {
-            return View("~/Views/Client/Billing.cshtml");
+            return View("~/Views/Client/Subscription/Billing.cshtml");
         }
     }
 }

@@ -22,7 +22,7 @@ namespace TownTrek.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var analyticsModel = await _clientService.GetAnalyticsViewModelAsync(userId);
 
-            return View("~/Views/Client/Analytics.cshtml", analyticsModel);
+            return View("~/Views/Client/Analytics/Index.cshtml", analyticsModel);
         }
     }
 }

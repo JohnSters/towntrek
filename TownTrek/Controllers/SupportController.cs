@@ -12,12 +12,12 @@ namespace TownTrek.Controllers
         // Support & Help
         public IActionResult Support()
         {
-            return View("~/Views/Client/Support.cshtml");
+            return View("~/Views/Client/Support/Index.cshtml");
         }
 
         public IActionResult Documentation()
         {
-            return View("~/Views/Client/Documentation.cshtml");
+            return View("~/Views/Client/Documentation/Index.cshtml");
         }
     }
 }

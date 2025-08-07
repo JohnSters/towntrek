@@ -57,7 +57,7 @@ namespace TownTrek.Controllers
             var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
             ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
             
-            return View(user);
+            return View("~/Views/Client/Profile/Index.cshtml", user);
         }
 
         // Settings
@@ -69,7 +69,19 @@ namespace TownTrek.Controllers
             var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
             ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
             
-            return View();
+            return View("~/Views/Client/Profile/Settings.cshtml");
+        }
+
+        // Billing
+        public async Task<IActionResult> Billing()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            
+            // Set subscription tier for layout display
+            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
+            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            
+            return View("~/Views/Client/Subscription/Billing.cshtml");
         }
 
     }
