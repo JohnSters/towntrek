@@ -1,6 +1,8 @@
-using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using TownTrek.Models;
+
+using System.Diagnostics;
+
+using TownTrek.Models.ViewModels;
 
 namespace TownTrek.Controllers;
 

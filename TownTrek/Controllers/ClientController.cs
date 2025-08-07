@@ -7,6 +7,7 @@ using TownTrek.Models;
 using TownTrek.Services;
 using TownTrek.Attributes;
 using System.Security.Claims;
+using TownTrek.Models.ViewModels;
 
 namespace TownTrek.Controllers
 {
@@ -184,9 +185,37 @@ namespace TownTrek.Controllers
                 }
             }
             
-            // Reload the view model data if there are validation errors
-            model = await _businessService.GetAddBusinessViewModelAsync(userId);
-            return View("AddBusiness", model);
+            // If there are validation errors, reload the business data and preserve the form data
+            var business = await _businessService.GetBusinessByIdAsync(id, userId);
+            if (business != null)
+            {
+                var baseModel = await _businessService.GetAddBusinessViewModelAsync(userId);
+                
+                // Preserve the form data that was submitted
+                baseModel.Id = model.Id;
+                baseModel.BusinessName = model.BusinessName;
+                baseModel.BusinessCategory = model.BusinessCategory;
+                baseModel.SubCategory = model.SubCategory;
+                baseModel.TownId = model.TownId;
+                baseModel.BusinessDescription = model.BusinessDescription;
+                baseModel.ShortDescription = model.ShortDescription;
+                baseModel.PhoneNumber = model.PhoneNumber;
+                baseModel.PhoneNumber2 = model.PhoneNumber2;
+                baseModel.EmailAddress = model.EmailAddress;
+                baseModel.Website = model.Website;
+                baseModel.PhysicalAddress = model.PhysicalAddress;
+                baseModel.Latitude = model.Latitude;
+                baseModel.Longitude = model.Longitude;
+                baseModel.BusinessHours = model.BusinessHours;
+                baseModel.Services = model.Services;
+                
+                // Load existing business images
+                baseModel.ExistingBusinessImages = business.BusinessImages.Where(bi => bi.IsActive).ToList();
+                
+                return View("AddBusiness", baseModel);
+            }
+            
+            return RedirectToAction("ManageBusinesses");
         }
 
         [HttpPost]
@@ -315,6 +344,9 @@ namespace TownTrek.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var model = await _businessService.GetAddBusinessViewModelAsync(userId);
             
+            // Set the ID for editing
+            model.Id = business.Id;
+            
             // Populate with existing business data
             model.BusinessName = business.Name;
             model.BusinessCategory = business.Category;
@@ -330,20 +362,44 @@ namespace TownTrek.Controllers
             model.Latitude = business.Latitude;
             model.Longitude = business.Longitude;
 
-            // Convert business hours
-            model.BusinessHours = business.BusinessHours.Select(bh => new BusinessHourViewModel
+            // Convert business hours - ensure all days are represented
+            var existingHours = business.BusinessHours.ToDictionary(bh => bh.DayOfWeek, bh => bh);
+            model.BusinessHours = new List<BusinessHourViewModel>();
+            
+            for (int i = 0; i < 7; i++)
             {
-                DayOfWeek = bh.DayOfWeek,
-                DayName = GetDayName(bh.DayOfWeek),
-                IsOpen = bh.IsOpen,
-                OpenTime = bh.OpenTime?.ToString(@"hh\:mm"),
-                CloseTime = bh.CloseTime?.ToString(@"hh\:mm"),
-                IsSpecialHours = bh.IsSpecialHours,
-                SpecialHoursNote = bh.SpecialHoursNote
-            }).ToList();
+                if (existingHours.TryGetValue(i, out var existingHour))
+                {
+                    model.BusinessHours.Add(new BusinessHourViewModel
+                    {
+                        DayOfWeek = i,
+                        DayName = GetDayName(i),
+                        IsOpen = existingHour.IsOpen,
+                        OpenTime = existingHour.OpenTime?.ToString(@"hh\:mm"),
+                        CloseTime = existingHour.CloseTime?.ToString(@"hh\:mm"),
+                        IsSpecialHours = existingHour.IsSpecialHours,
+                        SpecialHoursNote = existingHour.SpecialHoursNote
+                    });
+                }
+                else
+                {
+                    // Add default closed day
+                    model.BusinessHours.Add(new BusinessHourViewModel
+                    {
+                        DayOfWeek = i,
+                        DayName = GetDayName(i),
+                        IsOpen = false,
+                        OpenTime = "09:00",
+                        CloseTime = "17:00"
+                    });
+                }
+            }
 
             // Convert services
             model.Services = business.BusinessServices.Where(s => s.IsActive).Select(s => s.ServiceType).ToList();
+
+            // Load existing business images
+            model.ExistingBusinessImages = business.BusinessImages.Where(bi => bi.IsActive).ToList();
 
             return model;
         }

@@ -16,6 +16,9 @@ function initializeAddBusinessForm() {
 
     console.log('Form initialization complete');
 
+    // Initialize for editing mode if category is pre-selected
+    initializeEditingMode();
+
     // Test category sections exist
     testCategorySections();
 }
@@ -28,6 +31,23 @@ function testCategorySections() {
         const section = document.getElementById(sectionId);
         console.log(`${sectionId}: ${section ? 'Found' : 'NOT FOUND'}`);
     });
+}
+
+function initializeEditingMode() {
+    const categorySelect = document.getElementById('businessCategory');
+    if (categorySelect && categorySelect.value) {
+        console.log('Editing mode detected, initializing category:', categorySelect.value);
+        
+        // Hide all sections first
+        hideAllCategorySections();
+        
+        // Show the appropriate section for the selected category
+        showCategorySpecificSection(categorySelect.value);
+        
+        // Trigger subcategory loading
+        const event = new Event('change');
+        categorySelect.dispatchEvent(event);
+    }
 }
 
 // Category and subcategory handling
@@ -162,10 +182,10 @@ function updateStepNumbers() {
 function initializeOperatingHours() {
     const dayCheckboxes = document.querySelectorAll('.day-checkbox');
 
-    dayCheckboxes.forEach(checkbox => {
+    dayCheckboxes.forEach((checkbox, index) => {
         checkbox.addEventListener('change', function () {
-            const dayName = this.value;
-            const timeInputs = document.querySelectorAll(`input[name="${dayName}Open"], input[name="${dayName}Close"]`);
+            const dayGroup = this.closest('.day-hours-group');
+            const timeInputs = dayGroup.querySelectorAll('.time-input');
 
             timeInputs.forEach(input => {
                 input.disabled = !this.checked;
@@ -173,13 +193,20 @@ function initializeOperatingHours() {
                     input.value = '';
                 } else {
                     // Set default times when enabled
-                    if (input.name.includes('Open') && !input.value) {
+                    if (input.name.includes('OpenTime') && !input.value) {
                         input.value = '09:00';
-                    } else if (input.name.includes('Close') && !input.value) {
+                    } else if (input.name.includes('CloseTime') && !input.value) {
                         input.value = '17:00';
                     }
                 }
             });
+        });
+
+        // Initialize state on page load
+        const dayGroup = checkbox.closest('.day-hours-group');
+        const timeInputs = dayGroup.querySelectorAll('.time-input');
+        timeInputs.forEach(input => {
+            input.disabled = !checkbox.checked;
         });
     });
 }
@@ -357,20 +384,44 @@ function initializeFormValidation() {
 
     if (form) {
         form.addEventListener('submit', function (e) {
+            console.log('Form submission started...');
+            
+            // Ensure all hidden required fields are disabled before submission
+            ensureHiddenFieldsAreDisabled();
+            
             if (!validateForm()) {
+                console.log('Form validation failed');
                 e.preventDefault();
                 return false;
             }
+            
+            console.log('Form validation passed, submitting...');
         });
     }
 }
 
+function ensureHiddenFieldsAreDisabled() {
+    const hiddenSections = document.querySelectorAll('.category-section[style*="display: none"]');
+    hiddenSections.forEach(section => {
+        const requiredFields = section.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            field.removeAttribute('required');
+            console.log('Removed required attribute from hidden field:', field.name);
+        });
+    });
+}
+
 function validateForm() {
     let isValid = true;
+    
+    // Only validate required fields that are visible (not in hidden sections)
     const requiredFields = document.querySelectorAll('[required]');
 
     requiredFields.forEach(field => {
-        if (!field.value.trim()) {
+        // Check if the field is in a visible section
+        const isVisible = field.offsetParent !== null;
+        
+        if (isVisible && !field.value.trim()) {
             showFieldError(field, 'This field is required.');
             isValid = false;
         } else {
@@ -384,6 +435,19 @@ function validateForm() {
         alert('Please select at least one operating day.');
         isValid = false;
     }
+
+    // Validate that checked days have both open and close times
+    operatingDays.forEach(dayCheckbox => {
+        const dayGroup = dayCheckbox.closest('.day-hours-group');
+        const openTimeInput = dayGroup.querySelector('input[name*="OpenTime"]');
+        const closeTimeInput = dayGroup.querySelector('input[name*="CloseTime"]');
+        
+        if (!openTimeInput.value || !closeTimeInput.value) {
+            const dayName = dayGroup.querySelector('.day-label').textContent;
+            alert(`Please set both opening and closing times for ${dayName}.`);
+            isValid = false;
+        }
+    });
 
     return isValid;
 }

@@ -1,4 +1,4 @@
-namespace TownTrek.Models;
+namespace TownTrek.Models.ViewModels;
 
 public class ErrorViewModel
 {

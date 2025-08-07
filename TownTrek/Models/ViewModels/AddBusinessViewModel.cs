@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+
 using TownTrek.Services;
 
-namespace TownTrek.Models
+namespace TownTrek.Models.ViewModels
 {
     public class AddBusinessViewModel
     {
@@ -184,17 +185,6 @@ namespace TownTrek.Models
         public int CurrentBusinessCount { get; set; }
     }
 
-    public class BusinessHourViewModel
-    {
-        public int DayOfWeek { get; set; } // 0=Sunday, 1=Monday, etc.
-        public string DayName { get; set; } = string.Empty;
-        public bool IsOpen { get; set; } = false;
-        public string? OpenTime { get; set; }
-        public string? CloseTime { get; set; }
-        public bool IsSpecialHours { get; set; } = false;
-        public string? SpecialHoursNote { get; set; }
-    }
-
     public class BusinessCategoryOption
     {
         public string Value { get; set; } = string.Empty;
@@ -203,6 +193,4 @@ namespace TownTrek.Models
         public string? IconClass { get; set; }
         public List<BusinessCategoryOption> SubCategories { get; set; } = new List<BusinessCategoryOption>();
     }
-
-
 }
