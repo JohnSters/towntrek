@@ -38,7 +38,7 @@
         <p class="admin-card-description">Fill in the details below to create your business listing</p>
     </div>
     
-    <form class="add-business-form" method="post" enctype="multipart/form-data" action="@Url.Action("AddBusiness", "Client")">
+    <form class="add-business-form" method="post" enctype="multipart/form-data" action="@Url.Action("AddBusiness", "Business")">
         @Html.AntiForgeryToken()
         <!-- Step 1: Basic Information -->
         <div class="form-section">

@@ -21,7 +21,7 @@
             <p class="page-description">Update your business listing information.</p>
         </div>
         <div class="page-actions">
-            <a href="@Url.Action("ManageBusinesses", "Client")" class="auth-btn auth-btn-secondary">
+            <a href="@Url.Action("ManageBusinesses", "Business")" class="auth-btn auth-btn-secondary">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -38,7 +38,7 @@
         <p class="admin-card-description">Update the details below to modify your business listing</p>
     </div>
     
-    <form class="add-business-form" method="post" enctype="multipart/form-data" action="@Url.Action("EditBusiness", "Client", new { id = Model.Id })">
+    <form class="add-business-form" method="post" enctype="multipart/form-data" action="@Url.Action("EditBusiness", "Business", new { id = Model.Id })">
         @Html.AntiForgeryToken()
         <input type="hidden" name="Id" value="@Model.Id" />
         
