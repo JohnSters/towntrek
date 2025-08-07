@@ -12,7 +12,7 @@
             <p class="page-description">Manage your subscription plan and billing information.</p>
         </div>
         <div class="page-actions">
-            <a href="@Url.Action("Dashboard", "Client")" class="auth-btn auth-btn-secondary">
+            <a href="@Url.Action("Dashboard", "Client")" class="btn btn-secondary">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -25,22 +25,38 @@
 @if (TempData["ErrorMessage"] != null)
 {
     <div class="alert alert-error">
-        @TempData["ErrorMessage"]
+        <div class="alert-content">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <strong>Error</strong>
+                <p>@TempData["ErrorMessage"]</p>
+            </div>
+        </div>
     </div>
 }
 
 @if (TempData["SuccessMessage"] != null)
 {
     <div class="alert alert-success">
-        @TempData["SuccessMessage"]
+        <div class="alert-content">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <strong>Success</strong>
+                <p>@TempData["SuccessMessage"]</p>
+            </div>
+        </div>
     </div>
 }
 
 <!-- Current Subscription Status -->
-<div class="admin-card">
-    <div class="admin-card-header">
-        <h3 class="admin-card-title">Current Subscription</h3>
-        <p class="admin-card-description">Your current plan and usage</p>
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Current Subscription</h3>
+        <p class="card-description">Your current plan and usage</p>
     </div>
     
     @if (Model.CurrentSubscription != null)
@@ -48,9 +64,9 @@
         <div class="subscription-current">
             <div class="subscription-info">
                 <h4>@Model.CurrentSubscription.SubscriptionTier.DisplayName</h4>
-                <p class="subscription-price">R@Model.CurrentSubscription.MonthlyPrice.ToString("F2")/month</p>
+                <p class="subscription-price">R@(Model.CurrentSubscription.MonthlyPrice.ToString("F2"))/month</p>
                 <p class="subscription-status">
-                    Status: <span class="badge badge-success">Active</span>
+                    Status: <span class="subscription-badge badge-success">Active</span>
                 </p>
                 <p class="subscription-dates">
                     Started: @Model.CurrentSubscription.StartDate.ToString("MMM dd, yyyy")
@@ -64,13 +80,21 @@
             
             <div class="usage-stats">
                 <h5>Usage Statistics</h5>
-                <div class="usage-item">
-                    <span>Businesses:</span>
-                    @{
-                        var maxBusinesses = Model.CurrentSubscription.SubscriptionTier.Limits.FirstOrDefault(l => l.LimitType == "MaxBusinesses")?.LimitValue;
-                        var businessLimit = maxBusinesses == -1 ? "Unlimited" : maxBusinesses?.ToString() ?? "1";
-                    }
-                    <span>@Model.BusinessCount / @businessLimit</span>
+                <div class="limits-display">
+                    <div class="limit-item">
+                        <div class="limit-value">@Model.BusinessCount</div>
+                        <div class="limit-label">Businesses</div>
+                        @{
+                            var maxBusinesses = Model.CurrentSubscription?.SubscriptionTier?.Limits?.FirstOrDefault(l => l.LimitType == "MaxBusinesses")?.LimitValue;
+                            var businessLimit = maxBusinesses == -1 ? "∞" : maxBusinesses?.ToString() ?? "1";
+                            var businessPercentage = maxBusinesses == -1 ? 0 : (maxBusinesses.HasValue ? (Model.BusinessCount * 100) / maxBusinesses.Value : 0);
+                        }
+                        <div class="limit-progress">
+                            <div class="limit-progress-bar @(businessPercentage > 80 ? "warning" : businessPercentage > 95 ? "danger" : "")" 
+                                 style="width: @(businessPercentage)%"></div>
+                        </div>
+                        <div class="limit-label">@Model.BusinessCount / @businessLimit</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -84,16 +108,17 @@
                 </svg>
                 <h3 class="empty-state-title">No Active Subscription</h3>
                 <p class="empty-state-description">You need an active subscription to add and manage business listings.</p>
+                <a href="#available-plans" class="btn btn-cta">View Available Plans</a>
             </div>
         </div>
     }
 </div>
 
 <!-- Available Plans -->
-<div class="admin-card">
-    <div class="admin-card-header">
-        <h3 class="admin-card-title">Available Plans</h3>
-        <p class="admin-card-description">Choose the plan that best fits your business needs</p>
+<div class="card" id="available-plans">
+    <div class="card-header">
+        <h3 class="card-title">Available Plans</h3>
+        <p class="card-description">Choose the plan that best fits your business needs</p>
     </div>
     
     <div class="subscription-plans">
@@ -102,7 +127,7 @@
             <div class="plan-card @(Model.CurrentSubscription?.SubscriptionTierId == tier.Id ? "current-plan" : "")">
                 <div class="plan-header">
                     <h4 class="plan-name">@tier.DisplayName</h4>
-                    <p class="plan-price">R@tier.MonthlyPrice.ToString("F2")<span>/month</span></p>
+                    <p class="plan-price">R@(tier.MonthlyPrice.ToString("F2"))<span>/month</span></p>
                 </div>
                 
                 <div class="plan-description">
@@ -139,11 +164,11 @@
                 <div class="plan-actions">
                     @if (Model.CurrentSubscription?.SubscriptionTierId == tier.Id)
                     {
-                        <button class="auth-btn auth-btn-secondary" disabled>Current Plan</button>
+                        <button class="btn btn-secondary" disabled>Current Plan</button>
                     }
                     else
                     {
-                        <button class="auth-btn auth-btn-cta" onclick="selectPlan(@tier.Id)">
+                        <button class="btn btn-cta" onclick="selectPlan(@tier.Id)">
                             @(Model.CurrentSubscription == null ? "Subscribe" : "Upgrade")
                         </button>
                     }
@@ -152,138 +177,6 @@
         }
     </div>
 </div>
-
-@section Styles {
-    <style>
-        .subscription-current {
-            padding: 1.5rem;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-        }
-        
-        .subscription-info h4 {
-            margin: 0 0 0.5rem 0;
-            color: var(--charcoal);
-        }
-        
-        .subscription-price {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--lapis-lazuli);
-            margin: 0 0 1rem 0;
-        }
-        
-        .subscription-status, .subscription-dates {
-            margin: 0.5rem 0;
-            font-size: 0.875rem;
-            color: var(--dark-gray);
-        }
-        
-        .usage-stats h5 {
-            margin: 0 0 1rem 0;
-            color: var(--charcoal);
-        }
-        
-        .usage-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--medium-gray);
-        }
-        
-        .subscription-plans {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            padding: 1.5rem;
-        }
-        
-        .plan-card {
-            border: 2px solid var(--medium-gray);
-            border-radius: var(--radius-lg);
-            padding: 1.5rem;
-            transition: border-color 0.2s ease;
-        }
-        
-        .plan-card:hover {
-            border-color: var(--carolina-blue);
-        }
-        
-        .plan-card.current-plan {
-            border-color: var(--hunyadi-yellow);
-            background: rgba(246, 174, 45, 0.05);
-        }
-        
-        .plan-header {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        
-        .plan-name {
-            margin: 0 0 0.5rem 0;
-            color: var(--charcoal);
-        }
-        
-        .plan-price {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--lapis-lazuli);
-            margin: 0;
-        }
-        
-        .plan-price span {
-            font-size: 1rem;
-            font-weight: 400;
-            color: var(--dark-gray);
-        }
-        
-        .plan-description {
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        
-        .plan-features ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .plan-features li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--light-gray);
-            position: relative;
-            padding-left: 1.5rem;
-        }
-        
-        .plan-features li::before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            color: var(--lapis-lazuli);
-            font-weight: bold;
-        }
-        
-        .plan-actions {
-            margin-top: 1.5rem;
-            text-align: center;
-        }
-        
-        .no-subscription {
-            padding: 2rem;
-        }
-        
-        @@media (max-width: 768px) {
-            .subscription-current {
-                grid-template-columns: 1fr;
-            }
-            
-            .subscription-plans {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
-}
 
 @section Scripts {
     <script>

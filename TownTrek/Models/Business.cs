@@ -111,6 +111,7 @@ namespace TownTrek.Models
         public bool IsActive { get; set; } = true;
         public bool IsApproved { get; set; } = false;
         public DateTime UploadedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
         public DateTime? ApprovedAt { get; set; }
         public string? ApprovedBy { get; set; }
 

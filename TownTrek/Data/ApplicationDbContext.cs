@@ -18,6 +18,17 @@ namespace TownTrek.Data
         public DbSet<BusinessContact> BusinessContacts { get; set; }
         public DbSet<BusinessService> BusinessServices { get; set; }
         
+        // Category-specific details
+        public DbSet<MarketDetails> MarketDetails { get; set; }
+        public DbSet<TourDetails> TourDetails { get; set; }
+        public DbSet<EventDetails> EventDetails { get; set; }
+        public DbSet<RestaurantDetails> RestaurantDetails { get; set; }
+        public DbSet<AccommodationDetails> AccommodationDetails { get; set; }
+        
+        // Notifications and special hours
+        public DbSet<BusinessAlert> BusinessAlerts { get; set; }
+        public DbSet<SpecialOperatingHours> SpecialOperatingHours { get; set; }
+        
         // Subscription Management
         public DbSet<SubscriptionTier> SubscriptionTiers { get; set; }
         public DbSet<SubscriptionTierLimit> SubscriptionTierLimits { get; set; }
@@ -146,6 +157,9 @@ namespace TownTrek.Data
                       .OnDelete(DeleteBehavior.Restrict);
             });
 
+            // Configure category-specific details
+            ConfigureCategorySpecificEntities(builder);
+            
             // Seed default data
             SeedData(builder);
         }
@@ -226,6 +240,79 @@ namespace TownTrek.Data
                 new SubscriptionTierFeature { Id = 10, SubscriptionTierId = 3, FeatureKey = "FeaturedPlacement", IsEnabled = true, FeatureName = "Featured Placement" },
                 new SubscriptionTierFeature { Id = 11, SubscriptionTierId = 3, FeatureKey = "PDFUploads", IsEnabled = true, FeatureName = "PDF Document Uploads" }
             );
+        }
+
+        private void ConfigureCategorySpecificEntities(ModelBuilder builder)
+        {
+            // Configure MarketDetails
+            builder.Entity<MarketDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithOne()
+                      .HasForeignKey<MarketDetails>(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure TourDetails
+            builder.Entity<TourDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithOne()
+                      .HasForeignKey<TourDetails>(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure EventDetails
+            builder.Entity<EventDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithOne()
+                      .HasForeignKey<EventDetails>(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure RestaurantDetails
+            builder.Entity<RestaurantDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithOne()
+                      .HasForeignKey<RestaurantDetails>(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure AccommodationDetails
+            builder.Entity<AccommodationDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithOne()
+                      .HasForeignKey<AccommodationDetails>(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure BusinessAlert
+            builder.Entity<BusinessAlert>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure SpecialOperatingHours
+            builder.Entity<SpecialOperatingHours>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

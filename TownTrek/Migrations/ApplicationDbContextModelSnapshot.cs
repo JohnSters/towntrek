@@ -155,6 +155,93 @@ namespace TownTrek.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("TownTrek.Models.AccommodationDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Amenities")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CancellationPolicy")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<TimeSpan?>("CheckInTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("CheckOutTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("HasAirConditioning")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasGym")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasParking")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasPool")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasRestaurant")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasSpa")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasWiFi")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPetFriendly")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MaxGuests")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PricingInfo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PropertyType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("RequiresDeposit")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("RoomCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoomTypes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("StarRating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId")
+                        .IsUnique();
+
+                    b.ToTable("AccommodationDetails");
+                });
+
             modelBuilder.Entity("TownTrek.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -390,6 +477,56 @@ namespace TownTrek.Migrations
                     b.ToTable("Businesses");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.BusinessAlert", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AlertType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpiresAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsPushNotification")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
+
+                    b.ToTable("BusinessAlerts");
+                });
+
             modelBuilder.Entity("TownTrek.Models.BusinessContact", b =>
                 {
                     b.Property<int>("Id")
@@ -522,6 +659,9 @@ namespace TownTrek.Migrations
                     b.Property<string>("ThumbnailUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2");
 
@@ -566,6 +706,185 @@ namespace TownTrek.Migrations
                     b.ToTable("BusinessServices");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.EventDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AgeRestrictions")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan?>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("EventProgram")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("EventStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EventType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("ExpectedAttendance")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("HasParking")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasRefreshments")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasWeatherBackup")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFreeEvent")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsOutdoorEvent")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("MaxAttendees")
+                        .HasColumnType("int");
+
+                    b.Property<string>("OrganizerContact")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("RecurrenceEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("RecurrencePattern")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("RequiresTickets")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan?>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("StatusNotes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("TicketInfo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Venue")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("VenueAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId")
+                        .IsUnique();
+
+                    b.ToTable("EventDetails");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.MarketDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("EntryFee")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("EstimatedVendorCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("HasFoodVendors")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasRestrooms")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsCoveredVenue")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsRecurring")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("MarketDays")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<TimeSpan?>("MarketEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("MarketStartTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("MarketType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ParkingInfo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RecurrencePattern")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SpecialEvents")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VendorTypes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId")
+                        .IsUnique();
+
+                    b.ToTable("MarketDetails");
+                });
+
             modelBuilder.Entity("TownTrek.Models.PriceChangeHistory", b =>
                 {
                     b.Property<int>("Id")
@@ -606,6 +925,146 @@ namespace TownTrek.Migrations
                     b.HasIndex("SubscriptionTierId");
 
                     b.ToTable("PriceChangeHistory");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.RestaurantDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AcceptsReservations")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan?>("BreakfastEnd")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("BreakfastStart")
+                        .HasColumnType("time");
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CuisineType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("DietaryOptions")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<TimeSpan?>("DinnerEnd")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("DinnerStart")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("HasDelivery")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasKidsMenu")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasLiveMusic")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasOutdoorSeating")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasPrivateDining")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasTakeaway")
+                        .HasColumnType("bit");
+
+                    b.Property<TimeSpan?>("LunchEnd")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("LunchStart")
+                        .HasColumnType("time");
+
+                    b.Property<int?>("MaxGroupSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MenuUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PriceRange")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int?>("SeatingCapacity")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ServesAlcohol")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ServesBreakfast")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ServesDinner")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ServesLunch")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SpecialFeatures")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId")
+                        .IsUnique();
+
+                    b.ToTable("RestaurantDetails");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.SpecialOperatingHours", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan?>("CloseTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<TimeSpan?>("OpenTime")
+                        .HasColumnType("time");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
+
+                    b.ToTable("SpecialOperatingHours");
                 });
 
             modelBuilder.Entity("TownTrek.Models.Subscription", b =>
@@ -716,7 +1175,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 6, 6, 55, 1, 912, DateTimeKind.Utc).AddTicks(5481),
+                            CreatedAt = new DateTime(2025, 8, 7, 8, 29, 23, 629, DateTimeKind.Utc).AddTicks(6960),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -727,7 +1186,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 6, 6, 55, 1, 912, DateTimeKind.Utc).AddTicks(5483),
+                            CreatedAt = new DateTime(2025, 8, 7, 8, 29, 23, 629, DateTimeKind.Utc).AddTicks(6961),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -738,7 +1197,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 6, 6, 55, 1, 912, DateTimeKind.Utc).AddTicks(5485),
+                            CreatedAt = new DateTime(2025, 8, 7, 8, 29, 23, 629, DateTimeKind.Utc).AddTicks(6963),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,
@@ -967,6 +1426,100 @@ namespace TownTrek.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TownTrek.Models.TourDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AdvanceBookingDays")
+                        .HasColumnType("int");
+
+                    b.Property<string>("AvailableDays")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AvailableSeasons")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DepartureLocation")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("DifficultyLevel")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Duration")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("ExcludedItems")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("HasInsurance")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("IncludedItems")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<bool>("IsAccessible")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsWeatherDependent")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Itinerary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int?>("MaxAge")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MaxGroupSize")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MinAge")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("MinGroupSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PricingInfo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("RequiredEquipment")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("RequiresBooking")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TourType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId")
+                        .IsUnique();
+
+                    b.ToTable("TourDetails");
+                });
+
             modelBuilder.Entity("TownTrek.Models.Town", b =>
                 {
                     b.Property<int>("Id")
@@ -1076,6 +1629,17 @@ namespace TownTrek.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TownTrek.Models.AccommodationDetails", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithOne()
+                        .HasForeignKey("TownTrek.Models.AccommodationDetails", "BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+                });
+
             modelBuilder.Entity("TownTrek.Models.Business", b =>
                 {
                     b.HasOne("TownTrek.Models.ApplicationUser", "ApprovedByUser")
@@ -1099,6 +1663,17 @@ namespace TownTrek.Migrations
                     b.Navigation("Town");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.BusinessAlert", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessContact", b =>
@@ -1151,6 +1726,28 @@ namespace TownTrek.Migrations
                     b.Navigation("Business");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.EventDetails", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithOne()
+                        .HasForeignKey("TownTrek.Models.EventDetails", "BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.MarketDetails", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithOne()
+                        .HasForeignKey("TownTrek.Models.MarketDetails", "BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+                });
+
             modelBuilder.Entity("TownTrek.Models.PriceChangeHistory", b =>
                 {
                     b.HasOne("TownTrek.Models.ApplicationUser", "ChangedBy")
@@ -1168,6 +1765,28 @@ namespace TownTrek.Migrations
                     b.Navigation("ChangedBy");
 
                     b.Navigation("SubscriptionTier");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.RestaurantDetails", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithOne()
+                        .HasForeignKey("TownTrek.Models.RestaurantDetails", "BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.SpecialOperatingHours", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("TownTrek.Models.Subscription", b =>
@@ -1218,6 +1837,17 @@ namespace TownTrek.Migrations
                         .IsRequired();
 
                     b.Navigation("SubscriptionTier");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.TourDetails", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithOne()
+                        .HasForeignKey("TownTrek.Models.TourDetails", "BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
                 });
 
             modelBuilder.Entity("TownTrek.Models.ApplicationUser", b =>

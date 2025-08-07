@@ -1,0 +1,56 @@
+@using TownTrek.Models.ViewModels
+@model ConfirmationModalViewModel
+
+<div id="confirmationModal" class="confirmation-modal" style="display: none;">
+    <div class="confirmation-modal-overlay"></div>
+    <div class="confirmation-modal-content">
+        <div class="confirmation-modal-header">
+            <div class="confirmation-modal-icon @Model.IconType">
+                @if (Model.IconType == "success")
+                {
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                }
+                else if (Model.IconType == "warning")
+                {
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                }
+                else if (Model.IconType == "danger")
+                {
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                }
+                else
+                {
+                    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                }
+            </div>
+            <h3 class="confirmation-modal-title">@Model.Title</h3>
+        </div>
+        
+        <div class="confirmation-modal-body">
+            <p class="confirmation-modal-message">@Model.Message</p>
+            @if (!string.IsNullOrEmpty(Model.Details))
+            {
+                <div class="confirmation-modal-details">
+                    <p class="confirmation-modal-details-text">@Model.Details</p>
+                </div>
+            }
+        </div>
+        
+        <div class="confirmation-modal-actions">
+            <button type="button" class="confirmation-modal-btn confirmation-modal-btn-secondary" onclick="closeConfirmationModal()">
+                @Model.CancelText
+            </button>
+            <button type="button" class="confirmation-modal-btn confirmation-modal-btn-@Model.ConfirmButtonType" onclick="confirmAction()">
+                @Model.ConfirmText
+            </button>
+        </div>
+    </div>
+</div> 

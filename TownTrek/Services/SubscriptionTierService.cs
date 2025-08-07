@@ -237,6 +237,8 @@ namespace TownTrek.Services
         {
             return await _context.SubscriptionTiers
                 .Where(t => t.IsActive)
+                .Include(t => t.Limits)
+                .Include(t => t.Features)
                 .OrderBy(t => t.SortOrder)
                 .ToListAsync();
         }

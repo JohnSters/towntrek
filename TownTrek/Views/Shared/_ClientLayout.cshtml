@@ -8,6 +8,7 @@
     <!-- CSS Files -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/client-admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/subscription.css" asp-append-version="true" />
     
     <!-- Page-specific styles -->
     @await RenderSectionAsync("Styles", required: false)
@@ -66,7 +67,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                 </svg>
                                 My Businesses
-                                <span class="nav-badge">3</span>
+                                @if (ViewData["UserLimits"] is SubscriptionLimits limits)
+                                {
+                                    <span class="nav-badge">@limits.CurrentBusinessCount</span>
+                                }
                             </a>
                         </li>
                         <li class="nav-item">
@@ -176,10 +180,37 @@
                     </div>
 
                     <div class="user-menu">
-                        <div class="user-avatar">JS</div>
+                        <div class="user-avatar">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                @(User.FindFirstValue(ClaimTypes.GivenName)?.Substring(0, 1).ToUpper() ?? "U")@(User.FindFirstValue(ClaimTypes.Surname)?.Substring(0, 1).ToUpper() ?? "")
+                            }
+                            else
+                            {
+                                <span>U</span>
+                            }
+                        </div>
                         <div class="user-info">
-                            <div class="user-name">John Smith</div>
-                            <div class="user-role">Standard Plan</div>
+                            <div class="user-name">
+                                @if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    @(User.FindFirstValue(ClaimTypes.GivenName) ?? "User") @(User.FindFirstValue(ClaimTypes.Surname) ?? "")
+                                }
+                                else
+                                {
+                                    <span>Guest User</span>
+                                }
+                            </div>
+                            <div class="user-role">
+                                @if (ViewData["UserSubscriptionTier"] is SubscriptionTier tier)
+                                {
+                                    @tier.DisplayName
+                                }
+                                else
+                                {
+                                    <span>Free Tier</span>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

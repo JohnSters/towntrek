@@ -33,11 +33,25 @@ public class Program
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
+        // Configure application cookie settings
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.LoginPath = "/Auth/Login";
+            options.LogoutPath = "/Auth/Logout";
+            options.AccessDeniedPath = "/Auth/AccessDenied";
+            options.ExpireTimeSpan = TimeSpan.FromDays(30);
+            options.SlidingExpiration = true;
+        });
+
         // Add these service registrations
         builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
+        builder.Services.AddScoped<ISubscriptionAuthService, SubscriptionAuthService>();
         builder.Services.AddScoped<IRegistrationService, RegistrationService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
+        builder.Services.AddScoped<INotificationService, NotificationService>();
+        builder.Services.AddScoped<IPaymentService, PaymentService>();
+        builder.Services.AddScoped<IRoleInitializationService, RoleInitializationService>();
 
         builder.Services.AddControllersWithViews();
 
@@ -45,10 +59,14 @@ public class Program
 
         app.MapDefaultEndpoints();
 
-        // Seed the database
+        // Seed the database and initialize roles
         using (var scope = app.Services.CreateScope())
         {
             await DbSeeder.SeedAsync(scope.ServiceProvider);
+            
+            // Initialize roles
+            var roleInitService = scope.ServiceProvider.GetRequiredService<IRoleInitializationService>();
+            await roleInitService.InitializeRolesAsync();
         }
 
         // Configure the HTTP request pipeline.
@@ -66,6 +84,9 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
+        
+        // Add subscription redirect middleware
+        app.UseMiddleware<TownTrek.Middleware.SubscriptionRedirectMiddleware>();
 
         app.MapControllerRoute(
             name: "default",
