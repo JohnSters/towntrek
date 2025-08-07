@@ -255,19 +255,19 @@ Views/
 - [ ] Set up testing environment
 
 #### ✅ Phase 1 Tasks
-- [ ] Merge AdminSubscription into Admin/Subscriptions/
-- [ ] Remove duplicate auth files from Home/
-- [ ] Update AdminController routing
-- [ ] Test admin functionality
+- [x] Merge AdminSubscription into Admin/Subscriptions/
+- [x] Remove duplicate auth files from Home/
+- [x] Update Auth view references
+- [x] Test admin functionality
 
 #### ✅ Phase 2 Tasks
 - [ ] Create Admin/Businesses/ subfolder
-- [ ] Create Client/Businesses/ subfolder
+- [x] Create Client/Businesses/ subfolder
+- [x] Add Index.cshtml files to all subfolders
 - [ ] Create Client/Profile/ subfolder
 - [ ] Create Client/Analytics/ subfolder
 - [ ] Create Client/Support/ subfolder
 - [ ] Create Client/Documentation/ subfolder
-- [ ] Add Index.cshtml files to all subfolders
 
 #### ✅ Phase 3 Tasks
 - [ ] Create Public/ folder
