@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services;
 
 namespace TownTrek.Controllers
 {
@@ -13,11 +14,13 @@ namespace TownTrek.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IImageService _imageService;
 
-        public AdminController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+        public AdminController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment, IImageService imageService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
+            _imageService = imageService;
         }
 
         // Dashboard - Main admin overview
@@ -302,15 +305,12 @@ namespace TownTrek.Controllers
                 // Handle new image uploads
                 if (model.BusinessLogo != null)
                 {
-                    await SaveBusinessImage(business.Id, model.BusinessLogo, "Logo");
+                    await _imageService.UploadBusinessImageAsync(business.Id, model.BusinessLogo, "Logo");
                 }
 
                 if (model.BusinessImages != null && model.BusinessImages.Any())
                 {
-                    foreach (var imageFile in model.BusinessImages)
-                    {
-                        await SaveBusinessImage(business.Id, imageFile, "Gallery");
-                    }
+                    await _imageService.UploadBusinessImagesAsync(business.Id, model.BusinessImages, "Gallery");
                 }
 
                 // Update business hours
@@ -543,54 +543,6 @@ namespace TownTrek.Controllers
             };
         }
 
-        private async Task SaveBusinessImage(int businessId, IFormFile imageFile, string imageType)
-        {
-            if (imageFile == null || imageFile.Length == 0)
-                return;
 
-            // Validate file type
-            var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
-            if (!allowedTypes.Contains(imageFile.ContentType.ToLower()))
-                return;
-
-            // Validate file size (2MB limit)
-            if (imageFile.Length > 2 * 1024 * 1024)
-                return;
-
-            // Generate unique filename
-            var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(imageFile.FileName)}";
-            var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "businesses");
-            
-            // Ensure directory exists
-            if (!Directory.Exists(uploadPath))
-                Directory.CreateDirectory(uploadPath);
-
-            var filePath = Path.Combine(uploadPath, fileName);
-
-            // Save file
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await imageFile.CopyToAsync(stream);
-            }
-
-            // Create business image record
-            var businessImage = new BusinessImage
-            {
-                BusinessId = businessId,
-                ImageType = imageType,
-                FileName = fileName,
-                OriginalFileName = imageFile.FileName,
-                FileSize = imageFile.Length,
-                ContentType = imageFile.ContentType,
-                ImageUrl = $"/uploads/businesses/{fileName}",
-                AltText = $"{imageType} for business",
-                DisplayOrder = 0,
-                IsActive = true,
-                IsApproved = true,
-                UploadedAt = DateTime.UtcNow
-            };
-
-            _context.BusinessImages.Add(businessImage);
-        }
     }
 }

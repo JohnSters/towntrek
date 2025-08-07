@@ -17,6 +17,9 @@ namespace TownTrek
             // Register business management services
             services.AddScoped<IBusinessService, BusinessService>();
             services.AddScoped<IClientService, ClientService>();
+            
+            // Register image management services
+            services.AddScoped<IImageService, ImageService>();
         }
     }
 }

@@ -13,6 +13,7 @@ namespace TownTrek.Services
         Task<ServiceResult> UpdateBusinessAsync(int businessId, AddBusinessViewModel model, string userId);
         Task<List<Business>> GetUserBusinessesAsync(string userId);
         Task<Business?> GetBusinessByIdAsync(int id, string userId);
+        Task<Business?> GetBusinessByIdAsync(int id);
         Task<ServiceResult> DeleteBusinessAsync(int businessId, string userId);
         Task<bool> CanUserAddBusinessAsync(string userId);
         Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync();
@@ -23,15 +24,18 @@ namespace TownTrek.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly ISubscriptionTierService _subscriptionService;
+        private readonly IImageService _imageService;
         private readonly ILogger<BusinessService> _logger;
 
         public BusinessService(
             ApplicationDbContext context,
             ISubscriptionTierService subscriptionService,
+            IImageService imageService,
             ILogger<BusinessService> logger)
         {
             _context = context;
             _subscriptionService = subscriptionService;
+            _imageService = imageService;
             _logger = logger;
         }
 
@@ -244,6 +248,16 @@ namespace TownTrek.Services
                 .FirstOrDefaultAsync(b => b.Id == id && b.UserId == userId);
         }
 
+        public async Task<Business?> GetBusinessByIdAsync(int id)
+        {
+            return await _context.Businesses
+                .Include(b => b.Town)
+                .Include(b => b.BusinessHours)
+                .Include(b => b.BusinessImages)
+                .Include(b => b.BusinessServices)
+                .FirstOrDefaultAsync(b => b.Id == id);
+        }
+
         public async Task<ServiceResult> DeleteBusinessAsync(int businessId, string userId)
         {
             try
@@ -424,16 +438,13 @@ namespace TownTrek.Services
                 // Handle business logo
                 if (model.BusinessLogo != null)
                 {
-                    await SaveBusinessImageAsync(businessId, model.BusinessLogo, "Logo");
+                    await _imageService.UploadBusinessImageAsync(businessId, model.BusinessLogo, "Logo");
                 }
 
                 // Handle business images (gallery)
                 if (model.BusinessImages?.Any() == true)
                 {
-                    foreach (var image in model.BusinessImages)
-                    {
-                        await SaveBusinessImageAsync(businessId, image, "Gallery");
-                    }
+                    await _imageService.UploadBusinessImagesAsync(businessId, model.BusinessImages, "Gallery");
                 }
             }
             catch (Exception ex)
@@ -443,78 +454,7 @@ namespace TownTrek.Services
             }
         }
 
-        private async Task SaveBusinessImageAsync(int businessId, IFormFile file, string imageType)
-        {
-            if (file == null || file.Length == 0) return;
 
-            // Validate file
-            var allowedTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif" };
-            if (!allowedTypes.Contains(file.ContentType.ToLower()))
-            {
-                _logger.LogWarning("Invalid file type {ContentType} for business {BusinessId}", file.ContentType, businessId);
-                return;
-            }
-
-            // Check file size (2MB limit)
-            if (file.Length > 2 * 1024 * 1024)
-            {
-                _logger.LogWarning("File too large {FileSize} for business {BusinessId}", file.Length, businessId);
-                return;
-            }
-
-            try
-            {
-                // Generate unique filename
-                var fileExtension = Path.GetExtension(file.FileName);
-                var uniqueFileName = $"{businessId}_{imageType}_{Guid.NewGuid()}{fileExtension}";
-                
-                // Create uploads directory if it doesn't exist
-                var uploadsPath = Path.Combine("wwwroot", "uploads", "businesses");
-                Directory.CreateDirectory(uploadsPath);
-                
-                // Full file path
-                var filePath = Path.Combine(uploadsPath, uniqueFileName);
-                
-                // Save file to disk
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                // Create database record
-                var businessImage = new BusinessImage
-                {
-                    BusinessId = businessId,
-                    ImageType = imageType,
-                    FileName = uniqueFileName,
-                    OriginalFileName = file.FileName,
-                    FileSize = file.Length,
-                    ContentType = file.ContentType,
-                    ImageUrl = $"/uploads/businesses/{uniqueFileName}",
-                    DisplayOrder = imageType == "Logo" ? 0 : await GetNextDisplayOrderAsync(businessId),
-                    IsActive = true,
-                    IsApproved = false, // Requires admin approval
-                    UploadedAt = DateTime.UtcNow
-                };
-
-                await _context.BusinessImages.AddAsync(businessImage);
-                
-                _logger.LogInformation("Image saved for business {BusinessId}: {FileName}", businessId, uniqueFileName);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error saving image for business {BusinessId}", businessId);
-                throw;
-            }
-        }
-
-        private async Task<int> GetNextDisplayOrderAsync(int businessId)
-        {
-            var maxOrder = await _context.BusinessImages
-                .Where(bi => bi.BusinessId == businessId)
-                .MaxAsync(bi => (int?)bi.DisplayOrder) ?? 0;
-            return maxOrder + 1;
-        }
 
         private async Task HandleCategorySpecificDataAsync(int businessId, string category, AddBusinessViewModel model)
         {
