@@ -5,6 +5,9 @@ namespace TownTrek.Models
 {
     public class AddBusinessViewModel
     {
+        // ID for editing existing businesses
+        public int? Id { get; set; }
+
         // Basic Information
         [Required(ErrorMessage = "Business name is required")]
         [StringLength(200, ErrorMessage = "Business name cannot exceed 200 characters")]

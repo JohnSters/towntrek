@@ -325,6 +325,47 @@
     color: var(--dark-gray);
 }
 
+.badge-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.badge-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Table Action Button States */
+.table-action-btn.success {
+    border-color: #28a745;
+    color: #28a745;
+}
+
+.table-action-btn.success:hover {
+    background-color: #28a745;
+    color: white;
+}
+
+.table-action-btn.warning {
+    border-color: #ffc107;
+    color: #856404;
+}
+
+.table-action-btn.warning:hover {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.table-action-btn.danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.table-action-btn.danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
 /* Additional stat icon colors */
 .stat-icon.secondary {
     background-color: var(--carolina-blue);

@@ -186,10 +186,158 @@ namespace TownTrek.Controllers
         {
             var businesses = await _context.Businesses
                 .Include(b => b.Town)
+                .Include(b => b.User)
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
 
             return View(businesses);
+        }
+
+        public async Task<IActionResult> EditBusiness(int id)
+        {
+            var business = await _context.Businesses
+                .Include(b => b.Town)
+                .Include(b => b.BusinessHours)
+                .Include(b => b.BusinessServices)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (business == null)
+            {
+                return NotFound();
+            }
+
+            // Convert to view model (you'll need to create this)
+            var model = new AddBusinessViewModel
+            {
+                Id = business.Id,
+                BusinessName = business.Name,
+                BusinessCategory = business.Category,
+                SubCategory = business.SubCategory,
+                BusinessDescription = business.Description,
+                ShortDescription = business.ShortDescription,
+                PhoneNumber = business.PhoneNumber,
+                PhoneNumber2 = business.PhoneNumber2,
+                EmailAddress = business.EmailAddress,
+                Website = business.Website,
+                PhysicalAddress = business.PhysicalAddress,
+                Latitude = business.Latitude,
+                Longitude = business.Longitude,
+                TownId = business.TownId
+            };
+
+            return View("AddBusiness", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditBusiness(AddBusinessViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var business = await _context.Businesses.FindAsync(model.Id);
+                if (business == null)
+                {
+                    return NotFound();
+                }
+
+                business.Name = model.BusinessName;
+                business.Category = model.BusinessCategory;
+                business.SubCategory = model.SubCategory;
+                business.Description = model.BusinessDescription;
+                business.ShortDescription = model.ShortDescription;
+                business.PhoneNumber = model.PhoneNumber;
+                business.PhoneNumber2 = model.PhoneNumber2;
+                business.EmailAddress = model.EmailAddress;
+                business.Website = model.Website;
+                business.PhysicalAddress = model.PhysicalAddress;
+                business.Latitude = model.Latitude;
+                business.Longitude = model.Longitude;
+                business.UpdatedAt = DateTime.UtcNow;
+
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Business '{model.BusinessName}' has been updated successfully!";
+                return RedirectToAction(nameof(Businesses));
+            }
+
+            return View("AddBusiness", model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveBusiness(int id)
+        {
+            var business = await _context.Businesses.FindAsync(id);
+            if (business == null)
+            {
+                return NotFound();
+            }
+
+            business.Status = "Active";
+            business.ApprovedAt = DateTime.UtcNow;
+            business.ApprovedBy = User.Identity?.Name;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Business '{business.Name}' has been approved and is now live!";
+            return RedirectToAction(nameof(Businesses));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RejectBusiness(int id)
+        {
+            var business = await _context.Businesses.FindAsync(id);
+            if (business == null)
+            {
+                return NotFound();
+            }
+
+            business.Status = "Inactive";
+            business.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Business '{business.Name}' has been rejected.";
+            return RedirectToAction(nameof(Businesses));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SuspendBusiness(int id)
+        {
+            var business = await _context.Businesses.FindAsync(id);
+            if (business == null)
+            {
+                return NotFound();
+            }
+
+            business.Status = "Suspended";
+            business.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Business '{business.Name}' has been suspended.";
+            return RedirectToAction(nameof(Businesses));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteBusiness(int id)
+        {
+            var business = await _context.Businesses.FindAsync(id);
+            if (business == null)
+            {
+                return NotFound();
+            }
+
+            business.Status = "Deleted";
+            business.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"Business '{business.Name}' has been deleted.";
+            return RedirectToAction(nameof(Businesses));
         }
 
         // User Management (placeholder)
