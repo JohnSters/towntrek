@@ -49,6 +49,7 @@ public class Program
         builder.Services.AddScoped<IRegistrationService, RegistrationService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
+        builder.Services.AddScoped<IClientService, ClientService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<IPaymentService, PaymentService>();
         builder.Services.AddScoped<IRoleInitializationService, RoleInitializationService>();
