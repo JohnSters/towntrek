@@ -1,0 +1,16 @@
+/* Badges */
+.badge { display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+.badge-success { background-color: #d4edda; color: #155724; }
+.badge-info { background-color: #d1ecf1; color: #0c5460; }
+.badge-secondary { background-color: var(--medium-gray); color: var(--dark-gray); }
+.badge-warning { background-color: #fff3cd; color: #856404; }
+.badge-danger { background-color: #f8d7da; color: #721c24; }
+
+/* Subscription badge variants */
+.subscription-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-left: 8px; }
+.subscription-badge.badge-info { background-color: #e3f2fd; color: #1976d2; }
+.subscription-badge.badge-primary { background-color: #e8f5e8; color: #2e7d32; }
+.subscription-badge.badge-success { background-color: #fff3e0; color: #f57c00; }
+.subscription-badge.badge-secondary { background-color: #f5f5f5; color: #757575; }
+
+

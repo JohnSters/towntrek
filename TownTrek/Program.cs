@@ -48,10 +48,14 @@ public class Program
         builder.Services.AddScoped<ISubscriptionAuthService, SubscriptionAuthService>();
         builder.Services.AddScoped<IRegistrationService, RegistrationService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
-        builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<IPaymentService, PaymentService>();
         builder.Services.AddScoped<IRoleInitializationService, RoleInitializationService>();
+        
+        // Register image service before business services that depend on it
+        builder.Services.AddScoped<IImageService, ImageService>();
+        builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
+        builder.Services.AddScoped<IClientService, ClientService>();
 
         builder.Services.AddControllersWithViews();
 

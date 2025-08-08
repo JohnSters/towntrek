@@ -1,0 +1,44 @@
+/* Empty State */
+.no-subscription { padding: 2rem; text-align: center; }
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.empty-state-icon { color: var(--dark-gray); }
+.empty-state-title { margin: 0; color: var(--charcoal); font-size: 1.5rem; font-weight: 600; }
+.empty-state-description { margin: 0; color: var(--dark-gray); max-width: 400px; }
+
+/* Feature access indicators */
+.feature-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0; }
+.feature-item { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background-color: #f8f9fa; border-radius: 6px; font-size: 0.875rem; }
+.feature-item.enabled { background-color: #e8f5e8; color: #2e7d32; }
+.feature-item.disabled { background-color: #ffebee; color: #c62828; }
+.feature-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Upgrade prompts */
+.upgrade-prompt { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; text-align: center; margin: 20px 0; }
+.upgrade-prompt h3 { margin: 0 0 8px 0; font-size: 1.25rem; font-weight: 600; }
+.upgrade-prompt p { margin: 0 0 16px 0; opacity: 0.9; }
+.upgrade-btn { display: inline-block; padding: 10px 20px; background-color: rgba(255, 255, 255, 0.2); color: white; text-decoration: none; border-radius: 6px; font-weight: 500; transition: background-color 0.2s; border: 1px solid rgba(255, 255, 255, 0.3); }
+.upgrade-btn:hover { background-color: rgba(255, 255, 255, 0.3); color: white; text-decoration: none; }
+
+/* Stat card enhancements */
+.stat-card .stat-icon.info { background-color: #e3f2fd; color: #1976d2; }
+.stat-card .stat-change { font-size: 0.75rem; color: #666; margin-top: 4px; }
+
+/* Disabled quick action cards (used in some subscription pages) */
+.quick-action-card.disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; background-color: #f8f9fa; border: 1px dashed #dee2e6; }
+.quick-action-card.disabled .quick-action-icon { color: #6c757d; }
+.quick-action-card.disabled .quick-action-title { color: #6c757d; }
+.quick-action-card.disabled .quick-action-description { color: #adb5bd; }
+
+/* Subscription tier specific styling */
+.subscription-tier-basic { border-left: 4px solid #17a2b8; }
+.subscription-tier-standard { border-left: 4px solid #28a745; }
+.subscription-tier-premium { border-left: 4px solid #ffc107; }
+
+/* Avatar override when used in subscription pages */
+.user-avatar { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 600; font-size: 14px; text-transform: uppercase; }
+
+@media (max-width: 768px) {
+  .feature-list { grid-template-columns: 1fr; }
+}
+
+

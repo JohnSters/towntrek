@@ -1,0 +1,34 @@
+/* Admin Subscription Management Styles (wrapping feature-specific bits) */
+.subscription-form { max-width: 100%; }
+.checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 0.5rem; }
+.checkbox-item { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.75rem; border: 1px solid var(--medium-gray); border-radius: 8px; transition: border-color 0.2s ease, background-color 0.2s ease; }
+.checkbox-item:hover { border-color: var(--carolina-blue); background-color: var(--light-gray); }
+.service-checkbox { width: 1.25rem; height: 1.25rem; accent-color: var(--lapis-lazuli); }
+.checkbox-label { font-size: 0.875rem; color: var(--charcoal); }
+.action-buttons { display: flex; gap: 8px; }
+.btn-action { padding: 6px; border: 1px solid var(--medium-gray); border-radius: var(--radius-sm); background: var(--white); color: var(--charcoal); text-decoration: none; display: inline-flex; align-items: center; justify-content: center; transition: all var(--transition-normal); }
+.btn-action:hover { background: var(--light-gray); transform: translateY(-1px); }
+.btn-action.btn-warning { border-color: var(--hunyadi-yellow); color: var(--hunyadi-yellow); }
+.btn-action.btn-warning:hover { background: var(--hunyadi-yellow); color: var(--charcoal); }
+.btn-action.btn-danger { border-color: var(--orange-pantone); color: var(--orange-pantone); }
+.btn-action.btn-danger:hover { background: var(--orange-pantone); color: var(--white); }
+.tier-info .tier-name { font-weight: 600; color: var(--charcoal); }
+.tier-info .tier-description { font-size: var(--body-small); color: var(--dark-gray); margin-top: 2px; }
+.price-info { display: flex; align-items: baseline; gap: 4px; }
+.price-info .price { font-weight: 600; color: var(--lapis-lazuli); font-size: var(--body-medium); }
+.price-info .price-period { font-size: var(--body-small); color: var(--dark-gray); }
+.limits-info { font-size: var(--body-small); line-height: 1.4; }
+.limits-info > div { margin-bottom: 2px; }
+.subscription-count { font-weight: 600; color: var(--charcoal); }
+.status-badge { padding: 4px 8px; border-radius: var(--radius-sm); font-size: var(--body-xs); font-weight: 600; text-transform: uppercase; }
+.status-active { background-color: rgba(134, 187, 216, 0.2); color: var(--lapis-lazuli); }
+.status-inactive { background-color: rgba(108, 117, 125, 0.2); color: var(--dark-gray); }
+.update-info .updated-by { font-size: var(--body-xs); color: var(--dark-gray); margin-top: 2px; }
+
+@media (max-width: 768px) {
+  .checkbox-group { grid-template-columns: 1fr; }
+  .form-section-title { font-size: 1.25rem; }
+  .step-number { width: 1.75rem; height: 1.75rem; font-size: 0.75rem; }
+}
+
+

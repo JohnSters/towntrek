@@ -1,0 +1,31 @@
+@model TownTrek.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2>Profile Management</h2>
+            <p>Manage your account information and preferences.</p>
+            
+            <!-- Profile content will be implemented here -->
+            <div class="alert alert-info">
+                <i class="fas fa-user"></i>
+                Profile management coming soon. Update your personal information, change password, and manage account settings.
+            </div>
+            
+            @if (Model != null)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Current User Information</h5>
+                        <p><strong>Email:</strong> @Model.Email</p>
+                        <p><strong>Username:</strong> @Model.UserName</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

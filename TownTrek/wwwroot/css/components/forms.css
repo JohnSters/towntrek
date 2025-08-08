@@ -1,0 +1,47 @@
+/* Form Elements */
+.form-input, .form-select, .form-textarea {
+  border: 2px solid var(--medium-gray);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  font-size: var(--body-medium);
+  font-family: inherit;
+  transition: border-color var(--transition-normal);
+  background-color: var(--white);
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none; border-color: var(--lapis-lazuli); box-shadow: 0 0 0 3px rgba(51, 101, 138, 0.1);
+}
+.form-input::placeholder, .form-textarea::placeholder { color: var(--dark-gray); opacity: 0.7; }
+.form-textarea { resize: vertical; min-height: 120px; line-height: var(--line-height-normal); }
+
+/* Form Labels */
+.form-label { display: block; margin-bottom: var(--space-sm); font-weight: var(--font-medium); color: var(--charcoal); }
+
+/* Form Groups */
+.form-group { margin-bottom: var(--space-md); }
+
+/* Checkbox groups */
+.checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-sm); }
+.checkbox-item { display: flex; align-items: center; gap: var(--space-sm); padding: 0.5rem 0.75rem; border: 1px solid var(--medium-gray); border-radius: var(--radius-md); background: var(--white); }
+.checkbox-item:hover { border-color: var(--carolina-blue); }
+.service-checkbox { width: 1.1rem; height: 1.1rem; accent-color: var(--lapis-lazuli); }
+.checkbox-label { font-size: var(--body-small); color: var(--charcoal); }
+
+/* Helper text */
+.form-help {
+  display: block;
+  margin-top: var(--space-xs);
+  font-size: var(--body-xs);
+  color: var(--dark-gray);
+  background-color: var(--light-gray);
+  padding: 0.375rem 0.5rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Validation */
+.form-input.is-invalid, .form-select.is-invalid { border-color: var(--orange-pantone); }
+.form-input.is-valid, .form-select.is-valid { border-color: #28a745; }
+.invalid-feedback { display: block; width: 100%; margin-top: var(--space-xs); font-size: var(--body-small); color: var(--orange-pantone); }
+.valid-feedback { display: block; width: 100%; margin-top: var(--space-xs); font-size: var(--body-small); color: #28a745; }
+
+
