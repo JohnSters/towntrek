@@ -44,6 +44,29 @@ namespace TownTrek.Models.ViewModels
             ? Email
             : $"{FirstName} {LastName}".Trim();
     }
+
+    public class AdminEditUserViewModel
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
+
+        // Role selection
+        public string SelectedRole { get; set; } = "Member"; // Member | Client-* | Admin
+        public List<string> AvailableRoles { get; set; } = new();
+
+        // Subscription controls (for Clients)
+        public int? SelectedSubscriptionTierId { get; set; }
+        public List<(int Id, string Name)> AvailableTiers { get; set; } = new();
+        public string? PaymentStatus { get; set; } // Pending | Active | Completed | Failed
+        public bool IsSubscriptionActive { get; set; }
+
+        // Display
+        public string? CurrentSubscriptionTierName { get; set; }
+        public DateTime? SubscriptionEndDate { get; set; }
+    }
 }
 
 

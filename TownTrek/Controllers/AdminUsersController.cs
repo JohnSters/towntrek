@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services;
 
 namespace TownTrek.Controllers
 {
@@ -14,11 +15,15 @@ namespace TownTrek.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ISubscriptionTierService _tierService;
+        private readonly ILogger<AdminUsersController> _logger;
 
-        public AdminUsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public AdminUsersController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ISubscriptionTierService tierService, ILogger<AdminUsersController> logger)
         {
             _context = context;
             _userManager = userManager;
+            _tierService = tierService;
+            _logger = logger;
         }
 
         // GET /admin/users
@@ -139,6 +144,113 @@ namespace TownTrek.Controllers
             model.PendingPayments = await _context.Subscriptions.CountAsync(s => s.PaymentStatus == "Pending");
 
             return View("~/Views/Admin/Users.cshtml", model);
+        }
+
+        [HttpGet("Edit/{id}")]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id)) return BadRequest();
+
+            var user = await _context.Users
+                .Include(u => u.Subscriptions)
+                    .ThenInclude(s => s.SubscriptionTier)
+                .FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound();
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var availableRoles = new List<string> { "Member", "Client-Basic", "Client-Standard", "Client-Premium", "Admin" };
+
+            var activeSubscription = user.Subscriptions.FirstOrDefault(s => s.IsActive);
+            var tiers = await _tierService.GetActiveTiersForRegistrationAsync();
+
+            var model = new AdminEditUserViewModel
+            {
+                Id = user.Id,
+                Email = user.Email ?? string.Empty,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                IsActive = user.IsActive,
+                SelectedRole = roles.FirstOrDefault() ?? "Member",
+                AvailableRoles = availableRoles,
+                SelectedSubscriptionTierId = activeSubscription?.SubscriptionTierId,
+                AvailableTiers = tiers.Select(t => (t.Id, t.DisplayName)).ToList(),
+                PaymentStatus = activeSubscription?.PaymentStatus,
+                IsSubscriptionActive = activeSubscription?.IsActive ?? false,
+                CurrentSubscriptionTierName = activeSubscription?.SubscriptionTier?.DisplayName ?? user.CurrentSubscriptionTier,
+                SubscriptionEndDate = activeSubscription?.EndDate
+            };
+
+            return View("~/Views/Admin/EditUser.cshtml", model);
+        }
+
+        [HttpPost("Edit/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(string id, AdminEditUserViewModel model)
+        {
+            if (id != model.Id) return BadRequest();
+
+            var user = await _context.Users
+                .Include(u => u.Subscriptions)
+                .FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null) return NotFound();
+
+            // Update basic fields
+            user.FirstName = model.FirstName?.Trim() ?? user.FirstName;
+            user.LastName = model.LastName?.Trim() ?? user.LastName;
+            user.IsActive = model.IsActive;
+
+            // Update role (ensure single primary role for simplicity)
+            var existingRoles = await _userManager.GetRolesAsync(user);
+            if (existingRoles.Any())
+            {
+                await _userManager.RemoveFromRolesAsync(user, existingRoles);
+            }
+            await _userManager.AddToRoleAsync(user, model.SelectedRole);
+
+            // Update subscription if client role selected
+            var isClient = model.SelectedRole.StartsWith("Client-");
+            if (isClient)
+            {
+                var activeSubscription = user.Subscriptions.FirstOrDefault(s => s.IsActive);
+
+                if (model.SelectedSubscriptionTierId.HasValue)
+                {
+                    // Create or update active subscription record safely
+                    if (activeSubscription == null)
+                    {
+                        activeSubscription = new Subscription
+                        {
+                            UserId = user.Id,
+                            SubscriptionTierId = model.SelectedSubscriptionTierId.Value,
+                            MonthlyPrice = await _context.SubscriptionTiers.Where(t => t.Id == model.SelectedSubscriptionTierId.Value).Select(t => t.MonthlyPrice).FirstAsync(),
+                            StartDate = DateTime.UtcNow,
+                            IsActive = model.IsSubscriptionActive,
+                            PaymentStatus = string.IsNullOrWhiteSpace(model.PaymentStatus) ? "Pending" : model.PaymentStatus
+                        };
+                        await _context.Subscriptions.AddAsync(activeSubscription);
+                    }
+                    else
+                    {
+                        activeSubscription.SubscriptionTierId = model.SelectedSubscriptionTierId.Value;
+                        activeSubscription.IsActive = model.IsSubscriptionActive;
+                        activeSubscription.PaymentStatus = string.IsNullOrWhiteSpace(model.PaymentStatus) ? activeSubscription.PaymentStatus : model.PaymentStatus;
+                    }
+                }
+            }
+            else
+            {
+                // Non-client role: mark any active subscriptions inactive (administrative override)
+                foreach (var sub in user.Subscriptions.Where(s => s.IsActive))
+                {
+                    sub.IsActive = false;
+                    sub.PaymentStatus = "Cancelled";
+                    sub.EndDate = DateTime.UtcNow;
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "User updated successfully.";
+            return RedirectToAction(nameof(Index));
         }
     }
 }
