@@ -7,11 +7,7 @@
   transition: all var(--transition-normal);
   margin-top: 15px;
 }
-
-.card:hover {
-  border-color: var(--carolina-blue);
-  transform: translateY(-2px);
-}
+.card:hover { border-color: var(--carolina-blue); transform: translateY(-2px); }
 
 .card-featured {
   background-color: var(--white);
@@ -20,7 +16,6 @@
   padding: var(--space-lg);
 }
 
-/* Card Header */
 .card-header {
   background-color: var(--light-gray);
   border-bottom: 1px solid var(--medium-gray);
@@ -28,33 +23,12 @@
   margin: calc(-1 * var(--space-lg)) calc(-1 * var(--space-lg)) var(--space-lg) calc(-1 * var(--space-lg));
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
+.card-title { margin: 0 0 0.5rem 0; color: var(--charcoal); font-size: var(--h4-size); font-weight: var(--font-semibold); }
+.card-description { margin: 0; color: var(--dark-gray); font-size: var(--body-small); line-height: var(--line-height-normal); }
 
-.card-title {
-  margin: 0 0 0.5rem 0;
-  color: var(--charcoal);
-  font-size: var(--h4-size);
-  font-weight: var(--font-semibold);
-}
+.hover-lift { transition: transform var(--transition-normal); }
+.hover-lift:hover { transform: translateY(-2px); }
 
-.card-description {
-  margin: 0;
-  color: var(--dark-gray);
-  font-size: var(--body-small);
-  line-height: var(--line-height-normal);
-}
+@media (max-width: 480px) { .card { padding: var(--space-md); } }
 
-/* Hover Effects */
-.hover-lift {
-  transition: transform var(--transition-normal);
-}
 
-.hover-lift:hover {
-  transform: translateY(-2px);
-}
-
-/* Responsive Card Styles */
-@media (max-width: 480px) {
-  .card {
-    padding: var(--space-md);
-  }
-}

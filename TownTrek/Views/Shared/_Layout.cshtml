@@ -9,18 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     
-    <!-- TownTrek Design System CSS -->
-    <link rel="stylesheet" href="~/css/variables.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/base.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/buttons.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/cards.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/forms.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/navigation.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/landing.css" asp-append-version="true" />
-    
-    <!-- Main Site CSS -->
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <!-- Public Entrypoint (consolidated imports) -->
+    <link rel="stylesheet" href="~/css/entrypoints/public.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TownTrek.styles.css" asp-append-version="true" />
     
     @await RenderSectionAsync("Styles", required: false)
