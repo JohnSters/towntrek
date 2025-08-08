@@ -42,6 +42,7 @@
     <Folder Include="Data\" />
     <Folder Include="Migrations\" />
     <Folder Include="Views\Client\Subscription\" />
+    <Folder Include="Views\Home\" />
   </ItemGroup>
 
 </Project>

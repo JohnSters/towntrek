@@ -311,11 +311,11 @@ Views/Client/
 - [x] Update all navigation references
 
 #### ✅ Phase 3 Tasks
-- [ ] Create Public/ folder
-- [ ] Move public views from Home/ to Public/
+- [x] Create Public/ folder
+- [x] Move public views from Home/ to Public/
 - [ ] Create Shared/Components/ folder
 - [ ] Move reusable components
-- [ ] Update all routing references
+- [x] Update all routing references (HomeController actions and layout links)
 
 #### ✅ Phase 4 Tasks
 - [ ] Remove old folder structures
