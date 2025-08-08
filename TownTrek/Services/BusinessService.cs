@@ -357,6 +357,23 @@ namespace TownTrek.Services
                     new() { Value = "bar", Text = "Bar & Pub" },
                     new() { Value = "takeaway", Text = "Takeaway" }
                 },
+                "markets-vendors" => new List<BusinessCategoryOption>
+                {
+                    new() { Value = "farmers", Text = "Farmers Market" },
+                    new() { Value = "craft", Text = "Craft Market" },
+                    new() { Value = "flea", Text = "Flea Market" },
+                    new() { Value = "food", Text = "Food Market" },
+                    new() { Value = "antique", Text = "Antique Market" }
+                },
+                "tours-experiences" => new List<BusinessCategoryOption>
+                {
+                    new() { Value = "cultural", Text = "Cultural Tour" },
+                    new() { Value = "adventure", Text = "Adventure Tour" },
+                    new() { Value = "wildlife", Text = "Wildlife Tour" },
+                    new() { Value = "historical", Text = "Historical Tour" },
+                    new() { Value = "food", Text = "Food Tour" },
+                    new() { Value = "walking", Text = "Walking Tour" }
+                },
                 "accommodation" => new List<BusinessCategoryOption>
                 {
                     new() { Value = "hotel", Text = "Hotel" },
