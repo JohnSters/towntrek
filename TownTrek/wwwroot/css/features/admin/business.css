@@ -1,0 +1,39 @@
+/* Admin Business specific enhancements */
+.badge-pending { background-color: #fff3cd; color: #856404; }
+.badge-active { background-color: #d4edda; color: #155724; }
+.badge-inactive { background-color: var(--medium-gray); color: var(--dark-gray); }
+.badge-suspended { background-color: #f8d7da; color: #721c24; }
+.business-table .table-cell-content { max-width: 300px; }
+.business-phone { font-size: 0.75rem; color: var(--dark-gray); margin-top: 0.25rem; }
+.business-category { font-weight: 500; color: var(--charcoal); }
+.business-subcategory { font-size: 0.75rem; color: var(--dark-gray); font-style: italic; }
+.business-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.business-action-btn { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border: 1px solid var(--medium-gray); border-radius: 6px; background-color: white; color: var(--dark-gray); text-decoration: none; transition: all 0.2s ease; cursor: pointer; }
+.business-action-btn:hover { border-color: var(--lapis-lazuli); color: var(--lapis-lazuli); }
+.business-action-btn.approve { border-color: #28a745; color: #28a745; }
+.business-action-btn.approve:hover { background-color: #28a745; color: white; }
+.business-action-btn.reject { border-color: #ffc107; color: #856404; }
+.business-action-btn.reject:hover { background-color: #ffc107; color: #212529; }
+.business-action-btn.suspend { border-color: #dc3545; color: #dc3545; }
+.business-action-btn.suspend:hover { background-color: #dc3545; color: white; }
+.business-action-btn.delete { border-color: #dc3545; color: #dc3545; }
+.business-action-btn.delete:hover { background-color: #dc3545; color: white; }
+.business-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+.business-stat-card { background-color: white; border: 1px solid var(--medium-gray); border-radius: 12px; padding: 1.5rem; transition: border-color 0.2s ease; }
+.business-stat-card:hover { border-color: var(--carolina-blue); }
+.business-stat-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.business-stat-icon { width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+.business-stat-icon.pending { background-color: #ffc107; }
+.business-stat-icon.active { background-color: #28a745; }
+.business-stat-icon.total { background-color: var(--lapis-lazuli); }
+.business-stat-icon.provinces { background-color: var(--carolina-blue); }
+.business-stat-value { font-size: 2rem; font-weight: 700; color: var(--charcoal); margin-bottom: 0.5rem; }
+.business-stat-label { font-size: 0.875rem; font-weight: 500; color: var(--charcoal); margin-bottom: 0.25rem; }
+.business-stat-change { font-size: 0.75rem; color: var(--dark-gray); }
+@media (max-width: 768px) {
+  .business-stats { grid-template-columns: 1fr; }
+  .business-actions { flex-direction: column; gap: 0.25rem; }
+  .business-action-btn { width: 100%; height: 2.5rem; }
+}
+
+
