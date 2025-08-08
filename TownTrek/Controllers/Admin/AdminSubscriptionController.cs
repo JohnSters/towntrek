@@ -9,7 +9,7 @@ using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Admin
 {
-    // [Authorize(Roles = "Admin")] // Temporarily commented out for testing
+    [Authorize(Roles = "Admin")]
     [Route("Admin/Subscriptions")]
     public class AdminSubscriptionController : Controller
     {

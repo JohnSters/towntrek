@@ -1,7 +1,7 @@
 @using TownTrek.Models.ViewModels
 @model AddTownViewModel
 @{
-    ViewData["Title"] = Model.Id > 0 ? "Edit Town" : "Add New Town";
+    ViewData["Title"] = "Edit Town";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -13,11 +13,11 @@
 <div class="page-header">
     <div class="page-header-content">
         <div>
-            <h1 class="page-title">@ViewData["Title"]</h1>
-            <p class="page-description">@(Model.Id > 0 ? "Update the town information below." : "Add a new South African town to the system.")</p>
+            <h1 class="page-title">Edit Town</h1>
+            <p class="page-description">Update the town information below.</p>
         </div>
         <div class="page-actions">
-            <a href="@Url.Action("Towns", "Admin")" class="auth-btn auth-btn-secondary">
+            <a href="@Url.Action("Index", "AdminTowns")" class="auth-btn auth-btn-secondary">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -27,14 +27,14 @@
     </div>
 </div>
 
-<!-- Add Town Form -->
+<!-- Edit Town Form -->
 <div class="admin-card">
     <div class="admin-card-header">
-        <h3 class="admin-card-title">Town Information</h3>
-        <p class="admin-card-description">Fill in the details below to @(Model.Id > 0 ? "update" : "create") the town listing</p>
+        <h3 class="admin-card-title">Update Town Information</h3>
+        <p class="admin-card-description">Modify the details below to update the town listing</p>
     </div>
     
-    <form asp-action="@(Model.Id > 0 ? "EditTown" : "AddTown")" method="post" class="add-business-form">
+    <form asp-action="Edit" method="post" class="add-business-form">
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.Id)
         
@@ -137,14 +137,14 @@
 
         <!-- Form Actions -->
         <div class="form-actions">
-            <a href="@Url.Action("Towns", "Admin")" class="auth-btn auth-btn-secondary">
+            <a href="@Url.Action("Index", "AdminTowns")" class="auth-btn auth-btn-secondary">
                 Cancel
             </a>
             <button type="submit" class="auth-btn auth-btn-cta">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
-                @(Model.Id > 0 ? "Update Town" : "Create Town")
+                Update Town
             </button>
         </div>
     </form>

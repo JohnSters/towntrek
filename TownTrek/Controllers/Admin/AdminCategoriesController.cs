@@ -7,7 +7,7 @@ using TownTrek.Models;
 
 namespace TownTrek.Controllers.Admin
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class AdminCategoriesController(ApplicationDbContext context, ILogger<AdminCategoriesController> logger) : Controller
     {
         private readonly ApplicationDbContext _context = context;

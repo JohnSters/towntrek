@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.AspNetCore.Authorization;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
@@ -9,18 +8,18 @@ using TownTrek.Models.ViewModels;
 namespace TownTrek.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
-    [Route("admin/towns")]
     public class AdminTownsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<AdminTownsController> _logger;
 
-        public AdminTownsController(ApplicationDbContext context)
+        public AdminTownsController(ApplicationDbContext context, ILogger<AdminTownsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        // GET /admin/towns
-        [HttpGet("")]
+        // GET: Admin/Towns (List all towns)
         public async Task<IActionResult> Index()
         {
             var towns = await _context.Towns
@@ -29,65 +28,63 @@ namespace TownTrek.Controllers.Admin
                 .ThenBy(t => t.Name)
                 .ToListAsync();
 
-            return View("~/Views/Admin/Towns.cshtml", towns);
+            return View("~/Views/Admin/Towns/Index.cshtml", towns);
         }
 
-        // GET /admin/towns/new
-        [HttpGet("new")]
-        public IActionResult New()
+        // GET: Admin/Towns/Create (Show create form)
+        public IActionResult Create()
         {
             var model = new AddTownViewModel();
-            return View("~/Views/Admin/AddTown.cshtml", model);
+            return View("~/Views/Admin/Towns/Create.cshtml", model);
         }
 
-        // POST /admin/towns
-        [HttpPost("")]
+        // POST: Admin/Towns/Create (Process create form)
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(AddTownViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var existingTown = await _context.Towns
-                    .FirstOrDefaultAsync(t => t.Name == model.Name && t.Province == model.Province);
-
-                if (existingTown != null)
+                try
                 {
-                    ModelState.AddModelError("", "A town with this name already exists in the selected province.");
-                    return View("~/Views/Admin/AddTown.cshtml", model);
+                    var town = new Town
+                    {
+                        Name = model.Name,
+                        Province = model.Province,
+                        PostalCode = model.PostalCode,
+                        Population = model.Population,
+                        Description = model.Description,
+                        Landmarks = model.Landmarks,
+                        Latitude = model.Latitude,
+                        Longitude = model.Longitude,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    _context.Towns.Add(town);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = $"Town '{model.Name}' has been created successfully.";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                var town = new Town
+                catch (Exception ex)
                 {
-                    Name = model.Name,
-                    Province = model.Province,
-                    PostalCode = model.PostalCode,
-                    Description = model.Description,
-                    Population = model.Population,
-                    Landmarks = model.Landmarks,
-                    Latitude = model.Latitude,
-                    Longitude = model.Longitude,
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-                _context.Towns.Add(town);
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Town '{model.Name}' has been added successfully!";
-                return RedirectToAction(nameof(Index));
+                    _logger.LogError(ex, "Error creating town: {TownName}", model.Name);
+                    TempData["ErrorMessage"] = "An error occurred while creating the town. Please try again.";
+                }
             }
 
-            return View("~/Views/Admin/AddTown.cshtml", model);
+            return View("~/Views/Admin/Towns/Create.cshtml", model);
         }
 
-        // GET /admin/towns/{id}/edit
-        [HttpGet("{id}/edit")]
+        // GET: Admin/Towns/Edit/5 (Show edit form)
         public async Task<IActionResult> Edit(int id)
         {
             var town = await _context.Towns.FindAsync(id);
             if (town == null)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Town not found.";
+                return RedirectToAction(nameof(Index));
             }
 
             var model = new AddTownViewModel
@@ -96,61 +93,98 @@ namespace TownTrek.Controllers.Admin
                 Name = town.Name,
                 Province = town.Province,
                 PostalCode = town.PostalCode,
-                Description = town.Description,
                 Population = town.Population,
+                Description = town.Description,
                 Landmarks = town.Landmarks,
                 Latitude = town.Latitude,
                 Longitude = town.Longitude
             };
 
-            return View("~/Views/Admin/AddTown.cshtml", model);
+            return View("~/Views/Admin/Towns/Edit.cshtml", model);
         }
 
-        // POST /admin/towns/{id}
-        [HttpPost("{id}")]
+        // POST: Admin/Towns/Edit/5 (Process edit form)
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Update(int id, AddTownViewModel model)
+        public async Task<IActionResult> Edit(AddTownViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var town = await _context.Towns.FindAsync(id);
-                if (town == null)
+                try
                 {
-                    return NotFound();
+                    var town = await _context.Towns.FindAsync(model.Id);
+                    if (town == null)
+                    {
+                        TempData["ErrorMessage"] = "Town not found.";
+                        return RedirectToAction(nameof(Index));
+                    }
+
+                    town.Name = model.Name;
+                    town.Province = model.Province;
+                    town.PostalCode = model.PostalCode;
+                    town.Population = model.Population;
+                    town.Description = model.Description;
+                    town.Landmarks = model.Landmarks;
+                    town.Latitude = model.Latitude;
+                    town.Longitude = model.Longitude;
+                    town.UpdatedAt = DateTime.UtcNow;
+
+                    _context.Towns.Update(town);
+                    await _context.SaveChangesAsync();
+
+                    TempData["SuccessMessage"] = $"Town '{model.Name}' has been updated successfully.";
+                    return RedirectToAction(nameof(Index));
                 }
-
-                var existingTown = await _context.Towns
-                    .FirstOrDefaultAsync(t => t.Name == model.Name && t.Province == model.Province && t.Id != id);
-
-                if (existingTown != null)
+                catch (Exception ex)
                 {
-                    ModelState.AddModelError("", "A town with this name already exists in the selected province.");
-                    return View("~/Views/Admin/AddTown.cshtml", model);
+                    _logger.LogError(ex, "Error updating town: {TownId}", model.Id);
+                    TempData["ErrorMessage"] = "An error occurred while updating the town. Please try again.";
                 }
-
-                town.Name = model.Name;
-                town.Province = model.Province;
-                town.PostalCode = model.PostalCode;
-                town.Description = model.Description;
-                town.Population = model.Population;
-                town.Landmarks = model.Landmarks;
-                town.Latitude = model.Latitude;
-                town.Longitude = model.Longitude;
-                town.UpdatedAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = $"Town '{model.Name}' has been updated successfully!";
-                return RedirectToAction(nameof(Index));
             }
 
-            return View("~/Views/Admin/AddTown.cshtml", model);
+            return View("~/Views/Admin/Towns/Edit.cshtml", model);
         }
 
-        // POST /admin/towns/{id}/delete
-        [HttpPost("{id}/delete")]
+        // POST: Admin/Towns/Delete (Delete town)
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var town = await _context.Towns
+                    .Include(t => t.Businesses)
+                    .FirstOrDefaultAsync(t => t.Id == id);
+
+                if (town == null)
+                {
+                    TempData["ErrorMessage"] = "Town not found.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Check if town has businesses
+                if (town.Businesses.Any())
+                {
+                    TempData["ErrorMessage"] = "Cannot delete town with existing businesses. Please remove all businesses first.";
+                    return RedirectToAction(nameof(Index));
+                }
+
+                _context.Towns.Remove(town);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = $"Town '{town.Name}' has been deleted successfully.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting town: {TownId}", id);
+                TempData["ErrorMessage"] = "An error occurred while deleting the town. Please try again.";
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // GET: Admin/Towns/Details/5 (Optional - View town details)
+        public async Task<IActionResult> Details(int id)
         {
             var town = await _context.Towns
                 .Include(t => t.Businesses)
@@ -158,22 +192,11 @@ namespace TownTrek.Controllers.Admin
 
             if (town == null)
             {
-                return NotFound();
-            }
-
-            if (town.Businesses.Any())
-            {
-                TempData["ErrorMessage"] = $"Cannot delete '{town.Name}' because it has associated businesses.";
+                TempData["ErrorMessage"] = "Town not found.";
                 return RedirectToAction(nameof(Index));
             }
 
-            _context.Towns.Remove(town);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = $"Town '{town.Name}' has been deleted successfully!";
-            return RedirectToAction(nameof(Index));
+            return View(town);
         }
     }
 }
-
-

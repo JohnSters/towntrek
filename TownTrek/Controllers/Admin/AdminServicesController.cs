@@ -7,7 +7,7 @@ using TownTrek.Models;
 
 namespace TownTrek.Controllers.Admin
 {
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class AdminServicesController(ApplicationDbContext context) : Controller
     {
         private readonly ApplicationDbContext _context = context;
