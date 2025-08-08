@@ -1,0 +1,11 @@
+/* File Uploads */
+.image-upload-section { padding: 1.5rem; }
+.file-upload-area { border: 2px dashed var(--medium-gray); border-radius: var(--radius-lg); padding: 2rem; text-align: center; transition: border-color 0.2s ease, background-color 0.2s ease; cursor: pointer; position: relative; }
+.file-upload-area:hover { border-color: var(--carolina-blue); background-color: rgba(134, 187, 216, 0.05); }
+.file-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.file-upload-content { pointer-events: none; }
+.upload-icon { color: var(--carolina-blue); margin-bottom: 1rem; }
+.upload-text { font-weight: 500; color: var(--charcoal); margin: 0 0 0.5rem 0; }
+.upload-hint { font-size: 0.875rem; color: var(--dark-gray); margin: 0; }
+
+

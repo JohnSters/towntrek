@@ -1,154 +1,62 @@
-# MyTown CSS Architecture
+# TownTrek CSS Architecture
 
-This directory contains the modular CSS architecture for the MyTown application, following the design system principles outlined in the business documentation.
+## Entrypoints
+- `css/entrypoints/public.css`: Public site bundle (foundation + components + landing)
+- `css/entrypoints/admin.css`: Admin/Client portal bundle (foundation + components + admin layout + common features)
 
-## File Structure
+## Foundations
+- `css/foundation/variables.css`
+- `css/foundation/base.css`
 
-```
-wwwroot/css/
-├── README.md           # This documentation file
-├── variables.css       # Design system variables and tokens
-├── base.css           # Base styles, reset, and global layout
-├── buttons.css        # Button components and variants
-├── cards.css          # Card components and hover effects
-├── forms.css          # Form elements and validation styles
-├── navigation.css     # Navigation bar and menu styles
-├── footer.css         # Footer layout and styling
-├── landing.css        # Landing page specific styles
-└── site.css          # Main stylesheet with imports and global overrides
-```
+## Components
+- `css/components/buttons.css`
+- `css/components/cards.css`
+- `css/components/forms.css`
+- `css/components/navigation.css`
+- `css/components/footer.css`
+- `css/components/alerts.css`
+- `css/components/badges.css`
+- `css/components/modal.css`
 
-## Design System
+## Layouts
+- `css/layouts/admin-layout.css`
 
-### Variables (variables.css)
-- **Colors**: Primary palette (charcoal, lapis-lazuli, carolina-blue, hunyadi-yellow, orange-pantone)
-- **Typography**: Font sizes, weights, and line heights
-- **Spacing**: 8px grid system with consistent spacing scale
-- **Border Radius**: Consistent corner radius values
-- **Transitions**: Standard animation timing
-- **Breakpoints**: Responsive design breakpoints
+## Features
+- `css/features/landing/landing.css`
+- `css/features/business/bundle.css` (imports form-shell, operating-hours, uploads, image-preview, category-sections, notifications)
+- `css/features/admin/subscription.css`
+- `css/features/admin/business.css`
+- `css/features/subscription/{plans.css,limits.css,extras.css}`
+- `css/features/towns/towns.css`
+- `css/features/image-gallery/gallery.css`
+- `css/features/auth/auth.css` (linked via `css/auth.css`)
 
-### Base Styles (base.css)
-- CSS reset and box-sizing
-- Typography hierarchy
-- Layout utilities (flexbox, grid)
-- Container systems
-- Accessibility focus states
-- Reduced motion support
+## View linking guideline
+- Public pages: include `css/entrypoints/public.css`
+- Admin/Client pages: include `css/entrypoints/admin.css`
+- Page-specific: include feature CSS under `css/features/...` as needed
 
-### Components
+## Legacy root wrappers
+These exist for backward compatibility and can be removed once all views link to entrypoints/features directly:
+- `css/site.css` (now imports entrypoints/site.css → superseded by entrypoints/public.css)
+- `css/variables.css` (wrapper)
+- `css/base.css` (wrapper)
+- `css/buttons.css` (wrapper)
+- `css/cards.css` (wrapper)
+- `css/forms.css` (wrapper)
+- `css/navigation.css` (wrapper)
+- `css/footer.css` (wrapper)
+- `css/landing.css` (wrapper)
+- `css/confirmation-modal.css` (wrapper)
+- `css/admin-subscription.css` (wrapper)
+- `css/add-town.css` (migrated to `features/towns/towns.css`)
+- `css/image-gallery.css` (migrated to `features/image-gallery/gallery.css`)
+- `css/add-business.css` (migrated to `features/business/bundle.css`)
+- `css/client-admin.css` (migrated into admin entrypoint + layout/components)
+- `css/subscription.css` (wrapper: now imports components + features/subscription/*)
+- `css/auth.css` (kept as the minimal entry for auth)
 
-#### Buttons (buttons.css)
-- Primary, secondary, and CTA button variants
-- Size modifiers (regular, large)
-- Hover effects and animations
-- Responsive button styles
-
-#### Cards (cards.css)
-- Standard and featured card variants
-- Hover effects and transitions
-- Responsive card layouts
-
-#### Forms (forms.css)
-- Input and select styling
-- Focus states and validation
-- Form labels and groups
-- Error and success states
-
-#### Navigation (navigation.css)
-- Navbar styling and responsive behavior
-- Navigation links and hover states
-- Mobile navigation support
-
-#### Footer (footer.css)
-- Footer layout with grid system
-- Vertical link lists as requested
-- Brand section with gradient text
-- Responsive footer design
-
-#### Landing Page (landing.css)
-- Hero section with gradient background
-- Feature cards and icons
-- Stats section styling
-- CTA section design
-- Page-specific animations
-
-## Usage
-
-### In Layout Files
-The CSS files are loaded in the following order in `_Layout.cshtml`:
-
-1. Bootstrap (for base framework)
-2. Variables (design tokens)
-3. Base (reset and global styles)
-4. Components (buttons, cards, forms, navigation, footer)
-5. Page-specific styles (landing)
-6. Site overrides (global customizations)
-
-### Adding New Styles
-
-#### For New Components
-1. Create a new CSS file (e.g., `modals.css`)
-2. Add component-specific styles
-3. Include responsive design
-4. Add the file to `_Layout.cshtml`
-5. Update this README
-
-#### For Page-Specific Styles
-1. Create a new CSS file (e.g., `dashboard.css`)
-2. Add page-specific styles
-3. Include the file only on relevant pages
-4. Document the new file here
-
-## Best Practices
-
-### CSS Organization
-- Use CSS custom properties (variables) for consistency
-- Follow BEM-like naming conventions
-- Group related styles together
-- Add comments for complex styles
-
-### Responsive Design
-- Mobile-first approach
-- Use consistent breakpoints from variables
-- Test on multiple screen sizes
-- Consider touch targets on mobile
-
-### Performance
-- Minimize CSS file sizes
-- Use efficient selectors
-- Avoid deep nesting
-- Leverage browser caching with asp-append-version
-
-### Accessibility
-- Maintain proper color contrast
-- Include focus states for all interactive elements
-- Support reduced motion preferences
-- Use semantic HTML with appropriate styling
-
-## Maintenance
-
-### Regular Tasks
-- Review and consolidate duplicate styles
-- Update variables when design system changes
-- Test responsive behavior on new features
-- Validate accessibility compliance
-
-### When Adding Features
-- Check if existing components can be reused
-- Follow established patterns and conventions
-- Update documentation
-- Test across browsers and devices
-
-## Browser Support
-- Chrome: Latest 2 versions
-- Firefox: Latest 2 versions
-- Safari: Latest 2 versions
-- Edge: Latest 2 versions
-- Mobile browsers: iOS Safari, Chrome Mobile
-
-## South African Design Considerations
-- Colors chosen to reflect South African aesthetic
-- Typography optimized for local market
-- Mobile-first approach for local device usage
-- Performance optimized for varying connection speeds
+## Removal plan
+- Safe to remove now if no view references remain: `client-admin.css`, `image-gallery.css`, `add-town.css`.
+- Remove `subscription.css` after updating `_ClientLayout.cshtml` to rely solely on `entrypoints/admin.css` and feature links.
+- Remove `site.css` and all other wrappers after confirming all layouts use entrypoints and pages use feature CSS.
