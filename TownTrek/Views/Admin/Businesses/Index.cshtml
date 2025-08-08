@@ -4,6 +4,14 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/confirmation-modal.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/confirmation-modal.js" asp-append-version="true"></script>
+}
+
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-content">
@@ -90,6 +98,7 @@
     
     @if (Model.Any())
     {
+        @Html.AntiForgeryToken()
         <div class="table-container">
             <table class="admin-table">
                 <thead>
