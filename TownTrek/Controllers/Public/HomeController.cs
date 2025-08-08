@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 using TownTrek.Models.ViewModels;
 
-namespace TownTrek.Controllers;
+namespace TownTrek.Controllers.Public;
 
 public class HomeController : Controller
 {

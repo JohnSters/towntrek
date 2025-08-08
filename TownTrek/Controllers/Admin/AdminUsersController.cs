@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Controllers
+namespace TownTrek.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
     [Route("admin/users")]
@@ -39,9 +40,9 @@ namespace TownTrek.Controllers
             {
                 var q = search.Trim().ToLower();
                 query = query.Where(u =>
-                    (u.FirstName != null && u.FirstName.ToLower().Contains(q)) ||
-                    (u.LastName != null && u.LastName.ToLower().Contains(q)) ||
-                    (u.Email != null && u.Email.ToLower().Contains(q))
+                    u.FirstName != null && u.FirstName.ToLower().Contains(q) ||
+                    u.LastName != null && u.LastName.ToLower().Contains(q) ||
+                    u.Email != null && u.Email.ToLower().Contains(q)
                 );
             }
 

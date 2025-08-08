@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
- 
 
-namespace TownTrek.Controllers
+
+namespace TownTrek.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller

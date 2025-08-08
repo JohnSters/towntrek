@@ -5,7 +5,7 @@ using TownTrek.Models.ViewModels;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Controllers
+namespace TownTrek.Controllers.Auth
 {
     public class AuthController : Controller
     {

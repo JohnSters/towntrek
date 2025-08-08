@@ -1,13 +1,15 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using System.Security.Claims;
+
 using TownTrek.Attributes;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Controllers
+namespace TownTrek.Controllers.Business
 {
     [Authorize]
     [Route("Client/[action]")] // Maintain existing routes for backward compatibility

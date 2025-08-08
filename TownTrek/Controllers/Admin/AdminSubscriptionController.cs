@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Controllers
+namespace TownTrek.Controllers.Admin
 {
     // [Authorize(Roles = "Admin")] // Temporarily commented out for testing
     [Route("Admin/Subscriptions")]

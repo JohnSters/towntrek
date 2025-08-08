@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using TownTrek.Data;
 using TownTrek.Models;
 
-namespace TownTrek.Controllers
+namespace TownTrek.Controllers.Admin
 {
     [Authorize]
     public class AdminCategoriesController(ApplicationDbContext context, ILogger<AdminCategoriesController> logger) : Controller

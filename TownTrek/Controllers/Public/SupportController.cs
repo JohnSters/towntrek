@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace TownTrek.Controllers
+namespace TownTrek.Controllers.Public
 {
     [Authorize]
     [Route("Client/[action]")] // Maintain existing routes for backward compatibility

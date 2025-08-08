@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using TownTrek.Data;
 
-namespace TownTrek.Controllers
+namespace TownTrek.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
     [Route("admin/businesses")]
