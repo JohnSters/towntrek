@@ -11,12 +11,16 @@
   <ItemGroup>
     <Compile Remove="Views\Account\**" />
     <Compile Remove="Views\AdminTown\**" />
+    <Compile Remove="Views\Home\**" />
     <Content Remove="Views\Account\**" />
     <Content Remove="Views\AdminTown\**" />
+    <Content Remove="Views\Home\**" />
     <EmbeddedResource Remove="Views\Account\**" />
     <EmbeddedResource Remove="Views\AdminTown\**" />
+    <EmbeddedResource Remove="Views\Home\**" />
     <None Remove="Views\Account\**" />
     <None Remove="Views\AdminTown\**" />
+    <None Remove="Views\Home\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,7 +46,6 @@
     <Folder Include="Data\" />
     <Folder Include="Migrations\" />
     <Folder Include="Views\Client\Subscription\" />
-    <Folder Include="Views\Home\" />
   </ItemGroup>
 
 </Project>
