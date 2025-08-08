@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers
 {

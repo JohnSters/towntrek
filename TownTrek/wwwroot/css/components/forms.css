@@ -20,6 +20,14 @@
 
 /* Form Groups */
 .form-group { margin-bottom: var(--space-md); }
+/* Form actions alignment */
+.form-actions {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  justify-content: flex-end;
+}
+
 
 /* Checkbox groups */
 .checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-sm); }

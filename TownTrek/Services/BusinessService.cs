@@ -2,24 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
-using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Services
 {
-    public interface IBusinessService
-    {
-        Task<AddBusinessViewModel> GetAddBusinessViewModelAsync(string userId);
-        Task<ServiceResult> CreateBusinessAsync(AddBusinessViewModel model, string userId);
-        Task<ServiceResult> UpdateBusinessAsync(int businessId, AddBusinessViewModel model, string userId);
-        Task<List<Business>> GetUserBusinessesAsync(string userId);
-        Task<Business?> GetBusinessByIdAsync(int id, string userId);
-        Task<Business?> GetBusinessByIdAsync(int id);
-        Task<ServiceResult> DeleteBusinessAsync(int businessId, string userId);
-        Task<bool> CanUserAddBusinessAsync(string userId);
-        Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync();
-        Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category);
-    }
-
     public class BusinessService : IBusinessService
     {
         private readonly ApplicationDbContext _context;
@@ -319,73 +305,34 @@ namespace TownTrek.Services
             return currentCount < maxBusinesses;
         }
 
-        public Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync()
+        public async Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync()
         {
-            // This would typically come from a database table, but for now we'll use the predefined categories
-            var categories = new List<BusinessCategoryOption>
-            {
-                new() { Value = "shops-retail", Text = "Shops & Retail", Description = "Local shops and retail businesses", IconClass = "fas fa-shopping-bag" },
-                new() { Value = "restaurants-food", Text = "Restaurants & Food Services", Description = "Restaurants, cafes, and food services", IconClass = "fas fa-utensils" },
-                new() { Value = "markets-vendors", Text = "Markets & Vendors", Description = "Local markets and vendor stalls", IconClass = "fas fa-store" },
-                new() { Value = "accommodation", Text = "Accommodation", Description = "Hotels, guesthouses, and lodging", IconClass = "fas fa-bed" },
-                new() { Value = "tours-experiences", Text = "Tours & Experiences", Description = "Tour guides and experience providers", IconClass = "fas fa-map-marked-alt" },
-                new() { Value = "events", Text = "Events", Description = "Local events and entertainment", IconClass = "fas fa-calendar-alt" }
-            };
-            return Task.FromResult(categories);
+            var categories = await _context.BusinessCategories
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Name)
+                .Select(c => new BusinessCategoryOption
+                {
+                    Value = c.Key,
+                    Text = c.Name,
+                    Description = c.Description,
+                    IconClass = c.IconClass
+                })
+                .ToListAsync();
+            return categories;
         }
 
-        public Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category)
+        public async Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category)
         {
-            // Return subcategories based on main category
-            var subcategories = category switch
-            {
-                "shops-retail" => new List<BusinessCategoryOption>
+            var subcategories = await _context.BusinessSubCategories
+                .Where(sc => sc.Category.IsActive && sc.IsActive && sc.Category.Key == category)
+                .OrderBy(sc => sc.Name)
+                .Select(sc => new BusinessCategoryOption
                 {
-                    new() { Value = "clothing", Text = "Clothing & Fashion" },
-                    new() { Value = "electronics", Text = "Electronics" },
-                    new() { Value = "books", Text = "Books & Stationery" },
-                    new() { Value = "gifts", Text = "Gifts & Souvenirs" },
-                    new() { Value = "hardware", Text = "Hardware & Tools" },
-                    new() { Value = "pharmacy", Text = "Pharmacy & Health" }
-                },
-                "restaurants-food" => new List<BusinessCategoryOption>
-                {
-                    new() { Value = "restaurant", Text = "Restaurant" },
-                    new() { Value = "cafe", Text = "Cafe & Coffee Shop" },
-                    new() { Value = "fast-food", Text = "Fast Food" },
-                    new() { Value = "bakery", Text = "Bakery" },
-                    new() { Value = "bar", Text = "Bar & Pub" },
-                    new() { Value = "takeaway", Text = "Takeaway" }
-                },
-                "markets-vendors" => new List<BusinessCategoryOption>
-                {
-                    new() { Value = "farmers", Text = "Farmers Market" },
-                    new() { Value = "craft", Text = "Craft Market" },
-                    new() { Value = "flea", Text = "Flea Market" },
-                    new() { Value = "food", Text = "Food Market" },
-                    new() { Value = "antique", Text = "Antique Market" }
-                },
-                "tours-experiences" => new List<BusinessCategoryOption>
-                {
-                    new() { Value = "cultural", Text = "Cultural Tour" },
-                    new() { Value = "adventure", Text = "Adventure Tour" },
-                    new() { Value = "wildlife", Text = "Wildlife Tour" },
-                    new() { Value = "historical", Text = "Historical Tour" },
-                    new() { Value = "food", Text = "Food Tour" },
-                    new() { Value = "walking", Text = "Walking Tour" }
-                },
-                "accommodation" => new List<BusinessCategoryOption>
-                {
-                    new() { Value = "hotel", Text = "Hotel" },
-                    new() { Value = "guesthouse", Text = "Guesthouse" },
-                    new() { Value = "bnb", Text = "Bed & Breakfast" },
-                    new() { Value = "self-catering", Text = "Self-catering" },
-                    new() { Value = "backpackers", Text = "Backpackers" },
-                    new() { Value = "camping", Text = "Camping & Caravan" }
-                },
-                _ => new List<BusinessCategoryOption>()
-            };
-            return Task.FromResult(subcategories);
+                    Value = sc.Key,
+                    Text = sc.Name
+                })
+                .ToListAsync();
+            return subcategories;
         }
 
         private List<BusinessHourViewModel> GetDefaultBusinessHours()
@@ -426,22 +373,16 @@ namespace TownTrek.Services
 
         private async Task AddBusinessServicesAsync(int businessId, List<string> services)
         {
-            var serviceDefinitions = new Dictionary<string, string>
-            {
-                { "delivery", "Delivery Available" },
-                { "takeaway", "Takeaway/Collection" },
-                { "wheelchair", "Wheelchair Accessible" },
-                { "parking", "Parking Available" },
-                { "wifi", "Free WiFi" },
-                { "cards", "Card Payments Accepted" }
-            };
+            var activeServiceDefs = await _context.ServiceDefinitions
+                .Where(sd => sd.IsActive)
+                .ToDictionaryAsync(sd => sd.Key, sd => sd.Name);
 
-            var businessServices = services.Where(s => serviceDefinitions.ContainsKey(s))
-                .Select(s => new Models.BusinessService
+            var businessServices = services.Where(s => activeServiceDefs.ContainsKey(s))
+                .Select(s => new TownTrek.Models.BusinessService
                 {
                     BusinessId = businessId,
                     ServiceType = s,
-                    ServiceName = serviceDefinitions[s],
+                    ServiceName = activeServiceDefs[s],
                     IsActive = true
                 }).ToList();
 

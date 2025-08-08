@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Services
 {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TownTrek.Attributes;
 using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers
 {

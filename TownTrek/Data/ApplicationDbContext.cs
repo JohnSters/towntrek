@@ -17,6 +17,9 @@ namespace TownTrek.Data
         public DbSet<BusinessImage> BusinessImages { get; set; }
         public DbSet<BusinessContact> BusinessContacts { get; set; }
         public DbSet<BusinessService> BusinessServices { get; set; }
+        public DbSet<BusinessCategory> BusinessCategories { get; set; }
+        public DbSet<BusinessSubCategory> BusinessSubCategories { get; set; }
+        public DbSet<ServiceDefinition> ServiceDefinitions { get; set; }
         
         // Category-specific details
         public DbSet<MarketDetails> MarketDetails { get; set; }
@@ -240,6 +243,55 @@ namespace TownTrek.Data
                 new SubscriptionTierFeature { Id = 10, SubscriptionTierId = 3, FeatureKey = "FeaturedPlacement", IsEnabled = true, FeatureName = "Featured Placement" },
                 new SubscriptionTierFeature { Id = 11, SubscriptionTierId = 3, FeatureKey = "PDFUploads", IsEnabled = true, FeatureName = "PDF Document Uploads" }
             );
+
+            // Seed business categories and subcategories (phase 1)
+            builder.Entity<BusinessCategory>().HasData(
+                new BusinessCategory { Id = 1, Key = "shops-retail", Name = "Shops & Retail", Description = "Local shops and retail businesses", IconClass = "fas fa-shopping-bag", IsActive = true, FormType = Models.BusinessFormType.None },
+                new BusinessCategory { Id = 2, Key = "restaurants-food", Name = "Restaurants & Food Services", Description = "Restaurants, cafes, and food services", IconClass = "fas fa-utensils", IsActive = true, FormType = Models.BusinessFormType.Restaurant },
+                new BusinessCategory { Id = 3, Key = "markets-vendors", Name = "Markets & Vendors", Description = "Local markets and vendor stalls", IconClass = "fas fa-store", IsActive = true, FormType = Models.BusinessFormType.Market },
+                new BusinessCategory { Id = 4, Key = "accommodation", Name = "Accommodation", Description = "Hotels, guesthouses, and lodging", IconClass = "fas fa-bed", IsActive = true, FormType = Models.BusinessFormType.Accommodation },
+                new BusinessCategory { Id = 5, Key = "tours-experiences", Name = "Tours & Experiences", Description = "Tour guides and experience providers", IconClass = "fas fa-map-marked-alt", IsActive = true, FormType = Models.BusinessFormType.Tour },
+                new BusinessCategory { Id = 6, Key = "events", Name = "Events", Description = "Local events and entertainment", IconClass = "fas fa-calendar-alt", IsActive = true, FormType = Models.BusinessFormType.Event }
+            );
+
+            builder.Entity<BusinessSubCategory>().HasData(
+                // shops-retail
+                new BusinessSubCategory { Id = 1, CategoryId = 1, Key = "clothing", Name = "Clothing & Fashion", IsActive = true },
+                new BusinessSubCategory { Id = 2, CategoryId = 1, Key = "electronics", Name = "Electronics", IsActive = true },
+                new BusinessSubCategory { Id = 3, CategoryId = 1, Key = "books", Name = "Books & Stationery", IsActive = true },
+                new BusinessSubCategory { Id = 4, CategoryId = 1, Key = "gifts", Name = "Gifts & Souvenirs", IsActive = true },
+                new BusinessSubCategory { Id = 5, CategoryId = 1, Key = "hardware", Name = "Hardware & Tools", IsActive = true },
+                new BusinessSubCategory { Id = 6, CategoryId = 1, Key = "pharmacy", Name = "Pharmacy & Health", IsActive = true },
+                // restaurants-food
+                new BusinessSubCategory { Id = 7, CategoryId = 2, Key = "restaurant", Name = "Restaurant", IsActive = true },
+                new BusinessSubCategory { Id = 8, CategoryId = 2, Key = "cafe", Name = "Cafe & Coffee Shop", IsActive = true },
+                new BusinessSubCategory { Id = 9, CategoryId = 2, Key = "fast-food", Name = "Fast Food", IsActive = true },
+                new BusinessSubCategory { Id = 10, CategoryId = 2, Key = "bakery", Name = "Bakery", IsActive = true },
+                new BusinessSubCategory { Id = 11, CategoryId = 2, Key = "bar", Name = "Bar & Pub", IsActive = true },
+                new BusinessSubCategory { Id = 12, CategoryId = 2, Key = "takeaway", Name = "Takeaway", IsActive = true },
+                // markets-vendors
+                new BusinessSubCategory { Id = 19, CategoryId = 3, Key = "farmers", Name = "Farmers Market", IsActive = true },
+                new BusinessSubCategory { Id = 20, CategoryId = 3, Key = "craft", Name = "Craft Market", IsActive = true },
+                new BusinessSubCategory { Id = 21, CategoryId = 3, Key = "flea", Name = "Flea Market", IsActive = true },
+                new BusinessSubCategory { Id = 22, CategoryId = 3, Key = "food", Name = "Food Market", IsActive = true },
+                new BusinessSubCategory { Id = 23, CategoryId = 3, Key = "antique", Name = "Antique Market", IsActive = true },
+                // accommodation
+                new BusinessSubCategory { Id = 13, CategoryId = 4, Key = "hotel", Name = "Hotel", IsActive = true },
+                new BusinessSubCategory { Id = 14, CategoryId = 4, Key = "guesthouse", Name = "Guesthouse", IsActive = true },
+                new BusinessSubCategory { Id = 15, CategoryId = 4, Key = "bnb", Name = "Bed & Breakfast", IsActive = true },
+                new BusinessSubCategory { Id = 16, CategoryId = 4, Key = "self-catering", Name = "Self-catering", IsActive = true },
+                new BusinessSubCategory { Id = 17, CategoryId = 4, Key = "backpackers", Name = "Backpackers", IsActive = true },
+                new BusinessSubCategory { Id = 18, CategoryId = 4, Key = "camping", Name = "Camping & Caravan", IsActive = true }
+            );
+
+            builder.Entity<ServiceDefinition>().HasData(
+                new ServiceDefinition { Id = 1, Key = "delivery", Name = "Delivery Available", IsActive = true },
+                new ServiceDefinition { Id = 2, Key = "takeaway", Name = "Takeaway/Collection", IsActive = true },
+                new ServiceDefinition { Id = 3, Key = "wheelchair", Name = "Wheelchair Accessible", IsActive = true },
+                new ServiceDefinition { Id = 4, Key = "parking", Name = "Parking Available", IsActive = true },
+                new ServiceDefinition { Id = 5, Key = "wifi", Name = "Free WiFi", IsActive = true },
+                new ServiceDefinition { Id = 6, Key = "cards", Name = "Card Payments Accepted", IsActive = true }
+            );
         }
 
         private void ConfigureCategorySpecificEntities(ModelBuilder builder)
@@ -312,6 +364,39 @@ namespace TownTrek.Data
                       .WithMany()
                       .HasForeignKey(e => e.BusinessId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure BusinessCategory
+            builder.Entity<BusinessCategory>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Key).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.IconClass).HasMaxLength(100);
+                entity.HasIndex(e => e.Key).IsUnique();
+            });
+
+            // Configure BusinessSubCategory
+            builder.Entity<BusinessSubCategory>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Key).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.HasIndex(e => new { e.CategoryId, e.Key }).IsUnique();
+                entity.HasOne(e => e.Category)
+                      .WithMany(c => c.SubCategories)
+                      .HasForeignKey(e => e.CategoryId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure ServiceDefinition
+            builder.Entity<ServiceDefinition>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Key).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.HasIndex(e => e.Key).IsUnique();
             });
         }
     }
