@@ -32,16 +32,35 @@ namespace TownTrek.Controllers.Client
 
             // Clear any inappropriate success messages for existing users
             var user = await _userManager.FindByIdAsync(userId);
-            if (user != null && user.HasActiveSubscription)
+            if (user != null)
             {
-                TempData.Remove("SuccessMessage");
+                if (user.HasActiveSubscription)
+                {
+                    TempData.Remove("SuccessMessage");
+                }
+                
+                // Add user name info to ViewData for layout display
+                ViewData["UserFirstName"] = user.FirstName;
+                ViewData["UserLastName"] = user.LastName;
+                ViewData["UserFullName"] = $"{user.FirstName} {user.LastName}".Trim();
             }
 
             return View("~/Views/Client/Subscription/Index.cshtml", model);
         }
 
-        public IActionResult Billing()
+        public async Task<IActionResult> Billing()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var user = await _userManager.FindByIdAsync(userId);
+            
+            if (user != null)
+            {
+                // Add user name info to ViewData for layout display
+                ViewData["UserFirstName"] = user.FirstName;
+                ViewData["UserLastName"] = user.LastName;
+                ViewData["UserFullName"] = $"{user.FirstName} {user.LastName}".Trim();
+            }
+            
             return View("~/Views/Client/Subscription/Billing.cshtml");
         }
     }

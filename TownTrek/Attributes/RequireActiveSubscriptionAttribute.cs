@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using TownTrek.Models;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 
@@ -86,6 +88,16 @@ namespace TownTrek.Attributes
             {
                 controllerInstance.ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
                 controllerInstance.ViewData["UserLimits"] = authResult.Limits;
+                
+                // Add user name info to ViewData for layout display
+                var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                var user = await userManager.FindByIdAsync(userId);
+                if (user != null)
+                {
+                    controllerInstance.ViewData["UserFirstName"] = user.FirstName;
+                    controllerInstance.ViewData["UserLastName"] = user.LastName;
+                    controllerInstance.ViewData["UserFullName"] = $"{user.FirstName} {user.LastName}".Trim();
+                }
             }
 
             await next();

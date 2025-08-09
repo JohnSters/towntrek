@@ -179,24 +179,32 @@
 
                     <div class="user-menu">
                         <div class="user-avatar">
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                @(User.FindFirstValue(ClaimTypes.GivenName)?.Substring(0, 1).ToUpper() ?? "U")@(User.FindFirstValue(ClaimTypes.Surname)?.Substring(0, 1).ToUpper() ?? "")
-                            }
-                            else
-                            {
-                                <span>U</span>
+                            @{
+                                if (User.Identity?.IsAuthenticated == true)
+                                {
+                                    var firstName = ViewData["UserFirstName"]?.ToString();
+                                    var lastName = ViewData["UserLastName"]?.ToString();
+                                    var firstInitial = !string.IsNullOrEmpty(firstName) ? firstName.Substring(0, 1).ToUpper() : "U";
+                                    var lastInitial = !string.IsNullOrEmpty(lastName) ? lastName.Substring(0, 1).ToUpper() : "";
+                                    @(firstInitial + lastInitial)
+                                }
+                                else
+                                {
+                                    <span>U</span>
+                                }
                             }
                         </div>
                         <div class="user-info">
                             <div class="user-name">
-                                @if (User.Identity?.IsAuthenticated == true)
-                                {
-                                    @(User.FindFirstValue(ClaimTypes.GivenName) ?? "User") @(User.FindFirstValue(ClaimTypes.Surname) ?? "")
-                                }
-                                else
-                                {
-                                    <span>Guest User</span>
+                                @{
+                                    if (User.Identity?.IsAuthenticated == true)
+                                    {
+                                        @(ViewData["UserFullName"]?.ToString() ?? "User")
+                                    }
+                                    else
+                                    {
+                                        <span>Guest User</span>
+                                    }
                                 }
                             </div>
                             <div class="user-role">
