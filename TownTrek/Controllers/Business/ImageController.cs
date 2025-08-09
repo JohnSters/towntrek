@@ -53,6 +53,44 @@ namespace TownTrek.Controllers.Business
         }
 
         /// <summary>
+        /// Display media gallery overview for all user's businesses
+        /// </summary>
+        [HttpGet]
+        public async Task<IActionResult> MediaGallery()
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            
+            // Get all user's businesses
+            var businesses = await _businessService.GetUserBusinessesAsync(userId);
+            
+            // Get all images for all businesses
+            var allImages = new List<Models.BusinessImage>();
+            var businessImageCounts = new Dictionary<int, int>();
+            
+            foreach (var business in businesses)
+            {
+                var businessImages = await _imageService.GetBusinessImagesAsync(business.Id);
+                allImages.AddRange(businessImages);
+                businessImageCounts[business.Id] = businessImages.Count;
+            }
+
+            var model = new MediaGalleryOverviewViewModel
+            {
+                Businesses = businesses,
+                AllImages = allImages.OrderByDescending(i => i.UploadedAt).ToList(),
+                BusinessImageCounts = businessImageCounts,
+                TotalImages = allImages.Count,
+                TotalLogos = allImages.Count(i => i.ImageType == "Logo"),
+                TotalGalleryImages = allImages.Count(i => i.ImageType == "Gallery"),
+                CanUpload = true,
+                MaxFileSizeBytes = 5 * 1024 * 1024, // 5MB
+                AllowedFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+            };
+
+            return View(model);
+        }
+
+        /// <summary>
         /// Upload single image via AJAX
         /// </summary>
         [HttpPost]

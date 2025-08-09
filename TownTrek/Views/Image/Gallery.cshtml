@@ -39,52 +39,77 @@
     <div class="admin-card-body">
         <!-- Logo Upload -->
         <div class="form-section">
-            <h4>Business Logo</h4>
-            @if (Model.Logo != null)
-            {
-                <div class="current-logo mb-3">
-                    <img src="@Model.Logo.ImageUrl" alt="Current Logo" style="max-width: 200px; max-height: 100px; object-fit: contain;" />
-                    <div class="mt-2">
-                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteImage(@Model.Logo.Id)">
-                            Replace Logo
-                        </button>
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">1</span>
+                    Business Logo
+                </h4>
+                <p class="form-section-description">Upload your business logo to represent your brand</p>
+            </div>
+            <div class="form-grid">
+                @if (Model.Logo != null)
+                {
+                    <div class="form-group form-group-full">
+                        <div class="current-logo">
+                            <img src="@Model.Logo.ImageUrl" alt="Current Logo" class="logo-preview" />
+                            <div class="logo-actions">
+                                <button type="button" class="auth-btn auth-btn-danger" onclick="deleteImage(@Model.Logo.Id)">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Replace Logo
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            }
-            else
-            {
-                <div class="image-upload-area" id="logoUploadArea">
-                    <input type="file" id="logoUpload" accept="@string.Join(",", Model.AllowedFileTypes)" style="display: none;" />
-                    <div class="upload-content">
-                        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin: 0 auto 1rem; color: #666;">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                        </svg>
-                        <p><strong>Click to upload</strong> or drag and drop your logo</p>
-                        <p class="text-muted">PNG, JPG, GIF up to @((Model.MaxFileSizeBytes / (1024 * 1024)).ToString("F1"))MB</p>
+                }
+                else
+                {
+                    <div class="form-group form-group-full">
+                        <div class="image-upload-area" id="logoUploadArea">
+                            <input type="file" id="logoUpload" accept="@string.Join(",", Model.AllowedFileTypes)" />
+                            <div class="upload-content">
+                                <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="upload-icon">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                                <p class="upload-title"><strong>Click to upload</strong> or drag and drop your logo</p>
+                                <p class="upload-subtitle">PNG, JPG, GIF up to @((Model.MaxFileSizeBytes / (1024 * 1024)).ToString("F1"))MB</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            }
+                }
+            </div>
         </div>
 
         <!-- Gallery Upload -->
         <div class="form-section">
-            <h4>Gallery Images</h4>
-            <div class="image-upload-area" id="galleryUploadArea">
-                <input type="file" id="galleryUpload" accept="@string.Join(",", Model.AllowedFileTypes)" multiple style="display: none;" />
-                <div class="upload-content">
-                    <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin: 0 auto 1rem; color: #666;">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    <p><strong>Click to upload</strong> or drag and drop gallery images</p>
-                    <p class="text-muted">Select multiple images. PNG, JPG, GIF up to @((Model.MaxFileSizeBytes / (1024 * 1024)).ToString("F1"))MB each</p>
-                </div>
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">2</span>
+                    Gallery Images
+                </h4>
+                <p class="form-section-description">Upload multiple images to showcase your business</p>
             </div>
-            
-            <div class="upload-progress">
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+            <div class="form-grid">
+                <div class="form-group form-group-full">
+                    <div class="image-upload-area" id="galleryUploadArea">
+                        <input type="file" id="galleryUpload" accept="@string.Join(",", Model.AllowedFileTypes)" multiple />
+                        <div class="upload-content">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="upload-icon">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <p class="upload-title"><strong>Click to upload</strong> or drag and drop gallery images</p>
+                            <p class="upload-subtitle">Select multiple images. PNG, JPG, GIF up to @((Model.MaxFileSizeBytes / (1024 * 1024)).ToString("F1"))MB each</p>
+                        </div>
+                    </div>
+                    
+                    <div class="upload-progress">
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar"></div>
+                        </div>
+                        <p class="progress-text">Uploading images...</p>
+                    </div>
                 </div>
-                <p class="mt-2 text-center">Uploading images...</p>
             </div>
         </div>
     </div>
@@ -111,10 +136,16 @@
                                 @image.ImageType • @((image.FileSize / 1024).ToString("N0")) KB
                             </div>
                             <div class="image-card-actions">
-                                <button type="button" class="btn btn-sm btn-primary" onclick="editImage(@image.Id)">
+                                <button type="button" class="auth-btn auth-btn-sm auth-btn-primary" onclick="editImage(@image.Id)">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
                                     Edit
                                 </button>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="deleteImage(@image.Id)">
+                                <button type="button" class="auth-btn auth-btn-sm auth-btn-danger" onclick="deleteImage(@image.Id)">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
                                     Delete
                                 </button>
                             </div>
