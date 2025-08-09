@@ -1,0 +1,465 @@
+@model TownTrek.Models.ViewModels.AddBusinessViewModel
+
+<!-- Category-Specific Sections -->
+<div id="categorySpecificSections">
+    <!-- Market-Specific Section -->
+    <div id="marketSection" class="form-section category-section" style="display: @(Model.BusinessCategory == "markets-vendors" ? "block" : "none");">
+        <div class="form-section-header">
+            <h4 class="form-section-title">
+                <span class="step-number">7</span>
+                Market Details
+            </h4>
+            <p class="form-section-description">Specific information for your market</p>
+        </div>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="marketType" class="form-label">Market Type</label>
+                <select id="marketType" name="MarketType" class="form-select">
+                    <option value="">Select market type</option>
+                    <option value="farmers" selected="@(Model.MarketType == "farmers")">Farmers Market</option>
+                    <option value="craft" selected="@(Model.MarketType == "craft")">Craft Market</option>
+                    <option value="flea" selected="@(Model.MarketType == "flea")">Flea Market</option>
+                    <option value="food" selected="@(Model.MarketType == "food")">Food Market</option>
+                    <option value="antique" selected="@(Model.MarketType == "antique")">Antique Market</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="estimatedVendorCount" class="form-label">Estimated Vendor Count</label>
+                <input type="number" id="estimatedVendorCount" name="EstimatedVendorCount" class="form-input" min="1" max="500" value="@Model.EstimatedVendorCount">
+            </div>
+
+            <div class="form-group">
+                <label for="marketStartTime" class="form-label">Market Start Time</label>
+                <input type="time" id="marketStartTime" name="MarketStartTime" class="form-input" value="@Model.MarketStartTime">
+            </div>
+
+            <div class="form-group">
+                <label for="marketEndTime" class="form-label">Market End Time</label>
+                <input type="time" id="marketEndTime" name="MarketEndTime" class="form-input" value="@Model.MarketEndTime">
+            </div>
+
+            <div class="form-group">
+                <label for="entryFee" class="form-label">Entry Fee (R)</label>
+                <input type="number" id="entryFee" name="EntryFee" class="form-input" min="0" step="0.01" placeholder="0.00" value="@Model.EntryFee">
+                <span class="form-help">Leave blank if free entry</span>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="vendorTypes" class="form-label">Vendor Types</label>
+                <textarea id="vendorTypes" name="VendorTypes" class="form-textarea" rows="3" placeholder="e.g., Fresh produce, Handmade crafts, Local art, Food vendors...">@Model.VendorTypes</textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label class="form-label">Market Features</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasRestrooms" value="true" class="service-checkbox" checked="@Model.HasRestrooms">
+                        <span class="checkbox-label">Restroom Facilities</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasFoodVendors" value="true" class="service-checkbox" checked="@Model.HasFoodVendors">
+                        <span class="checkbox-label">Food Vendors Available</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="IsCoveredVenue" value="true" class="service-checkbox" checked="@Model.IsCoveredVenue">
+                        <span class="checkbox-label">Covered/Indoor Venue</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tour-Specific Section -->
+    <div id="tourSection" class="form-section category-section" style="display: @(Model.BusinessCategory == "tours-experiences" ? "block" : "none");">
+        <div class="form-section-header">
+            <h4 class="form-section-title">
+                <span class="step-number">7</span>
+                Tour Details
+            </h4>
+            <p class="form-section-description">Information about your tour or experience</p>
+        </div>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="tourType" class="form-label">Tour Type</label>
+                <select id="tourType" name="TourType" class="form-select">
+                    <option value="">Select tour type</option>
+                    <option value="cultural" selected="@(Model.TourType == "cultural")">Cultural Tour</option>
+                    <option value="adventure" selected="@(Model.TourType == "adventure")">Adventure Tour</option>
+                    <option value="wildlife" selected="@(Model.TourType == "wildlife")">Wildlife Tour</option>
+                    <option value="historical" selected="@(Model.TourType == "historical")">Historical Tour</option>
+                    <option value="food" selected="@(Model.TourType == "food")">Food Tour</option>
+                    <option value="walking" selected="@(Model.TourType == "walking")">Walking Tour</option>
+                    <option value="scenic" selected="@(Model.TourType == "scenic")">Scenic Tour</option>
+                    <option value="photography" selected="@(Model.TourType == "photography")">Photography Tour</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="duration" class="form-label">Duration</label>
+                <select id="duration" name="Duration" class="form-select">
+                    <option value="">Select duration</option>
+                    <option value="1 hour" selected="@(Model.Duration == "1 hour")">1 Hour</option>
+                    <option value="2 hours" selected="@(Model.Duration == "2 hours")">2 Hours</option>
+                    <option value="3 hours" selected="@(Model.Duration == "3 hours")">3 Hours</option>
+                    <option value="half-day" selected="@(Model.Duration == "half-day")">Half Day (4 hours)</option>
+                    <option value="full-day" selected="@(Model.Duration == "full-day")">Full Day (8 hours)</option>
+                    <option value="multi-day" selected="@(Model.Duration == "multi-day")">Multi-Day</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="minGroupSize" class="form-label">Minimum Group Size</label>
+                <input type="number" id="minGroupSize" name="MinGroupSize" class="form-input" min="1" max="50" value="@Model.MinGroupSize">
+            </div>
+
+            <div class="form-group">
+                <label for="maxGroupSize" class="form-label">Maximum Group Size</label>
+                <input type="number" id="maxGroupSize" name="MaxGroupSize" class="form-input" min="1" max="100" value="@Model.MaxGroupSize">
+            </div>
+
+            <div class="form-group">
+                <label for="minAge" class="form-label">Minimum Age</label>
+                <input type="number" id="minAge" name="MinAge" class="form-input" min="0" max="100" value="@Model.MinAge">
+                <span class="form-help">Leave blank if no age restriction</span>
+            </div>
+
+            <div class="form-group">
+                <label for="difficultyLevel" class="form-label">Difficulty Level</label>
+                <select id="difficultyLevel" name="DifficultyLevel" class="form-select">
+                    <option value="">Select difficulty</option>
+                    <option value="easy" selected="@(Model.DifficultyLevel == "easy")">Easy</option>
+                    <option value="moderate" selected="@(Model.DifficultyLevel == "moderate")">Moderate</option>
+                    <option value="challenging" selected="@(Model.DifficultyLevel == "challenging")">Challenging</option>
+                    <option value="expert" selected="@(Model.DifficultyLevel == "expert")">Expert</option>
+                </select>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="departureLocation" class="form-label">Departure Location</label>
+                <input type="text" id="departureLocation" name="DepartureLocation" class="form-input" placeholder="Where does the tour start?" value="@Model.DepartureLocation">
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="itinerary" class="form-label">Tour Itinerary</label>
+                <textarea id="itinerary" name="Itinerary" class="form-textarea" rows="4" placeholder="Describe the tour route and main stops...">@Model.Itinerary</textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="includedItems" class="form-label">What's Included</label>
+                <textarea id="includedItems" name="IncludedItems" class="form-textarea" rows="3" placeholder="e.g., Guide, transport, refreshments, equipment...">@Model.IncludedItems</textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="requiredEquipment" class="form-label">What to Bring</label>
+                <textarea id="requiredEquipment" name="RequiredEquipment" class="form-textarea" rows="3" placeholder="e.g., Comfortable shoes, hat, water bottle, camera...">@Model.RequiredEquipment</textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label class="form-label">Tour Features</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="RequiresBooking" value="true" class="service-checkbox" checked="@Model.RequiresBooking">
+                        <span class="checkbox-label">Requires Advance Booking</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="IsWeatherDependent" value="true" class="service-checkbox" checked="@Model.IsWeatherDependent">
+                        <span class="checkbox-label">Weather Dependent</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="IsAccessible" value="true" class="service-checkbox" checked="@Model.IsAccessible">
+                        <span class="checkbox-label">Wheelchair Accessible</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasTransport" value="true" class="service-checkbox" checked="@Model.HasTransport">
+                        <span class="checkbox-label">Transport Provided</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event-Specific Section -->
+    <div id="eventSection" class="form-section category-section" style="display: @(Model.BusinessCategory == "events" ? "block" : "none");">
+        <div class="form-section-header">
+            <h4 class="form-section-title">
+                <span class="step-number">7</span>
+                Event Details
+            </h4>
+            <p class="form-section-description">Information about your event</p>
+        </div>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="eventType" class="form-label">Event Type</label>
+                <select id="eventType" name="EventType" class="form-select">
+                    <option value="">Select event type</option>
+                    <option value="festival" selected="@(Model.EventType == "festival")">Festival</option>
+                    <option value="concert" selected="@(Model.EventType == "concert")">Concert</option>
+                    <option value="workshop" selected="@(Model.EventType == "workshop")">Workshop</option>
+                    <option value="conference" selected="@(Model.EventType == "conference")">Conference</option>
+                    <option value="exhibition" selected="@(Model.EventType == "exhibition")">Exhibition</option>
+                    <option value="sports" selected="@(Model.EventType == "sports")">Sports Event</option>
+                    <option value="market" selected="@(Model.EventType == "market")">Market Event</option>
+                    <option value="cultural" selected="@(Model.EventType == "cultural")">Cultural Event</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="eventStartDate" class="form-label required">Event Start Date</label>
+                <input type="date" id="eventStartDate" name="EventStartDate" class="form-input" value="@Model.EventStartDate?.ToString("yyyy-MM-dd")" required>
+            </div>
+
+            <div class="form-group">
+                <label for="eventEndDate" class="form-label">Event End Date</label>
+                <input type="date" id="eventEndDate" name="EventEndDate" class="form-input" value="@Model.EventEndDate?.ToString("yyyy-MM-dd")">
+                <span class="form-help">Leave blank for single-day events</span>
+            </div>
+
+            <div class="form-group">
+                <label for="eventStartTime" class="form-label">Start Time</label>
+                <input type="time" id="eventStartTime" name="EventStartTime" class="form-input" value="@Model.EventStartTime">
+            </div>
+
+            <div class="form-group">
+                <label for="eventEndTime" class="form-label">End Time</label>
+                <input type="time" id="eventEndTime" name="EventEndTime" class="form-input" value="@Model.EventEndTime">
+            </div>
+
+            <div class="form-group">
+                <label for="maxAttendees" class="form-label">Maximum Attendees</label>
+                <input type="number" id="maxAttendees" name="MaxAttendees" class="form-input" min="1" value="@Model.MaxAttendees">
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="venue" class="form-label">Venue Name</label>
+                <input type="text" id="venue" name="Venue" class="form-input" placeholder="Name of the venue" value="@Model.Venue">
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="venueAddress" class="form-label">Venue Address</label>
+                <input type="text" id="venueAddress" name="VenueAddress" class="form-input" placeholder="Full address of the venue" value="@Model.VenueAddress">
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="ticketInfo" class="form-label">Ticket Information</label>
+                <textarea id="ticketInfo" name="TicketInfo" class="form-textarea" rows="3" placeholder="Ticket prices, where to buy, booking information...">@Model.TicketInfo</textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label class="form-label">Event Features</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="IsFreeEvent" value="true" class="service-checkbox" checked="@Model.IsFreeEvent">
+                        <span class="checkbox-label">Free Event</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="IsOutdoorEvent" value="true" class="service-checkbox" checked="@Model.IsOutdoorEvent">
+                        <span class="checkbox-label">Outdoor Event</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasParking" value="true" class="service-checkbox" checked="@Model.HasParking">
+                        <span class="checkbox-label">Parking Available</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="RequiresBooking" value="true" class="service-checkbox" checked="@Model.RequiresBooking">
+                        <span class="checkbox-label">Requires Booking</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restaurant-Specific Section -->
+    <div id="restaurantSection" class="form-section category-section" style="display: @(Model.BusinessCategory == "restaurants-food" ? "block" : "none");">
+        <div class="form-section-header">
+            <h4 class="form-section-title">
+                <span class="step-number">7</span>
+                Restaurant Details
+            </h4>
+            <p class="form-section-description">Information about your restaurant</p>
+        </div>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="cuisineType" class="form-label">Cuisine Type</label>
+                <select id="cuisineType" name="CuisineType" class="form-select">
+                    <option value="">Select cuisine type</option>
+                    <option value="south-african" selected="@(Model.CuisineType == "south-african")">South African</option>
+                    <option value="italian" selected="@(Model.CuisineType == "italian")">Italian</option>
+                    <option value="chinese" selected="@(Model.CuisineType == "chinese")">Chinese</option>
+                    <option value="indian" selected="@(Model.CuisineType == "indian")">Indian</option>
+                    <option value="mexican" selected="@(Model.CuisineType == "mexican")">Mexican</option>
+                    <option value="seafood" selected="@(Model.CuisineType == "seafood")">Seafood</option>
+                    <option value="steakhouse" selected="@(Model.CuisineType == "steakhouse")">Steakhouse</option>
+                    <option value="vegetarian" selected="@(Model.CuisineType == "vegetarian")">Vegetarian</option>
+                    <option value="fast-food" selected="@(Model.CuisineType == "fast-food")">Fast Food</option>
+                    <option value="fusion" selected="@(Model.CuisineType == "fusion")">Fusion</option>
+                    <option value="african" selected="@(Model.CuisineType == "african")">African</option>
+                    <option value="mediterranean" selected="@(Model.CuisineType == "mediterranean")">Mediterranean</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="priceRange" class="form-label">Price Range</label>
+                <select id="priceRange" name="PriceRange" class="form-select">
+                    <option value="">Select price range</option>
+                    <option value="budget" selected="@(Model.PriceRange == "budget")">Budget (R50-R100)</option>
+                    <option value="moderate" selected="@(Model.PriceRange == "moderate")">Moderate (R100-R200)</option>
+                    <option value="expensive" selected="@(Model.PriceRange == "expensive")">Expensive (R200-R400)</option>
+                    <option value="fine-dining" selected="@(Model.PriceRange == "fine-dining")">Fine Dining (R400+)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="seatingCapacity" class="form-label">Seating Capacity</label>
+                <input type="number" id="seatingCapacity" name="SeatingCapacity" class="form-input" min="1" max="500" value="@Model.SeatingCapacity">
+            </div>
+
+            <div class="form-group">
+                <label for="menuUrl" class="form-label">Menu Link</label>
+                <input type="url" id="menuUrl" name="MenuUrl" class="form-input" placeholder="https://link-to-your-menu.com" value="@Model.MenuUrl">
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="dietaryOptions" class="form-label">Dietary Options</label>
+                <input type="text" id="dietaryOptions" name="DietaryOptions" class="form-input" placeholder="e.g., Vegetarian, Vegan, Halal, Gluten-free" value="@Model.DietaryOptions">
+            </div>
+
+            <div class="form-group form-group-full">
+                <label class="form-label">Restaurant Features</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasDelivery" value="true" class="service-checkbox" checked="@Model.HasDelivery">
+                        <span class="checkbox-label">Delivery Available</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasTakeaway" value="true" class="service-checkbox" checked="@Model.HasTakeaway">
+                        <span class="checkbox-label">Takeaway Available</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="AcceptsReservations" value="true" class="service-checkbox" checked="@Model.AcceptsReservations">
+                        <span class="checkbox-label">Accepts Reservations</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasKidsMenu" value="true" class="service-checkbox" checked="@Model.HasKidsMenu">
+                        <span class="checkbox-label">Kids Menu Available</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasOutdoorSeating" value="true" class="service-checkbox" checked="@Model.HasOutdoorSeating">
+                        <span class="checkbox-label">Outdoor Seating</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="ServesAlcohol" value="true" class="service-checkbox" checked="@Model.ServesAlcohol">
+                        <span class="checkbox-label">Serves Alcohol</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Accommodation-Specific Section -->
+    <div id="accommodationSection" class="form-section category-section" style="display: @(Model.BusinessCategory == "accommodation" ? "block" : "none");">
+        <div class="form-section-header">
+            <h4 class="form-section-title">
+                <span class="step-number">7</span>
+                Accommodation Details
+            </h4>
+            <p class="form-section-description">Information about your accommodation</p>
+        </div>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="propertyType" class="form-label">Property Type</label>
+                <select id="propertyType" name="PropertyType" class="form-select">
+                    <option value="">Select property type</option>
+                    <option value="hotel" selected="@(Model.PropertyType == "hotel")">Hotel</option>
+                    <option value="guesthouse" selected="@(Model.PropertyType == "guesthouse")">Guesthouse</option>
+                    <option value="bnb" selected="@(Model.PropertyType == "bnb")">Bed & Breakfast</option>
+                    <option value="self-catering" selected="@(Model.PropertyType == "self-catering")">Self-catering</option>
+                    <option value="backpackers" selected="@(Model.PropertyType == "backpackers")">Backpackers</option>
+                    <option value="camping" selected="@(Model.PropertyType == "camping")">Camping & Caravan</option>
+                    <option value="lodge" selected="@(Model.PropertyType == "lodge")">Lodge</option>
+                    <option value="resort" selected="@(Model.PropertyType == "resort")">Resort</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="starRating" class="form-label">Star Rating</label>
+                <select id="starRating" name="StarRating" class="form-select">
+                    <option value="">Select rating</option>
+                    <option value="1" selected="@(Model.StarRating == 1)">1 Star</option>
+                    <option value="2" selected="@(Model.StarRating == 2)">2 Stars</option>
+                    <option value="3" selected="@(Model.StarRating == 3)">3 Stars</option>
+                    <option value="4" selected="@(Model.StarRating == 4)">4 Stars</option>
+                    <option value="5" selected="@(Model.StarRating == 5)">5 Stars</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="roomCount" class="form-label">Number of Rooms</label>
+                <input type="number" id="roomCount" name="RoomCount" class="form-input" min="1" max="200" value="@Model.RoomCount">
+            </div>
+
+            <div class="form-group">
+                <label for="maxGuests" class="form-label">Maximum Guests</label>
+                <input type="number" id="maxGuests" name="MaxGuests" class="form-input" min="1" max="500" value="@Model.MaxGuests">
+            </div>
+
+            <div class="form-group">
+                <label for="checkInTime" class="form-label">Check-in Time</label>
+                <input type="time" id="checkInTime" name="CheckInTime" class="form-input" value="@Model.CheckInTime">
+            </div>
+
+            <div class="form-group">
+                <label for="checkOutTime" class="form-label">Check-out Time</label>
+                <input type="time" id="checkOutTime" name="CheckOutTime" class="form-input" value="@Model.CheckOutTime">
+            </div>
+
+            <div class="form-group form-group-full">
+                <label for="roomTypes" class="form-label">Room Types Available</label>
+                <textarea id="roomTypes" name="RoomTypes" class="form-textarea" rows="2" placeholder="e.g., Single, Double, Family, Suite">@Model.RoomTypes</textarea>
+            </div>
+
+            <div class="form-group form-group-full">
+                <label class="form-label">Amenities</label>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasWiFi" value="true" class="service-checkbox" checked="@Model.HasWiFi">
+                        <span class="checkbox-label">Free WiFi</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasPool" value="true" class="service-checkbox" checked="@Model.HasPool">
+                        <span class="checkbox-label">Swimming Pool</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasRestaurant" value="true" class="service-checkbox" checked="@Model.HasRestaurant">
+                        <span class="checkbox-label">Restaurant</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="IsPetFriendly" value="true" class="service-checkbox" checked="@Model.IsPetFriendly">
+                        <span class="checkbox-label">Pet Friendly</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasBreakfast" value="true" class="service-checkbox" checked="@Model.HasBreakfast">
+                        <span class="checkbox-label">Breakfast Included</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasAirConditioning" value="true" class="service-checkbox" checked="@Model.HasAirConditioning">
+                        <span class="checkbox-label">Air Conditioning</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasLaundry" value="true" class="service-checkbox" checked="@Model.HasLaundry">
+                        <span class="checkbox-label">Laundry Service</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="HasConferenceRoom" value="true" class="service-checkbox" checked="@Model.HasConferenceRoom">
+                        <span class="checkbox-label">Conference Facilities</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
