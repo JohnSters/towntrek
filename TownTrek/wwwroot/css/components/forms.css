@@ -17,6 +17,7 @@
 
 /* Form Labels */
 .form-label { display: block; margin-bottom: var(--space-sm); font-weight: var(--font-medium); color: var(--charcoal); }
+.form-label.required::after { content: " *"; color: var(--orange-pantone); }
 
 /* Form Groups */
 .form-group { margin-bottom: var(--space-md); }
