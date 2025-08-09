@@ -40,8 +40,19 @@ public class Program
             options.LoginPath = "/Auth/Login";
             options.LogoutPath = "/Auth/Logout";
             options.AccessDeniedPath = "/Auth/AccessDenied";
-            options.ExpireTimeSpan = TimeSpan.FromDays(30);
-            options.SlidingExpiration = true;
+            options.ExpireTimeSpan = TimeSpan.FromHours(8); // Default session: 8 hours
+            options.SlidingExpiration = true; // Extends session on activity
+            
+            // Configure different expiration for "Remember Me"
+            options.Events.OnSigningIn = context =>
+            {
+                if (context.Properties?.IsPersistent == true)
+                {
+                    // If "Remember Me" is checked, extend to 7 days
+                    context.Properties.ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7);
+                }
+                return Task.CompletedTask;
+            };
         });
 
         // Add these service registrations

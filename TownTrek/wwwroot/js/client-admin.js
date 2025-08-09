@@ -7,7 +7,7 @@ class ClientAdminManager {
         this.sidebarToggle = document.getElementById('sidebarToggle');
         this.sidebarOverlay = document.getElementById('sidebarOverlay');
         this.isMobile = window.innerWidth <= 1024;
-        
+
         this.init();
     }
 
@@ -80,7 +80,7 @@ class ClientAdminManager {
         navLinks.forEach(link => {
             // Remove existing active classes
             link.classList.remove('active');
-            
+
             // Add active class if href matches current path
             if (link.getAttribute('href') === currentPath) {
                 link.classList.add('active');
@@ -91,7 +91,7 @@ class ClientAdminManager {
     // User Menu Functionality
     setupUserMenu() {
         const userMenu = document.querySelector('.user-menu');
-        
+
         if (userMenu) {
             userMenu.addEventListener('click', () => {
                 this.showUserDropdown();
@@ -102,7 +102,7 @@ class ClientAdminManager {
     showUserDropdown() {
         // Create dropdown if it doesn't exist
         let dropdown = document.querySelector('.user-dropdown');
-        
+
         if (!dropdown) {
             dropdown = this.createUserDropdown();
             document.querySelector('.user-menu').appendChild(dropdown);
@@ -121,6 +121,11 @@ class ClientAdminManager {
     createUserDropdown() {
         const dropdown = document.createElement('div');
         dropdown.className = 'user-dropdown';
+        
+        // Get the anti-forgery token
+        const tokenElement = document.querySelector('input[name="__RequestVerificationToken"]');
+        const token = tokenElement ? tokenElement.value : '';
+        
         dropdown.innerHTML = `
             <div class="dropdown-menu">
                 <a href="/Client/Profile" class="dropdown-item">
@@ -137,12 +142,15 @@ class ClientAdminManager {
                     Account Settings
                 </a>
                 <div class="dropdown-divider"></div>
-                <a href="/Auth/Login" class="dropdown-item">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                    </svg>
-                    Sign Out
-                </a>
+                <form action="/Auth/Logout" method="post" style="margin: 0;">
+                    <input name="__RequestVerificationToken" type="hidden" value="${token}" />
+                    <button type="submit" class="dropdown-item" style="border: none; background: none; width: 100%; text-align: left; cursor: pointer;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                        Sign Out
+                    </button>
+                </form>
             </div>
         `;
 
@@ -202,7 +210,7 @@ class ClientAdminManager {
                 position: relative;
             }
         `;
-        
+
         if (!document.querySelector('#user-dropdown-styles')) {
             style.id = 'user-dropdown-styles';
             document.head.appendChild(style);
@@ -214,7 +222,7 @@ class ClientAdminManager {
     // Notifications
     setupNotifications() {
         const notificationBtn = document.querySelector('.header-btn[title="Notifications"]');
-        
+
         if (notificationBtn) {
             notificationBtn.addEventListener('click', () => {
                 this.showNotifications();

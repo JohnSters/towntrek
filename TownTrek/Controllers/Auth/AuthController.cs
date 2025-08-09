@@ -122,6 +122,7 @@ namespace TownTrek.Controllers.Auth
                     return View();
                 }
 
+                // If RememberMe is checked, extend session to 7 days, otherwise use default 8 hours
                 var result = await _signInManager.PasswordSignInAsync(user, password, rememberMe, lockoutOnFailure: false);
                 
                 if (result.Succeeded)
@@ -193,8 +194,27 @@ namespace TownTrek.Controllers.Auth
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
+            var userId = User.Identity?.Name;
+            
+            // Sign out the user (clears authentication cookie and all claims)
             await _signInManager.SignOutAsync();
-            _logger.LogInformation("User logged out");
+            
+            // Clear any additional cookies that might exist
+            foreach (var cookie in Request.Cookies.Keys)
+            {
+                if (cookie.StartsWith(".AspNetCore") || cookie.StartsWith("Identity"))
+                {
+                    Response.Cookies.Delete(cookie);
+                }
+            }
+            
+            _logger.LogInformation("User {UserId} logged out successfully", userId);
+            
+            // Redirect to home page with cache-busting to prevent back button issues
+            Response.Headers["Cache-Control"] = "no-cache, no-store, must-revalidate";
+            Response.Headers["Pragma"] = "no-cache";
+            Response.Headers["Expires"] = "0";
+            
             return RedirectToAction("Index", "Home");
         }
 
