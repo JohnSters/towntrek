@@ -191,6 +191,11 @@ namespace TownTrek.Services
                 business.Longitude = model.Longitude;
                 business.UpdatedAt = DateTime.UtcNow;
 
+                // Set status back to Pending for admin review after any changes
+                business.Status = "Pending";
+                business.ApprovedAt = null;
+                business.ApprovedBy = null;
+
                 // Update business hours
                 _context.BusinessHours.RemoveRange(business.BusinessHours);
                 await AddBusinessHoursAsync(business.Id, model.BusinessHours);
@@ -207,7 +212,7 @@ namespace TownTrek.Services
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Business '{BusinessName}' updated by user {UserId}", model.BusinessName, userId);
+                _logger.LogInformation("Business '{BusinessName}' updated by user {UserId} - Status set to Pending for review", model.BusinessName, userId);
                 return ServiceResult.Success();
             }
             catch (Exception ex)

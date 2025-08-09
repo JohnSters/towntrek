@@ -10,21 +10,14 @@ using TownTrek.Services.Interfaces;
 namespace TownTrek.Controllers.Business
 {
     [Authorize]
-    public class ImageController : Controller
+    public class ImageController(
+        IImageService imageService,
+        IBusinessService businessService,
+        ILogger<ImageController> logger) : Controller
     {
-        private readonly IImageService _imageService;
-        private readonly IBusinessService _businessService;
-        private readonly ILogger<ImageController> _logger;
-
-        public ImageController(
-            IImageService imageService,
-            IBusinessService businessService,
-            ILogger<ImageController> logger)
-        {
-            _imageService = imageService;
-            _businessService = businessService;
-            _logger = logger;
-        }
+        private readonly IImageService _imageService = imageService;
+        private readonly IBusinessService _businessService = businessService;
+        private readonly ILogger<ImageController> _logger = logger;
 
         /// <summary>
         /// Display image gallery for a business
@@ -53,7 +46,7 @@ namespace TownTrek.Controllers.Business
                 CanUpload = true,
                 MaxImagesAllowed = 10,
                 MaxFileSizeBytes = 5 * 1024 * 1024, // 5MB
-                AllowedFileTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" }
+                AllowedFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
             };
 
             return View(model);
@@ -129,9 +122,9 @@ namespace TownTrek.Controllers.Business
 
             return Json(new
             {
-                success = successfulUploads.Any(),
+                success = successfulUploads.Count != 0,
                 message = $"{successfulUploads.Count} images uploaded successfully" + 
-                         (failedUploads.Any() ? $", {failedUploads.Count} failed" : ""),
+                         (failedUploads.Count != 0 ? $", {failedUploads.Count} failed" : ""),
                 data = successfulUploads.Select(r => new
                 {
                     id = r.Image!.Id,

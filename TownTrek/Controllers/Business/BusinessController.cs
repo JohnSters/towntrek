@@ -123,7 +123,7 @@ namespace TownTrek.Controllers.Business
                 
                 if (result.IsSuccess)
                 {
-                    TempData["SuccessMessage"] = "Business listing updated successfully!";
+                    TempData["SuccessMessage"] = "Business listing updated successfully! Your business has been set to 'Pending' status and will be reviewed by our team before going live.";
                     return RedirectToAction("ManageBusinesses");
                 }
                 else
