@@ -17,22 +17,22 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        return View("~/Views/Public/Index.cshtml");
+        return View();
     }
 
     public IActionResult Privacy()
     {
-        return View("~/Views/Public/Privacy.cshtml");
+        return View();
     }
 
     public IActionResult Download()
     {
-        return View("~/Views/Public/Download.cshtml");
+        return View();
     }
 
     public IActionResult Terms()
     {
-        return View("~/Views/Public/Terms.cshtml");
+        return View();
     }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

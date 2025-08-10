@@ -186,7 +186,7 @@ Views/
 │   ├── Login.cshtml                # Login form
 │   ├── Register.cshtml             # Registration form
 │   └── ForgotPassword.cshtml       # Password recovery
-├── Public/
+├── Home/
 │   ├── Index.cshtml                # Landing page
 │   ├── About.cshtml                # About page
 │   ├── Terms.cshtml                # Terms of service

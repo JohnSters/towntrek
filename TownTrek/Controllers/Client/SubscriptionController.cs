@@ -41,7 +41,8 @@ namespace TownTrek.Controllers.Client
                 // Header data is resolved in the TopUserMenu view component
             }
 
-            return View("~/Views/Client/Subscription/Index.cshtml", model);
+            // Views/Client/Subscription/Index.cshtml
+            return View("Index", model);
         }
 
         public async Task<IActionResult> Billing()
@@ -51,7 +52,8 @@ namespace TownTrek.Controllers.Client
             
             // Header data is resolved in the TopUserMenu view component
             
-            return View("~/Views/Client/Subscription/Billing.cshtml");
+            // Views/Client/Subscription/Billing.cshtml
+            return View("Billing");
         }
     }
 }

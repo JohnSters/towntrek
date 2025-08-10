@@ -40,7 +40,8 @@ namespace TownTrek.ViewComponents
                 }
             }
 
-            return View("~/Views/Shared/Components/TopUserMenu/Default.cshtml", model);
+            // Use default view discovery for view components: Views/Shared/Components/TopUserMenu/Default.cshtml
+            return View(model);
         }
     }
 }

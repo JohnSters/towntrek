@@ -49,16 +49,7 @@ namespace TownTrek.Controllers.Client
             return View(dashboardModel);
         }
 
-        // Profile Management
-        public async Task<IActionResult> Profile()
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            var user = await _userManager.GetUserAsync(User);
-            
-            // Subscription tier now resolved in TopUserMenu view component when needed
-            
-            return View("~/Views/Client/Profile/Index.cshtml", user);
-        }
+        // Profile endpoints moved to ProfileController to align with conventions
 
         // Edit Profile - GET
         public async Task<IActionResult> EditProfile()

@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "TownTrek - South African Small Business Gateway";
 }
 
@@ -15,7 +15,7 @@
             <a href="#business-owners" class="btn btn-secondary btn-lg">List Your Business</a>
         </div>
     </div>
-</section>
+    </section>
 
 <!-- Stats Section -->
 <section class="stats-section">
@@ -153,7 +153,7 @@
                     <li>Customer analytics</li>
                     <li>Priority support</li>
                 </ul>
-                <a href="/register" class="btn btn-cta btn-lg" style="width: 100%;">Start Free Trial</a>
+                <a asp-controller="Auth" asp-action="Register" class="btn btn-cta btn-lg" style="width: 100%;">Start Free Trial</a>
             </div>
         </div>
     </div>
@@ -180,7 +180,7 @@
                     <li>5 image uploads</li>
                     <li>Standard support</li>
                 </ul>
-                <a href="/register?plan=basic" class="btn btn-secondary" style="width: 100%;">Choose Basic</a>
+                <a asp-controller="Auth" asp-action="Register" asp-route-plan="basic" class="btn btn-secondary" style="width: 100%;">Choose Basic</a>
             </div>
             
             <div class="card-featured">
@@ -200,7 +200,7 @@
                     <li>Priority support</li>
                     <li>Basic analytics</li>
                 </ul>
-                <a href="/register?plan=standard" class="btn btn-cta" style="width: 100%;">Choose Standard</a>
+                <a asp-controller="Auth" asp-action="Register" asp-route-plan="standard" class="btn btn-cta" style="width: 100%;">Choose Standard</a>
             </div>
             
             <div class="card">
@@ -217,7 +217,7 @@
                     <li>Featured placement</li>
                     <li>Dedicated support</li>
                 </ul>
-                <a href="/register?plan=premium" class="btn btn-secondary" style="width: 100%;">Choose Premium</a>
+                <a asp-controller="Auth" asp-action="Register" asp-route-plan="premium" class="btn btn-secondary" style="width: 100%;">Choose Premium</a>
             </div>
         </div>
     </div>
@@ -231,8 +231,10 @@
             Join thousands of South Africans discovering and supporting local businesses
         </p>
         <div class="flex justify-center" style="gap: 1rem; flex-wrap: wrap;">
-            <a href="/download" class="btn btn-cta btn-lg">Download Mobile App</a>
-            <a href="/register" class="btn btn-secondary btn-lg">List Your Business</a>
+            <a asp-controller="Home" asp-action="Download" class="btn btn-cta btn-lg">Download Mobile App</a>
+            <a asp-controller="Auth" asp-action="Register" class="btn btn-secondary btn-lg">List Your Business</a>
         </div>
     </div>
 </section>
+
+
