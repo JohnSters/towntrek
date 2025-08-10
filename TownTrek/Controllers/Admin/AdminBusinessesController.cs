@@ -7,7 +7,6 @@ using TownTrek.Data;
 namespace TownTrek.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
-    [Route("admin/businesses")]
     public class AdminBusinessesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -17,8 +16,8 @@ namespace TownTrek.Controllers.Admin
             _context = context;
         }
 
-        // GET /admin/businesses
-        [HttpGet("")]
+        // GET: /AdminBusinesses/Index
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var businesses = await _context.Businesses
@@ -30,8 +29,8 @@ namespace TownTrek.Controllers.Admin
             return View(businesses);
         }
 
-        // POST /admin/businesses/{id}/approve
-        [HttpPost("{id}/approve")]
+        // POST: /AdminBusinesses/Approve
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id)
         {
@@ -51,8 +50,8 @@ namespace TownTrek.Controllers.Admin
             return RedirectToAction(nameof(Index));
         }
 
-        // POST /admin/businesses/{id}/reject
-        [HttpPost("{id}/reject")]
+        // POST: /AdminBusinesses/Reject
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id)
         {
@@ -71,8 +70,8 @@ namespace TownTrek.Controllers.Admin
             return RedirectToAction(nameof(Index));
         }
 
-        // POST /admin/businesses/{id}/suspend
-        [HttpPost("{id}/suspend")]
+        // POST: /AdminBusinesses/Suspend
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Suspend(int id)
         {
@@ -91,8 +90,8 @@ namespace TownTrek.Controllers.Admin
             return RedirectToAction(nameof(Index));
         }
 
-        // POST /admin/businesses/{id}/delete
-        [HttpPost("{id}/delete")]
+        // POST: /AdminBusinesses/Delete
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {

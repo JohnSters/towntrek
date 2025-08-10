@@ -189,7 +189,7 @@ function confirmApproveBusiness(businessName, businessId) {
         cancelText: 'Cancel',
         iconType: 'success',
         confirmButtonType: 'success',
-        formAction: '/admin/businesses/' + businessId + '/approve',
+        formAction: '/AdminBusinesses/Approve',
         formMethod: 'post',
         formData: { id: businessId }
     });
@@ -204,7 +204,7 @@ function confirmRejectBusiness(businessName, businessId) {
         cancelText: 'Cancel',
         iconType: 'warning',
         confirmButtonType: 'warning',
-        formAction: '/admin/businesses/' + businessId + '/reject',
+        formAction: '/AdminBusinesses/Reject',
         formMethod: 'post',
         formData: { id: businessId }
     });
@@ -219,7 +219,7 @@ function confirmSuspendBusiness(businessName, businessId) {
         cancelText: 'Cancel',
         iconType: 'warning',
         confirmButtonType: 'warning',
-        formAction: '/admin/businesses/' + businessId + '/suspend',
+        formAction: '/AdminBusinesses/Suspend',
         formMethod: 'post',
         formData: { id: businessId }
     });
@@ -234,7 +234,7 @@ function confirmDeleteBusiness(businessName, businessId) {
         cancelText: 'Cancel',
         iconType: 'danger',
         confirmButtonType: 'danger',
-        formAction: '/admin/businesses/' + businessId + '/delete',
+        formAction: '/AdminBusinesses/Delete',
         formMethod: 'post',
         formData: { id: businessId }
     });

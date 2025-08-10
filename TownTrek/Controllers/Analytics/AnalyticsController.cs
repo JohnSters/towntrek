@@ -10,7 +10,7 @@ using TownTrek.Services.Interfaces;
 namespace TownTrek.Controllers.Analytics
 {
     [Authorize]
-    [Route("Client/[action]")] // Maintain existing routes for backward compatibility
+    [Route("Client/[controller]/[action]")]
     public class AnalyticsController(
         IClientService clientService,
         ILogger<AnalyticsController> logger) : Controller
@@ -20,12 +20,12 @@ namespace TownTrek.Controllers.Analytics
 
         // Analytics & Reports
         [RequireActiveSubscription(requiredFeature: "BasicAnalytics")]
-        public async Task<IActionResult> Analytics()
+        public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var analyticsModel = await _clientService.GetAnalyticsViewModelAsync(userId);
 
-            return View("~/Views/Client/Analytics/Index.cshtml", analyticsModel);
+            return View(analyticsModel);
         }
     }
 }

@@ -72,8 +72,9 @@ public class Program
         builder.Services.AddControllersWithViews()
             .AddRazorOptions(options =>
             {
-                // Allow view discovery to look under Views/Client/**/* as well
+                // Allow view discovery to look under Views/Client/**/* and Views/Admin/**/*
                 options.ViewLocationExpanders.Add(new TownTrek.Extensions.ClientViewLocationExpander());
+                options.ViewLocationExpanders.Add(new TownTrek.Extensions.AdminViewLocationExpander());
             });
 
         var app = builder.Build();

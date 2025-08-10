@@ -12,7 +12,6 @@ using TownTrek.Services.Interfaces;
 namespace TownTrek.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
-    [Route("admin/users")]
     public class AdminUsersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -28,8 +27,8 @@ namespace TownTrek.Controllers.Admin
             _logger = logger;
         }
 
-        // GET /admin/users
-        [HttpGet("")]
+        // GET: /AdminUsers/Index
+        [HttpGet]
         public async Task<IActionResult> Index(string? roleFilter = "All", string? search = null, int page = 1, int pageSize = 20)
         {
             // Base query
@@ -149,7 +148,7 @@ namespace TownTrek.Controllers.Admin
             return View(model);
         }
 
-        [HttpGet("Edit/{id}")]
+        [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
             if (string.IsNullOrWhiteSpace(id)) return BadRequest();
@@ -187,7 +186,7 @@ namespace TownTrek.Controllers.Admin
             return View(model);
         }
 
-        [HttpPost("Edit/{id}")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(string id, AdminEditUserViewModel model)
         {

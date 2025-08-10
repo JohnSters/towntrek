@@ -10,7 +10,6 @@ using TownTrek.Services.Interfaces;
 namespace TownTrek.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
-    [Route("Admin/Subscriptions")]
     public class AdminSubscriptionController : Controller
     {
         private readonly ISubscriptionTierService _tierService;
@@ -27,14 +26,14 @@ namespace TownTrek.Controllers.Admin
             _logger = logger;
         }
 
-        [HttpGet("")]
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var viewModel = await _tierService.GetTierListViewModelAsync();
             return View(viewModel);
         }
 
-        [HttpGet("Create")]
+        [HttpGet]
         public IActionResult Create()
         {
             var model = new SubscriptionTierViewModel
@@ -46,7 +45,7 @@ namespace TownTrek.Controllers.Admin
             return View(model);
         }
 
-        [HttpPost("Create")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(SubscriptionTierViewModel model)
         {
@@ -66,7 +65,7 @@ namespace TownTrek.Controllers.Admin
             return View(model);
         }
 
-        [HttpGet("Edit/{id:int}")]
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             var model = await _tierService.GetTierByIdAsync(id);
@@ -76,7 +75,7 @@ namespace TownTrek.Controllers.Admin
             return View(model);
         }
 
-        [HttpPost("Edit/{id:int}")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, SubscriptionTierViewModel model)
         {
@@ -99,7 +98,7 @@ namespace TownTrek.Controllers.Admin
             return View(model);
         }
 
-        [HttpGet("ChangePrice/{id:int}")]
+        [HttpGet]
         public async Task<IActionResult> ChangePrice(int id)
         {
             try
@@ -113,7 +112,7 @@ namespace TownTrek.Controllers.Admin
             }
         }
 
-        [HttpPost("ChangePrice/{id:int}")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ChangePrice(int id, PriceChangeViewModel model)
         {
@@ -158,7 +157,7 @@ namespace TownTrek.Controllers.Admin
             return View(model);
         }
 
-        [HttpPost("Deactivate/{id:int}")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deactivate(int id)
         {
@@ -177,7 +176,7 @@ namespace TownTrek.Controllers.Admin
             return RedirectToAction(nameof(Index));
         }
 
-        [HttpGet("Details/{id:int}")]
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
             var model = await _tierService.GetTierByIdAsync(id);
@@ -187,11 +186,6 @@ namespace TownTrek.Controllers.Admin
             return View(model);
         }
 
-        // Debug action to test if routing works
-        [HttpGet("Test/{id:int}")]
-        public IActionResult Test(int id)
-        {
-            return Json(new { Message = "Test successful", Id = id });
-        }
+        // Debug action kept conventional
     }
 }
