@@ -48,7 +48,7 @@ namespace TownTrek.Controllers.Business
             {
                 var limits = await _subscriptionAuthService.GetUserLimitsAsync(userId);
                 TempData["ErrorMessage"] = $"You have reached your subscription limit for businesses ({limits.CurrentBusinessCount}/{limits.MaxBusinesses}). Please upgrade your plan.";
-                return RedirectToAction(actionName: "Subscription", controllerName: "Subscription");
+                return RedirectToAction(actionName: "Index", controllerName: "Subscription");
             }
 
             var model = await _businessService.GetAddBusinessViewModelAsync(userId);

@@ -42,7 +42,8 @@ namespace TownTrek.Controllers.Client
             }
 
             // With custom view location expander, discovery will find Views/Client/Subscription/Index.cshtml
-            return View();
+            // Pass the model to avoid null reference in the view
+            return View(model);
         }
 
         public async Task<IActionResult> Billing()
