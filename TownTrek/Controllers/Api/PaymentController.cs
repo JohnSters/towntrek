@@ -80,7 +80,7 @@ namespace TownTrek.Controllers.Api
             }
 
             TempData["ErrorMessage"] = "Unable to process payment. Please contact support.";
-            return RedirectToAction("Subscription", "Client");
+            return RedirectToAction(actionName: "Index", controllerName: "Subscription");
         }
 
         [HttpPost]

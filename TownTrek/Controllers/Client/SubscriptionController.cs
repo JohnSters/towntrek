@@ -11,7 +11,7 @@ using TownTrek.Services.Interfaces;
 namespace TownTrek.Controllers.Client
 {
     [Authorize]
-    [Route("Client/[action]")] // Maintain existing routes for backward compatibility
+    [Route("Client/[controller]/[action]")] // Conventional: /Client/Subscription/Index
     public class SubscriptionController(
         IClientService clientService,
         UserManager<ApplicationUser> userManager,
@@ -22,7 +22,7 @@ namespace TownTrek.Controllers.Client
         private readonly ILogger<SubscriptionController> _logger = logger;
 
         // Subscription & Billing
-        public async Task<IActionResult> Subscription()
+        public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var model = await _clientService.GetSubscriptionViewModelAsync(userId);
