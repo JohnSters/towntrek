@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using TownTrek.Models;
 using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Attributes
 {
@@ -80,11 +83,11 @@ namespace TownTrek.Attributes
                 }
             }
 
-            // Add subscription info to ViewData for use in views
+            // Add subscription info to ViewData for use in views that still rely on limits
             if (context.Controller is Controller controllerInstance)
             {
-                controllerInstance.ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
                 controllerInstance.ViewData["UserLimits"] = authResult.Limits;
+                // User name and tier are now resolved in TopUserMenu view component
             }
 
             await next();

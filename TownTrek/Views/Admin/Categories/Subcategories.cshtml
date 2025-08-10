@@ -1,0 +1,87 @@
+@model IEnumerable<TownTrek.Models.BusinessSubCategory>
+@{
+    ViewData["Title"] = "Manage Subcategories";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var category = ViewBag.Category as TownTrek.Models.BusinessCategory;
+}
+
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">@category?.Name Subcategories</h1>
+            <p class="page-description">Manage subcategories for this category.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Index")" class="auth-btn auth-btn-secondary">Back to Categories</a>
+        </div>
+    </div>
+    </div>
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Add Subcategory</h3>
+    </div>
+    <form method="post" action="@Url.Action("AddSubcategory")" class="admin-form">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="categoryId" value="@category!.Id" />
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label required">Key (slug)</label>
+                <input name="key" class="form-input" placeholder="e.g., cafe" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label required">Name</label>
+                <input name="name" class="form-input" placeholder="Display name" required />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="auth-btn auth-btn-cta">Add Subcategory</button>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Existing Subcategories</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td>@s.Key</td>
+                        <td>@s.Name</td>
+                        <td>
+                            @if (s.IsActive)
+                            {
+                                <span class="badge badge-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning">Inactive</span>
+                            }
+                        </td>
+                        <td class="table-actions">
+                            <form method="post" action="@Url.Action("ToggleSubcategory")" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@s.Id" />
+                                <button type="submit" class="auth-btn auth-btn-secondary">@(s.IsActive ? "Deactivate" : "Activate")</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+

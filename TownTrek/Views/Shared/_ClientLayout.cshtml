@@ -7,6 +7,7 @@
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="~/css/entrypoints/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/navigation.css" asp-append-version="true" />
     
     <!-- Page-specific styles -->
     @await RenderSectionAsync("Styles", required: false)
@@ -45,7 +46,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="@Url.Action("Analytics", "Analytics")" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Analytics" ? "active" : "")">
+                            <a href="@Url.Action("Index", "Analytics")" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Analytics" ? "active" : "")">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
@@ -60,7 +61,7 @@
                     <div class="nav-section-title">Business Management</div>
                     <ul class="nav-menu">
                         <li class="nav-item">
-                            <a href="@Url.Action("ManageBusinesses", "Business")" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageBusinesses" ? "active" : "")">
+                             <a asp-controller="Business" asp-action="ManageBusinesses" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "ManageBusinesses" ? "active" : "")">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                 </svg>
@@ -72,11 +73,19 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="@Url.Action("AddBusiness", "Business")" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AddBusiness" ? "active" : "")">
+                             <a asp-controller="Business" asp-action="AddBusiness" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "AddBusiness" ? "active" : "")">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                                 </svg>
                                 Add Business
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("MediaGallery", "Image")" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "MediaGallery" ? "active" : "")">
+                                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Media Gallery
                             </a>
                         </li>
                     </ul>
@@ -95,7 +104,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="@Url.Action("Subscription", "Subscription")" class="nav-link @(ViewContext.RouteData.Values["action"]?.ToString() == "Subscription" ? "active" : "")">
+                            <a asp-controller="Subscription" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Subscription" ? "active" : "")">
                                 <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
                                 </svg>
@@ -177,50 +186,41 @@
                         </button>
                     </div>
 
-                    <div class="user-menu">
-                        <div class="user-avatar">
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                @(User.FindFirstValue(ClaimTypes.GivenName)?.Substring(0, 1).ToUpper() ?? "U")@(User.FindFirstValue(ClaimTypes.Surname)?.Substring(0, 1).ToUpper() ?? "")
-                            }
-                            else
-                            {
-                                <span>U</span>
-                            }
-                        </div>
-                        <div class="user-info">
-                            <div class="user-name">
-                                @if (User.Identity?.IsAuthenticated == true)
-                                {
-                                    @(User.FindFirstValue(ClaimTypes.GivenName) ?? "User") @(User.FindFirstValue(ClaimTypes.Surname) ?? "")
-                                }
-                                else
-                                {
-                                    <span>Guest User</span>
-                                }
-                            </div>
-                            <div class="user-role">
-                                @if (ViewData["UserSubscriptionTier"] is SubscriptionTier tier)
-                                {
-                                    @tier.DisplayName
-                                }
-                                else
-                                {
-                                    <span>Free Tier</span>
-                                }
-                            </div>
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_TopUserMenu")
                 </div>
             </header>
 
             <!-- Page Content -->
             <div class="admin-content">
+                <!-- Success/Error Messages -->
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        @TempData["SuccessMessage"]
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-error">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+
                 @RenderBody()
             </div>
         </main>
     </div>
 
+    <!-- Anti-forgery token for AJAX requests -->
+    @Html.AntiForgeryToken()
+    
     <!-- JavaScript -->
     <script src="~/js/client-admin.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

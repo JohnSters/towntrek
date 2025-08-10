@@ -1,0 +1,74 @@
+@model IEnumerable<TownTrek.Models.ServiceDefinition>
+@{
+    ViewData["Title"] = "Business Services";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Business Services</h3>
+    </div>
+
+    <form method="post" action="@Url.Action("Create", "AdminServices")" class="admin-form">
+        @Html.AntiForgeryToken()
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label required">Key (slug)</label>
+                <input name="key" class="form-input" placeholder="e.g., wifi" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label required">Name</label>
+                <input name="name" class="form-input" placeholder="e.g., Free WiFi" required />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="auth-btn auth-btn-cta">Add Service</button>
+        </div>
+    </form>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Existing Services</h3>
+    </div>
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model)
+                {
+                    <tr>
+                        <td>@s.Key</td>
+                        <td>@s.Name</td>
+                        <td>
+                            @if (s.IsActive)
+                            {
+                                <span class="badge badge-success">Active</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-warning">Inactive</span>
+                            }
+                        </td>
+                        <td class="table-actions">
+                            <form method="post" action="@Url.Action("Toggle")" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@s.Id" />
+                                <button type="submit" class="auth-btn auth-btn-secondary">@(s.IsActive ? "Deactivate" : "Activate")</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
