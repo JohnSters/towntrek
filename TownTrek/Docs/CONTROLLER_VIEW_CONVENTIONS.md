@@ -13,25 +13,25 @@
       - `/Views/Client/Shared/{View}.cshtml`
     - This lets Client controllers use `return View()` with Client views staying under `Views/Client`.
   - Public/Home consolidation: moved/created public pages under `Views/Home/*` and converted links to tag helpers.
-  - Admin controllers: converted to discovery (`return View(...)`).
+  - Admin controllers: converted to discovery (`return View()`); added `AdminViewLocationExpander` so `AdminXxxController` maps to `Views/Admin/Xxx/{View}.cshtml` (with a plural fallback).
   - Client controllers:
     - `ProfileController`: discovery.
-    - `SubscriptionController`:
-      - Action renamed to `Index()` for convention.
-      - Route updated to `[Route("Client/[controller]/[action]")]` so: `/Client/Subscription/Index` (and `/Client/Subscription`).
-      - Views remain under `Views/Client/Subscription/{Index,Billing}.cshtml`.
+    - `SubscriptionController` and `AnalyticsController`:
+      - Actions use `Index()` for main pages.
+      - Route template `[Route("Client/[controller]/[action]")]` retained to keep `/Client/...` URL prefix while using view discovery.
+      - Views live under `Views/Client/{Controller}/{View}.cshtml` and are found via `ClientViewLocationExpander`.
     - `BusinessController`:
       - Edit uses `Views/Client/Businesses/Edit.cshtml`; content reused from existing `EditBusiness.cshtml` (kept temporarily). Add/Manage links updated to tag helpers.
 
-- Links/Redirects Clean-up
+  - Links/Redirects Clean-up
   - Replaced `Url.Action(...)` and literal `href="/..."` with tag helpers in:
     - `Views/Shared/_ClientLayout.cshtml`, `Views/Client/Dashboard.cshtml`, `Views/Client/Businesses/{Index,ManageBusinesses,Edit}`, `Views/Image/{Gallery,MediaGallery}`, and the public landing page.
   - Redirects updated to conventional endpoints, e.g. `RedirectToAction("Index", "Subscription")`.
 
-- Known Behavior
+  - Known Behavior
   - If a user hits plan limits, Add Business redirects to Subscription. With the expander and route changes, it now resolves to `Views/Client/Subscription/Index.cshtml`.
 
-- Recommendations (Next)
+  - Recommendations (Next)
   - Finish rename: inline `EditBusiness.cshtml` content into `Edit.cshtml` and delete `EditBusiness.cshtml`.
   - Sweep for any remaining `Url.Action(...)` to tag helpers across Admin/Client views.
   - Adopt a consistent route template for all Client controllers (e.g., `[Route("Client/[controller]/[action]")]`) to avoid future surprises.
@@ -41,11 +41,18 @@
     - Controllers return `View()`; avoid explicit view paths.
     - Client/Admin views should live under `Views/Client/*` and `Views/Admin/*` (or Areas).
 
-- Quick Reference
+  - Quick Reference
   - Client Subscription route:
     - Controller: `Controllers/Client/SubscriptionController.cs`
     - Route: `/Client/Subscription/Index` (via `[Route("Client/[controller]/[action]")]`)
     - Views: `Views/Client/Subscription/{Index,Billing}.cshtml`
+  - Client Analytics route:
+    - Controller: `Controllers/Analytics/AnalyticsController.cs`
+    - Route: `/Client/Analytics/Index` (via `[Route("Client/[controller]/[action]")]`)
+    - View: `Views/Client/Analytics/Index.cshtml`
+  - Admin view discovery:
+    - Expander: `Extensions/AdminViewLocationExpander.cs`
+    - Maps `AdminTownsController` → `Views/Admin/Towns/{View}.cshtml`, etc.
   - Business Edit:
     - Controller returns `Edit.cshtml`
     - View: `Views/Client/Businesses/Edit.cshtml`

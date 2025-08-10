@@ -12,7 +12,7 @@ using TownTrek.Services.Interfaces;
 namespace TownTrek.Controllers.Business
 {
     [Authorize]
-    [Route("Client/[action]")] // Maintain existing routes for backward compatibility
+    [Route("Client/Business/[action]")]
     public class BusinessController(
         IBusinessService businessService,
         IClientService clientService,
@@ -35,7 +35,7 @@ namespace TownTrek.Controllers.Business
             var limits = await _subscriptionAuthService.GetUserLimitsAsync(userId);
             ViewBag.UserLimits = limits;
             
-            return View("~/Views/Client/Businesses/Index.cshtml", businesses);
+            return View(businesses);
         }
 
         [RequireActiveSubscription(allowFreeTier: true)]
@@ -55,7 +55,7 @@ namespace TownTrek.Controllers.Business
             
             // Header data resolved by TopUserMenu view component
             
-            return View("~/Views/Client/Businesses/AddBusiness.cshtml", model);
+            return View(model);
         }
 
         [HttpPost]
@@ -81,7 +81,7 @@ namespace TownTrek.Controllers.Business
             
             // Reload the view model data if there are validation errors
             model = await _businessService.GetAddBusinessViewModelAsync(userId);
-            return View("~/Views/Client/Businesses/AddBusiness.cshtml", model);
+            return View(model);
         }
 
         public async Task<IActionResult> EditBusiness(int id)
@@ -92,7 +92,7 @@ namespace TownTrek.Controllers.Business
             {
                 var model = await _clientService.PrepareEditBusinessViewModelAsync(id, userId);
                 
-                return View("~/Views/Client/Businesses/Edit.cshtml", model);
+                return View(model);
             }
             catch (InvalidOperationException)
             {
@@ -126,7 +126,7 @@ namespace TownTrek.Controllers.Business
             try
             {
                 var baseModel = await _clientService.PrepareEditBusinessViewModelWithFormDataAsync(id, userId, model);
-                return View("~/Views/Client/Businesses/AddBusiness.cshtml", baseModel);
+                return View(baseModel);
             }
             catch (InvalidOperationException)
             {

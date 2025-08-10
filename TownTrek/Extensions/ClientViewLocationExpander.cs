@@ -11,11 +11,14 @@ namespace TownTrek.Extensions
 
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
-            // Add additional search locations so controllers in Client namespace can
-            // discover views located under Views/Client/{Controller}/{View}.cshtml
+            // Add additional search locations so controllers can
+            // discover views located under Views/Client/**
+            // Include plural fallbacks to support folders like "Businesses"
             var clientLocations = new[]
             {
                 "/Views/Client/{1}/{0}.cshtml",
+                "/Views/Client/{1}s/{0}.cshtml",
+                "/Views/Client/{1}es/{0}.cshtml",
                 "/Views/Client/Shared/{0}.cshtml"
             };
 
