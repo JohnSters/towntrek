@@ -44,8 +44,7 @@ namespace TownTrek.Controllers.Client
 
             var dashboardModel = await _clientService.GetDashboardViewModelAsync(userId);
             
-            // Set subscription tier for layout display
-            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            // Subscription tier now resolved in TopUserMenu view component when needed
 
             return View(dashboardModel);
         }
@@ -56,9 +55,7 @@ namespace TownTrek.Controllers.Client
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var user = await _userManager.GetUserAsync(User);
             
-            // Set subscription tier for layout display
-            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            // Subscription tier now resolved in TopUserMenu view component when needed
             
             return View("~/Views/Client/Profile/Index.cshtml", user);
         }
@@ -88,9 +85,7 @@ namespace TownTrek.Controllers.Client
                 AuthenticationMethod = user.AuthenticationMethod
             };
 
-            // Set subscription tier for layout display
-            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            // Subscription tier now resolved in TopUserMenu view component when needed
             
             return View("~/Views/Client/Profile/EditProfile.cshtml", model);
         }
@@ -136,9 +131,7 @@ namespace TownTrek.Controllers.Client
                     {
                         ModelState.AddModelError("Email", "This email address is already in use.");
                         
-                        // Set subscription tier for layout display
-                        var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-                        ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+                        // Subscription tier now resolved in TopUserMenu view component when needed
                         
                         return View("~/Views/Client/Profile/EditProfile.cshtml", model);
                     }
@@ -161,9 +154,7 @@ namespace TownTrek.Controllers.Client
                         ModelState.AddModelError("", error.Description);
                     }
                     
-                    // Set subscription tier for layout display
-                    var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-                    ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+                    // Subscription tier now resolved in TopUserMenu view component when needed
                     
                     return View("~/Views/Client/Profile/EditProfile.cshtml", model);
                 }
@@ -173,10 +164,7 @@ namespace TownTrek.Controllers.Client
                 _logger.LogError(ex, "Error updating profile for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 TempData["ErrorMessage"] = "An error occurred while updating your profile. Please try again.";
                 
-                // Set subscription tier for layout display
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-                var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-                ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+                // Subscription tier now resolved in TopUserMenu view component when needed
                 
                 return View("~/Views/Client/Profile/EditProfile.cshtml", model);
             }
@@ -187,9 +175,7 @@ namespace TownTrek.Controllers.Client
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             
-            // Set subscription tier for layout display
-            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            // Subscription tier now resolved in TopUserMenu view component when needed
             
             return View("~/Views/Client/Profile/Settings.cshtml");
         }
@@ -199,9 +185,7 @@ namespace TownTrek.Controllers.Client
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             
-            // Set subscription tier for layout display
-            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            // Subscription tier now resolved in TopUserMenu view component when needed
             
             return View("~/Views/Client/Subscription/Billing.cshtml");
         }

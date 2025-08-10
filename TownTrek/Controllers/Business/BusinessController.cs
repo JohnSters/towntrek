@@ -31,13 +31,9 @@ namespace TownTrek.Controllers.Business
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var businesses = await _businessService.GetUserBusinessesAsync(userId);
             
-            // Get user limits for display
+            // Get user limits for display (still needed on page)
             var limits = await _subscriptionAuthService.GetUserLimitsAsync(userId);
             ViewBag.UserLimits = limits;
-            
-            // Set subscription tier for layout display
-            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
             
             return View("~/Views/Client/Businesses/Index.cshtml", businesses);
         }
@@ -57,9 +53,7 @@ namespace TownTrek.Controllers.Business
 
             var model = await _businessService.GetAddBusinessViewModelAsync(userId);
             
-            // Set subscription tier for layout display
-            var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-            ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
+            // Header data resolved by TopUserMenu view component
             
             return View("~/Views/Client/Businesses/AddBusiness.cshtml", model);
         }
@@ -97,10 +91,6 @@ namespace TownTrek.Controllers.Business
             try
             {
                 var model = await _clientService.PrepareEditBusinessViewModelAsync(id, userId);
-                
-                // Set subscription tier for layout display
-                var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-                ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
                 
                 return View("~/Views/Client/Businesses/EditBusiness.cshtml", model);
             }

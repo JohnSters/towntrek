@@ -27,8 +27,7 @@ namespace TownTrek.Controllers.Client
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var model = await _clientService.GetSubscriptionViewModelAsync(userId);
 
-            // Set subscription tier for layout display
-            ViewData["UserSubscriptionTier"] = model.CurrentSubscription?.SubscriptionTier;
+            // Subscription tier for header is resolved in the TopUserMenu view component
 
             // Clear any inappropriate success messages for existing users
             var user = await _userManager.FindByIdAsync(userId);
@@ -39,10 +38,7 @@ namespace TownTrek.Controllers.Client
                     TempData.Remove("SuccessMessage");
                 }
                 
-                // Add user name info to ViewData for layout display
-                ViewData["UserFirstName"] = user.FirstName;
-                ViewData["UserLastName"] = user.LastName;
-                ViewData["UserFullName"] = $"{user.FirstName} {user.LastName}".Trim();
+                // Header data is resolved in the TopUserMenu view component
             }
 
             return View("~/Views/Client/Subscription/Index.cshtml", model);
@@ -53,13 +49,7 @@ namespace TownTrek.Controllers.Client
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var user = await _userManager.FindByIdAsync(userId);
             
-            if (user != null)
-            {
-                // Add user name info to ViewData for layout display
-                ViewData["UserFirstName"] = user.FirstName;
-                ViewData["UserLastName"] = user.LastName;
-                ViewData["UserFullName"] = $"{user.FirstName} {user.LastName}".Trim();
-            }
+            // Header data is resolved in the TopUserMenu view component
             
             return View("~/Views/Client/Subscription/Billing.cshtml");
         }

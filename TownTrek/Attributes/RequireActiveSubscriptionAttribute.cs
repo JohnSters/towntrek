@@ -83,21 +83,11 @@ namespace TownTrek.Attributes
                 }
             }
 
-            // Add subscription info to ViewData for use in views
+            // Add subscription info to ViewData for use in views that still rely on limits
             if (context.Controller is Controller controllerInstance)
             {
-                controllerInstance.ViewData["UserSubscriptionTier"] = authResult.SubscriptionTier;
                 controllerInstance.ViewData["UserLimits"] = authResult.Limits;
-                
-                // Add user name info to ViewData for layout display
-                var userManager = context.HttpContext.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
-                var user = await userManager.FindByIdAsync(userId);
-                if (user != null)
-                {
-                    controllerInstance.ViewData["UserFirstName"] = user.FirstName;
-                    controllerInstance.ViewData["UserLastName"] = user.LastName;
-                    controllerInstance.ViewData["UserFullName"] = $"{user.FirstName} {user.LastName}".Trim();
-                }
+                // User name and tier are now resolved in TopUserMenu view component
             }
 
             await next();
