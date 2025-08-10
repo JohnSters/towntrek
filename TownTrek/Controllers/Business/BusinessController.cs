@@ -92,7 +92,7 @@ namespace TownTrek.Controllers.Business
             {
                 var model = await _clientService.PrepareEditBusinessViewModelAsync(id, userId);
                 
-                return View("~/Views/Client/Businesses/EditBusiness.cshtml", model);
+                return View("~/Views/Client/Businesses/Edit.cshtml", model);
             }
             catch (InvalidOperationException)
             {

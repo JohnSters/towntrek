@@ -145,8 +145,8 @@ namespace TownTrek.Controllers.Admin
             model.ActiveSubscriptions = await _context.Subscriptions.CountAsync(s => s.IsActive);
             model.PendingPayments = await _context.Subscriptions.CountAsync(s => s.PaymentStatus == "Pending");
 
-            // Use explicit path due to non-standard view folder structure
-            return View("~/Views/Admin/Users/Index.cshtml", model);
+            // Conventional view discovery: Views/Admin/Users/Index.cshtml
+            return View(model);
         }
 
         [HttpGet("Edit/{id}")]
@@ -183,8 +183,8 @@ namespace TownTrek.Controllers.Admin
                 SubscriptionEndDate = activeSubscription?.EndDate
             };
 
-            // Use explicit path due to non-standard view folder structure
-            return View("~/Views/Admin/Users/Edit.cshtml", model);
+            // Conventional view discovery: Views/Admin/Users/Edit.cshtml
+            return View(model);
         }
 
         [HttpPost("Edit/{id}")]

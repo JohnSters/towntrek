@@ -27,7 +27,7 @@ namespace TownTrek.Controllers.Admin
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
 
-            return View("~/Views/Admin/Businesses/Index.cshtml", businesses);
+            return View(businesses);
         }
 
         // POST /admin/businesses/{id}/approve

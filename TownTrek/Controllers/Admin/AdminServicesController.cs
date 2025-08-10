@@ -18,7 +18,7 @@ namespace TownTrek.Controllers.Admin
                 .OrderBy(s => s.Name)
                 .AsNoTracking()
                 .ToListAsync();
-            return View("~/Views/Admin/Services/Index.cshtml", services);
+            return View(services);
         }
 
         [HttpPost]

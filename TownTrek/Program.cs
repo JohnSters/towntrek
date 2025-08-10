@@ -69,7 +69,12 @@ public class Program
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
         builder.Services.AddScoped<IClientService, ClientService>();
 
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews()
+            .AddRazorOptions(options =>
+            {
+                // Allow view discovery to look under Views/Client/**/* as well
+                options.ViewLocationExpanders.Add(new TownTrek.Extensions.ClientViewLocationExpander());
+            });
 
         var app = builder.Build();
 

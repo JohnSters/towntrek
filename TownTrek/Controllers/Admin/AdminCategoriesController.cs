@@ -19,12 +19,12 @@ namespace TownTrek.Controllers.Admin
                 .OrderBy(c => c.Name)
                 .AsNoTracking()
                 .ToListAsync();
-            return View("~/Views/Admin/Categories/Index.cshtml", categories);
+            return View(categories);
         }
 
         public IActionResult Create()
         {
-            return View("~/Views/Admin/Categories/Create.cshtml", new BusinessCategory());
+            return View(new BusinessCategory());
         }
 
         [HttpPost]
@@ -33,7 +33,7 @@ namespace TownTrek.Controllers.Admin
         {
             if (!ModelState.IsValid)
             {
-                return View("~/Views/Admin/Categories/Create.cshtml", model);
+                return View(model);
             }
 
             // Ensure unique key
@@ -41,7 +41,7 @@ namespace TownTrek.Controllers.Admin
             if (exists)
             {
                 ModelState.AddModelError("Key", "A category with this key already exists.");
-                return View("~/Views/Admin/Categories/Create.cshtml", model);
+                return View(model);
             }
 
             model.IsActive = true;
@@ -56,7 +56,7 @@ namespace TownTrek.Controllers.Admin
         {
             var category = await _context.BusinessCategories.FindAsync(id);
             if (category == null) return RedirectToAction(nameof(Index));
-            return View("~/Views/Admin/Categories/Edit.cshtml", category);
+            return View(category);
         }
 
         [HttpPost]
@@ -68,7 +68,7 @@ namespace TownTrek.Controllers.Admin
 
             if (!ModelState.IsValid)
             {
-                return View("~/Views/Admin/Categories/Edit.cshtml", input);
+                return View(input);
             }
 
             // Key is immutable by design
@@ -109,7 +109,7 @@ namespace TownTrek.Controllers.Admin
                 .ToListAsync();
 
             ViewBag.Category = category;
-            return View("~/Views/Admin/Categories/Subcategories.cshtml", subs);
+            return View("Subcategories", subs);
         }
 
         [HttpPost]

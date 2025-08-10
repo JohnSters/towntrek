@@ -28,14 +28,16 @@ namespace TownTrek.Controllers.Admin
                 .ThenBy(t => t.Name)
                 .ToListAsync();
 
-            return View("~/Views/Admin/Towns/Index.cshtml", towns);
+            // Conventional view discovery: Views/Admin/Towns/Index.cshtml
+            return View(towns);
         }
 
         // GET: Admin/Towns/Create (Show create form)
         public IActionResult Create()
         {
             var model = new AddTownViewModel();
-            return View("~/Views/Admin/Towns/Create.cshtml", model);
+            // Conventional view discovery: Views/Admin/Towns/Create.cshtml
+            return View(model);
         }
 
         // POST: Admin/Towns/Create (Process create form)
@@ -74,7 +76,7 @@ namespace TownTrek.Controllers.Admin
                 }
             }
 
-            return View("~/Views/Admin/Towns/Create.cshtml", model);
+            return View(model);
         }
 
         // GET: Admin/Towns/Edit/5 (Show edit form)
@@ -100,7 +102,8 @@ namespace TownTrek.Controllers.Admin
                 Longitude = town.Longitude
             };
 
-            return View("~/Views/Admin/Towns/Edit.cshtml", model);
+            // Conventional view discovery: Views/Admin/Towns/Edit.cshtml
+            return View(model);
         }
 
         // POST: Admin/Towns/Edit/5 (Process edit form)
@@ -142,7 +145,7 @@ namespace TownTrek.Controllers.Admin
                 }
             }
 
-            return View("~/Views/Admin/Towns/Edit.cshtml", model);
+            return View(model);
         }
 
         // POST: Admin/Towns/Delete (Delete town)

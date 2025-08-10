@@ -41,8 +41,8 @@ namespace TownTrek.Controllers.Client
                 // Header data is resolved in the TopUserMenu view component
             }
 
-            // Views/Client/Subscription/Index.cshtml
-            return View("Index", model);
+            // With custom view location expander, discovery will find Views/Client/Subscription/Index.cshtml
+            return View();
         }
 
         public async Task<IActionResult> Billing()
@@ -52,8 +52,8 @@ namespace TownTrek.Controllers.Client
             
             // Header data is resolved in the TopUserMenu view component
             
-            // Views/Client/Subscription/Billing.cshtml
-            return View("Billing");
+            // With custom view location expander, discovery will find Views/Client/Subscription/Billing.cshtml
+            return View();
         }
     }
 }
