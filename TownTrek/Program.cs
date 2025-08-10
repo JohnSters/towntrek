@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using TownTrek.Data;
 using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 using TownTrek.Models;
 
 namespace TownTrek;
@@ -39,8 +40,19 @@ public class Program
             options.LoginPath = "/Auth/Login";
             options.LogoutPath = "/Auth/Logout";
             options.AccessDeniedPath = "/Auth/AccessDenied";
-            options.ExpireTimeSpan = TimeSpan.FromDays(30);
-            options.SlidingExpiration = true;
+            options.ExpireTimeSpan = TimeSpan.FromHours(8); // Default session: 8 hours
+            options.SlidingExpiration = true; // Extends session on activity
+            
+            // Configure different expiration for "Remember Me"
+            options.Events.OnSigningIn = context =>
+            {
+                if (context.Properties?.IsPersistent == true)
+                {
+                    // If "Remember Me" is checked, extend to 7 days
+                    context.Properties.ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7);
+                }
+                return Task.CompletedTask;
+            };
         });
 
         // Add these service registrations
@@ -57,7 +69,13 @@ public class Program
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
         builder.Services.AddScoped<IClientService, ClientService>();
 
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews()
+            .AddRazorOptions(options =>
+            {
+                // Allow view discovery to look under Views/Client/**/* and Views/Admin/**/*
+                options.ViewLocationExpanders.Add(new TownTrek.Extensions.ClientViewLocationExpander());
+                options.ViewLocationExpanders.Add(new TownTrek.Extensions.AdminViewLocationExpander());
+            });
 
         var app = builder.Build();
 

@@ -4,6 +4,7 @@ using SixLabors.ImageSharp.Processing;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Services
 {

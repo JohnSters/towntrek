@@ -41,8 +41,9 @@
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="Migrations\" />
+    <Folder Include="Services\Api\" />
+    <Folder Include="Views\Admin\Towns\" />
     <Folder Include="Views\Client\Subscription\" />
-    <Folder Include="Views\Home\" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,193 @@
+@model TownTrek.Models.ViewModels.MediaGalleryOverviewViewModel
+@{
+    ViewData["Title"] = "Media Gallery";
+    Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/features/image-gallery/gallery.css" asp-append-version="true" />
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Media Gallery</h1>
+            <p class="page-description">Manage all your business images from one central location.</p>
+        </div>
+        <div class="page-actions">
+            <button class="auth-btn auth-btn-secondary" id="filterToggle">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                </svg>
+                Filter
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Overview -->
+<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalImages</div>
+        <div class="stat-label">Total Images</div>
+        <div class="stat-change">All businesses</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalLogos</div>
+        <div class="stat-label">Business Logos</div>
+        <div class="stat-change">Brand images</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalGalleryImages</div>
+        <div class="stat-label">Gallery Images</div>
+        <div class="stat-change">Showcase photos</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Businesses.Count</div>
+        <div class="stat-label">Businesses</div>
+        <div class="stat-change">With images</div>
+    </div>
+</div>
+
+<!-- Filter Panel -->
+<div class="admin-card" id="filterPanel" style="display: none;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Filter Images</h3>
+    </div>
+    <div class="admin-card-body">
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Business</label>
+                <select class="form-select" id="businessFilter">
+                    <option value="">All Businesses</option>
+                    @foreach (var business in Model.Businesses)
+                    {
+                        <option value="@business.Id">@business.Name (@Model.BusinessImageCounts.GetValueOrDefault(business.Id, 0) images)</option>
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Image Type</label>
+                <select class="form-select" id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="Logo">Logos</option>
+                    <option value="Gallery">Gallery Images</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <button class="auth-btn auth-btn-primary" id="applyFilters">Apply Filters</button>
+                <button class="auth-btn auth-btn-secondary" id="clearFilters">Clear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Business Sections -->
+@if (Model.Businesses.Any())
+{
+    @foreach (var business in Model.Businesses)
+    {
+        var businessImages = Model.AllImages.Where(i => i.BusinessId == business.Id).ToList();
+        if (businessImages.Any())
+        {
+            <div class="admin-card business-section" data-business-id="@business.Id">
+                <div class="admin-card-header">
+                    <div>
+                        <h3 class="admin-card-title">@business.Name</h3>
+                        <p class="admin-card-description">@businessImages.Count images • @business.Category</p>
+                    </div>
+                    <div class="admin-card-actions">
+            <a asp-controller="Image" asp-action="Gallery" asp-route-businessId="@business.Id" class="auth-btn auth-btn-secondary">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Manage
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="admin-card-body">
+                    <div class="image-grid">
+                        @foreach (var image in businessImages.Take(6))
+                        {
+                            <div class="image-card" data-image-type="@image.ImageType">
+                                <img src="@(image.ThumbnailUrl ?? image.ImageUrl)" alt="@image.AltText" />
+                                <div class="image-card-body">
+                                    <div class="image-card-title">@image.OriginalFileName</div>
+                                    <div class="image-card-meta">
+                                        @image.ImageType • @((image.FileSize / 1024).ToString("N0")) KB
+                                    </div>
+                                    @if (image.ImageType == "Logo")
+                                    {
+                                        <span class="badge badge-primary">Logo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-info">Gallery</span>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        
+                        @if (businessImages.Count > 6)
+                        {
+                            <div class="image-card more-images">
+                                <div class="more-images-content">
+                                    <div class="more-images-count">+@(businessImages.Count - 6)</div>
+                                    <div class="more-images-text">more images</div>
+                                    <a asp-controller="Image" asp-action="Gallery" asp-route-businessId="@business.Id" class="auth-btn auth-btn-sm auth-btn-primary">View All</a>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+}
+else
+{
+    <div class="admin-card">
+        <div class="empty-state">
+            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-state-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+            <h3 class="empty-state-title">No Images Found</h3>
+            <p class="empty-state-description">Start by adding businesses and uploading images to showcase your services.</p>
+            <a href="@Url.Action("AddBusiness", "Business")" class="auth-btn auth-btn-cta">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add First Business
+            </a>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/media-gallery.js" asp-append-version="true"></script>
+}

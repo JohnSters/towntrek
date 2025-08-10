@@ -221,6 +221,9 @@ namespace TownTrek.Models
         public bool HasSpa { get; set; } = false;
         public bool IsPetFriendly { get; set; } = false;
         public bool HasAirConditioning { get; set; } = false;
+        public bool HasBreakfast { get; set; } = false;
+        public bool HasLaundry { get; set; } = false;
+        public bool HasConferenceRoom { get; set; } = false;
 
         [StringLength(500)]
         public string? RoomTypes { get; set; } // JSON array of room types

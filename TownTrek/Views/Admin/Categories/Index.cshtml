@@ -1,0 +1,67 @@
+@model IEnumerable<TownTrek.Models.BusinessCategory>
+@{
+    ViewData["Title"] = "Business Categories";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Business Categories</h3>
+        <div class="admin-card-actions">
+            <a class="auth-btn auth-btn-cta" href="@Url.Action("Create", "AdminCategories")">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Category
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Name</th>
+                    <th>Form Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var c in Model)
+            {
+                <tr>
+                    <td>@c.Key</td>
+                    <td>
+                        <div class="table-primary">@c.Name</div>
+                        <div class="table-secondary">@c.Description</div>
+                    </td>
+                    <td>@c.FormType</td>
+                    <td>
+                        @if (c.IsActive)
+                        {
+                            <span class="badge badge-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-warning">Inactive</span>
+                        }
+                    </td>
+                    <td class="table-actions">
+                        <a class="auth-btn auth-btn-secondary" href="@Url.Action("Edit", new { id = c.Id })">Edit</a>
+                        <a class="auth-btn auth-btn-secondary" href="@Url.Action("Subcategories", new { id = c.Id })">Subcategories</a>
+                        <form method="post" action="@Url.Action("ToggleActive")" style="display:inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@c.Id" />
+                            <button type="submit" class="auth-btn auth-btn-secondary">@(c.IsActive ? "Deactivate" : "Activate")</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+

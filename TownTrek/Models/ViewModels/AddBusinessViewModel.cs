@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-
 using TownTrek.Services;
 
 namespace TownTrek.Models.ViewModels
@@ -77,7 +76,7 @@ namespace TownTrek.Models.ViewModels
         public List<IFormFile>? BusinessImages { get; set; }
 
         // Existing business images (for editing)
-        public List<BusinessImage>? ExistingBusinessImages { get; set; }
+        public List<TownTrek.Models.BusinessImage>? ExistingBusinessImages { get; set; }
 
         // Services
         public List<string> Services { get; set; } = new List<string>();
@@ -126,6 +125,7 @@ namespace TownTrek.Models.ViewModels
         public int? AdvanceBookingDays { get; set; }
         public bool IsWeatherDependent { get; set; } = false;
         public bool IsAccessible { get; set; } = false;
+        public bool HasTransport { get; set; } = false;
 
         // Event-specific fields
         public string? EventType { get; set; }
@@ -169,14 +169,19 @@ namespace TownTrek.Models.ViewModels
         public int? MaxGuests { get; set; }
         public string? CheckInTime { get; set; }
         public string? CheckOutTime { get; set; }
+        public string? RoomTypes { get; set; }
         public string? Amenities { get; set; }
         public bool HasWiFi { get; set; } = false;
         public bool HasPool { get; set; } = false;
         public bool HasRestaurant { get; set; } = false;
         public bool IsPetFriendly { get; set; } = false;
+        public bool HasBreakfast { get; set; } = false;
+        public bool HasAirConditioning { get; set; } = false;
+        public bool HasLaundry { get; set; } = false;
+        public bool HasConferenceRoom { get; set; } = false;
 
         // Available options for dropdowns (populated by controller)
-        public List<Town> AvailableTowns { get; set; } = new List<Town>();
+        public List<TownTrek.Models.Town> AvailableTowns { get; set; } = new List<TownTrek.Models.Town>();
         public List<BusinessCategoryOption> AvailableCategories { get; set; } = new List<BusinessCategoryOption>();
         public List<BusinessCategoryOption> AvailableSubCategories { get; set; } = new List<BusinessCategoryOption>();
 

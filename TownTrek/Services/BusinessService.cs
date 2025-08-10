@@ -2,24 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
-using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Services
 {
-    public interface IBusinessService
-    {
-        Task<AddBusinessViewModel> GetAddBusinessViewModelAsync(string userId);
-        Task<ServiceResult> CreateBusinessAsync(AddBusinessViewModel model, string userId);
-        Task<ServiceResult> UpdateBusinessAsync(int businessId, AddBusinessViewModel model, string userId);
-        Task<List<Business>> GetUserBusinessesAsync(string userId);
-        Task<Business?> GetBusinessByIdAsync(int id, string userId);
-        Task<Business?> GetBusinessByIdAsync(int id);
-        Task<ServiceResult> DeleteBusinessAsync(int businessId, string userId);
-        Task<bool> CanUserAddBusinessAsync(string userId);
-        Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync();
-        Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category);
-    }
-
     public class BusinessService : IBusinessService
     {
         private readonly ApplicationDbContext _context;
@@ -205,6 +191,11 @@ namespace TownTrek.Services
                 business.Longitude = model.Longitude;
                 business.UpdatedAt = DateTime.UtcNow;
 
+                // Set status back to Pending for admin review after any changes
+                business.Status = "Pending";
+                business.ApprovedAt = null;
+                business.ApprovedBy = null;
+
                 // Update business hours
                 _context.BusinessHours.RemoveRange(business.BusinessHours);
                 await AddBusinessHoursAsync(business.Id, model.BusinessHours);
@@ -213,12 +204,15 @@ namespace TownTrek.Services
                 _context.BusinessServices.RemoveRange(business.BusinessServices);
                 await AddBusinessServicesAsync(business.Id, model.Services);
 
+                // Handle category-specific data updates
+                await UpdateCategorySpecificDetailsAsync(business.Id, model);
+
                 // Handle file uploads
                 await HandleFileUploadsAsync(business.Id, model);
 
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation("Business '{BusinessName}' updated by user {UserId}", model.BusinessName, userId);
+                _logger.LogInformation("Business '{BusinessName}' updated by user {UserId} - Status set to Pending for review", model.BusinessName, userId);
                 return ServiceResult.Success();
             }
             catch (Exception ex)
@@ -319,56 +313,34 @@ namespace TownTrek.Services
             return currentCount < maxBusinesses;
         }
 
-        public Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync()
+        public async Task<List<BusinessCategoryOption>> GetBusinessCategoriesAsync()
         {
-            // This would typically come from a database table, but for now we'll use the predefined categories
-            var categories = new List<BusinessCategoryOption>
-            {
-                new() { Value = "shops-retail", Text = "Shops & Retail", Description = "Local shops and retail businesses", IconClass = "fas fa-shopping-bag" },
-                new() { Value = "restaurants-food", Text = "Restaurants & Food Services", Description = "Restaurants, cafes, and food services", IconClass = "fas fa-utensils" },
-                new() { Value = "markets-vendors", Text = "Markets & Vendors", Description = "Local markets and vendor stalls", IconClass = "fas fa-store" },
-                new() { Value = "accommodation", Text = "Accommodation", Description = "Hotels, guesthouses, and lodging", IconClass = "fas fa-bed" },
-                new() { Value = "tours-experiences", Text = "Tours & Experiences", Description = "Tour guides and experience providers", IconClass = "fas fa-map-marked-alt" },
-                new() { Value = "events", Text = "Events", Description = "Local events and entertainment", IconClass = "fas fa-calendar-alt" }
-            };
-            return Task.FromResult(categories);
+            var categories = await _context.BusinessCategories
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.Name)
+                .Select(c => new BusinessCategoryOption
+                {
+                    Value = c.Key,
+                    Text = c.Name,
+                    Description = c.Description,
+                    IconClass = c.IconClass
+                })
+                .ToListAsync();
+            return categories;
         }
 
-        public Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category)
+        public async Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category)
         {
-            // Return subcategories based on main category
-            var subcategories = category switch
-            {
-                "shops-retail" => new List<BusinessCategoryOption>
+            var subcategories = await _context.BusinessSubCategories
+                .Where(sc => sc.Category.IsActive && sc.IsActive && sc.Category.Key == category)
+                .OrderBy(sc => sc.Name)
+                .Select(sc => new BusinessCategoryOption
                 {
-                    new() { Value = "clothing", Text = "Clothing & Fashion" },
-                    new() { Value = "electronics", Text = "Electronics" },
-                    new() { Value = "books", Text = "Books & Stationery" },
-                    new() { Value = "gifts", Text = "Gifts & Souvenirs" },
-                    new() { Value = "hardware", Text = "Hardware & Tools" },
-                    new() { Value = "pharmacy", Text = "Pharmacy & Health" }
-                },
-                "restaurants-food" => new List<BusinessCategoryOption>
-                {
-                    new() { Value = "restaurant", Text = "Restaurant" },
-                    new() { Value = "cafe", Text = "Cafe & Coffee Shop" },
-                    new() { Value = "fast-food", Text = "Fast Food" },
-                    new() { Value = "bakery", Text = "Bakery" },
-                    new() { Value = "bar", Text = "Bar & Pub" },
-                    new() { Value = "takeaway", Text = "Takeaway" }
-                },
-                "accommodation" => new List<BusinessCategoryOption>
-                {
-                    new() { Value = "hotel", Text = "Hotel" },
-                    new() { Value = "guesthouse", Text = "Guesthouse" },
-                    new() { Value = "bnb", Text = "Bed & Breakfast" },
-                    new() { Value = "self-catering", Text = "Self-catering" },
-                    new() { Value = "backpackers", Text = "Backpackers" },
-                    new() { Value = "camping", Text = "Camping & Caravan" }
-                },
-                _ => new List<BusinessCategoryOption>()
-            };
-            return Task.FromResult(subcategories);
+                    Value = sc.Key,
+                    Text = sc.Name
+                })
+                .ToListAsync();
+            return subcategories;
         }
 
         private List<BusinessHourViewModel> GetDefaultBusinessHours()
@@ -409,22 +381,16 @@ namespace TownTrek.Services
 
         private async Task AddBusinessServicesAsync(int businessId, List<string> services)
         {
-            var serviceDefinitions = new Dictionary<string, string>
-            {
-                { "delivery", "Delivery Available" },
-                { "takeaway", "Takeaway/Collection" },
-                { "wheelchair", "Wheelchair Accessible" },
-                { "parking", "Parking Available" },
-                { "wifi", "Free WiFi" },
-                { "cards", "Card Payments Accepted" }
-            };
+            var activeServiceDefs = await _context.ServiceDefinitions
+                .Where(sd => sd.IsActive)
+                .ToDictionaryAsync(sd => sd.Key, sd => sd.Name);
 
-            var businessServices = services.Where(s => serviceDefinitions.ContainsKey(s))
-                .Select(s => new Models.BusinessService
+            var businessServices = services.Where(s => activeServiceDefs.ContainsKey(s))
+                .Select(s => new TownTrek.Models.BusinessService
                 {
                     BusinessId = businessId,
                     ServiceType = s,
-                    ServiceName = serviceDefinitions[s],
+                    ServiceName = activeServiceDefs[s],
                     IsActive = true
                 }).ToList();
 
@@ -599,14 +565,253 @@ namespace TownTrek.Services
                 MaxGuests = model.MaxGuests,
                 CheckInTime = TimeSpan.TryParse(model.CheckInTime, out var checkIn) ? checkIn : null,
                 CheckOutTime = TimeSpan.TryParse(model.CheckOutTime, out var checkOut) ? checkOut : null,
+                RoomTypes = model.RoomTypes,
                 Amenities = model.Amenities,
                 HasWiFi = model.HasWiFi,
                 HasPool = model.HasPool,
                 HasRestaurant = model.HasRestaurant,
-                IsPetFriendly = model.IsPetFriendly
+                IsPetFriendly = model.IsPetFriendly,
+                HasBreakfast = model.HasBreakfast,
+                HasAirConditioning = model.HasAirConditioning,
+                HasLaundry = model.HasLaundry,
+                HasConferenceRoom = model.HasConferenceRoom
             };
 
             await _context.AccommodationDetails.AddAsync(accommodationDetails);
+        }
+
+        // Update methods for category-specific details
+        private async Task UpdateCategorySpecificDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            switch (model.BusinessCategory)
+            {
+                case "markets-vendors":
+                    await UpdateMarketDetailsAsync(businessId, model);
+                    break;
+                case "tours-experiences":
+                    await UpdateTourDetailsAsync(businessId, model);
+                    break;
+                case "events":
+                    await UpdateEventDetailsAsync(businessId, model);
+                    break;
+                case "restaurants-food":
+                    await UpdateRestaurantDetailsAsync(businessId, model);
+                    break;
+                case "accommodation":
+                    await UpdateAccommodationDetailsAsync(businessId, model);
+                    break;
+            }
+        }
+
+        private async Task UpdateMarketDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            var marketDetails = await _context.MarketDetails
+                .FirstOrDefaultAsync(m => m.BusinessId == businessId);
+
+            if (string.IsNullOrEmpty(model.MarketType))
+            {
+                // Remove market details if no market type specified
+                if (marketDetails != null)
+                {
+                    _context.MarketDetails.Remove(marketDetails);
+                }
+                return;
+            }
+
+            if (marketDetails == null)
+            {
+                // Create new market details
+                await CreateMarketDetailsAsync(businessId, model);
+            }
+            else
+            {
+                // Update existing market details
+                marketDetails.MarketType = model.MarketType;
+                marketDetails.IsRecurring = model.IsRecurringMarket;
+                marketDetails.RecurrencePattern = model.RecurrencePattern;
+                marketDetails.MarketDays = string.Join(",", model.MarketDays);
+                marketDetails.MarketStartTime = TimeSpan.TryParse(model.MarketStartTime, out var startTime) ? startTime : null;
+                marketDetails.MarketEndTime = TimeSpan.TryParse(model.MarketEndTime, out var endTime) ? endTime : null;
+                marketDetails.EstimatedVendorCount = model.EstimatedVendorCount;
+                marketDetails.VendorTypes = model.VendorTypes;
+                marketDetails.ParkingInfo = model.ParkingInfo;
+                marketDetails.EntryFee = model.EntryFee;
+                marketDetails.HasRestrooms = model.HasRestrooms;
+                marketDetails.HasFoodVendors = model.HasFoodVendors;
+                marketDetails.IsCoveredVenue = model.IsCoveredVenue;
+                marketDetails.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        private async Task UpdateRestaurantDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            var restaurantDetails = await _context.RestaurantDetails
+                .FirstOrDefaultAsync(r => r.BusinessId == businessId);
+
+            if (string.IsNullOrEmpty(model.CuisineType))
+            {
+                // Remove restaurant details if no cuisine type specified
+                if (restaurantDetails != null)
+                {
+                    _context.RestaurantDetails.Remove(restaurantDetails);
+                }
+                return;
+            }
+
+            if (restaurantDetails == null)
+            {
+                // Create new restaurant details
+                await CreateRestaurantDetailsAsync(businessId, model);
+            }
+            else
+            {
+                // Update existing restaurant details
+                restaurantDetails.CuisineType = model.CuisineType;
+                restaurantDetails.PriceRange = model.PriceRange;
+                restaurantDetails.HasDelivery = model.HasDelivery;
+                restaurantDetails.HasTakeaway = model.HasTakeaway;
+                restaurantDetails.AcceptsReservations = model.AcceptsReservations;
+                restaurantDetails.SeatingCapacity = model.SeatingCapacity;
+                restaurantDetails.DietaryOptions = model.DietaryOptions;
+                restaurantDetails.MenuUrl = model.MenuUrl;
+                restaurantDetails.HasKidsMenu = model.HasKidsMenu;
+                restaurantDetails.HasOutdoorSeating = model.HasOutdoorSeating;
+                restaurantDetails.ServesBreakfast = model.ServesBreakfast;
+                restaurantDetails.ServesLunch = model.ServesLunch;
+                restaurantDetails.ServesDinner = model.ServesDinner;
+                restaurantDetails.ServesAlcohol = model.ServesAlcohol;
+                restaurantDetails.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        private async Task UpdateAccommodationDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            var accommodationDetails = await _context.AccommodationDetails
+                .FirstOrDefaultAsync(a => a.BusinessId == businessId);
+
+            if (string.IsNullOrEmpty(model.PropertyType))
+            {
+                // Remove accommodation details if no property type specified
+                if (accommodationDetails != null)
+                {
+                    _context.AccommodationDetails.Remove(accommodationDetails);
+                }
+                return;
+            }
+
+            if (accommodationDetails == null)
+            {
+                // Create new accommodation details
+                await CreateAccommodationDetailsAsync(businessId, model);
+            }
+            else
+            {
+                // Update existing accommodation details
+                accommodationDetails.PropertyType = model.PropertyType;
+                accommodationDetails.StarRating = model.StarRating;
+                accommodationDetails.RoomCount = model.RoomCount;
+                accommodationDetails.MaxGuests = model.MaxGuests;
+                accommodationDetails.CheckInTime = TimeSpan.TryParse(model.CheckInTime, out var checkIn) ? checkIn : null;
+                accommodationDetails.CheckOutTime = TimeSpan.TryParse(model.CheckOutTime, out var checkOut) ? checkOut : null;
+                accommodationDetails.RoomTypes = model.RoomTypes;
+                accommodationDetails.Amenities = model.Amenities;
+                accommodationDetails.HasWiFi = model.HasWiFi;
+                accommodationDetails.HasPool = model.HasPool;
+                accommodationDetails.HasRestaurant = model.HasRestaurant;
+                accommodationDetails.IsPetFriendly = model.IsPetFriendly;
+                accommodationDetails.HasBreakfast = model.HasBreakfast;
+                accommodationDetails.HasAirConditioning = model.HasAirConditioning;
+                accommodationDetails.HasLaundry = model.HasLaundry;
+                accommodationDetails.HasConferenceRoom = model.HasConferenceRoom;
+                accommodationDetails.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        private async Task UpdateTourDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            var tourDetails = await _context.TourDetails
+                .FirstOrDefaultAsync(t => t.BusinessId == businessId);
+
+            if (string.IsNullOrEmpty(model.TourType))
+            {
+                // Remove tour details if no tour type specified
+                if (tourDetails != null)
+                {
+                    _context.TourDetails.Remove(tourDetails);
+                }
+                return;
+            }
+
+            if (tourDetails == null)
+            {
+                // Create new tour details
+                await CreateTourDetailsAsync(businessId, model);
+            }
+            else
+            {
+                // Update existing tour details
+                tourDetails.TourType = model.TourType;
+                tourDetails.Duration = model.Duration;
+                tourDetails.MaxGroupSize = model.MaxGroupSize;
+                tourDetails.MinGroupSize = model.MinGroupSize;
+                tourDetails.MinAge = model.MinAge;
+                tourDetails.DifficultyLevel = model.DifficultyLevel;
+                tourDetails.DepartureLocation = model.DepartureLocation;
+                tourDetails.Itinerary = model.Itinerary;
+                tourDetails.IncludedItems = model.IncludedItems;
+                tourDetails.ExcludedItems = model.ExcludedItems;
+                tourDetails.RequiredEquipment = model.RequiredEquipment;
+                tourDetails.PricingInfo = model.PricingInfo;
+                tourDetails.RequiresBooking = model.RequiresBooking;
+                tourDetails.AdvanceBookingDays = model.AdvanceBookingDays;
+                tourDetails.IsWeatherDependent = model.IsWeatherDependent;
+                tourDetails.IsAccessible = model.IsAccessible;
+                tourDetails.UpdatedAt = DateTime.UtcNow;
+            }
+        }
+
+        private async Task UpdateEventDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            var eventDetails = await _context.EventDetails
+                .FirstOrDefaultAsync(e => e.BusinessId == businessId);
+
+            if (string.IsNullOrEmpty(model.EventType))
+            {
+                // Remove event details if no event type specified
+                if (eventDetails != null)
+                {
+                    _context.EventDetails.Remove(eventDetails);
+                }
+                return;
+            }
+
+            if (eventDetails == null)
+            {
+                // Create new event details
+                await CreateEventDetailsAsync(businessId, model);
+            }
+            else
+            {
+                // Update existing event details
+                eventDetails.EventType = model.EventType;
+                eventDetails.StartDate = model.EventStartDate ?? DateTime.UtcNow;
+                eventDetails.EndDate = model.EventEndDate;
+                eventDetails.StartTime = TimeSpan.TryParse(model.EventStartTime, out var startTime) ? startTime : null;
+                eventDetails.EndTime = TimeSpan.TryParse(model.EventEndTime, out var endTime) ? endTime : null;
+                eventDetails.IsRecurring = model.IsRecurringEvent;
+                eventDetails.RecurrencePattern = model.EventRecurrencePattern;
+                eventDetails.Venue = model.Venue;
+                eventDetails.VenueAddress = model.VenueAddress;
+                eventDetails.MaxAttendees = model.MaxAttendees;
+                eventDetails.TicketInfo = model.TicketInfo;
+                eventDetails.OrganizerContact = model.OrganizerContact;
+                eventDetails.RequiresTickets = model.RequiresTickets;
+                eventDetails.IsFreeEvent = model.IsFreeEvent;
+                eventDetails.EventProgram = model.EventProgram;
+                eventDetails.HasParking = model.HasParking;
+                eventDetails.IsOutdoorEvent = model.IsOutdoorEvent;
+                eventDetails.UpdatedAt = DateTime.UtcNow;
+            }
         }
     }
 }

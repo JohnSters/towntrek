@@ -14,3 +14,16 @@
 }
 
 
+/* User dropdown (shared for Admin and Client) */
+.user-menu { position: relative; }
+.user-dropdown { position: absolute; top: 100%; right: 0; margin-top: var(--space-sm); opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all var(--transition-normal); z-index: 1000; }
+.user-dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
+.dropdown-menu { background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-sm); min-width: 200px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+.dropdown-item { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); color: var(--charcoal); text-decoration: none; font-size: var(--body-small); border-radius: var(--radius-md); transition: background-color var(--transition-normal); }
+.dropdown-item:visited { color: var(--charcoal); }
+.dropdown-item:hover { background-color: var(--light-gray); }
+.dropdown-divider { height: 1px; background-color: var(--medium-gray); margin: var(--space-sm) 0; }
+.dropdown-button { border: none; background: none; width: 100%; text-align: left; cursor: pointer; }
+.dropdown-logout-form { margin: 0; }
+
+

@@ -1,0 +1,240 @@
+@using TownTrek.Models.ViewModels
+@model AdminUsersViewModel
+@{
+    ViewData["Title"] = "Manage Users";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Manage Users</h1>
+            <p class="page-description">View Members and Clients, their roles, subscription status, and activity.</p>
+        </div>
+    </div>
+    <div class="page-actions">
+        <a href="@Url.Action("Dashboard", "Admin")" class="auth-btn">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalUsers</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-change">Across all roles</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalClients</div>
+        <div class="stat-label">Clients</div>
+        <div class="stat-change">Active business owners</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.657-1.343 3-3 3S6 12.657 6 11s1.343-3 3-3 3 1.343 3 3z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalMembers</div>
+        <div class="stat-label">Members</div>
+        <div class="stat-change">Community users</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon secondary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.ActiveSubscriptions</div>
+        <div class="stat-label">Active Subscriptions</div>
+        <div class="stat-change">Clients with valid access</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.PendingPayments</div>
+        <div class="stat-label">Pending Payments</div>
+        <div class="stat-change">Require attention</div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">All Users</h3>
+        <div class="admin-card-actions">
+            <div class="btn-group">
+                <a class="auth-btn @(Model.RoleFilter == "All" ? "auth-btn-cta" : "auth-btn-secondary")" href="@Url.Action("Index", new { roleFilter = "All", search = Model.Search, page = 1, pageSize = Model.PageSize })">All</a>
+                <a class="auth-btn @(Model.RoleFilter == "Clients" ? "auth-btn-cta" : "auth-btn-secondary")" href="@Url.Action("Index", new { roleFilter = "Clients", search = Model.Search, page = 1, pageSize = Model.PageSize })">Clients</a>
+                <a class="auth-btn @(Model.RoleFilter == "Members" ? "auth-btn-cta" : "auth-btn-secondary")" href="@Url.Action("Index", new { roleFilter = "Members", search = Model.Search, page = 1, pageSize = Model.PageSize })">Members</a>
+                <a class="auth-btn @(Model.RoleFilter == "Admins" ? "auth-btn-cta" : "auth-btn-secondary")" href="@Url.Action("Index", new { roleFilter = "Admins", search = Model.Search, page = 1, pageSize = Model.PageSize })">Admins</a>
+            </div>
+            <form id="userSearchForm" method="get" action="@Url.Action("Index")" class="table-search-form">
+                <input type="hidden" name="roleFilter" value="@Model.RoleFilter" />
+                <input type="hidden" name="page" value="1" />
+                <input type="hidden" name="pageSize" value="@Model.PageSize" />
+                <div class="input-with-icon">
+                    <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z" />
+                    </svg>
+                    <input type="text" id="userSearchInput" name="search" value="@Model.Search" placeholder="Search users..." class="form-input" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Users.Any())
+    {
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Email</th>
+                        <th>Roles</th>
+                        <th>Businesses</th>
+                        <th>Subscription</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model.Users)
+                    {
+                        <tr>
+                            <td>
+                                <div class="table-cell-content">
+                                    <div class="table-cell-title">@u.FullName</div>
+                                    <div class="table-cell-subtitle">@u.Id</div>
+                                </div>
+                            </td>
+                            <td>@u.Email</td>
+                            <td>
+                                @if (u.Roles.Any())
+                                {
+                                    <div class="badge-list">
+                                        @foreach (var r in u.Roles)
+                                        {
+                                            var badgeClass = r.StartsWith("Client-") ? "badge-info" : (r == "Admin" ? "badge-warning" : "badge-secondary");
+                                            <span class="badge @badgeClass">@r</span>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge badge-info">@u.BusinessesCount</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(u.SubscriptionTierName))
+                                {
+                                    <span class="badge badge-success">@u.SubscriptionTierName</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">None</span>
+                                }
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(u.PaymentStatus))
+                                {
+                                    var payClass = u.PaymentStatus.Equals("Pending", StringComparison.OrdinalIgnoreCase) ? "badge-warning" : (u.PaymentStatus.Equals("Active", StringComparison.OrdinalIgnoreCase) || u.PaymentStatus.Equals("Completed", StringComparison.OrdinalIgnoreCase) ? "badge-success" : "badge-secondary");
+                                    <span class="badge @payClass">@u.PaymentStatus</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                @if (u.IsActive)
+                                {
+                                    <span class="badge badge-success">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Inactive</span>
+                                }
+                            </td>
+                            <td>@u.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="@Url.Action("Edit", new { id = u.Id })" class="table-action-btn" title="Edit">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-state-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 1.657-1.343 3-3 3S6 12.657 6 11s1.343-3 3-3 3 1.343 3 3z"></path>
+            </svg>
+            <h3 class="empty-state-title">No Users Found</h3>
+            <p class="empty-state-description">There are no users to display yet.</p>
+        </div>
+    }
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <nav class="pagination-nav">
+        <ul class="pagination-list">
+            <li>
+                <a class="auth-btn" href="@Url.Action("Index", new { roleFilter = Model.RoleFilter, search = Model.Search, page = Math.Max(1, Model.CurrentPage - 1), pageSize = Model.PageSize })">Previous</a>
+            </li>
+            @for (var p = 1; p <= Model.TotalPages; p++)
+            {
+                <li>
+                    <a class="auth-btn @(p == Model.CurrentPage ? "auth-btn-cta" : "")" href="@Url.Action("Index", new { roleFilter = Model.RoleFilter, search = Model.Search, page = p, pageSize = Model.PageSize })">@p</a>
+                </li>
+            }
+            <li>
+                <a class="auth-btn" href="@Url.Action("Index", new { roleFilter = Model.RoleFilter, search = Model.Search, page = Math.Min(Model.TotalPages, Model.CurrentPage + 1), pageSize = Model.PageSize })">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@section Scripts {
+    <script src="~/js/admin-users.js" asp-append-version="true"></script>
+}
+
+

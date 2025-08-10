@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services.Interfaces;
 using System.Security.Claims;
 
 namespace TownTrek.Services
