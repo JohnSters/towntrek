@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Middleware
 {

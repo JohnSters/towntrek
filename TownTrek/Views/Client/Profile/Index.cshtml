@@ -37,6 +37,10 @@
                 <h4>Personal Information</h4>
                 <div class="info-grid">
                     <div class="info-item">
+                        <label>Full Name</label>
+                        <span>@Model.FirstName @Model.LastName</span>
+                    </div>
+                    <div class="info-item">
                         <label>Email Address</label>
                         <span>@Model.Email</span>
                     </div>
@@ -44,10 +48,24 @@
                         <label>Username</label>
                         <span>@Model.UserName</span>
                     </div>
+                    @if (!string.IsNullOrEmpty(Model.Location))
+                    {
+                        <div class="info-item">
+                            <label>Location</label>
+                            <span>@Model.Location</span>
+                        </div>
+                    }
                     <div class="info-item">
                         <label>Account Created</label>
                         <span>@Model.CreatedAt.ToString("MMM dd, yyyy")</span>
                     </div>
+                    @if (Model.LastLoginAt.HasValue)
+                    {
+                        <div class="info-item">
+                            <label>Last Login</label>
+                            <span>@Model.LastLoginAt.Value.ToString("MMM dd, yyyy 'at' h:mm tt")</span>
+                        </div>
+                    }
                 </div>
             </div>
             
@@ -62,7 +80,7 @@
             </div>
             
             <div class="profile-actions">
-                <a href="@Url.Action("Settings", "Client")" class="auth-btn auth-btn-primary">
+                <a href="@Url.Action("EditProfile", "Client")" class="auth-btn auth-btn-primary">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>

@@ -1,0 +1,52 @@
+@model TownTrek.Models.BusinessCategory
+@{
+    ViewData["Title"] = "Add Category";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Add Category</h3>
+    </div>
+
+    <form method="post" action="@Url.Action("Create", "AdminCategories")" class="admin-form">
+        @Html.AntiForgeryToken()
+
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label required">Key (slug)</label>
+                <input asp-for="Key" class="form-input" placeholder="e.g., restaurants-food" />
+                <span class="form-help">Immutable identifier used by the client forms and JS</span>
+                <span asp-validation-for="Key" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label required">Name</label>
+                <input asp-for="Name" class="form-input" placeholder="Display name" />
+                <span asp-validation-for="Name" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <input asp-for="Description" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Icon class</label>
+                <input asp-for="IconClass" class="form-input" placeholder="e.g., fas fa-utensils" />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Form Type</label>
+                <select asp-for="FormType" class="form-select" asp-items="Html.GetEnumSelectList<TownTrek.Models.BusinessFormType>()"></select>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="@Url.Action("Index")" class="auth-btn auth-btn-secondary">Cancel</a>
+            <button type="submit" class="auth-btn auth-btn-cta">Create</button>
+        </div>
+    </form>
+</div>
+
+

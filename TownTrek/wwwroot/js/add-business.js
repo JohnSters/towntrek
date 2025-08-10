@@ -136,6 +136,7 @@ function hideAllCategorySections () {
 }
 
 function showCategorySpecificSection (category) {
+    console.log('showCategorySpecificSection called with category:', category);
     hideAllCategorySections(); // make sure others are hidden
 
     const sectionMap = {
@@ -146,10 +147,15 @@ function showCategorySpecificSection (category) {
         'accommodation': 'accommodationSection'
     };
 
-    const sectionId = sectionMap[ category ];
+    const sectionId = sectionMap[category];
+    console.log('Mapped category to sectionId:', sectionId);
+    
     if (sectionId) {
         const section = document.getElementById(sectionId);
+        console.log('Found section element:', !!section);
+        
         if (section) {
+            console.log('Showing section:', sectionId);
             section.style.display = 'block';
 
             // Restore 'required' attributes
@@ -161,7 +167,11 @@ function showCategorySpecificSection (category) {
             });
 
             updateStepNumbers();
+        } else {
+            console.error('Section element not found:', sectionId);
         }
+    } else {
+        console.log('No section mapping found for category:', category);
     }
 }
 

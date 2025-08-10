@@ -1,0 +1,9 @@
+@model TownTrek.Models.ViewModels.AddBusinessViewModel
+@{
+    ViewData["Title"] = "Edit Business";
+    Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+@await Html.PartialAsync("EditBusiness", Model)
+
+

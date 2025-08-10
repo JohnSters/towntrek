@@ -1,12 +1,8 @@
 using Microsoft.AspNetCore.Identity;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Services
 {
-    public interface IRoleInitializationService
-    {
-        Task InitializeRolesAsync();
-    }
-
     public class RoleInitializationService : IRoleInitializationService
     {
         private readonly RoleManager<IdentityRole> _roleManager;

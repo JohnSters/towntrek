@@ -2,22 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Services
 {
-    public interface ISubscriptionTierService
-    {
-        Task<List<SubscriptionTierViewModel>> GetAllTiersAsync();
-        Task<SubscriptionTierViewModel?> GetTierByIdAsync(int id);
-        Task<ServiceResult> CreateTierAsync(SubscriptionTierViewModel model, string adminUserId);
-        Task<ServiceResult> UpdateTierAsync(SubscriptionTierViewModel model, string adminUserId);
-        Task<ServiceResult> UpdateTierPriceAsync(PriceChangeViewModel model, string adminUserId);
-        Task<ServiceResult> DeactivateTierAsync(int tierId, string adminUserId);
-        Task<List<SubscriptionTier>> GetActiveTiersForRegistrationAsync();
-        Task<PriceChangeViewModel> GetPriceChangeModelAsync(int tierId);
-        Task<SubscriptionTierListViewModel> GetTierListViewModelAsync();
-    }
-
     public class SubscriptionTierService : ISubscriptionTierService
     {
         private readonly ApplicationDbContext _context;
@@ -296,14 +284,17 @@ namespace TownTrek.Services
 
             foreach (var user in affectedUsers)
             {
-                await _emailService.SendPriceChangeNotificationAsync(
-                    user.Email,
-                    user.FirstName,
-                    tier.DisplayName,
-                    oldPrice,
-                    newPrice,
-                    effectiveDate
-                );
+                if (!string.IsNullOrEmpty(user.Email))
+                {
+                    await _emailService.SendPriceChangeNotificationAsync(
+                        user.Email,
+                        user.FirstName,
+                        tier.DisplayName,
+                        oldPrice,
+                        newPrice,
+                        effectiveDate
+                    );
+                }
             }
 
             _logger.LogInformation("Price change notifications sent to {Count} customers for tier '{TierName}'", 
@@ -393,15 +384,5 @@ namespace TownTrek.Services
 
             return viewModel;
         }
-    }
-
-    public class ServiceResult
-    {
-        public bool IsSuccess { get; set; }
-        public string? ErrorMessage { get; set; }
-        public object? Data { get; set; }
-
-        public static ServiceResult Success(object? data = null) => new() { IsSuccess = true, Data = data };
-        public static ServiceResult Error(string message) => new() { IsSuccess = false, ErrorMessage = message };
     }
 }
