@@ -7,6 +7,7 @@
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="~/css/entrypoints/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/navigation.css" asp-append-version="true" />
     
     <!-- Page-specific styles -->
     @await RenderSectionAsync("Styles", required: false)
@@ -185,48 +186,7 @@
                         </button>
                     </div>
 
-                    <div class="user-menu">
-                        <div class="user-avatar">
-                            @{
-                                if (User.Identity?.IsAuthenticated == true)
-                                {
-                                    var firstName = ViewData["UserFirstName"]?.ToString();
-                                    var lastName = ViewData["UserLastName"]?.ToString();
-                                    var firstInitial = !string.IsNullOrEmpty(firstName) ? firstName.Substring(0, 1).ToUpper() : "U";
-                                    var lastInitial = !string.IsNullOrEmpty(lastName) ? lastName.Substring(0, 1).ToUpper() : "";
-                                    @(firstInitial + lastInitial)
-                                }
-                                else
-                                {
-                                    <span>U</span>
-                                }
-                            }
-                        </div>
-                        <div class="user-info">
-                            <div class="user-name">
-                                @{
-                                    if (User.Identity?.IsAuthenticated == true)
-                                    {
-                                        @(ViewData["UserFullName"]?.ToString() ?? "User")
-                                    }
-                                    else
-                                    {
-                                        <span>Guest User</span>
-                                    }
-                                }
-                            </div>
-                            <div class="user-role">
-                                @if (ViewData["UserSubscriptionTier"] is SubscriptionTier tier)
-                                {
-                                    @tier.DisplayName
-                                }
-                                else
-                                {
-                                    <span>Free Tier</span>
-                                }
-                            </div>
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_TopUserMenu")
                 </div>
             </header>
 

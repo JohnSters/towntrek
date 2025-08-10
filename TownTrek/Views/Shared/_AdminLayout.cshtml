@@ -7,6 +7,7 @@
     
     <!-- CSS Files -->
     <link rel="stylesheet" href="~/css/entrypoints/admin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/navigation.css" asp-append-version="true" />
     
     <!-- Page-specific styles -->
     @await RenderSectionAsync("Styles", required: false)
@@ -159,13 +160,7 @@
                         </button>
                     </div>
 
-                    <div class="user-menu">
-                        <div class="user-avatar admin-avatar">AD</div>
-                        <div class="user-info">
-                            <div class="user-name">Administrator</div>
-                            <div class="user-role">System Admin</div>
-                        </div>
-                    </div>
+                    @await Html.PartialAsync("_TopUserMenu")
                 </div>
             </header>
 
