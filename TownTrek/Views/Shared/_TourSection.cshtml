@@ -1,0 +1,110 @@
+@model TownTrek.Models.ViewModels.AddBusinessViewModel
+
+<div id="tourSection" class="form-section category-section" style="display: none;">
+    <div class="form-section-header">
+        <h4 class="form-section-title">
+            <span class="step-number">6</span>
+            Tour Details
+        </h4>
+        <p class="form-section-description">Information about your tour or experience</p>
+    </div>
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="tourType" class="form-label">Tour Type</label>
+            <select id="tourType" name="TourType" class="form-select">
+                <option value="">Select tour type</option>
+                <option value="cultural" selected="@(Model.TourType == "cultural")">Cultural Tour</option>
+                <option value="adventure" selected="@(Model.TourType == "adventure")">Adventure Tour</option>
+                <option value="wildlife" selected="@(Model.TourType == "wildlife")">Wildlife Tour</option>
+                <option value="historical" selected="@(Model.TourType == "historical")">Historical Tour</option>
+                <option value="food" selected="@(Model.TourType == "food")">Food Tour</option>
+                <option value="walking" selected="@(Model.TourType == "walking")">Walking Tour</option>
+                <option value="scenic" selected="@(Model.TourType == "scenic")">Scenic Tour</option>
+                <option value="photography" selected="@(Model.TourType == "photography")">Photography Tour</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="duration" class="form-label">Duration</label>
+            <select id="duration" name="Duration" class="form-select">
+                <option value="">Select duration</option>
+                <option value="1 hour" selected="@(Model.Duration == "1 hour")">1 Hour</option>
+                <option value="2 hours" selected="@(Model.Duration == "2 hours")">2 Hours</option>
+                <option value="3 hours" selected="@(Model.Duration == "3 hours")">3 Hours</option>
+                <option value="half-day" selected="@(Model.Duration == "half-day")">Half Day (4 hours)</option>
+                <option value="full-day" selected="@(Model.Duration == "full-day")">Full Day (8 hours)</option>
+                <option value="multi-day" selected="@(Model.Duration == "multi-day")">Multi-Day</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="minGroupSize" class="form-label">Minimum Group Size</label>
+            <input type="number" id="minGroupSize" name="MinGroupSize" class="form-input" min="1" max="50" value="@Model.MinGroupSize">
+        </div>
+
+        <div class="form-group">
+            <label for="maxGroupSize" class="form-label">Maximum Group Size</label>
+            <input type="number" id="maxGroupSize" name="MaxGroupSize" class="form-input" min="1" max="100" value="@Model.MaxGroupSize">
+        </div>
+
+        <div class="form-group">
+            <label for="minAge" class="form-label">Minimum Age</label>
+            <input type="number" id="minAge" name="MinAge" class="form-input" min="0" max="100" value="@Model.MinAge">
+            <span class="form-help">Leave blank if no age restriction</span>
+        </div>
+
+        <div class="form-group">
+            <label for="difficultyLevel" class="form-label">Difficulty Level</label>
+            <select id="difficultyLevel" name="DifficultyLevel" class="form-select">
+                <option value="">Select difficulty</option>
+                <option value="easy" selected="@(Model.DifficultyLevel == "easy")">Easy</option>
+                <option value="moderate" selected="@(Model.DifficultyLevel == "moderate")">Moderate</option>
+                <option value="challenging" selected="@(Model.DifficultyLevel == "challenging")">Challenging</option>
+                <option value="expert" selected="@(Model.DifficultyLevel == "expert")">Expert</option>
+            </select>
+        </div>
+
+        <div class="form-group form-group-full">
+            <label for="departureLocation" class="form-label">Departure Location</label>
+            <input type="text" id="departureLocation" name="DepartureLocation" class="form-input" placeholder="Where does the tour start?" value="@Model.DepartureLocation">
+        </div>
+
+        <div class="form-group form-group-full">
+            <label for="itinerary" class="form-label">Tour Itinerary</label>
+            <textarea id="itinerary" name="Itinerary" class="form-textarea" rows="4" placeholder="Describe the tour route and main stops...">@Model.Itinerary</textarea>
+        </div>
+
+        <div class="form-group form-group-full">
+            <label for="includedItems" class="form-label">What's Included</label>
+            <textarea id="includedItems" name="IncludedItems" class="form-textarea" rows="3" placeholder="e.g., Guide, transport, refreshments, equipment...">@Model.IncludedItems</textarea>
+        </div>
+
+        <div class="form-group form-group-full">
+            <label for="requiredEquipment" class="form-label">What to Bring</label>
+            <textarea id="requiredEquipment" name="RequiredEquipment" class="form-textarea" rows="3" placeholder="e.g., Comfortable shoes, hat, water bottle, camera...">@Model.RequiredEquipment</textarea>
+        </div>
+
+        <div class="form-group form-group-full">
+            <label class="form-label">Tour Features</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="RequiresBooking" value="true" class="service-checkbox" checked="@Model.RequiresBooking">
+                    <span class="checkbox-label">Requires Advance Booking</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="IsWeatherDependent" value="true" class="service-checkbox" checked="@Model.IsWeatherDependent">
+                    <span class="checkbox-label">Weather Dependent</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="IsAccessible" value="true" class="service-checkbox" checked="@Model.IsAccessible">
+                    <span class="checkbox-label">Wheelchair Accessible</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasTransport" value="true" class="service-checkbox" checked="@Model.HasTransport">
+                    <span class="checkbox-label">Transport Provided</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

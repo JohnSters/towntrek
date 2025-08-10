@@ -1,0 +1,147 @@
+@model TownTrek.Models.ViewModels.EditProfileViewModel
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Edit Profile</h1>
+            <p class="page-description">Update your personal information and account details.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Profile", "Client")" class="auth-btn auth-btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Form -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Personal Information</h3>
+        <p class="admin-card-description">Update your account details below</p>
+    </div>
+    
+    <form asp-action="EditProfile" method="post" class="add-business-form">
+        @Html.AntiForgeryToken()
+        
+        <div class="form-section">
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">1</span>
+                    Personal Information
+                </h4>
+                <p class="form-section-description">Update your basic profile information</p>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label asp-for="FirstName" class="form-label required">First Name</label>
+                    <input asp-for="FirstName" class="form-input" placeholder="Enter your first name" />
+                    <span asp-validation-for="FirstName" class="invalid-feedback"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="LastName" class="form-label required">Last Name</label>
+                    <input asp-for="LastName" class="form-input" placeholder="Enter your last name" />
+                    <span asp-validation-for="LastName" class="invalid-feedback"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label required">Email Address</label>
+                    <input asp-for="Email" type="email" class="form-input" placeholder="Enter your email address" />
+                    <span asp-validation-for="Email" class="invalid-feedback"></span>
+                    <div class="form-help">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        This will also update your username
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label asp-for="Location" class="form-label">Location</label>
+                    <input asp-for="Location" class="form-input" placeholder="Enter your location (optional)" />
+                    <span asp-validation-for="Location" class="invalid-feedback"></span>
+                </div>
+                
+                <div class="form-group form-group-full">
+                    <label asp-for="ProfilePictureUrl" class="form-label">Profile Picture URL</label>
+                    <input asp-for="ProfilePictureUrl" type="url" class="form-input" placeholder="Enter profile picture URL (optional)" />
+                    <span asp-validation-for="ProfilePictureUrl" class="invalid-feedback"></span>
+                    <div class="form-help">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Enter a valid URL to an image (e.g., https://example.com/photo.jpg)
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Account Information (Read-only) -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h4 class="form-section-title">
+                    <span class="step-number">2</span>
+                    Account Information
+                </h4>
+                <p class="form-section-description">View your account details (read-only)</p>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input value="@Model.UserName" class="form-input" readonly />
+                    <div class="form-help">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Username is automatically updated when you change your email
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Account Created</label>
+                    <input value="@Model.CreatedAt.ToString("MMM dd, yyyy 'at' h:mm tt")" class="form-input" readonly />
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Authentication Method</label>
+                    <input value="@Model.AuthenticationMethod" class="form-input" readonly />
+                </div>
+                
+                @if (Model.LastLoginAt.HasValue)
+                {
+                    <div class="form-group">
+                        <label class="form-label">Last Login</label>
+                        <input value="@Model.LastLoginAt.Value.ToString("MMM dd, yyyy 'at' h:mm tt")" class="form-input" readonly />
+                    </div>
+                }
+            </div>
+        </div>
+        
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <button type="submit" class="auth-btn auth-btn-cta">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Save Changes
+            </button>
+            <a href="@Url.Action("Profile", "Client")" class="auth-btn auth-btn-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/profile-edit.js" asp-append-version="true"></script>
+}

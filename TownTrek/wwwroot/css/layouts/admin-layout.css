@@ -49,6 +49,11 @@
 
 /* Page Header */
 .page-header { margin-bottom: var(--space-xl); }
+.page-header-content { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-lg); }
+.page-header h1.page-title { font-size: var(--h2-size); font-weight: var(--font-semibold); color: var(--charcoal); margin: 0 0 var(--space-sm) 0; }
+.page-description { font-size: var(--body-medium); color: var(--dark-gray); margin: 0; line-height: var(--line-height-normal); }
+.page-actions { display: flex; align-items: center; gap: var(--space-sm); flex-shrink: 0; }
+.page-header { margin-bottom: var(--space-xl); }
 .page-header-content { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-md); }
 .page-description { color: var(--dark-gray); font-size: var(--body-medium); margin: 0; }
 .page-actions { display: flex; gap: var(--space-sm); }

@@ -42,6 +42,17 @@ p { font-size: var(--body-medium); line-height: var(--line-height-relaxed); marg
 .text-small { font-size: var(--body-small); }
 .text-xs { font-size: var(--body-xs); }
 
+/* Text Utilities */
+.text-muted { color: var(--dark-gray); }
+.text-primary { color: var(--lapis-lazuli); }
+.text-success { color: var(--carolina-blue); }
+.text-warning { color: var(--hunyadi-yellow); }
+.text-danger { color: var(--orange-pantone); }
+
+/* Spacing Utilities */
+.mb-3 { margin-bottom: var(--space-lg); }
+.mt-2 { margin-top: var(--space-sm); }
+
 /* Layout Utilities */
 .container { max-width: 1200px; margin: 0 auto; padding: 0 var(--space-md); }
 .container-sm { max-width: 640px; margin: 0 auto; padding: 0 var(--space-md); }

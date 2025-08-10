@@ -1,6 +1,7 @@
 // Add this to your Program.cs or create a separate configuration file
 
 using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek
 {
@@ -20,6 +21,11 @@ namespace TownTrek
             
             // Register image management services
             services.AddScoped<IImageService, ImageService>();
+            
+            // Register other services
+            services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IRoleInitializationService, RoleInitializationService>();
         }
     }
 }

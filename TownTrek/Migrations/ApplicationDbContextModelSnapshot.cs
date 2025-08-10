@@ -186,7 +186,16 @@ namespace TownTrek.Migrations
                     b.Property<bool>("HasAirConditioning")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("HasBreakfast")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasConferenceRoom")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("HasGym")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasLaundry")
                         .HasColumnType("bit");
 
                     b.Property<bool>("HasParking")
@@ -527,6 +536,108 @@ namespace TownTrek.Migrations
                     b.ToTable("BusinessAlerts");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.BusinessCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("FormType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IconClass")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("BusinessCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Local shops and retail businesses",
+                            FormType = 0,
+                            IconClass = "fas fa-shopping-bag",
+                            IsActive = true,
+                            Key = "shops-retail",
+                            Name = "Shops & Retail"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Restaurants, cafes, and food services",
+                            FormType = 1,
+                            IconClass = "fas fa-utensils",
+                            IsActive = true,
+                            Key = "restaurants-food",
+                            Name = "Restaurants & Food Services"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Local markets and vendor stalls",
+                            FormType = 2,
+                            IconClass = "fas fa-store",
+                            IsActive = true,
+                            Key = "markets-vendors",
+                            Name = "Markets & Vendors"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Hotels, guesthouses, and lodging",
+                            FormType = 5,
+                            IconClass = "fas fa-bed",
+                            IsActive = true,
+                            Key = "accommodation",
+                            Name = "Accommodation"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Tour guides and experience providers",
+                            FormType = 3,
+                            IconClass = "fas fa-map-marked-alt",
+                            IsActive = true,
+                            Key = "tours-experiences",
+                            Name = "Tours & Experiences"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Local events and entertainment",
+                            FormType = 4,
+                            IconClass = "fas fa-calendar-alt",
+                            IsActive = true,
+                            Key = "events",
+                            Name = "Events"
+                        });
+                });
+
             modelBuilder.Entity("TownTrek.Models.BusinessContact", b =>
                 {
                     b.Property<int>("Id")
@@ -704,6 +815,224 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId");
 
                     b.ToTable("BusinessServices");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.BusinessSubCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId", "Key")
+                        .IsUnique();
+
+                    b.ToTable("BusinessSubCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CategoryId = 1,
+                            IsActive = true,
+                            Key = "clothing",
+                            Name = "Clothing & Fashion"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CategoryId = 1,
+                            IsActive = true,
+                            Key = "electronics",
+                            Name = "Electronics"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CategoryId = 1,
+                            IsActive = true,
+                            Key = "books",
+                            Name = "Books & Stationery"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CategoryId = 1,
+                            IsActive = true,
+                            Key = "gifts",
+                            Name = "Gifts & Souvenirs"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CategoryId = 1,
+                            IsActive = true,
+                            Key = "hardware",
+                            Name = "Hardware & Tools"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CategoryId = 1,
+                            IsActive = true,
+                            Key = "pharmacy",
+                            Name = "Pharmacy & Health"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CategoryId = 2,
+                            IsActive = true,
+                            Key = "restaurant",
+                            Name = "Restaurant"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CategoryId = 2,
+                            IsActive = true,
+                            Key = "cafe",
+                            Name = "Cafe & Coffee Shop"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CategoryId = 2,
+                            IsActive = true,
+                            Key = "fast-food",
+                            Name = "Fast Food"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CategoryId = 2,
+                            IsActive = true,
+                            Key = "bakery",
+                            Name = "Bakery"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CategoryId = 2,
+                            IsActive = true,
+                            Key = "bar",
+                            Name = "Bar & Pub"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CategoryId = 2,
+                            IsActive = true,
+                            Key = "takeaway",
+                            Name = "Takeaway"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            CategoryId = 3,
+                            IsActive = true,
+                            Key = "farmers",
+                            Name = "Farmers Market"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            CategoryId = 3,
+                            IsActive = true,
+                            Key = "craft",
+                            Name = "Craft Market"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            CategoryId = 3,
+                            IsActive = true,
+                            Key = "flea",
+                            Name = "Flea Market"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            CategoryId = 3,
+                            IsActive = true,
+                            Key = "food",
+                            Name = "Food Market"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            CategoryId = 3,
+                            IsActive = true,
+                            Key = "antique",
+                            Name = "Antique Market"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CategoryId = 4,
+                            IsActive = true,
+                            Key = "hotel",
+                            Name = "Hotel"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CategoryId = 4,
+                            IsActive = true,
+                            Key = "guesthouse",
+                            Name = "Guesthouse"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CategoryId = 4,
+                            IsActive = true,
+                            Key = "bnb",
+                            Name = "Bed & Breakfast"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CategoryId = 4,
+                            IsActive = true,
+                            Key = "self-catering",
+                            Name = "Self-catering"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            CategoryId = 4,
+                            IsActive = true,
+                            Key = "backpackers",
+                            Name = "Backpackers"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            CategoryId = 4,
+                            IsActive = true,
+                            Key = "camping",
+                            Name = "Camping & Caravan"
+                        });
                 });
 
             modelBuilder.Entity("TownTrek.Models.EventDetails", b =>
@@ -1029,6 +1358,79 @@ namespace TownTrek.Migrations
                     b.ToTable("RestaurantDetails");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.ServiceDefinition", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("ServiceDefinitions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsActive = true,
+                            Key = "delivery",
+                            Name = "Delivery Available"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IsActive = true,
+                            Key = "takeaway",
+                            Name = "Takeaway/Collection"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            IsActive = true,
+                            Key = "wheelchair",
+                            Name = "Wheelchair Accessible"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            IsActive = true,
+                            Key = "parking",
+                            Name = "Parking Available"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            IsActive = true,
+                            Key = "wifi",
+                            Name = "Free WiFi"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            IsActive = true,
+                            Key = "cards",
+                            Name = "Card Payments Accepted"
+                        });
+                });
+
             modelBuilder.Entity("TownTrek.Models.SpecialOperatingHours", b =>
                 {
                     b.Property<int>("Id")
@@ -1175,7 +1577,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 7, 8, 29, 23, 629, DateTimeKind.Utc).AddTicks(6960),
+                            CreatedAt = new DateTime(2025, 8, 9, 8, 28, 26, 670, DateTimeKind.Utc).AddTicks(5733),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -1186,7 +1588,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 7, 8, 29, 23, 629, DateTimeKind.Utc).AddTicks(6961),
+                            CreatedAt = new DateTime(2025, 8, 9, 8, 28, 26, 670, DateTimeKind.Utc).AddTicks(5735),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -1197,7 +1599,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 7, 8, 29, 23, 629, DateTimeKind.Utc).AddTicks(6963),
+                            CreatedAt = new DateTime(2025, 8, 9, 8, 28, 26, 670, DateTimeKind.Utc).AddTicks(5737),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,
@@ -1726,6 +2128,17 @@ namespace TownTrek.Migrations
                     b.Navigation("Business");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.BusinessSubCategory", b =>
+                {
+                    b.HasOne("TownTrek.Models.BusinessCategory", "Category")
+                        .WithMany("SubCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
             modelBuilder.Entity("TownTrek.Models.EventDetails", b =>
                 {
                     b.HasOne("TownTrek.Models.Business", "Business")
@@ -1866,6 +2279,11 @@ namespace TownTrek.Migrations
                     b.Navigation("BusinessImages");
 
                     b.Navigation("BusinessServices");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.BusinessCategory", b =>
+                {
+                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("TownTrek.Models.SubscriptionTier", b =>
