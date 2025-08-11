@@ -263,6 +263,7 @@ namespace TownTrek.Data
                 new BusinessSubCategory { Id = 4, CategoryId = 1, Key = "gifts", Name = "Gifts & Souvenirs", IsActive = true },
                 new BusinessSubCategory { Id = 5, CategoryId = 1, Key = "hardware", Name = "Hardware & Tools", IsActive = true },
                 new BusinessSubCategory { Id = 6, CategoryId = 1, Key = "pharmacy", Name = "Pharmacy & Health", IsActive = true },
+                new BusinessSubCategory { Id = 24, CategoryId = 1, Key = "antique-shop", Name = "Antique Shop", IsActive = true },
                 // restaurants-food
                 new BusinessSubCategory { Id = 7, CategoryId = 2, Key = "restaurant", Name = "Restaurant", IsActive = true },
                 new BusinessSubCategory { Id = 8, CategoryId = 2, Key = "cafe", Name = "Cafe & Coffee Shop", IsActive = true },
