@@ -51,13 +51,7 @@ class ApiClient {
       'X-Requested-With': 'XMLHttpRequest'
     };
 
-    // Add anti-forgery token for non-GET requests
-    if (options.method && options.method.toUpperCase() !== 'GET') {
-      const token = ApiClient.getAntiForgeryToken();
-      if (token) {
-        defaultHeaders['RequestVerificationToken'] = token;
-      }
-    }
+    // CSRF token is now handled in individual POST methods via form data
 
     const config = {
       method: 'GET',
@@ -168,11 +162,32 @@ class ApiClient {
     };
 
     if (data instanceof FormData) {
+      // Add CSRF token to FormData
+      const token = ApiClient.getAntiForgeryToken();
+      if (token) {
+        data.append('__RequestVerificationToken', token);
+      }
       // Don't set Content-Type for FormData, let browser set it with boundary
       delete config.headers?.['Content-Type'];
       config.body = data;
     } else {
-      config.body = JSON.stringify(data);
+      // For JSON data, we'll need to send as form data to include CSRF token
+      const formData = new FormData();
+      const token = ApiClient.getAntiForgeryToken();
+      if (token) {
+        formData.append('__RequestVerificationToken', token);
+      }
+      
+      // Convert JSON data to form data
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value);
+        }
+      });
+      
+      // Don't set Content-Type for FormData
+      delete config.headers?.['Content-Type'];
+      config.body = formData;
     }
 
     return this.request(endpoint, config);

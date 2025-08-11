@@ -1,0 +1,432 @@
+@model TownTrek.Models.ViewModels.BusinessSearchViewModel
+@{
+    ViewData["Title"] = "Search Businesses";
+    Layout = "_Layout";
+}
+
+<div class="business-search-page">
+    <!-- Search Header -->
+    <section class="search-header-section">
+        <div class="container">
+            <h1>Discover Local Businesses</h1>
+            <p class="search-subtitle">Find exactly what you're looking for across South Africa's vibrant towns</p>
+        </div>
+    </section>
+
+    <!-- Search Form -->
+    <section class="search-form-section">
+        <div class="container">
+            <form asp-action="Search" method="get" class="advanced-search-form">
+                <div class="search-form-grid">
+                    <!-- Search Term -->
+                    <div class="search-field">
+                        <label for="searchTerm">Search</label>
+                        <input type="text" name="search" id="searchTerm" class="form-input" 
+                               placeholder="Business name, service, or keyword..." 
+                               value="@Model.SearchTerm" />
+                    </div>
+
+                    <!-- Town Filter -->
+                    <div class="search-field">
+                        <label for="townFilter">Town</label>
+                        <select name="townId" id="townFilter" class="form-select">
+                            <option value="">All Towns</option>
+                            @foreach (var town in Model.AvailableTowns)
+                            {
+                                <option value="@town.Id" selected="@(Model.TownId == town.Id)">
+                                    @town.Name, @town.Province
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="search-field">
+                        <label for="categoryFilter">Category</label>
+                        <select name="category" id="categoryFilter" class="form-select">
+                            <option value="">All Categories</option>
+                            @foreach (var category in Model.AvailableCategories)
+                            {
+                                <option value="@category.Key" selected="@(Model.Category == category.Key)">
+                                    @category.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Sub-Category Filter -->
+                    <div class="search-field" id="subCategoryField" style="@(string.IsNullOrEmpty(Model.Category) ? "display: none;" : "")">
+                        <label for="subCategoryFilter">Sub-Category</label>
+                        <select name="subCategory" id="subCategoryFilter" class="form-select">
+                            <option value="">All Sub-Categories</option>
+                        </select>
+                    </div>
+
+                    <!-- Search Button -->
+                    <div class="search-field search-action">
+                        <button type="submit" class="btn btn-cta search-submit-btn">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="11" cy="11" r="8"/>
+                                <path d="m21 21-4.35-4.35"/>
+                            </svg>
+                            Search
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Search Results -->
+    <section class="search-results-section">
+        <div class="container">
+            <!-- Results Header -->
+            <div class="results-header">
+                <div class="results-info">
+                    <h2>
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                        {
+                            <span>Search results for "@Model.SearchTerm"</span>
+                        }
+                        else
+                        {
+                            <span>Browse all businesses</span>
+                        }
+                    </h2>
+                    <p class="results-count">@Model.TotalResults results found</p>
+                </div>
+
+                @if (Model.HasResults || !string.IsNullOrEmpty(Model.SearchTerm) || Model.TownId.HasValue || !string.IsNullOrEmpty(Model.Category))
+                {
+                    <div class="results-actions">
+                        <button type="button" id="clearAllFilters" class="btn btn-secondary">Clear All Filters</button>
+                    </div>
+                }
+            </div>
+
+            <!-- Active Filters -->
+            <div class="active-filters" id="activeFilters" style="@(string.IsNullOrEmpty(Model.SearchTerm) && !Model.TownId.HasValue && string.IsNullOrEmpty(Model.Category) ? "display: none;" : "")">
+                <span class="filters-label">Active filters:</span>
+                <div class="filter-tags">
+                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                    {
+                        <div class="filter-tag">
+                            <span>Search: "@Model.SearchTerm"</span>
+                            <button type="button" class="remove-filter" data-filter="search">×</button>
+                        </div>
+                    }
+                    @if (Model.TownId.HasValue)
+                    {
+                        <div class="filter-tag">
+                            <span>Town: @Model.AvailableTowns.FirstOrDefault(t => t.Id == Model.TownId)?.Name</span>
+                            <button type="button" class="remove-filter" data-filter="town">×</button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Category))
+                    {
+                        <div class="filter-tag">
+                            <span>Category: @Model.AvailableCategories.FirstOrDefault(c => c.Key == Model.Category)?.Name</span>
+                            <button type="button" class="remove-filter" data-filter="category">×</button>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.SubCategory))
+                    {
+                        <div class="filter-tag">
+                            <span>Sub-Category: @Model.SubCategory</span>
+                            <button type="button" class="remove-filter" data-filter="subcategory">×</button>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Results Grid -->
+            <div id="searchResults" class="search-results">
+                @if (Model.HasResults)
+                {
+                    <div class="business-grid">
+                        @foreach (var business in Model.Results)
+                        {
+                            @await Html.PartialAsync("_BusinessCard", business)
+                        }
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (Model.TotalPages > 1)
+                    {
+                        <div class="pagination-wrapper">
+                            <nav class="pagination">
+                                @if (Model.CurrentPage > 1)
+                                {
+                                    <a href="#" class="pagination-btn" data-page="@(Model.CurrentPage - 1)">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <polyline points="15,18 9,12 15,6"/>
+                                        </svg>
+                                        Previous
+                                    </a>
+                                }
+
+                                @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                                {
+                                    <a href="#" class="pagination-btn @(i == Model.CurrentPage ? "active" : "")" data-page="@i">
+                                        @i
+                                    </a>
+                                }
+
+                                @if (Model.CurrentPage < Model.TotalPages)
+                                {
+                                    <a href="#" class="pagination-btn" data-page="@(Model.CurrentPage + 1)">
+                                        Next
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <polyline points="9,18 15,12 9,6"/>
+                                        </svg>
+                                    </a>
+                                }
+                            </nav>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <h3>No businesses found</h3>
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.TownId.HasValue || !string.IsNullOrEmpty(Model.Category))
+                        {
+                            <p>Try adjusting your search criteria or explore other categories.</p>
+                            <div class="no-results-actions">
+                                <button type="button" id="clearFiltersNoResults" class="btn btn-primary">Clear All Filters</button>
+                                <a href="@Url.Action("Index", "Member")" class="btn btn-secondary">Back to Dashboard</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <p>Start by entering a search term or selecting filters above.</p>
+                            <div class="no-results-actions">
+                                <a href="@Url.Action("Index", "Member")" class="btn btn-primary">Back to Dashboard</a>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Categories -->
+    @if (!Model.HasResults && string.IsNullOrEmpty(Model.SearchTerm) && !Model.TownId.HasValue && string.IsNullOrEmpty(Model.Category))
+    {
+        <section class="quick-categories-section">
+            <div class="container">
+                <h2>Popular Categories</h2>
+                <p>Explore businesses by category</p>
+                
+                <div class="category-grid">
+                    @foreach (var category in Model.AvailableCategories.Take(6))
+                    {
+                        <a href="@Url.Action("Search", "Member", new { category = category.Key })" class="category-card">
+                            <div class="category-icon">
+                                @if (!string.IsNullOrEmpty(category.IconClass))
+                                {
+                                    <i class="@category.IconClass"></i>
+                                }
+                                else
+                                {
+                                    <span>@category.Name.Substring(0, 1)</span>
+                                }
+                            </div>
+                            <h3>@category.Name</h3>
+                            @if (!string.IsNullOrEmpty(category.Description))
+                            {
+                                <p>@category.Description</p>
+                            }
+                        </a>
+                    }
+                </div>
+            </div>
+        </section>
+    }
+</div>
+
+<!-- Hidden data for JavaScript -->
+<div id="searchPageData" style="display: none;"
+     data-categories='@Json.Serialize(Model.AvailableCategories.Select(c => new { key = c.Key, name = c.Name, subCategories = c.SubCategories.Select(sc => new { key = sc.Key, name = sc.Name }) }))'>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const pageData = document.getElementById('searchPageData');
+            const categories = JSON.parse(pageData.dataset.categories);
+            
+            const searchForm = document.querySelector('.advanced-search-form');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const subCategoryFilter = document.getElementById('subCategoryFilter');
+            const subCategoryField = document.getElementById('subCategoryField');
+            const clearAllFilters = document.getElementById('clearAllFilters');
+            const clearFiltersNoResults = document.getElementById('clearFiltersNoResults');
+            
+            // Handle category change
+            categoryFilter.addEventListener('change', function() {
+                const selectedCategory = this.value;
+                updateSubCategories(selectedCategory);
+                
+                if (selectedCategory) {
+                    subCategoryField.style.display = 'block';
+                } else {
+                    subCategoryField.style.display = 'none';
+                    subCategoryFilter.value = '';
+                }
+            });
+            
+            // Handle pagination
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.pagination-btn[data-page]')) {
+                    e.preventDefault();
+                    const page = parseInt(e.target.dataset.page);
+                    performSearch(page);
+                }
+            });
+            
+            // Handle clear filters
+            function clearFilters() {
+                document.getElementById('searchTerm').value = '';
+                document.getElementById('townFilter').value = '';
+                categoryFilter.value = '';
+                subCategoryFilter.value = '';
+                subCategoryField.style.display = 'none';
+                searchForm.submit();
+            }
+            
+            if (clearAllFilters) {
+                clearAllFilters.addEventListener('click', clearFilters);
+            }
+            
+            if (clearFiltersNoResults) {
+                clearFiltersNoResults.addEventListener('click', clearFilters);
+            }
+            
+            // Handle individual filter removal
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.remove-filter')) {
+                    const filterType = e.target.dataset.filter;
+                    removeFilter(filterType);
+                }
+            });
+            
+            // Handle favorite buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.favorite-btn') || e.target.closest('.favorite-btn')) {
+                    e.preventDefault();
+                    const btn = e.target.matches('.favorite-btn') ? e.target : e.target.closest('.favorite-btn');
+                    toggleFavorite(btn);
+                }
+            });
+            
+            function updateSubCategories(categoryKey) {
+                subCategoryFilter.innerHTML = '<option value="">All Sub-Categories</option>';
+                
+                if (categoryKey) {
+                    const category = categories.find(c => c.key === categoryKey);
+                    if (category && category.subCategories) {
+                        category.subCategories.forEach(sub => {
+                            const option = document.createElement('option');
+                            option.value = sub.key;
+                            option.textContent = sub.name;
+                            subCategoryFilter.appendChild(option);
+                        });
+                    }
+                }
+            }
+            
+            function removeFilter(filterType) {
+                switch (filterType) {
+                    case 'search':
+                        document.getElementById('searchTerm').value = '';
+                        break;
+                    case 'town':
+                        document.getElementById('townFilter').value = '';
+                        break;
+                    case 'category':
+                        categoryFilter.value = '';
+                        subCategoryFilter.value = '';
+                        subCategoryField.style.display = 'none';
+                        break;
+                    case 'subcategory':
+                        subCategoryFilter.value = '';
+                        break;
+                }
+                searchForm.submit();
+            }
+            
+            function performSearch(page = 1) {
+                const formData = new FormData(searchForm);
+                formData.set('page', page);
+                
+                const params = new URLSearchParams(formData);
+                
+                // Show loading state
+                const resultsContainer = document.getElementById('searchResults');
+                resultsContainer.innerHTML = '<div class="loading-state">Searching businesses...</div>';
+                
+                // Make AJAX request
+                fetch(`@Url.Action("Search", "Member")?${params}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    resultsContainer.innerHTML = html;
+                    
+                    // Update URL without page reload
+                    const newUrl = `@Url.Action("Search", "Member")?${params}`;
+                    window.history.pushState({}, '', newUrl);
+                })
+                .catch(error => {
+                    console.error('Error searching businesses:', error);
+                    resultsContainer.innerHTML = '<div class="error-state">Error searching businesses. Please try again.</div>';
+                });
+            }
+            
+            function toggleFavorite(btn) {
+                const businessId = btn.dataset.businessId;
+                const icon = btn.querySelector('svg');
+                
+                fetch('@Url.Action("ToggleFavorite", "Member")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: `businessId=${businessId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.isFavorite) {
+                            icon.setAttribute('fill', 'currentColor');
+                            btn.title = 'Remove from favorites';
+                        } else {
+                            icon.setAttribute('fill', 'none');
+                            btn.title = 'Add to favorites';
+                        }
+                    }
+                })
+                .catch(error => console.error('Error toggling favorite:', error));
+            }
+            
+            // Initialize sub-categories if category is pre-selected
+            if (categoryFilter.value) {
+                updateSubCategories(categoryFilter.value);
+                subCategoryField.style.display = 'block';
+                
+                // Set selected sub-category if exists
+                const selectedSubCategory = '@Model.SubCategory';
+                if (selectedSubCategory) {
+                    setTimeout(() => {
+                        subCategoryFilter.value = selectedSubCategory;
+                    }, 100);
+                }
+            }
+        });
+    </script>
+}

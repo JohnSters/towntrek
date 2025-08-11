@@ -1,0 +1,1470 @@
+/* Member Views Styles - Following TownTrek Design System */
+
+/* Base Member Layout */
+.member-dashboard,
+.town-businesses-page,
+.business-details-page,
+.business-search-page,
+.favorites-page {
+    min-height: 100vh;
+    background-color: var(--light-gray);
+}
+
+/* Hero Sections */
+.hero-section-member {
+    background: linear-gradient(135deg, var(--lapis-lazuli) 0%, var(--carolina-blue) 100%);
+    color: white;
+    padding: 3rem 0;
+    text-align: center;
+}
+
+.hero-section-member .hero-title {
+    font-size: var(--h1-size);
+    font-weight: var(--font-bold);
+    margin-bottom: 1rem;
+}
+
+.hero-section-member .hero-subtitle {
+    font-size: var(--body-large);
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Town Selection */
+.town-selection-section {
+    padding: 3rem 0;
+    background-color: white;
+}
+
+.town-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-md);
+    margin-top: 2rem;
+}
+
+.town-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg);
+    background-color: white;
+    border: 2px solid var(--medium-gray);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--charcoal);
+    transition: all var(--transition-normal);
+}
+
+.town-card:hover {
+    border-color: var(--carolina-blue);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: var(--charcoal);
+}
+
+.town-card-content h3 {
+    font-size: var(--h4-size);
+    font-weight: var(--font-semibold);
+    margin-bottom: 0.25rem;
+    color: var(--lapis-lazuli);
+}
+
+.town-province {
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+    margin-bottom: 0.25rem;
+}
+
+.town-population {
+    color: var(--dark-gray);
+    font-size: var(--body-xs);
+    margin: 0;
+}
+
+.town-card-arrow {
+    color: var(--carolina-blue);
+    transition: transform var(--transition-normal);
+}
+
+.town-card:hover .town-card-arrow {
+    transform: translateX(4px);
+}
+
+/* Business Grid */
+.business-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: var(--space-lg);
+    margin-top: 2rem;
+}
+
+/* Business Card */
+.business-card {
+    background-color: white;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    transition: all var(--transition-normal);
+    position: relative;
+}
+
+.business-card:hover {
+    border-color: var(--carolina-blue);
+    transform: translateY(-2px);
+}
+
+.business-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: var(--space-md);
+}
+
+.business-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-md);
+    object-fit: cover;
+}
+
+.business-logo-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: var(--radius-md);
+    background-color: var(--carolina-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: var(--font-bold);
+    font-size: var(--h3-size);
+}
+
+.business-badges {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    align-items: flex-end;
+}
+
+.badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--body-xs);
+    font-weight: var(--font-medium);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.badge-featured {
+    background-color: var(--hunyadi-yellow);
+    color: var(--charcoal);
+}
+
+.badge-verified {
+    background-color: var(--lapis-lazuli);
+    color: white;
+}
+
+.favorite-btn {
+    background: none;
+    border: none;
+    color: var(--dark-gray);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: var(--radius-sm);
+    transition: color var(--transition-normal);
+}
+
+.favorite-btn:hover {
+    color: var(--orange-pantone);
+}
+
+.favorite-btn svg[fill="currentColor"] {
+    color: var(--orange-pantone);
+}
+
+/* Business Card Content */
+.business-name {
+    margin-bottom: 0.5rem;
+}
+
+.business-name a {
+    color: var(--lapis-lazuli);
+    text-decoration: none;
+    font-weight: var(--font-semibold);
+    font-size: var(--h5-size);
+}
+
+.business-name a:hover {
+    color: var(--charcoal);
+    text-decoration: underline;
+}
+
+.business-category {
+    margin-bottom: var(--space-sm);
+    font-size: var(--body-small);
+}
+
+.category-main {
+    color: var(--lapis-lazuli);
+    font-weight: var(--font-medium);
+}
+
+.category-sub {
+    color: var(--dark-gray);
+}
+
+.business-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: var(--space-sm);
+}
+
+.rating-stars {
+    display: flex;
+    gap: 0.125rem;
+}
+
+.star {
+    color: var(--dark-gray);
+}
+
+.star.filled {
+    color: var(--hunyadi-yellow);
+}
+
+.rating-value {
+    font-weight: var(--font-semibold);
+    color: var(--charcoal);
+}
+
+.rating-count {
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+}
+
+.business-description {
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+    margin-bottom: var(--space-sm);
+    line-height: var(--line-height-normal);
+}
+
+.business-location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+    margin-bottom: var(--space-sm);
+}
+
+.business-services {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: var(--space-sm);
+}
+
+.service-tag {
+    background-color: var(--light-gray);
+    color: var(--charcoal);
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--body-xs);
+}
+
+.service-more {
+    color: var(--dark-gray);
+    font-size: var(--body-xs);
+    font-style: italic;
+}
+
+/* Business Card Footer */
+.business-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: var(--space-sm);
+    border-top: 1px solid var(--medium-gray);
+}
+
+.business-contact {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.contact-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-md);
+    color: var(--dark-gray);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+}
+
+.contact-btn:hover {
+    border-color: var(--lapis-lazuli);
+    color: var(--lapis-lazuli);
+    text-decoration: none;
+}
+
+.view-details-btn {
+    color: var(--lapis-lazuli);
+    text-decoration: none;
+    font-weight: var(--font-medium);
+    font-size: var(--body-small);
+    transition: color var(--transition-normal);
+}
+
+.view-details-btn:hover {
+    color: var(--charcoal);
+    text-decoration: underline;
+}
+
+/* Featured/Recent Sections */
+.featured-businesses-section,
+.recent-businesses-section {
+    padding: 3rem 0;
+    background-color: white;
+}
+
+.featured-businesses-section:nth-of-type(even),
+.recent-businesses-section:nth-of-type(even) {
+    background-color: var(--light-gray);
+}
+
+/* Member Stats */
+.member-stats-section {
+    padding: 3rem 0;
+    background-color: var(--charcoal);
+    color: white;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-xl);
+}
+
+.stat-card {
+    text-align: center;
+    padding: var(--space-lg);
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+}
+
+.stat-number {
+    display: block;
+    font-size: var(--h2-size);
+    font-weight: var(--font-bold);
+    color: var(--hunyadi-yellow);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: var(--body-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Quick Search */
+.quick-search-section {
+    padding: 3rem 0;
+    background-color: var(--lapis-lazuli);
+    color: white;
+}
+
+.quick-search-card {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.quick-search-card h2 {
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.quick-search-card p {
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.quick-search-form {
+    margin-bottom: 2rem;
+}
+
+.search-input-group {
+    display: flex;
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    padding: 1rem;
+    font-size: var(--body-medium);
+    border-radius: 0;
+}
+
+.search-input:focus {
+    outline: none;
+}
+
+.search-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border: none;
+    border-radius: 0;
+    white-space: nowrap;
+}
+
+.search-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.search-link {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.search-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+}
+
+/* Town Business List */
+.town-header-section {
+    padding: 2rem 0;
+    background-color: white;
+}
+
+.town-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 2rem;
+}
+
+.town-info h1 {
+    color: var(--lapis-lazuli);
+    margin-bottom: 0.25rem;
+}
+
+.town-description {
+    color: var(--dark-gray);
+    font-size: var(--body-medium);
+    line-height: var(--line-height-normal);
+    margin-bottom: 0.5rem;
+}
+
+.town-population {
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+    margin: 0;
+}
+
+.town-stats .stat-item {
+    text-align: center;
+    padding: var(--space-md);
+    background-color: var(--light-gray);
+    border-radius: var(--radius-md);
+}
+
+/* Filters */
+.filters-section {
+    padding: 1.5rem 0;
+    background-color: var(--light-gray);
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.filters-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.filter-groups {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.filter-group label {
+    font-size: var(--body-small);
+    font-weight: var(--font-medium);
+    color: var(--charcoal);
+}
+
+.filter-select {
+    min-width: 160px;
+}
+
+.search-filter {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-input-wrapper {
+    position: relative;
+}
+
+.clear-search-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--dark-gray);
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: var(--radius-sm);
+}
+
+.clear-search-btn:hover {
+    color: var(--charcoal);
+    background-color: var(--light-gray);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* Results */
+.results-section {
+    padding: 2rem 0;
+}
+
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--space-lg);
+}
+
+.results-header h2 {
+    color: var(--charcoal);
+    margin-bottom: 0.25rem;
+}
+
+.results-count {
+    color: var(--dark-gray);
+    font-size: var(--body-medium);
+    margin: 0;
+}
+
+/* Active Filters */
+.active-filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: var(--space-lg);
+    padding: var(--space-md);
+    background-color: var(--light-gray);
+    border-radius: var(--radius-md);
+}
+
+.filters-label {
+    font-weight: var(--font-medium);
+    color: var(--charcoal);
+    white-space: nowrap;
+}
+
+.filter-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filter-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    background-color: var(--carolina-blue);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--body-small);
+}
+
+.remove-filter {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 1.2em;
+    line-height: 1;
+    padding: 0;
+    margin-left: 0.25rem;
+}
+
+.remove-filter:hover {
+    opacity: 0.8;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.pagination {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-md);
+    color: var(--charcoal);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    font-size: var(--body-small);
+}
+
+.pagination-btn:hover {
+    border-color: var(--lapis-lazuli);
+    color: var(--lapis-lazuli);
+    text-decoration: none;
+}
+
+.pagination-btn.active {
+    background-color: var(--lapis-lazuli);
+    border-color: var(--lapis-lazuli);
+    color: white;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.no-results-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.no-results h3 {
+    color: var(--charcoal);
+    margin-bottom: 0.5rem;
+}
+
+.no-results p {
+    color: var(--dark-gray);
+    margin-bottom: 1.5rem;
+}
+
+.no-results-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+/* Loading States */
+.loading-state,
+.error-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--dark-gray);
+    font-style: italic;
+}
+
+.error-state {
+    color: var(--orange-pantone);
+}
+
+/* Business Details Page */
+.business-header-section {
+    padding: 2rem 0;
+    background-color: white;
+}
+
+.business-header {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+.business-main-info {
+    display: flex;
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.business-logo-large {
+    flex-shrink: 0;
+}
+
+.business-logo-large img {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-lg);
+    object-fit: cover;
+}
+
+.business-logo-placeholder-large {
+    width: 100px;
+    height: 100px;
+    border-radius: var(--radius-lg);
+    background-color: var(--carolina-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: var(--font-bold);
+    font-size: 2.5rem;
+}
+
+.business-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.business-title-row h1 {
+    color: var(--lapis-lazuli);
+    margin: 0;
+}
+
+.favorite-btn-large {
+    background: none;
+    border: none;
+    color: var(--dark-gray);
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-normal);
+}
+
+.favorite-btn-large:hover {
+    color: var(--orange-pantone);
+    background-color: var(--light-gray);
+}
+
+.favorite-btn-large svg[fill="currentColor"] {
+    color: var(--orange-pantone);
+}
+
+.business-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.business-category {
+    color: var(--dark-gray);
+    font-size: var(--body-medium);
+}
+
+.business-rating-large {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.business-rating-large .rating-stars {
+    gap: 0.25rem;
+}
+
+.business-rating-large .rating-value {
+    font-size: var(--h5-size);
+    font-weight: var(--font-semibold);
+    color: var(--charcoal);
+}
+
+.business-contact-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.contact-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    font-weight: var(--font-medium);
+    transition: all var(--transition-normal);
+}
+
+/* Business Content */
+.business-content-section {
+    padding: 2rem 0;
+}
+
+.business-content-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.content-card {
+    background-color: white;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.content-card h2 {
+    color: var(--lapis-lazuli);
+    margin-bottom: var(--space-md);
+    font-size: var(--h3-size);
+}
+
+.business-description {
+    color: var(--dark-gray);
+    line-height: var(--line-height-normal);
+}
+
+/* Services Grid */
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-md);
+}
+
+.service-item {
+    padding: var(--space-md);
+    background-color: var(--light-gray);
+    border-radius: var(--radius-md);
+}
+
+.service-name {
+    display: block;
+    font-weight: var(--font-medium);
+    color: var(--charcoal);
+    margin-bottom: 0.25rem;
+}
+
+.service-description {
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+}
+
+/* Image Gallery */
+.image-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--space-sm);
+}
+
+.gallery-image img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: transform var(--transition-normal);
+}
+
+.gallery-image img:hover {
+    transform: scale(1.05);
+}
+
+.gallery-more {
+    text-align: center;
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+    margin-top: var(--space-sm);
+}
+
+/* Reviews */
+.reviews-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.review-item {
+    padding: var(--space-md);
+    background-color: var(--light-gray);
+    border-radius: var(--radius-md);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.reviewer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.reviewer-info strong {
+    color: var(--charcoal);
+}
+
+.review-rating {
+    display: flex;
+    gap: 0.125rem;
+}
+
+.review-date {
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+}
+
+.review-comment {
+    color: var(--dark-gray);
+    line-height: var(--line-height-normal);
+    margin: 0;
+}
+
+.no-reviews {
+    text-align: center;
+    padding: 2rem;
+    color: var(--dark-gray);
+}
+
+/* Sidebar */
+.business-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.sidebar-card {
+    background-color: white;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+}
+
+.sidebar-card h3 {
+    color: var(--lapis-lazuli);
+    margin-bottom: var(--space-md);
+    font-size: var(--h4-size);
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--dark-gray);
+}
+
+.contact-item a {
+    color: var(--lapis-lazuli);
+    text-decoration: none;
+}
+
+.contact-item a:hover {
+    text-decoration: underline;
+}
+
+/* Business Hours */
+.business-hours {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.hours-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-radius: var(--radius-sm);
+}
+
+.hours-row.today {
+    background-color: var(--light-gray);
+    font-weight: var(--font-medium);
+}
+
+.day {
+    color: var(--charcoal);
+}
+
+.time {
+    color: var(--dark-gray);
+}
+
+.closed {
+    color: var(--orange-pantone);
+}
+
+/* Related Businesses */
+.related-businesses {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.related-business-item a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: var(--space-sm);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--charcoal);
+    transition: background-color var(--transition-normal);
+}
+
+.related-business-item a:hover {
+    background-color: var(--light-gray);
+    text-decoration: none;
+    color: var(--charcoal);
+}
+
+.related-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+}
+
+.related-logo-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background-color: var(--carolina-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: var(--font-bold);
+    font-size: var(--body-medium);
+}
+
+.related-info {
+    flex: 1;
+}
+
+.related-info strong {
+    color: var(--lapis-lazuli);
+    font-size: var(--body-small);
+}
+
+.related-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-top: 0.125rem;
+}
+
+.related-rating span {
+    font-size: var(--body-xs);
+    color: var(--dark-gray);
+}
+
+/* Search Page */
+.search-header-section {
+    padding: 2rem 0;
+    background: linear-gradient(135deg, var(--lapis-lazuli) 0%, var(--carolina-blue) 100%);
+    color: white;
+    text-align: center;
+}
+
+.search-subtitle {
+    font-size: var(--body-large);
+    opacity: 0.9;
+    margin: 0;
+}
+
+.search-form-section {
+    padding: 2rem 0;
+    background-color: white;
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.advanced-search-form {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.search-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-md);
+    align-items: end;
+}
+
+.search-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.search-field label {
+    font-size: var(--body-small);
+    font-weight: var(--font-medium);
+    color: var(--charcoal);
+}
+
+.search-action {
+    align-self: end;
+}
+
+.search-submit-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Quick Categories */
+.quick-categories-section {
+    padding: 3rem 0;
+    background-color: white;
+}
+
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-lg);
+    margin-top: 2rem;
+}
+
+.category-card {
+    text-align: center;
+    padding: var(--space-xl);
+    background-color: var(--light-gray);
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    color: var(--charcoal);
+    transition: all var(--transition-normal);
+}
+
+.category-card:hover {
+    border-color: var(--carolina-blue);
+    transform: translateY(-2px);
+    text-decoration: none;
+    color: var(--charcoal);
+}
+
+.category-icon {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-md);
+    color: var(--lapis-lazuli);
+}
+
+.category-card h3 {
+    color: var(--lapis-lazuli);
+    margin-bottom: 0.5rem;
+}
+
+.category-card p {
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+    margin: 0;
+}
+
+/* Favorites Page */
+.favorites-header-section {
+    padding: 2rem 0;
+    background-color: white;
+}
+
+.favorites-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.favorites-title h1 {
+    color: var(--lapis-lazuli);
+    margin-bottom: 0.25rem;
+}
+
+.favorites-subtitle {
+    color: var(--dark-gray);
+    font-size: var(--body-medium);
+    margin: 0;
+}
+
+.favorites-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.favorites-filters,
+.favorites-sort {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.no-favorites {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.no-favorites-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    color: var(--orange-pantone);
+}
+
+.no-favorites h2 {
+    color: var(--charcoal);
+    margin-bottom: 0.5rem;
+}
+
+.no-favorites p {
+    color: var(--dark-gray);
+    margin-bottom: 2rem;
+}
+
+.no-favorites-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.quick-categories {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.quick-categories h3 {
+    color: var(--charcoal);
+    margin-bottom: 1rem;
+}
+
+.category-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.category-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: var(--light-gray);
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-md);
+    color: var(--charcoal);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+}
+
+.category-link:hover {
+    border-color: var(--carolina-blue);
+    background-color: var(--carolina-blue);
+    color: white;
+    text-decoration: none;
+}
+
+/* Review Modal */
+.star-rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-bottom: var(--space-md);
+}
+
+.star-rating-input input {
+    display: none;
+}
+
+.star-rating-input label {
+    cursor: pointer;
+    color: var(--medium-gray);
+    transition: color var(--transition-normal);
+}
+
+.star-rating-input input:checked ~ label,
+.star-rating-input label:hover,
+.star-rating-input label:hover ~ label {
+    color: var(--hunyadi-yellow);
+}
+
+.review-rating-input {
+    margin-bottom: var(--space-md);
+}
+
+.review-rating-input label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: var(--font-medium);
+    color: var(--charcoal);
+}
+
+.review-comment-input label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: var(--font-medium);
+    color: var(--charcoal);
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-md);
+    color: white;
+    font-weight: var(--font-medium);
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+}
+
+.notification-success {
+    background-color: #10b981;
+}
+
+.notification-error {
+    background-color: var(--orange-pantone);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .business-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .town-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: var(--space-md);
+    }
+    
+    .business-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .business-main-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .business-content-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+    }
+    
+    .filter-groups {
+        flex-direction: column;
+    }
+    
+    .search-form-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .favorites-header {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .favorites-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-links {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .category-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-action {
+        font-size: var(--body-small);
+    }
+}

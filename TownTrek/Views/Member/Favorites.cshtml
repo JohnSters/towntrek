@@ -1,0 +1,246 @@
+@model List<TownTrek.Models.ViewModels.BusinessCardViewModel>
+@{
+    ViewData["Title"] = "My Favorite Businesses";
+    Layout = "_Layout";
+}
+
+<div class="favorites-page">
+    <!-- Header -->
+    <section class="favorites-header-section">
+        <div class="container">
+            <div class="favorites-header">
+                <div class="favorites-title">
+                    <h1>My Favorite Businesses</h1>
+                    <p class="favorites-subtitle">Your saved businesses across South Africa</p>
+                </div>
+                
+                <div class="favorites-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">@Model.Count</span>
+                        <span class="stat-label">@(Model.Count == 1 ? "Favorite" : "Favorites")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Favorites Content -->
+    <section class="favorites-content-section">
+        <div class="container">
+            @if (Model.Any())
+            {
+                <div class="favorites-actions">
+                    <div class="favorites-filters">
+                        <select id="townFilter" class="form-select">
+                            <option value="">All Towns</option>
+                            @foreach (var town in Model.Select(b => b.TownName).Distinct().OrderBy(t => t))
+                            {
+                                <option value="@town">@town</option>
+                            }
+                        </select>
+                        
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">All Categories</option>
+                            @foreach (var category in Model.Select(b => b.Category).Distinct().OrderBy(c => c))
+                            {
+                                <option value="@category">@category</option>
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="favorites-sort">
+                        <select id="sortFilter" class="form-select">
+                            <option value="recent">Recently Added</option>
+                            <option value="name">Business Name</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="town">By Town</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="favoritesGrid" class="business-grid">
+                    @foreach (var business in Model)
+                    {
+                        @await Html.PartialAsync("_BusinessCard", business)
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="no-favorites">
+                    <div class="no-favorites-icon">❤️</div>
+                    <h2>No favorite businesses yet</h2>
+                    <p>Start exploring and saving your favorite local businesses to see them here.</p>
+                    
+                    <div class="no-favorites-actions">
+                        <a href="@Url.Action("Index", "Member")" class="btn btn-primary">Explore Businesses</a>
+                        <a href="@Url.Action("Search", "Member")" class="btn btn-secondary">Search Businesses</a>
+                    </div>
+                    
+                    <!-- Quick Categories -->
+                    <div class="quick-categories">
+                        <h3>Popular Categories</h3>
+                        <div class="category-links">
+                            <a href="@Url.Action("Search", "Member", new { category = "restaurants-food" })" class="category-link">
+                                🍽️ Restaurants
+                            </a>
+                            <a href="@Url.Action("Search", "Member", new { category = "shops-retail" })" class="category-link">
+                                🛍️ Shops
+                            </a>
+                            <a href="@Url.Action("Search", "Member", new { category = "accommodation" })" class="category-link">
+                                🏨 Accommodation
+                            </a>
+                            <a href="@Url.Action("Search", "Member", new { category = "tours-experiences" })" class="category-link">
+                                🗺️ Tours
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</div>
+
+@if (Model.Any())
+{
+    @section Scripts {
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const businessCards = Array.from(document.querySelectorAll('.business-card'));
+                const townFilter = document.getElementById('townFilter');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const sortFilter = document.getElementById('sortFilter');
+                const favoritesGrid = document.getElementById('favoritesGrid');
+                
+                // Store original business data for filtering/sorting
+                const businessData = businessCards.map(card => ({
+                    element: card,
+                    name: card.querySelector('.business-name a').textContent.trim(),
+                    town: card.querySelector('.business-location span').textContent.trim(),
+                    category: card.querySelector('.category-main').textContent.trim(),
+                    rating: parseFloat(card.querySelector('.rating-value')?.textContent || '0'),
+                    businessId: card.dataset.businessId
+                }));
+                
+                // Filter and sort functions
+                function applyFilters() {
+                    const townValue = townFilter.value.toLowerCase();
+                    const categoryValue = categoryFilter.value.toLowerCase();
+                    const sortValue = sortFilter.value;
+                    
+                    // Filter businesses
+                    let filteredBusinesses = businessData.filter(business => {
+                        const townMatch = !townValue || business.town.toLowerCase().includes(townValue);
+                        const categoryMatch = !categoryValue || business.category.toLowerCase().includes(categoryValue);
+                        return townMatch && categoryMatch;
+                    });
+                    
+                    // Sort businesses
+                    filteredBusinesses.sort((a, b) => {
+                        switch (sortValue) {
+                            case 'name':
+                                return a.name.localeCompare(b.name);
+                            case 'rating':
+                                return b.rating - a.rating;
+                            case 'town':
+                                return a.town.localeCompare(b.town);
+                            case 'recent':
+                            default:
+                                return 0; // Keep original order for recent
+                        }
+                    });
+                    
+                    // Update grid
+                    favoritesGrid.innerHTML = '';
+                    filteredBusinesses.forEach(business => {
+                        favoritesGrid.appendChild(business.element);
+                    });
+                    
+                    // Show/hide no results message
+                    if (filteredBusinesses.length === 0) {
+                        showNoResultsMessage();
+                    }
+                }
+                
+                function showNoResultsMessage() {
+                    favoritesGrid.innerHTML = `
+                        <div class="no-results">
+                            <div class="no-results-icon">🔍</div>
+                            <h3>No businesses match your filters</h3>
+                            <p>Try adjusting your filter criteria.</p>
+                            <button type="button" id="clearFilters" class="btn btn-primary">Clear Filters</button>
+                        </div>
+                    `;
+                    
+                    // Add clear filters functionality
+                    document.getElementById('clearFilters').addEventListener('click', function() {
+                        townFilter.value = '';
+                        categoryFilter.value = '';
+                        sortFilter.value = 'recent';
+                        applyFilters();
+                    });
+                }
+                
+                // Event listeners
+                townFilter.addEventListener('change', applyFilters);
+                categoryFilter.addEventListener('change', applyFilters);
+                sortFilter.addEventListener('change', applyFilters);
+                
+                // Handle favorite button clicks
+                document.addEventListener('click', function(e) {
+                    if (e.target.matches('.favorite-btn') || e.target.closest('.favorite-btn')) {
+                        e.preventDefault();
+                        const btn = e.target.matches('.favorite-btn') ? e.target : e.target.closest('.favorite-btn');
+                        toggleFavorite(btn);
+                    }
+                });
+                
+                function toggleFavorite(btn) {
+                    const businessId = btn.dataset.businessId;
+                    const businessCard = btn.closest('.business-card');
+                    
+                    fetch('@Url.Action("ToggleFavorite", "Member")', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: `businessId=${businessId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            if (!data.isFavorite) {
+                                // Remove from favorites page with animation
+                                businessCard.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                                businessCard.style.opacity = '0';
+                                businessCard.style.transform = 'scale(0.8)';
+                                
+                                setTimeout(() => {
+                                    businessCard.remove();
+                                    
+                                    // Update favorites count
+                                    const statNumber = document.querySelector('.stat-number');
+                                    const currentCount = parseInt(statNumber.textContent);
+                                    const newCount = currentCount - 1;
+                                    statNumber.textContent = newCount;
+                                    
+                                    const statLabel = document.querySelector('.stat-label');
+                                    statLabel.textContent = newCount === 1 ? 'Favorite' : 'Favorites';
+                                    
+                                    // Show no favorites message if none left
+                                    if (newCount === 0) {
+                                        setTimeout(() => {
+                                            window.location.reload();
+                                        }, 500);
+                                    }
+                                }, 300);
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error toggling favorite:', error));
+                }
+            });
+        </script>
+    }
+}

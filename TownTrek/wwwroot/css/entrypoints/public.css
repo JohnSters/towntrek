@@ -15,4 +15,7 @@
 /* Feature: landing */
 @import url('../features/landing/landing.css');
 
+/* Feature: member */
+@import url('../features/member.css');
+
 

@@ -39,6 +39,10 @@ namespace TownTrek.Data
         public DbSet<SubscriptionTierFeature> SubscriptionTierFeatures { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<PriceChangeHistory> PriceChangeHistory { get; set; }
+        
+        // Member Features
+        public DbSet<BusinessReview> BusinessReviews { get; set; }
+        public DbSet<FavoriteBusiness> FavoriteBusinesses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -163,6 +167,9 @@ namespace TownTrek.Data
 
             // Configure category-specific details
             ConfigureCategorySpecificEntities(builder);
+            
+            // Configure member features
+            ConfigureMemberEntities(builder);
             
             // Seed default data
             SeedData(builder);
@@ -409,6 +416,51 @@ namespace TownTrek.Data
                 entity.Property(e => e.Key).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.HasIndex(e => e.Key).IsUnique();
+            });
+        }
+
+        private void ConfigureMemberEntities(ModelBuilder builder)
+        {
+            // Configure BusinessReview
+            builder.Entity<BusinessReview>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Rating).IsRequired();
+                entity.Property(e => e.Comment).HasMaxLength(1000);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.Business)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Unique constraint: one review per user per business
+                entity.HasIndex(e => new { e.BusinessId, e.UserId }).IsUnique();
+            });
+
+            // Configure FavoriteBusiness
+            builder.Entity<FavoriteBusiness>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.Business)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Unique constraint: one favorite per user per business
+                entity.HasIndex(e => new { e.BusinessId, e.UserId }).IsUnique();
             });
         }
     }

@@ -75,7 +75,7 @@ namespace TownTrek.Controllers.Auth
                         _logger.LogInformation("Member {Email} registered successfully, signing in", model.Email);
                         await _signInManager.SignInAsync(result.User!, isPersistent: false);
                         TempData["SuccessMessage"] = "Welcome to TownTrek! Your account has been created successfully.";
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "Member");
                     }
                 }
                 else
@@ -173,7 +173,8 @@ namespace TownTrek.Controllers.Auth
                     }
                     else
                     {
-                        return RedirectToAction("Index", "Home");
+                        // For regular members, redirect to member dashboard
+                        return RedirectToAction("Index", "Member");
                     }
                 }
                 else
