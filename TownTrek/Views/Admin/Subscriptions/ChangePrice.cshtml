@@ -36,7 +36,8 @@
         <h3 class="admin-card-title">Price Change for @Model.TierName</h3>
     </div>
     
-    <form method="post" asp-action="ChangePrice" asp-route-id="@Model.SubscriptionTierId" class="subscription-form">
+    <form method="post" asp-action="ChangePrice" asp-route-id="@Model.SubscriptionTierId" class="subscription-form" 
+          data-current-price="@Model.CurrentPrice" data-affected-customers="@Model.AffectedCustomersCount">
         @Html.AntiForgeryToken()
         <input asp-for="SubscriptionTierId" type="hidden" />
         <input asp-for="TierName" type="hidden" />
@@ -183,76 +184,5 @@
 }
 
 @section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPrice = @Model.CurrentPrice;
-            const affectedCustomers = @Model.AffectedCustomersCount;
-            const newPriceInput = document.getElementById('NewPrice');
-            const priceChangeInfo = document.getElementById('priceChangeInfo');
-            const priceChangeAlert = document.getElementById('priceChangeAlert');
-            const priceChangeText = document.getElementById('priceChangeText');
-            const revenueImpact = document.getElementById('revenueImpact');
-            const submitBtn = document.getElementById('submitBtn');
-            const effectiveDateInput = document.getElementById('EffectiveDate');
-            
-            function updatePriceChangeInfo() {
-                const newPrice = parseFloat(newPriceInput.value) || 0;
-                const priceDiff = newPrice - currentPrice;
-                const revenueChange = priceDiff * affectedCustomers;
-                
-                if (newPrice > 0 && newPrice !== currentPrice) {
-                    priceChangeInfo.style.display = 'block';
-                    
-                    if (priceDiff > 0) {
-                        // Price increase
-                        priceChangeAlert.className = 'alert alert-error';
-                        priceChangeText.innerHTML = `
-                            <strong>Price Increase:</strong> R${priceDiff.toFixed(2)} per month (+${((priceDiff/currentPrice)*100).toFixed(1)}%)<br>
-                            <strong>Important:</strong> Price increases require at least 30 days notice to customers.
-                        `;
-                        submitBtn.textContent = 'Schedule Price Increase';
-                        
-                        // Set minimum effective date to 30 days from now
-                        const minDate = new Date();
-                        minDate.setDate(minDate.getDate() + 30);
-                        effectiveDateInput.min = minDate.toISOString().split('T')[0];
-                        
-                    } else {
-                        // Price decrease
-                        priceChangeAlert.className = 'alert alert-success';
-                        priceChangeText.innerHTML = `
-                            <strong>Price Decrease:</strong> R${Math.abs(priceDiff).toFixed(2)} per month (${((Math.abs(priceDiff)/currentPrice)*100).toFixed(1)}% reduction)<br>
-                            <strong>Good news:</strong> Price decreases can take effect immediately.
-                        `;
-                        submitBtn.textContent = 'Apply Price Decrease';
-                        
-                        // Remove minimum date restriction
-                        effectiveDateInput.min = new Date().toISOString().split('T')[0];
-                    }
-                    
-                    // Update revenue impact
-                    if (revenueChange > 0) {
-                        revenueImpact.innerHTML = `+R${revenueChange.toFixed(0)}`;
-                        revenueImpact.style.color = 'var(--lapis-lazuli)';
-                    } else if (revenueChange < 0) {
-                        revenueImpact.innerHTML = `-R${Math.abs(revenueChange).toFixed(0)}`;
-                        revenueImpact.style.color = 'var(--orange-pantone)';
-                    } else {
-                        revenueImpact.innerHTML = 'R0';
-                        revenueImpact.style.color = 'var(--dark-gray)';
-                    }
-                } else {
-                    priceChangeInfo.style.display = 'none';
-                    submitBtn.textContent = 'Update Price';
-                    revenueImpact.innerHTML = 'R0';
-                    revenueImpact.style.color = 'var(--dark-gray)';
-                }
-            }
-            
-            newPriceInput.addEventListener('input', updatePriceChangeInfo);
-            
-            // Initial calculation
-            updatePriceChangeInfo();
-        });
-    </script>
+    <script src="~/js/subscription-price-change.js" asp-append-version="true"></script>
 }
