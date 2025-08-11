@@ -234,6 +234,33 @@ namespace TownTrek.Models
         public string? CancellationPolicy { get; set; }
     }
 
+    // Shop-specific details
+    public class ShopDetails : BusinessCategoryDetails
+    {
+        [StringLength(100)]
+        public string? ShopType { get; set; } // clothing, electronics, books, etc.
+
+        [StringLength(50)]
+        public string? ShopSize { get; set; } // small, medium, large, superstore
+
+        [StringLength(500)]
+        public string? BrandNames { get; set; } // Brands carried
+
+        [StringLength(50)]
+        public string? PriceRange { get; set; } // budget, mid-range, premium, luxury, mixed
+
+        [StringLength(1000)]
+        public string? Specialties { get; set; } // What makes the shop unique
+
+        // Shop features
+        public bool HasOnlineStore { get; set; } = false;
+        public bool OffersLayaway { get; set; } = false;
+        public bool HasFittingRoom { get; set; } = false;
+        public bool OffersRepairs { get; set; } = false;
+        public bool HasLoyaltyProgram { get; set; } = false;
+        public bool AcceptsReturns { get; set; } = false;
+    }
+
     // Business notification/alert system
     public class BusinessAlert
     {

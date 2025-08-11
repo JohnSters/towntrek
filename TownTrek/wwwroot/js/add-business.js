@@ -30,7 +30,18 @@ function testCategorySections() {
     sections.forEach(sectionId => {
         const section = document.getElementById(sectionId);
         console.log(`${sectionId}: ${section ? 'Found' : 'NOT FOUND'}`);
+        if (section) {
+            console.log(`  - Current display style: ${section.style.display}`);
+            console.log(`  - Computed display: ${window.getComputedStyle(section).display}`);
+        }
     });
+    
+    // Also check if the container exists
+    const container = document.getElementById('categorySpecificSections');
+    console.log(`categorySpecificSections container: ${container ? 'Found' : 'NOT FOUND'}`);
+    if (container) {
+        console.log(`  - Container children count: ${container.children.length}`);
+    }
 }
 
 function initializeEditingMode() {
@@ -70,45 +81,48 @@ function initializeCategoryHandling() {
             hideAllCategorySections();
 
             if (selectedCategory) {
+                // Show category-specific section immediately
+                showCategorySpecificSection(selectedCategory);
+                
+                // Try to load subcategories (if endpoint exists)
                 try {
                     console.log('Fetching subcategories for:', selectedCategory);
                     const response = await fetch(`/Client/GetSubCategories?category=${selectedCategory}`);
-                    console.log('Response status:', response.status);
+                    
+                    if (response.ok) {
+                        const subCategories = await response.json();
+                        console.log('Subcategories received:', subCategories);
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+                        // Clear existing options (with null check)
+                        if (subCategorySelect) {
+                            subCategorySelect.innerHTML = '<option value="">Select a subcategory (optional)</option>';
 
-                    const subCategories = await response.json();
-                    console.log('Subcategories received:', subCategories);
+                            // Add new options
+                            subCategories.forEach(subCat => {
+                                const option = document.createElement('option');
+                                option.value = subCat.value;
+                                option.textContent = subCat.text;
+                                subCategorySelect.appendChild(option);
+                            });
+                        }
 
-                    // Clear existing options (with null check)
-                    if (subCategorySelect) {
-                        subCategorySelect.innerHTML = '<option value="">Select a subcategory (optional)</option>';
-
-                        // Add new options
-                        subCategories.forEach(subCat => {
-                            const option = document.createElement('option');
-                            option.value = subCat.value;
-                            option.textContent = subCat.text;
-                            subCategorySelect.appendChild(option);
-                        });
-                    }
-
-                    // Show subcategory container if there are options (with null check)
-                    if (subCategoryContainer) {
-                        if (subCategories.length > 0) {
+                        // Show subcategory container if there are options (with null check)
+                        if (subCategoryContainer && subCategories.length > 0) {
                             subCategoryContainer.style.display = 'block';
-                        } else {
+                        }
+                    } else {
+                        console.log('Subcategories endpoint not available or returned error:', response.status);
+                        // Hide subcategory container if endpoint fails
+                        if (subCategoryContainer) {
                             subCategoryContainer.style.display = 'none';
                         }
                     }
-
-                    // Show category-specific section
-                    showCategorySpecificSection(selectedCategory);
-
                 } catch (error) {
-                    console.error('Error loading subcategories:', error);
+                    console.log('Subcategories not available:', error.message);
+                    // Hide subcategory container if fetch fails
+                    if (subCategoryContainer) {
+                        subCategoryContainer.style.display = 'none';
+                    }
                 }
             } else {
                 if (subCategoryContainer) {
@@ -140,6 +154,7 @@ function showCategorySpecificSection (category) {
     hideAllCategorySections(); // make sure others are hidden
 
     const sectionMap = {
+        'shops-retail': 'shopsSection',
         'markets-vendors': 'marketSection',
         'tours-experiences': 'tourSection',
         'events': 'eventSection',
@@ -156,7 +171,9 @@ function showCategorySpecificSection (category) {
         
         if (section) {
             console.log('Showing section:', sectionId);
+            console.log('Section before show:', section.style.display);
             section.style.display = 'block';
+            console.log('Section after show:', section.style.display);
 
             // Restore 'required' attributes
             const inputs = section.querySelectorAll('input, select, textarea');
@@ -169,9 +186,11 @@ function showCategorySpecificSection (category) {
             updateStepNumbers();
         } else {
             console.error('Section element not found:', sectionId);
+            console.log('Available elements with IDs:', Array.from(document.querySelectorAll('[id]')).map(el => el.id));
         }
     } else {
         console.log('No section mapping found for category:', category);
+        console.log('Available categories:', Object.keys(sectionMap));
     }
 }
 

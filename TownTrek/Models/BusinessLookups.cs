@@ -9,7 +9,8 @@ namespace TownTrek.Models
         Market = 2,
         Tour = 3,
         Event = 4,
-        Accommodation = 5
+        Accommodation = 5,
+        Shop = 6
     }
 
     public class BusinessCategory

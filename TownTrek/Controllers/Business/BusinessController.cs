@@ -157,8 +157,18 @@ namespace TownTrek.Controllers.Business
         [HttpGet]
         public async Task<IActionResult> GetSubCategories(string category)
         {
-            var subCategories = await _businessService.GetSubCategoriesAsync(category);
-            return Json(subCategories);
+            try
+            {
+                _logger.LogInformation("GetSubCategories called with category: {Category}", category);
+                var subCategories = await _businessService.GetSubCategoriesAsync(category);
+                _logger.LogInformation("Found {Count} subcategories for category: {Category}", subCategories.Count, category);
+                return Json(subCategories);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting subcategories for category: {Category}", category);
+                return Json(new List<object>());
+            }
         }
 
         [HttpPost]

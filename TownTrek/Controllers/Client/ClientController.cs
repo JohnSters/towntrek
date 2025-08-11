@@ -162,7 +162,7 @@ namespace TownTrek.Controllers.Client
         }
 
         // Settings
-        public async Task<IActionResult> Settings()
+        public IActionResult Settings()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             
@@ -172,7 +172,7 @@ namespace TownTrek.Controllers.Client
         }
 
         // Billing
-        public async Task<IActionResult> Billing()
+        public IActionResult Billing()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             

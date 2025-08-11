@@ -426,6 +426,9 @@ namespace TownTrek.Services
         {
             switch (category)
             {
+                case "shops-retail":
+                    await CreateShopDetailsAsync(businessId, model);
+                    break;
                 case "markets-vendors":
                     await CreateMarketDetailsAsync(businessId, model);
                     break;
@@ -442,6 +445,29 @@ namespace TownTrek.Services
                     await CreateAccommodationDetailsAsync(businessId, model);
                     break;
             }
+        }
+
+        private async Task CreateShopDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.ShopType)) return;
+
+            var shopDetails = new ShopDetails
+            {
+                BusinessId = businessId,
+                ShopType = model.ShopType,
+                ShopSize = model.ShopSize,
+                BrandNames = model.BrandNames,
+                PriceRange = model.PriceRange,
+                Specialties = model.Specialties,
+                HasOnlineStore = model.HasOnlineStore,
+                OffersLayaway = model.OffersLayaway,
+                HasFittingRoom = model.HasFittingRoom,
+                OffersRepairs = model.OffersRepairs,
+                HasLoyaltyProgram = model.HasLoyaltyProgram,
+                AcceptsReturns = model.AcceptsReturns
+            };
+
+            await _context.ShopDetails.AddAsync(shopDetails);
         }
 
         private async Task CreateMarketDetailsAsync(int businessId, AddBusinessViewModel model)
@@ -585,6 +611,9 @@ namespace TownTrek.Services
         {
             switch (model.BusinessCategory)
             {
+                case "shops-retail":
+                    await UpdateShopDetailsAsync(businessId, model);
+                    break;
                 case "markets-vendors":
                     await UpdateMarketDetailsAsync(businessId, model);
                     break;
@@ -600,6 +629,44 @@ namespace TownTrek.Services
                 case "accommodation":
                     await UpdateAccommodationDetailsAsync(businessId, model);
                     break;
+            }
+        }
+
+        private async Task UpdateShopDetailsAsync(int businessId, AddBusinessViewModel model)
+        {
+            var shopDetails = await _context.ShopDetails
+                .FirstOrDefaultAsync(s => s.BusinessId == businessId);
+
+            if (string.IsNullOrEmpty(model.ShopType))
+            {
+                // Remove shop details if no shop type specified
+                if (shopDetails != null)
+                {
+                    _context.ShopDetails.Remove(shopDetails);
+                }
+                return;
+            }
+
+            if (shopDetails == null)
+            {
+                // Create new shop details
+                await CreateShopDetailsAsync(businessId, model);
+            }
+            else
+            {
+                // Update existing shop details
+                shopDetails.ShopType = model.ShopType;
+                shopDetails.ShopSize = model.ShopSize;
+                shopDetails.BrandNames = model.BrandNames;
+                shopDetails.PriceRange = model.PriceRange;
+                shopDetails.Specialties = model.Specialties;
+                shopDetails.HasOnlineStore = model.HasOnlineStore;
+                shopDetails.OffersLayaway = model.OffersLayaway;
+                shopDetails.HasFittingRoom = model.HasFittingRoom;
+                shopDetails.OffersRepairs = model.OffersRepairs;
+                shopDetails.HasLoyaltyProgram = model.HasLoyaltyProgram;
+                shopDetails.AcceptsReturns = model.AcceptsReturns;
+                shopDetails.UpdatedAt = DateTime.UtcNow;
             }
         }
 

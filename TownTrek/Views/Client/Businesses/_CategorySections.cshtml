@@ -1,7 +1,13 @@
 @model TownTrek.Models.ViewModels.AddBusinessViewModel
 
-<!-- Category-Specific Sections -->
+<!-- Category-Specific Sections Container -->
 <div id="categorySpecificSections">
+    <!-- Debug: Testing if partials are being rendered -->
+    <div style="background: yellow; padding: 10px; margin: 10px;">
+        DEBUG: Category sections container loaded
+    </div>
+    
+    @await Html.PartialAsync("_ShopsSection", Model)
     @await Html.PartialAsync("_MarketSection", Model)
     @await Html.PartialAsync("_TourSection", Model)
     @await Html.PartialAsync("_EventSection", Model)

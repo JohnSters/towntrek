@@ -10,6 +10,7 @@
 }
 
 @section Scripts {
+    <script src="~/js/add-business.js" asp-append-version="true"></script>
     <script src="~/js/edit-business.js" asp-append-version="true"></script>
 }
 
@@ -308,7 +309,7 @@
             </div>
         </div>
 
-        @await Html.PartialAsync("_CategorySpecificSectionsEdit", Model)
+        @await Html.PartialAsync("_CategorySections", Model)
 
         <!-- Form Actions -->
         <div class="form-actions">

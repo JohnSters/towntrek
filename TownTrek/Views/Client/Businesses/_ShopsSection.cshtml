@@ -1,0 +1,102 @@
+@model TownTrek.Models.ViewModels.AddBusinessViewModel
+
+<!-- Shops & Retail-Specific Section -->
+<div id="shopsSection" class="form-section category-section" style="display: none;">
+    <!-- DEBUG: Shops section loaded -->
+    <div style="background: lightgreen; padding: 5px; margin: 5px; display: block;">
+        DEBUG: Shops section is here (ID: shopsSection)
+    </div>
+    
+    <div class="form-section-header">
+        <h4 class="form-section-title">
+            <span class="step-number">7</span>
+            Shop Details
+        </h4>
+        <p class="form-section-description">Information about your shop or retail business</p>
+    </div>
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="shopType" class="form-label">Shop Type</label>
+            <select id="shopType" name="ShopType" class="form-select">
+                <option value="">Select shop type</option>
+                <option value="clothing" selected="@(Model.ShopType == "clothing")">Clothing & Fashion</option>
+                <option value="electronics" selected="@(Model.ShopType == "electronics")">Electronics</option>
+                <option value="books" selected="@(Model.ShopType == "books")">Books & Stationery</option>
+                <option value="home-garden" selected="@(Model.ShopType == "home-garden")">Home & Garden</option>
+                <option value="sports" selected="@(Model.ShopType == "sports")">Sports & Outdoor</option>
+                <option value="health-beauty" selected="@(Model.ShopType == "health-beauty")">Health & Beauty</option>
+                <option value="jewelry" selected="@(Model.ShopType == "jewelry")">Jewelry & Accessories</option>
+                <option value="toys" selected="@(Model.ShopType == "toys")">Toys & Games</option>
+                <option value="automotive" selected="@(Model.ShopType == "automotive")">Automotive</option>
+                <option value="grocery" selected="@(Model.ShopType == "grocery")">Grocery & Food</option>
+                <option value="pharmacy" selected="@(Model.ShopType == "pharmacy")">Pharmacy</option>
+                <option value="general" selected="@(Model.ShopType == "general")">General Store</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="shopSize" class="form-label">Shop Size</label>
+            <select id="shopSize" name="ShopSize" class="form-select">
+                <option value="">Select size</option>
+                <option value="small" selected="@(Model.ShopSize == "small")">Small (Under 50m²)</option>
+                <option value="medium" selected="@(Model.ShopSize == "medium")">Medium (50-200m²)</option>
+                <option value="large" selected="@(Model.ShopSize == "large")">Large (200-500m²)</option>
+                <option value="superstore" selected="@(Model.ShopSize == "superstore")">Superstore (500m²+)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="brandNames" class="form-label">Brands Carried</label>
+            <input type="text" id="brandNames" name="BrandNames" class="form-input" placeholder="e.g., Nike, Samsung, Apple" value="@Model.BrandNames">
+            <span class="form-help">List major brands you carry (optional)</span>
+        </div>
+
+        <div class="form-group">
+            <label for="priceRange" class="form-label">Price Range</label>
+            <select id="priceRange" name="PriceRange" class="form-select">
+                <option value="">Select price range</option>
+                <option value="budget" selected="@(Model.PriceRange == "budget")">Budget-Friendly</option>
+                <option value="mid-range" selected="@(Model.PriceRange == "mid-range")">Mid-Range</option>
+                <option value="premium" selected="@(Model.PriceRange == "premium")">Premium</option>
+                <option value="luxury" selected="@(Model.PriceRange == "luxury")">Luxury</option>
+                <option value="mixed" selected="@(Model.PriceRange == "mixed")">Mixed Range</option>
+            </select>
+        </div>
+
+        <div class="form-group form-group-full">
+            <label for="specialties" class="form-label">Specialties</label>
+            <textarea id="specialties" name="Specialties" class="form-textarea" rows="3" placeholder="What makes your shop unique? Special products, services, or expertise...">@Model.Specialties</textarea>
+        </div>
+
+        <div class="form-group form-group-full">
+            <label class="form-label">Shop Features</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasOnlineStore" value="true" class="service-checkbox" checked="@Model.HasOnlineStore">
+                    <span class="checkbox-label">Online Store Available</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="OffersLayaway" value="true" class="service-checkbox" checked="@Model.OffersLayaway">
+                    <span class="checkbox-label">Layaway Available</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasFittingRoom" value="true" class="service-checkbox" checked="@Model.HasFittingRoom">
+                    <span class="checkbox-label">Fitting Room</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="OffersRepairs" value="true" class="service-checkbox" checked="@Model.OffersRepairs">
+                    <span class="checkbox-label">Repair Services</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasLoyaltyProgram" value="true" class="service-checkbox" checked="@Model.HasLoyaltyProgram">
+                    <span class="checkbox-label">Loyalty Program</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="AcceptsReturns" value="true" class="service-checkbox" checked="@Model.AcceptsReturns">
+                    <span class="checkbox-label">Returns Accepted</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

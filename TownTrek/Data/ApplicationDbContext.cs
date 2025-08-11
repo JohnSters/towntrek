@@ -27,6 +27,7 @@ namespace TownTrek.Data
         public DbSet<EventDetails> EventDetails { get; set; }
         public DbSet<RestaurantDetails> RestaurantDetails { get; set; }
         public DbSet<AccommodationDetails> AccommodationDetails { get; set; }
+        public DbSet<ShopDetails> ShopDetails { get; set; }
         
         // Notifications and special hours
         public DbSet<BusinessAlert> BusinessAlerts { get; set; }
@@ -246,7 +247,7 @@ namespace TownTrek.Data
 
             // Seed business categories and subcategories (phase 1)
             builder.Entity<BusinessCategory>().HasData(
-                new BusinessCategory { Id = 1, Key = "shops-retail", Name = "Shops & Retail", Description = "Local shops and retail businesses", IconClass = "fas fa-shopping-bag", IsActive = true, FormType = Models.BusinessFormType.None },
+                new BusinessCategory { Id = 1, Key = "shops-retail", Name = "Shops & Retail", Description = "Local shops and retail businesses", IconClass = "fas fa-shopping-bag", IsActive = true, FormType = Models.BusinessFormType.Shop },
                 new BusinessCategory { Id = 2, Key = "restaurants-food", Name = "Restaurants & Food Services", Description = "Restaurants, cafes, and food services", IconClass = "fas fa-utensils", IsActive = true, FormType = Models.BusinessFormType.Restaurant },
                 new BusinessCategory { Id = 3, Key = "markets-vendors", Name = "Markets & Vendors", Description = "Local markets and vendor stalls", IconClass = "fas fa-store", IsActive = true, FormType = Models.BusinessFormType.Market },
                 new BusinessCategory { Id = 4, Key = "accommodation", Name = "Accommodation", Description = "Hotels, guesthouses, and lodging", IconClass = "fas fa-bed", IsActive = true, FormType = Models.BusinessFormType.Accommodation },
@@ -343,6 +344,16 @@ namespace TownTrek.Data
                 entity.HasOne(e => e.Business)
                       .WithOne()
                       .HasForeignKey<AccommodationDetails>(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // Configure ShopDetails
+            builder.Entity<ShopDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithOne()
+                      .HasForeignKey<ShopDetails>(e => e.BusinessId)
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
