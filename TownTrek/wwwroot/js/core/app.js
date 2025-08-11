@@ -97,7 +97,10 @@ class TownTrekApp {
       this.initializeModule('business-form', 'create');
     } else if (currentPath.includes('/client/business/edit')) {
       this.initializeModule('business-form', 'edit');
-      } else if (currentPath.includes('/client/business/manage') || currentPath.includes('/client/business/index')) {
+      } else if (
+        (currentPath.includes('/client/business/manage') || currentPath.includes('/client/business/index')) &&
+        (document.querySelector('[data-business-list]') || document.querySelector('.business-list') || document.querySelector('.admin-table'))
+      ) {
       this.initializeModule('business-list');
     }
 
@@ -110,9 +113,13 @@ class TownTrekApp {
       this.initializeModule('auth', 'forgot-password');
     }
 
-    // Admin pages (support both /Admin/* and singular controller routes like /AdminTowns)
-    const isAdminLayout = document.querySelector('.admin-layout') !== null;
-    if (isAdminLayout) {
+    // Admin pages (route-based detection only; client layout may reuse "admin" styles)
+    const isAdminRoute =
+      currentPath.startsWith('/admin') ||
+      currentPath.startsWith('/adminusers') ||
+      currentPath.startsWith('/admintowns') ||
+      currentPath.startsWith('/adminsubscription');
+    if (isAdminRoute) {
       this.initializeModule('admin');
 
       const isUsers = currentPath.includes('/admin/users') || currentPath.includes('/adminusers');

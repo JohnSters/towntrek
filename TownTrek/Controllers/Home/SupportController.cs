@@ -9,15 +9,7 @@ namespace TownTrek.Controllers.Public
     {
         private readonly ILogger<SupportController> _logger = logger;
 
-        // Support & Help
-        public IActionResult Support()
-        {
-            return View("~/Views/Client/Support/Index.cshtml");
-        }
-
-        public IActionResult Documentation()
-        {
-            return View("~/Views/Client/Documentation/Index.cshtml");
-        }
+        // Backward-compat endpoints left intentionally if linked externally
+        // Prefer new Client routes in Client/SupportController and Client/DocumentationController
     }
 }

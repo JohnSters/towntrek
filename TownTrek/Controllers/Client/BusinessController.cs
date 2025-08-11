@@ -1,4 +1,3 @@
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +8,7 @@ using TownTrek.Models.ViewModels;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Controllers.Business
+namespace TownTrek.Controllers.Client
 {
     [Authorize]
     [Route("Client/Business/[action]")]
@@ -185,3 +184,5 @@ namespace TownTrek.Controllers.Business
         }
     }
 }
+
+
