@@ -93,11 +93,11 @@ class TownTrekApp {
     const currentPath = window.location.pathname.toLowerCase();
     
     // Business-related pages
-    if (currentPath.includes('/businesses/create')) {
+    if (currentPath.includes('/client/business/create')) {
       this.initializeModule('business-form', 'create');
-    } else if (currentPath.includes('/businesses/edit')) {
+    } else if (currentPath.includes('/client/business/edit')) {
       this.initializeModule('business-form', 'edit');
-    } else if (currentPath.includes('/businesses/manage') || currentPath.includes('/businesses/index')) {
+    } else if (currentPath.includes('/client/business/manage') || currentPath.includes('/client/business/index')) {
       this.initializeModule('business-list');
     }
 

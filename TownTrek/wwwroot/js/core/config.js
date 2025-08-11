@@ -51,11 +51,11 @@ const APP_CONFIG = {
   business: {
     categories: {
       'shops-retail': 'shopsSection',
-      'markets-vendors': 'marketSection', 
-      'tours-experiences': 'tourSection',
-      'events': 'eventSection',
       'restaurants-food': 'restaurantSection',
-      'accommodation': 'accommodationSection'
+      'markets-vendors': 'marketSection', 
+      'accommodation': 'accommodationSection',
+      'tours-experiences': 'tourSection',
+      'events': 'eventSection'
     },
     defaultOperatingHours: {
       open: '09:00',

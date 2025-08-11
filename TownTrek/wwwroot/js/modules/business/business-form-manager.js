@@ -15,7 +15,7 @@ class BusinessFormManager {
    */
   constructor(options = {}) {
     this.options = {
-      formSelector: '#businessForm',
+      formSelector: options.mode === 'edit' ? '.edit-business-form' : '.add-business-form',
       mode: options.mode || 'create', // 'create' or 'edit'
       autoValidate: true,
       showNotifications: true,
@@ -62,7 +62,8 @@ class BusinessFormManager {
   cacheElements() {
     this.elements = {
       form: document.querySelector(this.options.formSelector),
-      submitBtn: document.querySelector('.submit-btn'),
+      // Use actual CTA button class from views: .auth-btn-cta
+      submitBtn: document.querySelector('.auth-btn-cta'),
       categorySelect: document.getElementById('businessCategory'),
       subCategoryContainer: document.getElementById('subCategoryContainer'),
       subCategorySelect: document.getElementById('subCategory'),
@@ -76,10 +77,12 @@ class BusinessFormManager {
       
       // Address validation
       addressInput: document.getElementById('physicalAddress'),
+      // These elements do not exist in the current views; leave null-safe
       validateAddressBtn: document.getElementById('validateAddress'),
       addressValidationResult: document.getElementById('addressValidationResult'),
-      latitudeInput: document.getElementById('latitude'),
-      longitudeInput: document.getElementById('longitude'),
+      // Hidden lat/long are rendered without IDs, only names
+      latitudeInput: document.querySelector('input[name="Latitude"]'),
+      longitudeInput: document.querySelector('input[name="Longitude"]'),
       
       // Operating hours
       dayCheckboxes: document.querySelectorAll('.day-checkbox'),
@@ -95,6 +98,9 @@ class BusinessFormManager {
         'ELEMENT_NOT_FOUND'
       );
     }
+
+    // Normalize category sections initial visibility
+    this.hideAllCategorySections();
   }
 
   /**
@@ -236,7 +242,8 @@ class BusinessFormManager {
    * @private
    */
   updateStepNumbers() {
-    const visibleSections = document.querySelectorAll('.form-section:not([style*="display: none"])');
+       const visibleSections = Array.from(document.querySelectorAll('.form-section'))
+         .filter(section => section.style.display !== 'none');
     let stepNumber = 1;
 
     visibleSections.forEach(section => {
@@ -256,6 +263,7 @@ class BusinessFormManager {
     this.elements.dayCheckboxes.forEach(checkbox => {
       checkbox.addEventListener('change', (event) => {
         const dayGroup = event.target.closest('.day-hours-group');
+        if (!dayGroup) return;
         const timeInputs = dayGroup.querySelectorAll('.time-input');
 
         timeInputs.forEach(input => {
@@ -274,8 +282,9 @@ class BusinessFormManager {
       });
 
       // Initialize state on page load
-      const dayGroup = checkbox.closest('.day-hours-group');
-      const timeInputs = dayGroup.querySelectorAll('.time-input');
+       const dayGroup = checkbox.closest('.day-hours-group');
+       if (!dayGroup) return;
+       const timeInputs = dayGroup.querySelectorAll('.time-input');
       timeInputs.forEach(input => {
         input.disabled = !checkbox.checked;
       });
@@ -311,6 +320,7 @@ class BusinessFormManager {
     const previewContainer = document.getElementById(previewContainerId);
     if (!previewContainer) return;
 
+    // Reset previews for new selection
     previewContainer.innerHTML = '';
 
     if (input.files && input.files.length > 0) {
@@ -324,16 +334,18 @@ class BusinessFormManager {
           reader.readAsDataURL(file);
         }
       });
-
-      // Add event listeners for remove buttons
-      previewContainer.addEventListener('click', (event) => {
-        if (event.target.closest('.remove-preview-btn')) {
-          const index = parseInt(event.target.closest('.remove-preview-btn').dataset.index);
-          this.removeFileFromInput(input, index);
-          event.target.closest('.image-preview-item').remove();
-        }
-      });
     }
+
+    // Delegate remove-clicks once per container
+    previewContainer.onclick = (event) => {
+      const btn = event.target.closest('.remove-preview-btn');
+      if (!btn) return;
+      const index = parseInt(btn.dataset.index, 10);
+      if (Number.isFinite(index)) {
+        this.removeFileFromInput(input, index);
+        btn.closest('.image-preview-item')?.remove();
+      }
+    };
   }
 
   /**
@@ -605,8 +617,8 @@ class BusinessFormManager {
     // Validate that checked days have both open and close times
     for (let dayCheckbox of operatingDays) {
       const dayGroup = dayCheckbox.closest('.day-hours-group');
-      const openTimeInput = dayGroup.querySelector('input[name*="OpenTime"]');
-      const closeTimeInput = dayGroup.querySelector('input[name*="CloseTime"]');
+       const openTimeInput = dayGroup.querySelector('input[name*="OpenTime"]');
+       const closeTimeInput = dayGroup.querySelector('input[name*="CloseTime"]');
 
       if (!openTimeInput.value || !closeTimeInput.value) {
         const dayName = dayGroup.querySelector('.day-label').textContent;
@@ -629,12 +641,25 @@ class BusinessFormManager {
 
     if (isLoading) {
       button.disabled = true;
-      button.dataset.originalText = button.textContent;
-      button.textContent = 'Processing...';
+      if (!button.dataset.originalText) {
+        button.dataset.originalText = button.textContent || '';
+      }
+      const labelSpan = button.querySelector('span');
+      if (labelSpan) {
+        labelSpan.textContent = 'Processing...';
+      } else {
+        button.textContent = 'Processing...';
+      }
       button.classList.add('loading');
     } else {
       button.disabled = false;
-      button.textContent = button.dataset.originalText || 'Save Business';
+      const original = button.dataset.originalText || 'Save Business';
+      const labelSpan = button.querySelector('span');
+      if (labelSpan) {
+        labelSpan.textContent = original;
+      } else {
+        button.textContent = original;
+      }
       button.classList.remove('loading');
     }
   }
@@ -694,9 +719,4 @@ if (typeof module !== 'undefined' && module.exports) {
 // Global registration
 window.BusinessFormManager = BusinessFormManager;
 
-// Auto-initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  if (document.querySelector('#businessForm')) {
-    new BusinessFormManager();
-  }
-});
+// Note: Initialization is handled by core/app.js to avoid double-binding events

@@ -412,38 +412,39 @@ class ValidationManager {
    */
   static getBusinessFormRules() {
     return {
-      businessName: [
+      // Match actual view field names (PascalCase)
+      BusinessName: [
         'required',
         { minLength: 2 },
         { maxLength: 100 },
         'businessName'
       ],
-      email: [
+      EmailAddress: [
         'required',
         'email'
       ],
-      phone: [
+      PhoneNumber: [
         'required',
         'phone'
       ],
-      physicalAddress: [
+      PhysicalAddress: [
         'required',
         { minLength: 10 }
       ],
-      businessCategory: [
+      BusinessCategory: [
         'required'
       ],
-      description: [
+      BusinessDescription: [
         { maxLength: 1000 }
       ],
-      website: [
+      Website: [
         'url'
       ],
-      businessLogo: [
+      BusinessLogo: [
         { fileSize: window.APP_CONFIG?.fileUpload?.maxFileSize || 5242880 },
         { fileType: window.APP_CONFIG?.fileUpload?.allowedImageTypes || ['image/jpeg', 'image/png'] }
       ],
-      businessImages: [
+      BusinessImages: [
         { fileSize: window.APP_CONFIG?.fileUpload?.maxFileSize || 5242880 },
         { fileType: window.APP_CONFIG?.fileUpload?.allowedImageTypes || ['image/jpeg', 'image/png'] }
       ]

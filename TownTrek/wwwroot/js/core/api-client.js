@@ -39,7 +39,12 @@ class ApiClient {
    * @returns {Promise<Object>} Response data
    */
   async request(endpoint, options = {}) {
-    const url = endpoint.startsWith('http') ? endpoint : `${this.options.baseUrl}${endpoint}`;
+    // Build URL: if absolute (http/https), use as-is. If starts with '/', treat as absolute path without baseUrl.
+    // Otherwise, prefix with configured baseUrl.
+    let url = endpoint;
+    if (!endpoint.startsWith('http')) {
+      url = endpoint.startsWith('/') ? endpoint : `${this.options.baseUrl}${endpoint}`;
+    }
     
     const defaultHeaders = {
       'Content-Type': 'application/json',
@@ -142,7 +147,8 @@ class ApiClient {
       }
     });
 
-    return this.request(url.pathname + url.search, {
+    // Pass the full href so request treats it as absolute and does not prefix baseUrl
+    return this.request(url.href, {
       method: 'GET',
       ...options
     });
