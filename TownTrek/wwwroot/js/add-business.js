@@ -35,7 +35,7 @@ function testCategorySections() {
             console.log(`  - Computed display: ${window.getComputedStyle(section).display}`);
         }
     });
-    
+
     // Also check if the container exists
     const container = document.getElementById('categorySpecificSections');
     console.log(`categorySpecificSections container: ${container ? 'Found' : 'NOT FOUND'}`);
@@ -48,13 +48,13 @@ function initializeEditingMode() {
     const categorySelect = document.getElementById('businessCategory');
     if (categorySelect && categorySelect.value) {
         console.log('Editing mode detected, initializing category:', categorySelect.value);
-        
+
         // Hide all sections first
         hideAllCategorySections();
-        
+
         // Show the appropriate section for the selected category
         showCategorySpecificSection(categorySelect.value);
-        
+
         // Trigger subcategory loading
         const event = new Event('change');
         categorySelect.dispatchEvent(event);
@@ -83,12 +83,12 @@ function initializeCategoryHandling() {
             if (selectedCategory) {
                 // Show category-specific section immediately
                 showCategorySpecificSection(selectedCategory);
-                
+
                 // Try to load subcategories (if endpoint exists)
                 try {
                     console.log('Fetching subcategories for:', selectedCategory);
-                    const response = await fetch(`/Client/GetSubCategories?category=${selectedCategory}`);
-                    
+                    const response = await fetch(`/Client/Business/GetSubCategories?category=${selectedCategory}`);
+
                     if (response.ok) {
                         const subCategories = await response.json();
                         console.log('Subcategories received:', subCategories);
@@ -133,7 +133,7 @@ function initializeCategoryHandling() {
     }
 }
 
-function hideAllCategorySections () {
+function hideAllCategorySections() {
     const sections = document.querySelectorAll('.category-section');
     sections.forEach(section => {
         section.style.display = 'none';
@@ -149,7 +149,7 @@ function hideAllCategorySections () {
     });
 }
 
-function showCategorySpecificSection (category) {
+function showCategorySpecificSection(category) {
     console.log('showCategorySpecificSection called with category:', category);
     hideAllCategorySections(); // make sure others are hidden
 
@@ -164,11 +164,11 @@ function showCategorySpecificSection (category) {
 
     const sectionId = sectionMap[category];
     console.log('Mapped category to sectionId:', sectionId);
-    
+
     if (sectionId) {
         const section = document.getElementById(sectionId);
         console.log('Found section element:', !!section);
-        
+
         if (section) {
             console.log('Showing section:', sectionId);
             console.log('Section before show:', section.style.display);
@@ -263,12 +263,12 @@ function initializeFileUploads() {
 
 function initializeExistingImageRemoval() {
     const removeButtons = document.querySelectorAll('.remove-image-btn');
-    
+
     removeButtons.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             const imageId = this.dataset.imageId;
             const imageItem = this.closest('.current-image-item');
-            
+
             if (confirm('Are you sure you want to remove this image?')) {
                 // Add to hidden input for removal
                 const removalInput = document.createElement('input');
@@ -276,10 +276,10 @@ function initializeExistingImageRemoval() {
                 removalInput.name = 'ImagesToRemove';
                 removalInput.value = imageId;
                 document.querySelector('form').appendChild(removalInput);
-                
+
                 // Remove from display
                 imageItem.remove();
-                
+
                 // Show notification
                 showNotification('Image marked for removal', 'info');
             }
@@ -324,7 +324,7 @@ function handleFilePreview(input, previewContainerId, isSingle) {
 
         // Add event listeners for remove buttons
         previewContainer.querySelectorAll('.remove-preview-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
+            btn.addEventListener('click', function () {
                 const index = parseInt(this.dataset.index);
                 removeFileFromInput(input, index);
                 this.closest('.image-preview-item').remove();
@@ -336,13 +336,13 @@ function handleFilePreview(input, previewContainerId, isSingle) {
 function removeFileFromInput(input, index) {
     const dt = new DataTransfer();
     const { files } = input;
-    
+
     for (let i = 0; i < files.length; i++) {
         if (i !== index) {
             dt.items.add(files[i]);
         }
     }
-    
+
     input.files = dt.files;
 }
 
@@ -414,16 +414,16 @@ function initializeFormValidation() {
     if (form) {
         form.addEventListener('submit', function (e) {
             console.log('Form submission started...');
-            
+
             // Ensure all hidden required fields are disabled before submission
             ensureHiddenFieldsAreDisabled();
-            
+
             if (!validateForm()) {
                 console.log('Form validation failed');
                 e.preventDefault();
                 return false;
             }
-            
+
             console.log('Form validation passed, submitting...');
         });
     }
@@ -442,14 +442,14 @@ function ensureHiddenFieldsAreDisabled() {
 
 function validateForm() {
     let isValid = true;
-    
+
     // Only validate required fields that are visible (not in hidden sections)
     const requiredFields = document.querySelectorAll('[required]');
 
     requiredFields.forEach(field => {
         // Check if the field is in a visible section
         const isVisible = field.offsetParent !== null;
-        
+
         if (isVisible && !field.value.trim()) {
             showFieldError(field, 'This field is required.');
             isValid = false;
@@ -470,7 +470,7 @@ function validateForm() {
         const dayGroup = dayCheckbox.closest('.day-hours-group');
         const openTimeInput = dayGroup.querySelector('input[name*="OpenTime"]');
         const closeTimeInput = dayGroup.querySelector('input[name*="CloseTime"]');
-        
+
         if (!openTimeInput.value || !closeTimeInput.value) {
             const dayName = dayGroup.querySelector('.day-label').textContent;
             alert(`Please set both opening and closing times for ${dayName}.`);

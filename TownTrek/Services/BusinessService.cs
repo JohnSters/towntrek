@@ -331,7 +331,10 @@ namespace TownTrek.Services
 
         public async Task<List<BusinessCategoryOption>> GetSubCategoriesAsync(string category)
         {
+            _logger.LogInformation("Getting subcategories for category: {Category}", category);
+            
             var subcategories = await _context.BusinessSubCategories
+                .Include(sc => sc.Category)
                 .Where(sc => sc.Category.IsActive && sc.IsActive && sc.Category.Key == category)
                 .OrderBy(sc => sc.Name)
                 .Select(sc => new BusinessCategoryOption
@@ -340,6 +343,8 @@ namespace TownTrek.Services
                     Text = sc.Name
                 })
                 .ToListAsync();
+                
+            _logger.LogInformation("Found {Count} subcategories for category {Category}", subcategories.Count, category);
             return subcategories;
         }
 

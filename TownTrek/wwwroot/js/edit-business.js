@@ -37,7 +37,7 @@ function initializeEditMode() {
 async function loadSubcategoriesForEdit(category) {
     try {
         console.log('Loading subcategories for edit mode:', category);
-        const response = await fetch(`/Client/GetSubCategories?category=${category}`);
+        const response = await fetch(`/Client/Business/GetSubCategories?category=${category}`);
 
         if (response.ok) {
             const subCategories = await response.json();
