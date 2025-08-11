@@ -168,7 +168,7 @@
                     }
                     else
                     {
-                        <button class="btn btn-cta" onclick="selectPlan(@tier.Id)">
+                        <button class="btn btn-cta" data-tier-id="@tier.Id">
                             @(Model.CurrentSubscription == null ? "Subscribe" : "Upgrade")
                         </button>
                     }
@@ -179,10 +179,5 @@
 </div>
 
 @section Scripts {
-    <script>
-        function selectPlan(tierId) {
-            // This would integrate with payment processing
-            alert('Payment integration would be implemented here for tier ID: ' + tierId);
-        }
-    </script>
+    <script src="~/js/client-subscription.js" asp-append-version="true"></script>
 }
