@@ -565,19 +565,10 @@ class BusinessFormManager {
       // Show loading state
       this.setLoadingState(this.elements.submitBtn, true);
 
-      // Submit form data
-      const formData = new FormData(this.elements.form);
-      const endpoint = this.options.mode === 'edit' 
-        ? API_ENDPOINTS.businesses.update 
-        : API_ENDPOINTS.businesses.create;
-
-      const result = await ApiClient.post(endpoint, formData);
-
-      if (result.success) {
-        this.handleSuccess(result);
-      } else {
-        this.handleError(new Error(result.message || 'Submission failed'));
-      }
+      // Submit the form via standard POST so MVC can handle redirects/validation
+      // This avoids relying on a JSON API response for traditional Razor actions
+      this.elements.form.submit();
+      return true;
     } catch (error) {
       ErrorHandler.handle(error, 'Business form submission', {
         userMessage: 'Failed to save business. Please try again.'
@@ -597,6 +588,13 @@ class BusinessFormManager {
       const requiredFields = section.querySelectorAll('[required]');
       requiredFields.forEach(field => {
         field.removeAttribute('required');
+      });
+
+      // Ensure hidden file inputs do not contribute undefined strings to validation
+      const fileInputs = section.querySelectorAll('input[type="file"]');
+      fileInputs.forEach(input => {
+        // No value to clear for security reasons; just ensure not required
+        input.removeAttribute('required');
       });
     });
   }

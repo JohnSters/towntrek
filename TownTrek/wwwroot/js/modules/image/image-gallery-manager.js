@@ -12,9 +12,18 @@ class ImageGalleryManager {
     this.businessId = pageHeader?.dataset.businessId;
     this.maxFileSize = parseInt(pageHeader?.dataset.maxFileSize || '0', 10);
     try {
-      this.allowedTypes = pageHeader?.dataset.allowedTypes ? JSON.parse(pageHeader.dataset.allowedTypes) : [];
+      const raw = pageHeader?.dataset.allowedTypes ? JSON.parse(pageHeader.dataset.allowedTypes) : [];
+      // Normalize allowed types to support both MIME types (image/jpeg) and extensions (.jpg, jpg)
+      const norm = Array.isArray(raw) ? raw : [];
+      this.allowedTypes = norm.map((t) => String(t).trim().toLowerCase());
+      this.allowedMimeTypes = this.allowedTypes.filter((t) => t.includes('/'));
+      this.allowedExtensions = this.allowedTypes
+        .filter((t) => !t.includes('/'))
+        .map((t) => (t.startsWith('.') ? t : `.${t}`));
     } catch {
       this.allowedTypes = [];
+      this.allowedMimeTypes = [];
+      this.allowedExtensions = [];
     }
 
     this.logoUploadArea = document.getElementById('logoUploadArea');
@@ -215,12 +224,27 @@ class ImageGalleryManager {
   }
 
   validateFile(file) {
+    if (!file) return false;
+
     if (this.maxFileSize && file.size > this.maxFileSize) {
       this.notify(`File size must be less than ${(this.maxFileSize / (1024 * 1024)).toFixed(1)}MB`, 'error');
       return false;
     }
-    if (this.allowedTypes.length && !this.allowedTypes.includes(file.type)) {
-      this.notify(`File type '${file.type}' is not allowed`, 'error');
+
+    // If no restrictions provided, allow
+    if (!this.allowedMimeTypes?.length && !this.allowedExtensions?.length) {
+      return true;
+    }
+
+    const mime = String(file.type || '').toLowerCase();
+    const ext = `.${(file.name || '').split('.').pop()?.toLowerCase() || ''}`;
+
+    const mimeAllowed = this.allowedMimeTypes?.length ? this.allowedMimeTypes.includes(mime) : false;
+    const extAllowed = this.allowedExtensions?.length ? this.allowedExtensions.includes(ext) : false;
+
+    if (!mimeAllowed && !extAllowed) {
+      const allowList = [...(this.allowedMimeTypes || []), ...(this.allowedExtensions || [])].join(', ');
+      this.notify(`File type not allowed. Allowed: ${allowList || 'images'}`, 'error');
       return false;
     }
     return true;

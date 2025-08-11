@@ -95,24 +95,33 @@ class ValidationManager {
 
     // File size validator
     this.addValidator('fileSize', (files, rule) => {
-      if (!files || files.length === 0) return true;
+      const normalized = this.normalizeFilesValue(files);
+      if (normalized.length === 0) return true;
       const maxSize = rule.value;
-      
-      for (let file of files) {
-        if (file.size > maxSize) {
+      for (const file of normalized) {
+        if (file && typeof file.size === 'number' && file.size > maxSize) {
           return false;
         }
       }
       return true;
     }, 'File size must be less than {value}');
 
-    // File type validator
+    // File type validator (supports mime and extension checks)
     this.addValidator('fileType', (files, rule) => {
-      if (!files || files.length === 0) return true;
-      const allowedTypes = Array.isArray(rule.value) ? rule.value : [rule.value];
-      
-      for (let file of files) {
-        if (!allowedTypes.includes(file.type)) {
+      const normalized = this.normalizeFilesValue(files);
+      if (normalized.length === 0) return true;
+
+      const { allowedMimeTypes, allowedExtensions } = this.normalizeAllowedTypes(rule.value);
+
+      for (const file of normalized) {
+        if (!file) return false;
+        const mime = String(file.type || '').toLowerCase();
+        const ext = `.${(file.name || '').split('.').pop()?.toLowerCase() || ''}`;
+
+        const mimeOk = allowedMimeTypes.size > 0 ? allowedMimeTypes.has(mime) : false;
+        const extOk = allowedExtensions.size > 0 ? allowedExtensions.has(ext) : false;
+
+        if (!mimeOk && !extOk) {
           return false;
         }
       }
@@ -151,6 +160,60 @@ class ValidationManager {
       const passwordField = rule.field || 'password';
       return value === allValues[passwordField];
     }, 'Passwords do not match');
+  }
+
+  /**
+   * Normalize various file input representations to an array of File
+   * @private
+   * @param {*} value - Can be FileList, File, Array<File>, string, null
+   * @returns {File[]} Array of File objects (possibly empty)
+   */
+  normalizeFilesValue(value) {
+    if (!value) return [];
+    if (value instanceof FileList) return Array.from(value);
+    if (Array.isArray(value)) return value.filter(Boolean);
+    if (typeof File !== 'undefined' && value instanceof File) return [value];
+    // Some browsers serialize empty file inputs as empty string
+    if (typeof value === 'string') return [];
+    return [];
+  }
+
+  /**
+   * Normalize allowed types configuration to sets of mime types and extensions
+   * @private
+   * @param {string|string[]} value - Allowed types (e.g., ['image/jpeg','image/png','jpg'])
+   */
+  normalizeAllowedTypes(value) {
+    const list = Array.isArray(value) ? value : [value];
+    const allowedMimeTypes = new Set();
+    const allowedExtensions = new Set();
+
+    const addExtForMime = (mime) => {
+      if (mime === 'image/jpeg' || mime === 'image/jpg') {
+        allowedExtensions.add('.jpg');
+        allowedExtensions.add('.jpeg');
+      } else if (mime === 'image/png') {
+        allowedExtensions.add('.png');
+      } else if (mime === 'image/webp') {
+        allowedExtensions.add('.webp');
+      } else if (mime === 'image/gif') {
+        allowedExtensions.add('.gif');
+      }
+    };
+
+    list.forEach((t) => {
+      const token = String(t || '').trim().toLowerCase();
+      if (!token) return;
+      if (token.includes('/')) {
+        allowedMimeTypes.add(token);
+        addExtForMime(token);
+      } else {
+        const ext = token.startsWith('.') ? token : `.${token}`;
+        allowedExtensions.add(ext);
+      }
+    });
+
+    return { allowedMimeTypes, allowedExtensions };
   }
 
   /**
@@ -215,7 +278,8 @@ class ValidationManager {
         Object.entries(rule).forEach(([ruleName, ruleValue]) => {
           const validatorData = this.validators.get(ruleName);
           if (validatorData) {
-            const ruleConfig = typeof ruleValue === 'object' ? ruleValue : { value: ruleValue };
+            // Ensure arrays are wrapped as { value: [...] } so validators can read rule.value consistently
+            const ruleConfig = (typeof ruleValue === 'object' && !Array.isArray(ruleValue)) ? ruleValue : { value: ruleValue };
             if (!validatorData.validator(value, ruleConfig, allValues)) {
               let message = ruleConfig.message || validatorData.message;
               // Replace placeholders in message
