@@ -1,7 +1,16 @@
 @model TownTrek.Models.ViewModels.AddBusinessViewModel
+
 @{
     ViewData["Title"] = "Add New Business";
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/features/business/bundle.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/add-business.js" asp-append-version="true"></script>
 }
 
 @if (Model == null)
@@ -299,17 +308,3 @@
         </div>
     </form>
 </div>
-
-@section Styles {
-    <link rel="stylesheet" href="~/css/features/business/bundle.css" asp-append-version="true" />
-}
-
-@section Scripts {
-    <script src="~/js/add-business.js" asp-append-version="true"></script>
-    <script>
-        // Additional debugging
-        console.log('AddBusiness view loaded');
-        console.log('Model available towns:', @(Model.AvailableTowns?.Count ?? 0));
-        console.log('Model available categories:', @(Model.AvailableCategories?.Count ?? 0));
-    </script>
-}

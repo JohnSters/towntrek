@@ -9,6 +9,13 @@
     <link rel="stylesheet" href="~/css/features/towns/towns.css" asp-append-version="true" />
 }
 
+@section Scripts {
+    <script src="~/js/add-town.js" asp-append-version="true"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-content">
@@ -149,8 +156,3 @@
         </div>
     </form>
 </div>
-
-@section Scripts {
-    <script src="~/js/add-town.js" asp-append-version="true"></script>
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

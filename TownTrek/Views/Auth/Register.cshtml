@@ -4,6 +4,17 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/features/auth/auth.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/auth.js" asp-append-version="true"></script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
 <div class="auth-container">
     <div class="auth-card">
         <div class="auth-header">
@@ -319,12 +330,3 @@
         </div>
     </div>
 </section>
-
-@section Styles {
-    <link rel="stylesheet" href="~/css/features/auth/auth.css" asp-append-version="true" />
-}
-
-@section Scripts {
-    <script src="~/js/auth.js" asp-append-version="true"></script>
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}

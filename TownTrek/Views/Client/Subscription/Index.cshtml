@@ -4,6 +4,10 @@
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
 }
 
+@section Scripts {
+    <script src="~/js/client-subscription.js" asp-append-version="true"></script>
+}
+
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-content">
@@ -177,7 +181,3 @@
         }
     </div>
 </div>
-
-@section Scripts {
-    <script src="~/js/client-subscription.js" asp-append-version="true"></script>
-}

@@ -4,6 +4,14 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/features/admin/subscription.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/subscription-price-change.js" asp-append-version="true"></script>
+}
+
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-content">
@@ -178,11 +186,3 @@
         </div>
     </form>
 </div>
-
-@section Styles {
-    <link rel="stylesheet" href="~/css/features/admin/subscription.css" asp-append-version="true" />
-}
-
-@section Scripts {
-    <script src="~/js/subscription-price-change.js" asp-append-version="true"></script>
-}
