@@ -162,6 +162,11 @@ namespace TownTrek.Services
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<BusinessImage?> GetImageByIdAsync(int imageId)
+        {
+            return await _context.BusinessImages.FirstOrDefaultAsync(i => i.Id == imageId && i.IsActive);
+        }
+
         public async Task<bool> DeleteImageAsync(int imageId)
         {
             try

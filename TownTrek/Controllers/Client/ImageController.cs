@@ -148,11 +148,12 @@ namespace TownTrek.Controllers.Client
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(int imageId)
+        public async Task<IActionResult> Delete([FromBody] DeleteImageRequest request)
         {
+            if (request == null || request.ImageId <= 0) return Json(new { success = false, message = "Invalid request" });
+            var imageId = request.ImageId;
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            var images = await _imageService.GetBusinessImagesAsync(0);
-            var image = images.FirstOrDefault(i => i.Id == imageId);
+            var image = await _imageService.GetImageByIdAsync(imageId);
             if (image == null)
             {
                 return Json(new { success = false, message = "Image not found" });

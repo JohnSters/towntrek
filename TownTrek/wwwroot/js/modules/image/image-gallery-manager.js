@@ -153,13 +153,29 @@ class ImageGalleryManager {
   }
 
   async deleteImage(imageId) {
-    const proceed = window.confirm('Are you sure you want to delete this image?');
-    if (!proceed) return;
+    if (window.ConfirmationModal) {
+      let confirmed = false;
+      await new Promise((resolve) => {
+        window.ConfirmationModal.show({
+          title: 'Delete Image',
+          message: 'Are you sure you want to delete this image?',
+          details: 'This action cannot be undone.',
+          confirmText: 'Delete',
+          iconType: 'danger',
+          confirmButtonType: 'danger',
+          onConfirm: () => { confirmed = true; resolve(); }
+        });
+      });
+      if (!confirmed) return;
+    } else {
+      const proceed = window.confirm('Are you sure you want to delete this image?');
+      if (!proceed) return;
+    }
     try {
       const response = await fetch('/Image/Delete', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ imageId })
+        body: JSON.stringify({ imageId: Number(imageId) })
       });
       const result = await response.json();
       if (result.success) {
