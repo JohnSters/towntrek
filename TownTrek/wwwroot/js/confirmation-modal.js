@@ -238,4 +238,20 @@ function confirmDeleteBusiness(businessName, businessId) {
         formMethod: 'post',
         formData: { id: businessId }
     });
+}
+
+// Client-specific delete function
+function confirmDeleteClientBusiness(businessName, businessId) {
+    showConfirmationModal({
+        title: 'Delete Business',
+        message: `Are you sure you want to delete "${businessName}"?`,
+        details: 'This action cannot be undone. The business will be permanently removed.',
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        iconType: 'danger',
+        confirmButtonType: 'danger',
+        formAction: '/Client/Business/DeleteBusiness',
+        formMethod: 'post',
+        formData: { id: businessId }
+    });
 } 
