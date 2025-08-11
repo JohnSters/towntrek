@@ -187,6 +187,16 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- TownTrek Core JavaScript -->
+    <script src="~/js/core/config.js" asp-append-version="true"></script>
+    <script src="~/js/core/utils.js" asp-append-version="true"></script>
+    <script src="~/js/core/error-handler.js" asp-append-version="true"></script>
+    <script src="~/js/core/api-client.js" asp-append-version="true"></script>
+    <script src="~/js/core/notifications.js" asp-append-version="true"></script>
+    <script src="~/js/core/validation.js" asp-append-version="true"></script>
+    <script src="~/js/core/app.js" asp-append-version="true"></script>
+    
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -10,8 +10,13 @@
 }
 
 @section Scripts {
-    <script src="~/js/add-business.js" asp-append-version="true"></script>
-    <script src="~/js/edit-business.js" asp-append-version="true"></script>
+    <script src="~/js/modules/business/business-form-manager.js" asp-append-version="true"></script>
+    <script>
+        // Initialize in edit mode
+        document.addEventListener('DOMContentLoaded', () => {
+            new BusinessFormManager({ mode: 'edit' });
+        });
+    </script>
 }
 
 @if (Model == null)
