@@ -39,7 +39,7 @@ namespace TownTrek.Controllers.Business
         }
 
         [RequireActiveSubscription(allowFreeTier: true)]
-        public async Task<IActionResult> AddBusiness()
+        public async Task<IActionResult> Create()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             
@@ -60,7 +60,7 @@ namespace TownTrek.Controllers.Business
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddBusiness(AddBusinessViewModel model)
+        public async Task<IActionResult> Create(AddBusinessViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
