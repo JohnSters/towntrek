@@ -59,9 +59,9 @@ wwwroot/js/
 │   ├── business/         # Business management
 │   ├── admin/            # Admin functionality
 │   └── client/           # Client functionality
-└── shared/               # Shared utilities
-    ├── constants.js      # Application constants
-    ├── helpers.js        # Helper functions
+└── shared/               # Shared utilities (optional; use core where possible)
+    ├── constants.js      # Application constants (if not using core/config.js)
+    ├── helpers.js        # Helper functions (prefer core/utils.js)
     └── mixins.js         # Reusable mixins
 ```
 
@@ -99,10 +99,10 @@ class ClassName {
   // Class implementation
 }
 
-// Exports (if using modules)
-export default ClassName;
-
-// Global registration for legacy compatibility
+// Export (UMD-lite style for legacy compatibility)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ClassName;
+}
 window.ClassName = ClassName;
 
 // Initialize when DOM is ready
@@ -415,58 +415,7 @@ const businessScore = (reviews * 0.4) + (ratings * 0.3) + (activity * 0.3);
 ## Error Handling
 
 ### Error Handling Strategy
-```javascript
-class ErrorHandler {
-  /**
-   * Handle application errors consistently
-   * @param {Error} error - Error object
-   * @param {string} context - Error context
-   * @param {Object} options - Handling options
-   */
-  static handle(error, context = '', options = {}) {
-    const errorInfo = {
-      message: error.message,
-      context,
-      timestamp: new Date().toISOString(),
-      stack: error.stack,
-      userAgent: navigator.userAgent,
-      url: window.location.href
-    };
-
-    // Log error
-    console.error('Application Error:', errorInfo);
-
-    // Show user notification
-    if (options.showNotification !== false) {
-      const userMessage = options.userMessage || 'An error occurred. Please try again.';
-      NotificationManager.show(userMessage, 'error');
-    }
-
-    // Send to logging service (if configured)
-    if (window.APP_CONFIG?.logging?.enabled) {
-      this.logToService(errorInfo);
-    }
-
-    // Call custom error handler if provided
-    if (options.onError && typeof options.onError === 'function') {
-      options.onError(error, errorInfo);
-    }
-  }
-
-  /**
-   * Create application-specific error
-   * @param {string} message - Error message
-   * @param {string} code - Error code
-   * @param {Object} details - Additional error details
-   */
-  static createError(message, code = 'GENERIC_ERROR', details = {}) {
-    const error = new Error(message);
-    error.code = code;
-    error.details = details;
-    return error;
-  }
-}
-```
+Use the centralized `core/error-handler.js` for all error handling. Avoid duplicating error logic in modules. Ensure notifications adhere to the design system (no drop shadows). Use CSRF headers on form posts/fetches.
 
 ### Try-Catch Usage
 ```javascript
@@ -662,29 +611,7 @@ function displaySafeHtml(html) {
 ```
 
 ### CSRF Protection
-```javascript
-// Always include CSRF token in API requests
-class ApiClient {
-  static getAntiForgeryToken() {
-    return document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-  }
-
-  static async post(url, data) {
-    const token = this.getAntiForgeryToken();
-    
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'RequestVerificationToken': token
-      },
-      body: JSON.stringify(data)
-    });
-
-    return response.json();
-  }
-}
-```
+Always include the anti-forgery token on non-GET requests. Prefer using `core/api-client.js` methods which add the `RequestVerificationToken` header automatically for JSON and FormData. For direct `fetch` (e.g., raw FormData uploads), read the token from `ApiClient.getAntiForgeryToken()` and set the header explicitly.
 
 ## Testing Requirements
 
@@ -1006,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
 - **ESLint**: For code style and error detection
 - **Prettier**: For code formatting
 - **JSDoc**: For documentation generation
-- **Jest**: For unit testing
+- **Jest** (or equivalent): For unit testing where applicable
 - **Lighthouse**: For performance auditing
 
 ### Configuration Files

@@ -6,7 +6,6 @@
 }
 
 @section Scripts {
-    <script src="~/js/image-gallery.js" asp-append-version="true"></script>
 }
 
 @section Styles {
@@ -135,7 +134,7 @@
             <div class="image-grid" id="imageGrid">
                 @foreach (var image in Model.AllImages.OrderBy(i => i.DisplayOrder).ThenBy(i => i.UploadedAt))
                 {
-                    <div class="image-card" data-image-id="@image.Id">
+                    <div class="image-card" data-image-id="@image.Id" data-alt-text="@image.AltText" data-display-order="@image.DisplayOrder">
                         <img src="@(image.ThumbnailUrl ?? image.ImageUrl)" alt="@image.AltText" />
                         <div class="image-card-body">
                             <div class="image-card-title">@image.OriginalFileName</div>

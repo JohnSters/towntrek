@@ -9,7 +9,7 @@
 }
 
 @section Scripts {
-    <script src="~/js/admin-subscription-index.js" asp-append-version="true"></script>
+    
 }
 
 <!-- Page Header -->
@@ -80,7 +80,7 @@
     </div>
     
     <div class="table-responsive">
-        <table class="admin-table">
+        <table class="admin-table" data-table>
             <thead>
                 <tr>
                     <th>Tier</th>
@@ -95,7 +95,7 @@
             <tbody>
                 @foreach (var tier in Model.Tiers.OrderBy(t => t.SortOrder))
                 {
-                    <tr>
+                    <tr data-href="@Url.Action("Details", new { id = tier.Id })">
                         <td>
                             <div class="tier-info">
                                 <div class="tier-name">@tier.DisplayName</div>

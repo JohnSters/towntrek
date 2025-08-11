@@ -86,7 +86,7 @@ const Utils = {
    * @returns {string} Unique ID
    */
   generateId(prefix = 'id') {
-    return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
   },
 
   /**
@@ -228,23 +228,37 @@ const Utils = {
    */
   async copyToClipboard(text) {
     try {
-      if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
+      // Preferred modern API in secure contexts
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function' && window.isSecureContext) {
+        await navigator.clipboard.writeText(String(text));
         return true;
-      } else {
-        // Fallback for older browsers
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        textArea.style.position = 'fixed';
-        textArea.style.left = '-999999px';
-        textArea.style.top = '-999999px';
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        const result = document.execCommand('copy');
-        textArea.remove();
-        return result;
       }
+
+      // Secondary modern API: ClipboardItem support
+      if (navigator.clipboard && typeof navigator.clipboard.write === 'function' && window.isSecureContext) {
+        const blob = new Blob([String(text)], { type: 'text/plain' });
+        const item = new ClipboardItem({ 'text/plain': blob });
+        await navigator.clipboard.write([item]);
+        return true;
+      }
+
+      // Non-secure or unsupported environments: present a selectable field and instruct user
+      const container = document.createElement('div');
+      container.style.position = 'fixed';
+      container.style.left = '-9999px';
+      const input = document.createElement('input');
+      input.value = String(text);
+      input.setAttribute('readonly', '');
+      container.appendChild(input);
+      document.body.appendChild(container);
+      input.select();
+      // Inform user to press keyboard shortcut since programmatic copy is not available
+      if (window.NotificationManager) {
+        NotificationManager.info('Press Ctrl+C (⌘+C on macOS) to copy the selected text.');
+      }
+      // Keep selection momentarily for the user
+      setTimeout(() => { document.body.removeChild(container); }, 3000);
+      return false;
     } catch (error) {
       console.error('Failed to copy text:', error);
       return false;

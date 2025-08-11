@@ -21,6 +21,7 @@ class AdminManager {
     this.setupResponsiveHandling();
     this.setupNavigationHighlighting();
     this.setupNotifications();
+    this.setupUserMenu();
     this.isInitialized = true;
     console.log('✅ AdminManager initialized');
   }
@@ -83,6 +84,30 @@ class AdminManager {
         NotificationManager.info('No new notifications');
       });
     }
+  }
+
+  setupUserMenu() {
+    const userMenu = document.querySelector('.user-menu');
+    if (!userMenu) return;
+    const dropdown = userMenu.querySelector('.user-dropdown');
+    if (!dropdown) return;
+
+    // Toggle on click
+    userMenu.addEventListener('click', () => dropdown.classList.toggle('active'));
+
+    // Close when clicking outside
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.user-menu')) {
+        dropdown.classList.remove('active');
+      }
+    });
+
+    // Escape to close
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        dropdown.classList.remove('active');
+      }
+    });
   }
 
   destroy() {

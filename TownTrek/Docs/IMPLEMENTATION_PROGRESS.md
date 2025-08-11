@@ -13,13 +13,17 @@ wwwroot/js/
 │   ├── notifications.js    ✅ User notification system
 │   ├── validation.js       ✅ Form validation utilities
 │   └── app.js              ✅ Main application bootstrap
-├── components/             ✅ Created (empty, ready for components)
+├── components/             ✅ Created
+│   ├── modal.js            ✅ Confirmation workflows (replaces confirmation-modal.js)
+│   ├── file-upload.js      ✅ Placeholder
+│   └── form-handler.js     ✅ Generic form handling via data-form-handler
 ├── modules/                ✅ Created
 │   ├── business/           ✅ Created
-│   │   └── business-form-manager.js ✅ Replaces add-business.js
-│   ├── auth/               ✅ Created (ready for auth module)
-│   ├── admin/              ✅ Created (ready for admin modules)
-│   └── client/             ✅ Created (ready for client modules)
+│   │   ├── business-form-manager.js ✅ Replaces add-business.js
+│   │   └── business-list.js ✅ Replaces manage-businesses.js
+│   ├── auth/               ✅ Created (AuthManager implemented)
+│   ├── admin/              ✅ Created (admin-manager, user/town/subscription management implemented)
+│   └── client/             ✅ Created (client-manager, profile, subscription implemented)
 └── shared/                 ✅ Created (ready for shared utilities)
 ```
 
@@ -115,7 +119,17 @@ wwwroot/js/
 - ✅ Updated `Views/Client/Businesses/Create.cshtml` to use new module
 - ✅ Updated `Views/Client/Businesses/Edit.cshtml` to use new module and removed inline JS
 - ✅ Updated `site.js` to be a proper bootstrap file
- - ✅ Updated `Auth/Login.cshtml`, `Auth/Register.cshtml`, `Auth/ForgotPassword.cshtml` to remove legacy `auth.js` and use `AuthManager` auto-init
+- ✅ Updated `Auth/Login.cshtml`, `Auth/Register.cshtml`, `Auth/ForgotPassword.cshtml` to remove legacy `auth.js` and use `AuthManager` auto-init
+- ✅ Updated `Views/Admin/Users/Index.cshtml` to rely on auto-init (removed `admin-users.js`)
+- ✅ Updated `Views/Admin/Towns/Index.cshtml` to rely on auto-init (removed `admin-towns-index.js`)
+- ✅ Updated `Views/Admin/Subscriptions/Index.cshtml` to rely on auto-init (removed `admin-subscription-index.js`)
+- ✅ Updated `Views/Admin/Subscriptions/ChangePrice.cshtml` to rely on module behavior (removed `subscription-price-change.js`)
+- ✅ Updated `Views/Admin/Towns/Create.cshtml` and `Edit.cshtml` to use `data-form-handler` (removed `add-town.js`)
+- ✅ Updated `Views/Client/Businesses/ManageBusinesses.cshtml` to rely on `business-list` module (removed `manage-businesses.js`)
+- ✅ Updated `Views/Client/Profile/EditProfile.cshtml` to rely on auto-init (removed `profile-edit.js`)
+- ✅ Updated `Views/Client/Subscription/Index.cshtml` to rely on auto-init (removed `client-subscription.js`)
+- ✅ Updated `Views/Image/Gallery.cshtml` to rely on auto-init (removed `image-gallery.js`)
+- ✅ Updated `Views/Image/MediaGallery.cshtml` to rely on auto-init (removed `media-gallery.js`)
 
 ## 🎯 Key Improvements Achieved
 
@@ -188,17 +202,30 @@ function validateForm() { ... }           // Line 400 (DUPLICATE!)
 - [x] Delete `wwwroot/js/add-business.js` (replaced by business-form-manager.js)
 - [x] Delete `wwwroot/js/edit-business.js` (functionality merged into business-form-manager.js)
 - [x] Delete `wwwroot/js/client-admin.js` (replaced by client-manager module)
+- [x] Delete `wwwroot/js/admin-users.js` (replaced by modules/admin/user-management.js)
+- [x] Delete `wwwroot/js/admin-towns-index.js` (replaced by modules/admin/town-management.js)
+- [x] Delete `wwwroot/js/admin-subscription-index.js` (replaced by modules/admin/subscription-management.js)
+- [x] Delete `wwwroot/js/subscription-price-change.js` (replaced by modules/admin/subscription-management.js)
+- [x] Delete `wwwroot/js/add-town.js` (validation handled by components/form-handler.js)
+- [x] Delete `wwwroot/js/manage-businesses.js` (replaced by modules/business/business-list.js)
+- [x] Delete `wwwroot/js/profile-edit.js` (replaced by modules/client/profile.js)
+- [x] Delete `wwwroot/js/client-subscription.js` (replaced by modules/client/subscription.js)
+- [x] Delete `wwwroot/js/confirmation-modal.js` (replaced by components/modal.js)
+- [x] Delete `wwwroot/js/image-gallery.js` (replaced by modules/image/image-gallery-manager.js)
+- [x] Delete `wwwroot/js/media-gallery.js` (replaced by modules/image/media-gallery-manager.js)
 
 ### 3. Continue Module Migration
 - [x] Migrate `auth.js` to `modules/auth/auth-manager.js` (implemented, views updated)
 - [x] Replace `client-admin.js` with `modules/client/client-manager.js` in client layout
-- [ ] Migrate admin files to `modules/admin/` (next: `admin/user-management.js`, `admin/town-management.js`, `admin/subscription-management.js`)
-- [x] Create reusable components in `components/` (placeholder `file-upload.js` added)
+- [x] Migrate admin files to `modules/admin/` (`user-management.js`, `town-management.js`, `subscription-management.js` implemented; views updated)
+- [x] Implement `modules/business/business-list.js` (replaces `manage-businesses.js`)
+- [x] Implement client modules: `modules/client/profile.js` (replaces `profile-edit.js`) and `modules/client/subscription.js` (replaces `client-subscription.js`)
+- [x] Create reusable components in `components/` (`modal.js`, `file-upload.js`, `form-handler.js`)
 
 ### 4. Create Shared Components
 - [x] `components/modal.js` (initial component scaffold; will replace confirmation-modal.js)
 - [x] `components/file-upload.js` (placeholder; generic behaviors to be implemented)
-- [ ] `components/data-table.js` (for admin tables)
+- [x] `components/data-table.js` (for admin tables)
 - [ ] `components/form-handler.js` (generic form handling)
 
 ## 🧪 Testing Checklist

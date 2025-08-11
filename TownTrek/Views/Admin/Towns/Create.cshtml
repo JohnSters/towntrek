@@ -10,7 +10,6 @@
 }
 
 @section Scripts {
-    <script src="~/js/add-town.js" asp-append-version="true"></script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
@@ -41,7 +40,7 @@
         <p class="admin-card-description">Fill in the details below to create the town listing</p>
     </div>
     
-    <form asp-action="Create" method="post" class="add-business-form">
+    <form asp-action="Create" method="post" class="add-business-form" data-form-handler>
         @Html.AntiForgeryToken()
         @Html.HiddenFor(m => m.Id)
         
