@@ -1,8 +1,10 @@
 // Image Gallery JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-    const businessId = window.businessId;
-    const maxFileSize = window.maxFileSize;
-    const allowedTypes = window.allowedTypes;
+    // Get data from page header data attributes
+    const pageHeader = document.querySelector('.page-header');
+    const businessId = pageHeader?.dataset.businessId;
+    const maxFileSize = parseInt(pageHeader?.dataset.maxFileSize || '0');
+    const allowedTypes = pageHeader?.dataset.allowedTypes ? JSON.parse(pageHeader.dataset.allowedTypes) : [];
 
     // Logo upload handling
     const logoUploadArea = document.getElementById('logoUploadArea');
@@ -135,8 +137,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Setup event delegation for action buttons
+    document.addEventListener('click', function(e) {
+        const button = e.target.closest('[data-action]');
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const imageId = button.dataset.imageId;
+
+        if (action === 'delete') {
+            deleteImage(imageId);
+        } else if (action === 'edit') {
+            editImage(imageId);
+        }
+    });
+
     // Delete image
-    window.deleteImage = async function(imageId) {
+    async function deleteImage(imageId) {
         if (!confirm('Are you sure you want to delete this image?')) return;
 
         try {
@@ -165,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Edit image (placeholder)
-    window.editImage = function(imageId) {
+    function editImage(imageId) {
         // This could open a modal for editing alt text, display order, etc.
         alert('Edit functionality coming soon!');
     }

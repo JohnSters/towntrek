@@ -1,7 +1,12 @@
 @model TownTrek.Models.ViewModels.ClientDashboardViewModel
+
 @{
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+@section Scripts {
+    <script src="~/js/client-admin.js" asp-append-version="true"></script>
 }
 
 <!-- Page Header -->
@@ -280,8 +285,4 @@
         }
     </div>
 </div>
-
-@section Scripts {
-    <script src="~/js/client-admin.js" asp-append-version="true"></script>
-}
    
