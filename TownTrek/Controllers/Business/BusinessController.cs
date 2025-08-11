@@ -84,7 +84,7 @@ namespace TownTrek.Controllers.Business
             return View(model);
         }
 
-        public async Task<IActionResult> EditBusiness(int id)
+        public async Task<IActionResult> Edit(int id)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             
@@ -103,7 +103,7 @@ namespace TownTrek.Controllers.Business
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditBusiness(int id, AddBusinessViewModel model)
+        public async Task<IActionResult> Edit(int id, AddBusinessViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
