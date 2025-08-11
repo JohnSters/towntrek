@@ -241,9 +241,10 @@ class TownTrekApp {
       'business-list': 'BusinessListManager',
       'auth': 'AuthManager',
       'admin': 'AdminManager',
-      'admin-users': 'AdminUsersManager',
-      'admin-towns': 'AdminTownsManager',
-      'admin-subscriptions': 'AdminSubscriptionsManager',
+      // Admin feature modules (aligned with refactoring plan naming)
+      'admin-users': 'AdminUserManagement',
+      'admin-towns': 'AdminTownManagement',
+      'admin-subscriptions': 'AdminSubscriptionManagement',
       'client': 'ClientManager',
       'client-profile': 'ClientProfileManager',
       'client-subscription': 'ClientSubscriptionManager',

@@ -1,15 +1,14 @@
 /**
- * @fileoverview ClientManager - handles client portal shell behaviors
+ * @fileoverview AdminManager - handles admin portal shell behaviors
  */
 
-class ClientManager {
+class AdminManager {
   constructor() {
     this.elements = {
       sidebar: document.getElementById('adminSidebar'),
       sidebarToggle: document.getElementById('sidebarToggle'),
       sidebarOverlay: document.getElementById('sidebarOverlay'),
-      navLinks: document.querySelectorAll('.nav-link'),
-      userMenu: document.querySelector('.user-menu')
+      navLinks: document.querySelectorAll('.nav-link')
     };
     this.isMobile = window.innerWidth <= 1024;
     this.isInitialized = false;
@@ -21,10 +20,9 @@ class ClientManager {
     this.setupSidebarToggle();
     this.setupResponsiveHandling();
     this.setupNavigationHighlighting();
-    this.setupUserMenu();
     this.setupNotifications();
     this.isInitialized = true;
-    console.log('✅ ClientManager initialized');
+    console.log('✅ AdminManager initialized');
   }
 
   setupSidebarToggle() {
@@ -78,20 +76,6 @@ class ClientManager {
     });
   }
 
-  setupUserMenu() {
-    const userMenu = this.elements.userMenu;
-    if (!userMenu) return;
-    const dropdown = userMenu.querySelector('.user-dropdown');
-    if (!dropdown) return;
-    userMenu.addEventListener('click', () => dropdown.classList.toggle('active'));
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.user-menu')) dropdown.classList.remove('active');
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') dropdown.classList.remove('active');
-    });
-  }
-
   setupNotifications() {
     const notificationBtn = document.querySelector('.header-btn[title="Notifications"]');
     if (notificationBtn) {
@@ -108,10 +92,10 @@ class ClientManager {
 
 // Export
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ClientManager;
+  module.exports = AdminManager;
 }
 
 // Global
-window.ClientManager = ClientManager;
+window.AdminManager = AdminManager;
 
 

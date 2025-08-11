@@ -187,15 +187,16 @@ function validateForm() { ... }           // Line 400 (DUPLICATE!)
 ### 2. Remove Old Files (After Testing)
 - [x] Delete `wwwroot/js/add-business.js` (replaced by business-form-manager.js)
 - [x] Delete `wwwroot/js/edit-business.js` (functionality merged into business-form-manager.js)
+- [x] Delete `wwwroot/js/client-admin.js` (replaced by client-manager module)
 
 ### 3. Continue Module Migration
-- [ ] Migrate `auth.js` to `modules/auth/auth-manager.js`
- - [x] Migrate `client-admin.js` to enhanced `modules/client/client-manager.js` (stub added)
-- [ ] Migrate admin files to `modules/admin/`
+- [x] Migrate `auth.js` to `modules/auth/auth-manager.js` (implemented, views updated)
+- [x] Replace `client-admin.js` with `modules/client/client-manager.js` in client layout
+- [ ] Migrate admin files to `modules/admin/` (next: `admin/user-management.js`, `admin/town-management.js`, `admin/subscription-management.js`)
 - [x] Create reusable components in `components/` (placeholder `file-upload.js` added)
 
 ### 4. Create Shared Components
-- [ ] `components/modal.js` (from confirmation-modal.js)
+- [x] `components/modal.js` (initial component scaffold; will replace confirmation-modal.js)
 - [x] `components/file-upload.js` (placeholder; generic behaviors to be implemented)
 - [ ] `components/data-table.js` (for admin tables)
 - [ ] `components/form-handler.js` (generic form handling)
