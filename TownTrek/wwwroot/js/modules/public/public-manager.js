@@ -91,7 +91,9 @@ class PublicManager {
     }
 
     // Fallback to DOM-based detection (no inline scripts required in views)
-    if (document.querySelector('.business-search-page')) {
+    if (document.querySelector('.public-dashboard-page')) {
+      this.routeToPage('public-dashboard');
+    } else if (document.querySelector('.business-search-page')) {
       this.routeToPage('public-search');
     } else if (document.querySelector('.favorites-page')) {
       this.routeToPage('public-favorites');
@@ -104,6 +106,9 @@ class PublicManager {
 
   routeToPage(pageKey) {
     switch (pageKey) {
+      case 'public-dashboard':
+        this.initializeDashboard();
+        break;
       case 'public-town-businesses':
         this.initializeTownBusinesses();
         break;
