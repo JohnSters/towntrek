@@ -47,7 +47,6 @@ class ApiClient {
     }
     
     const defaultHeaders = {
-      'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest'
     };
 
@@ -59,6 +58,18 @@ class ApiClient {
       ...options,
       headers: { ...defaultHeaders, ...options.headers }
     };
+
+    // Ensure Content-Type is only set when not sending FormData
+    const isFormDataBody = options && options.body && (options.body instanceof FormData);
+    if (isFormDataBody) {
+      // Remove any accidental Content-Type so browser can set boundary
+      if (config.headers && config.headers['Content-Type']) {
+        delete config.headers['Content-Type'];
+      }
+    } else if (!config.headers['Content-Type'] && config.method && config.method.toUpperCase() !== 'GET' && config.method.toUpperCase() !== 'DELETE') {
+      // Default to JSON for non-FormData, non-GET/DELETE requests when header not provided
+      config.headers['Content-Type'] = 'application/json';
+    }
 
     // Add timeout
     const controller = new AbortController();
@@ -166,6 +177,7 @@ class ApiClient {
       const token = ApiClient.getAntiForgeryToken();
       if (token) {
         data.append('__RequestVerificationToken', token);
+        config.headers = { ...(config.headers || {}), 'RequestVerificationToken': token };
       }
       // Don't set Content-Type for FormData, let browser set it with boundary
       delete config.headers?.['Content-Type'];
@@ -176,6 +188,7 @@ class ApiClient {
       const token = ApiClient.getAntiForgeryToken();
       if (token) {
         formData.append('__RequestVerificationToken', token);
+        config.headers = { ...(config.headers || {}), 'RequestVerificationToken': token };
       }
       
       // Convert JSON data to form data
@@ -203,6 +216,7 @@ class ApiClient {
   async put(endpoint, data = {}, options = {}) {
     const config = {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
       ...options
     };
 

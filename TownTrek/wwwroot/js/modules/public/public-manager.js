@@ -211,33 +211,68 @@ class PublicManager {
   showReviewModal(button) {
     const businessId = button.dataset.businessId;
     
-    // Use existing FormModal component
-    window.showFormModal({
-      title: 'Write a Review',
-      width: '600px',
-      fields: [
-        { 
-          name: 'Rating', 
-          label: 'Your Rating (1-5 stars)', 
-          type: 'number', 
-          value: '5',
-          min: 1,
-          max: 5
-        },
-        { 
-          name: 'Comment', 
-          label: 'Your Review (optional)', 
-          type: 'text', 
-          value: '',
-          placeholder: 'Share your experience with this business...'
+    // Prefer existing FormModal component if available
+    if (typeof window.showFormModal === 'function') {
+      window.showFormModal({
+        title: 'Write a Review',
+        width: '600px',
+        fields: [
+          { name: 'Rating', label: 'Your Rating (1-5 stars)', type: 'number', value: '5', min: 1, max: 5 },
+          { name: 'Comment', label: 'Your Review (optional)', type: 'text', value: '', placeholder: 'Share your experience with this business...' }
+        ],
+        submitText: 'Submit Review',
+        cancelText: 'Cancel',
+        onSubmit: async (values, close) => {
+          await this.submitReviewData(businessId, values);
+          close();
         }
-      ],
-      submitText: 'Submit Review',
-      cancelText: 'Cancel',
-      onSubmit: async (values, close) => {
-        await this.submitReviewData(businessId, values);
-        close();
-      }
+      });
+      return;
+    }
+
+    // Lightweight fallback modal if FormModal is not present
+    const modal = document.createElement('div');
+    modal.className = 'tt-form-modal';
+    modal.innerHTML = `
+      <div class="tt-form-modal__overlay"></div>
+      <div class="tt-form-modal__content" role="dialog" aria-modal="true" aria-label="Write a Review">
+        <div class="tt-form-modal__header">
+          <h3>Write a Review</h3>
+          <button type="button" class="tt-form-modal__close" aria-label="Close">×</button>
+        </div>
+        <div class="tt-form-modal__body">
+          <form class="tt-form-modal__form">
+            <div class="tt-form-field">
+              <label for="tt-review-rating">Your Rating (1-5 stars)</label>
+              <input id="tt-review-rating" name="Rating" type="number" min="1" max="5" value="5" class="form-input" />
+            </div>
+            <div class="tt-form-field">
+              <label for="tt-review-comment">Your Review (optional)</label>
+              <textarea id="tt-review-comment" name="Comment" rows="4" class="form-input" placeholder="Share your experience with this business..."></textarea>
+            </div>
+            <div class="tt-form-modal__actions">
+              <button type="submit" class="btn btn-cta">Submit Review</button>
+              <button type="button" class="btn btn-secondary tt-form-cancel">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const closeModal = () => modal.remove();
+    modal.querySelector('.tt-form-modal__overlay')?.addEventListener('click', closeModal);
+    modal.querySelector('.tt-form-modal__close')?.addEventListener('click', closeModal);
+    modal.querySelector('.tt-form-cancel')?.addEventListener('click', closeModal);
+    const form = modal.querySelector('form');
+    form?.addEventListener('submit', async (evt) => {
+      evt.preventDefault();
+      const values = {
+        Rating: form.querySelector('[name="Rating"]').value,
+        Comment: form.querySelector('[name="Comment"]').value
+      };
+      await this.submitReviewData(businessId, values);
+      closeModal();
     });
   }
 

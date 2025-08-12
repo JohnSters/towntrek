@@ -11,21 +11,21 @@
         <div class="dropdown-menu">
             @if (Model.IsMember)
             {
-                <a asp-controller="Member" asp-action="Index" class="dropdown-item">
+                <a asp-controller="Public" asp-action="Index" class="dropdown-item">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5v4m8-4v4"/>
                     </svg>
                     Member Dashboard
                 </a>
-                <a asp-controller="Member" asp-action="Search" class="dropdown-item">
+                <a asp-controller="Public" asp-action="Search" class="dropdown-item">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
                     Search Businesses
                 </a>
-                <a asp-controller="Member" asp-action="Favorites" class="dropdown-item">
+                <a asp-controller="Public" asp-action="Favorites" class="dropdown-item">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                     </svg>
@@ -53,7 +53,7 @@
             }
             else
             {
-                <a asp-controller="Member" asp-action="Index" class="dropdown-item">
+                <a asp-controller="Public" asp-action="Index" class="dropdown-item">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                     </svg>
