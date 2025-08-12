@@ -15,12 +15,11 @@ class PublicManager {
 
   init() {
     this.bindEventListeners();
-    this.setupUserMenu();
     this.initializeCurrentPage();
   }
 
   bindEventListeners() {
-    // Global event delegation for member features
+    // Global event delegation for public features
     document.addEventListener('click', this.handleClick.bind(this));
     document.addEventListener('submit', this.handleSubmit.bind(this));
     document.addEventListener('change', this.handleChange.bind(this));
@@ -159,20 +158,6 @@ class PublicManager {
   initializeFavorites() {
     // Initialize filtering and sorting
     this.initializeFavoritesFiltering();
-  }
-
-  setupUserMenu() {
-    const userMenu = document.querySelector('.user-menu');
-    if (!userMenu) return;
-    const dropdown = userMenu.querySelector('.user-dropdown');
-    if (!dropdown) return;
-    userMenu.addEventListener('click', () => dropdown.classList.toggle('active'));
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.user-menu')) dropdown.classList.remove('active');
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') dropdown.classList.remove('active');
-    });
   }
 
   async toggleFavorite(button) {

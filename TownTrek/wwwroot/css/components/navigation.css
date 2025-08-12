@@ -30,6 +30,17 @@
 /* If the avatar sits at the far right edge inside a navbar, keep the menu within viewport */
 .navbar .user-menu { position: relative; }
 .navbar .user-dropdown { left: 0; right: auto; }
+
+/* Admin layout specific positioning */
+.admin-header .user-menu { position: relative; }
+.admin-header .user-dropdown { right: 0; left: auto; }
+
+/* Debug: Add a subtle border to help identify dropdown positioning issues */
+.user-dropdown.active .dropdown-menu { 
+    border: 1px solid var(--medium-gray); 
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12); 
+    padding: var(--space-sm); 
+}
 .dropdown-menu { background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-sm); min-width: 200px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
 /* Override Bootstrap default which hides dropdowns */
 .user-dropdown .dropdown-menu { display: block; position: static; box-shadow: none; border: none; padding: 0; }
