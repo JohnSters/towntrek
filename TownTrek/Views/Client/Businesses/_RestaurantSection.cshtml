@@ -1,0 +1,89 @@
+@model TownTrek.Models.ViewModels.AddBusinessViewModel
+
+<!-- Restaurant-Specific Section -->
+<div id="restaurantSection" class="form-section category-section" style="display: none;">
+    <div class="form-section-header">
+        <h4 class="form-section-title">
+            <span class="step-number">7</span>
+            Restaurant Details
+        </h4>
+        <p class="form-section-description">Information about your restaurant</p>
+    </div>
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="cuisineType" class="form-label">Cuisine Type</label>
+            <select id="cuisineType" name="CuisineType" class="form-select">
+                <option value="">Select cuisine type</option>
+                <option value="south-african" selected="@(Model.CuisineType == "south-african")">South African</option>
+                <option value="italian" selected="@(Model.CuisineType == "italian")">Italian</option>
+                <option value="chinese" selected="@(Model.CuisineType == "chinese")">Chinese</option>
+                <option value="indian" selected="@(Model.CuisineType == "indian")">Indian</option>
+                <option value="mexican" selected="@(Model.CuisineType == "mexican")">Mexican</option>
+                <option value="seafood" selected="@(Model.CuisineType == "seafood")">Seafood</option>
+                <option value="steakhouse" selected="@(Model.CuisineType == "steakhouse")">Steakhouse</option>
+                <option value="vegetarian" selected="@(Model.CuisineType == "vegetarian")">Vegetarian</option>
+                <option value="fast-food" selected="@(Model.CuisineType == "fast-food")">Fast Food</option>
+                <option value="fusion" selected="@(Model.CuisineType == "fusion")">Fusion</option>
+                <option value="african" selected="@(Model.CuisineType == "african")">African</option>
+                <option value="mediterranean" selected="@(Model.CuisineType == "mediterranean")">Mediterranean</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="priceRange" class="form-label">Price Range</label>
+            <select id="priceRange" name="PriceRange" class="form-select">
+                <option value="">Select price range</option>
+                <option value="budget" selected="@(Model.PriceRange == "budget")">Budget (R50-R100)</option>
+                <option value="moderate" selected="@(Model.PriceRange == "moderate")">Moderate (R100-R200)</option>
+                <option value="expensive" selected="@(Model.PriceRange == "expensive")">Expensive (R200-R400)</option>
+                <option value="fine-dining" selected="@(Model.PriceRange == "fine-dining")">Fine Dining (R400+)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="seatingCapacity" class="form-label">Seating Capacity</label>
+            <input type="number" id="seatingCapacity" name="SeatingCapacity" class="form-input" min="1" max="500" value="@Model.SeatingCapacity">
+        </div>
+
+        <div class="form-group">
+            <label for="menuUrl" class="form-label">Menu Link</label>
+            <input type="url" id="menuUrl" name="MenuUrl" class="form-input" placeholder="https://link-to-your-menu.com" value="@Model.MenuUrl">
+        </div>
+
+        <div class="form-group form-group-full">
+            <label for="dietaryOptions" class="form-label">Dietary Options</label>
+            <input type="text" id="dietaryOptions" name="DietaryOptions" class="form-input" placeholder="e.g., Vegetarian, Vegan, Halal, Gluten-free" value="@Model.DietaryOptions">
+        </div>
+
+        <div class="form-group form-group-full">
+            <label class="form-label">Restaurant Features</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasDelivery" value="true" class="service-checkbox" checked="@Model.HasDelivery">
+                    <span class="checkbox-label">Delivery Available</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasTakeaway" value="true" class="service-checkbox" checked="@Model.HasTakeaway">
+                    <span class="checkbox-label">Takeaway Available</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="AcceptsReservations" value="true" class="service-checkbox" checked="@Model.AcceptsReservations">
+                    <span class="checkbox-label">Accepts Reservations</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasKidsMenu" value="true" class="service-checkbox" checked="@Model.HasKidsMenu">
+                    <span class="checkbox-label">Kids Menu Available</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasOutdoorSeating" value="true" class="service-checkbox" checked="@Model.HasOutdoorSeating">
+                    <span class="checkbox-label">Outdoor Seating</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="ServesAlcohol" value="true" class="service-checkbox" checked="@Model.ServesAlcohol">
+                    <span class="checkbox-label">Serves Alcohol</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

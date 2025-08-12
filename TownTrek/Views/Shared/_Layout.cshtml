@@ -11,6 +11,7 @@
     
     <!-- Public Entrypoint (consolidated imports) -->
     <link rel="stylesheet" href="~/css/entrypoints/public.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/navigation.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TownTrek.styles.css" asp-append-version="true" />
     
     @await RenderSectionAsync("Styles", required: false)
@@ -70,6 +71,9 @@
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Public" asp-action="Index">Explore</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link" href="#features">Features</a>
                         </li>
                         <li class="nav-item">
@@ -101,14 +105,7 @@
                                     Dashboard
                                 </a>
                             }
-                            
-                            <!-- Show user info without sign out -->
-                            <span class="nav-link" style="color: #6c757d;">
-                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 0.25rem;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                @(User.Identity.Name ?? "User")
-                            </span>
+                            @await Html.PartialAsync("_TopUserMenu")
                         }
                         else
                         {
@@ -187,7 +184,21 @@
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- TownTrek Core JavaScript -->
+    <script src="~/js/core/config.js" asp-append-version="true"></script>
+    <script src="~/js/core/utils.js" asp-append-version="true"></script>
+    <script src="~/js/core/error-handler.js" asp-append-version="true"></script>
+    <script src="~/js/core/api-client.js" asp-append-version="true"></script>
+    <script src="~/js/core/notifications.js" asp-append-version="true"></script>
+    <script src="~/js/core/validation.js" asp-append-version="true"></script>
+    <!-- UI components -->
+    <script src="~/js/components/modal.js" asp-append-version="true"></script>
+    <script src="~/js/modules/auth/auth-manager.js" asp-append-version="true"></script>
+    <script src="~/js/core/app.js" asp-append-version="true"></script>
+    <!-- Member module loaded per-page via sections to avoid double init -->
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @Html.AntiForgeryToken()
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

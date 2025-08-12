@@ -4,6 +4,9 @@
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
 }
 
+@section Scripts {
+}
+
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-content">
@@ -168,7 +171,7 @@
                     }
                     else
                     {
-                        <button class="btn btn-cta" onclick="selectPlan(@tier.Id)">
+                        <button class="btn btn-cta" data-tier-id="@tier.Id">
                             @(Model.CurrentSubscription == null ? "Subscribe" : "Upgrade")
                         </button>
                     }
@@ -177,12 +180,3 @@
         }
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        function selectPlan(tierId) {
-            // This would integrate with payment processing
-            alert('Payment integration would be implemented here for tier ID: ' + tierId);
-        }
-    </script>
-}

@@ -1,8 +1,12 @@
 @using TownTrek.Models.ViewModels
 @model AdminUsersViewModel
+
 @{
     ViewData["Title"] = "Manage Users";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Scripts {
 }
 
 <!-- Page Header -->
@@ -232,9 +236,4 @@
         </ul>
     </nav>
 }
-
-@section Scripts {
-    <script src="~/js/admin-users.js" asp-append-version="true"></script>
-}
-
 

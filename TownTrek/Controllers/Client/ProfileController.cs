@@ -62,7 +62,7 @@ namespace TownTrek.Controllers.Client
         {
             if (!ModelState.IsValid)
             {
-                return View("~/Views/Client/Profile/EditProfile.cshtml", model);
+                return View("EditProfile", model);
             }
 
             try

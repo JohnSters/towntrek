@@ -1,7 +1,12 @@
 @model TownTrek.Models.ViewModels.EditProfileViewModel
+
 @{
     ViewData["Title"] = "Edit Profile";
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
 }
 
 <!-- Page Header -->
@@ -140,8 +145,3 @@
         </div>
     </form>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script src="~/js/profile-edit.js" asp-append-version="true"></script>
-}

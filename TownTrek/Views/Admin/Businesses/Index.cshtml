@@ -9,7 +9,6 @@
 }
 
 @section Scripts {
-    <script src="~/js/confirmation-modal.js" asp-append-version="true"></script>
 }
 
 <!-- Page Header -->
@@ -100,7 +99,7 @@
     {
         @Html.AntiForgeryToken()
         <div class="table-container">
-            <table class="admin-table">
+            <table class="admin-table" data-table>
                 <thead>
                     <tr>
                         <th>Business Name</th>

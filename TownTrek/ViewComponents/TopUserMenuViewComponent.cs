@@ -36,7 +36,30 @@ namespace TownTrek.ViewComponents
 
                     var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
                     model.SubscriptionTier = authResult.SubscriptionTier;
-                    model.DisplayRole = authResult.SubscriptionTier?.DisplayName ?? (principal.IsInRole("Admin") ? "System Admin" : "Free Tier");
+
+                    // Determine user type based on roles/subscription
+                    var isAdmin = principal.IsInRole("Admin");
+                    var hasClientRole = principal.IsInRole("Client") ||
+                                        principal.IsInRole("Client-Basic") ||
+                                        principal.IsInRole("Client-Standard") ||
+                                        principal.IsInRole("Client-Premium");
+
+                    model.IsBusinessOwner = hasClientRole || (authResult.SubscriptionTier != null && authResult.HasActiveSubscription);
+                    model.IsMember = !model.IsBusinessOwner && !isAdmin;
+
+                    // Display role label
+                    if (isAdmin)
+                    {
+                        model.DisplayRole = "System Admin";
+                    }
+                    else if (model.IsBusinessOwner && authResult.SubscriptionTier != null)
+                    {
+                        model.DisplayRole = authResult.SubscriptionTier.DisplayName;
+                    }
+                    else
+                    {
+                        model.DisplayRole = "Member";
+                    }
                 }
             }
 

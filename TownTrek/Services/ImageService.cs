@@ -13,6 +13,7 @@ namespace TownTrek.Services
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<ImageService> _logger;
+        private readonly ISubscriptionAuthService _subscriptionAuthService;
         
         // Configuration constants
         private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5MB
@@ -24,11 +25,13 @@ namespace TownTrek.Services
         public ImageService(
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
-            ILogger<ImageService> logger)
+            ILogger<ImageService> logger,
+            ISubscriptionAuthService subscriptionAuthService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _logger = logger;
+            _subscriptionAuthService = subscriptionAuthService;
         }
 
         public async Task<ImageUploadResult> UploadBusinessImageAsync(int businessId, IFormFile imageFile, string imageType, int displayOrder = 0)
@@ -46,9 +49,9 @@ namespace TownTrek.Services
                     };
                 }
 
-                // Verify business exists
-                var businessExists = await _context.Businesses.AnyAsync(b => b.Id == businessId);
-                if (!businessExists)
+                // Verify business exists and get owner for foldering
+                var business = await _context.Businesses.AsNoTracking().FirstOrDefaultAsync(b => b.Id == businessId);
+                if (business == null)
                 {
                     return new ImageUploadResult
                     {
@@ -57,16 +60,37 @@ namespace TownTrek.Services
                     };
                 }
 
-                // Generate unique filename
-                var fileExtension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
-                var fileName = $"{businessId}_{imageType}_{Guid.NewGuid()}{fileExtension}";
-                
-                // Create upload directory if it doesn't exist
-                var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "businesses");
+                // Enforce subscription image limits per owner (free tiers are intentionally strict)
+                var limits = await _subscriptionAuthService.GetUserLimitsAsync(business.UserId);
+                if (limits.MaxImages != -1 && limits.CurrentImageCount >= limits.MaxImages)
+                {
+                    return new ImageUploadResult
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = "You have reached your image upload limit for your current plan."
+                    };
+                }
+
+                // Build upload directory: /uploads/businesses/{userId}/{logo|images}
+                // Prefer numeric-like client folder: try to parse the identity id into a compact numeric; fallback to businessId
+                var ownerSegment = business.UserId;
+                if (Guid.TryParse(ownerSegment, out var guid))
+                {
+                    // Use first 8 chars of GUID as a stable short id to avoid very long paths
+                    ownerSegment = guid.ToString("N").Substring(0, 8);
+                }
+                // Optional: use business owner's index by looking up an integer client id field if available
+                // If you later add a numeric ClientId on ApplicationUser, replace ownerSegment with that value.ToString()
+                var typeSegment = string.Equals(imageType, "Logo", StringComparison.OrdinalIgnoreCase) ? "logo" : "images";
+                var uploadPath = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "businesses", ownerSegment, typeSegment);
                 if (!Directory.Exists(uploadPath))
                 {
                     Directory.CreateDirectory(uploadPath);
                 }
+
+                // Generate unique filename
+                var fileExtension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+                var fileName = $"{businessId}_{imageType}_{Guid.NewGuid()}{fileExtension}";
 
                 var filePath = Path.Combine(uploadPath, fileName);
 
@@ -88,7 +112,7 @@ namespace TownTrek.Services
                     OriginalFileName = imageFile.FileName,
                     FileSize = imageFile.Length,
                     ContentType = imageFile.ContentType,
-                    ImageUrl = $"/uploads/businesses/{fileName}",
+                    ImageUrl = $"/uploads/businesses/{Uri.EscapeDataString(ownerSegment)}/{typeSegment}/{fileName}",
                     ThumbnailUrl = thumbnailUrl,
                     AltText = $"{imageType} for business",
                     DisplayOrder = displayOrder,
@@ -160,6 +184,11 @@ namespace TownTrek.Services
                 .Where(bi => bi.BusinessId == businessId && bi.ImageType == "Logo" && bi.IsActive)
                 .OrderBy(bi => bi.DisplayOrder)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task<BusinessImage?> GetImageByIdAsync(int imageId)
+        {
+            return await _context.BusinessImages.FirstOrDefaultAsync(i => i.Id == imageId && i.IsActive);
         }
 
         public async Task<bool> DeleteImageAsync(int imageId)
@@ -290,9 +319,13 @@ namespace TownTrek.Services
                 var fileName = Path.GetFileNameWithoutExtension(imagePath);
                 var extension = Path.GetExtension(imagePath);
                 var directory = Path.GetDirectoryName(imagePath);
-                
+                if (string.IsNullOrEmpty(directory)) return null;
+
                 var thumbnailFileName = $"{fileName}_thumb{extension}";
-                var thumbnailPath = Path.Combine(directory!, thumbnailFileName);
+                // Place thumbnails under a thumbs/ subfolder next to originals
+                var thumbsDir = Path.Combine(directory!, "thumbs");
+                if (!Directory.Exists(thumbsDir)) Directory.CreateDirectory(thumbsDir);
+                var thumbnailPath = Path.Combine(thumbsDir, thumbnailFileName);
 
                 using var image = await Image.LoadAsync(imagePath);
                 
@@ -314,7 +347,10 @@ namespace TownTrek.Services
                 image.Mutate(x => x.Resize(newWidth, newHeight));
                 await image.SaveAsync(thumbnailPath);
 
-                return $"/uploads/businesses/{thumbnailFileName}";
+                // Derive relative path under wwwroot for thumbs folder
+                var wwwroot = _webHostEnvironment.WebRootPath.TrimEnd(Path.DirectorySeparatorChar);
+                var relativeThumb = thumbnailPath.Replace(wwwroot, string.Empty).TrimStart(Path.DirectorySeparatorChar).Replace('\\', '/');
+                return $"/{relativeThumb}";
             }
             catch (Exception ex)
             {
@@ -325,11 +361,17 @@ namespace TownTrek.Services
 
         public string GetImagePath(string fileName)
         {
+            // For backward compatibility, if fileName is a full relative path, join with wwwroot directly
+            if (fileName.Contains('/') || fileName.Contains('\\'))
+            {
+                return Path.Combine(_webHostEnvironment.WebRootPath, fileName.TrimStart('\\', '/').Replace('/', Path.DirectorySeparatorChar));
+            }
             return Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "businesses", fileName);
         }
 
         public string GetImageUrl(string fileName)
         {
+            if (fileName.Contains('/')) return fileName.StartsWith('/') ? fileName : "/" + fileName;
             return $"/uploads/businesses/{fileName}";
         }
 
@@ -343,13 +385,14 @@ namespace TownTrek.Services
                     File.Delete(filePath);
                 }
 
-                // Also delete thumbnail if it exists
-                var thumbnailFileName = Path.GetFileNameWithoutExtension(fileName) + "_thumb" + Path.GetExtension(fileName);
-                var thumbnailPath = GetImagePath(thumbnailFileName);
-                if (File.Exists(thumbnailPath))
-                {
-                    File.Delete(thumbnailPath);
-                }
+                // Also delete thumbnail if it exists (handles thumbs subfolder)
+                var dir = Path.GetDirectoryName(filePath) ?? string.Empty;
+                var baseName = Path.GetFileNameWithoutExtension(filePath);
+                var ext = Path.GetExtension(filePath);
+                var thumbInSameDir = Path.Combine(dir, baseName + "_thumb" + ext);
+                var thumbInThumbsDir = Path.Combine(dir, "thumbs", Path.GetFileName(baseName + "_thumb" + ext));
+                if (File.Exists(thumbInSameDir)) File.Delete(thumbInSameDir);
+                if (File.Exists(thumbInThumbsDir)) File.Delete(thumbInThumbsDir);
 
                 return Task.FromResult(true);
             }

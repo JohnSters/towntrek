@@ -28,6 +28,11 @@ namespace TownTrek.Models.ViewModels
         public int DisplayOrder { get; set; } = 0;
     }
 
+    public class DeleteImageRequest
+    {
+        public int ImageId { get; set; }
+    }
+
     public class BusinessImageViewModel
     {
         public int Id { get; set; }
