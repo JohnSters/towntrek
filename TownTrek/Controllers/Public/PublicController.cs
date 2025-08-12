@@ -117,7 +117,7 @@ namespace TownTrek.Controllers.Public
             }
         }
 
-        // GET: /Member/Favorites
+        // GET: /Public/Favorites (members only)
         [Authorize]
         public async Task<IActionResult> Favorites()
         {
