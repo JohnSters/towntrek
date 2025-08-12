@@ -1,0 +1,74 @@
+@model TownTrek.Models.ViewModels.AddBusinessViewModel
+
+<!-- Market-Specific Section -->
+<div id="marketSection" class="form-section category-section" style="display: none;">
+    <!-- DEBUG: Market section loaded -->
+    <div style="background: lightblue; padding: 5px; margin: 5px; display: block;">
+        DEBUG: Market section is here (ID: marketSection)
+    </div>
+    <div class="form-section-header">
+        <h4 class="form-section-title">
+            <span class="step-number">7</span>
+            Market Details
+        </h4>
+        <p class="form-section-description">Specific information for your market</p>
+    </div>
+    
+    <div class="form-grid">
+        <div class="form-group">
+            <label for="marketType" class="form-label">Market Type</label>
+            <select id="marketType" name="MarketType" class="form-select">
+                <option value="">Select market type</option>
+                <option value="farmers" selected="@(Model.MarketType == "farmers")">Farmers Market</option>
+                <option value="craft" selected="@(Model.MarketType == "craft")">Craft Market</option>
+                <option value="flea" selected="@(Model.MarketType == "flea")">Flea Market</option>
+                <option value="food" selected="@(Model.MarketType == "food")">Food Market</option>
+                <option value="antique" selected="@(Model.MarketType == "antique")">Antique Market</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="estimatedVendorCount" class="form-label">Estimated Vendor Count</label>
+            <input type="number" id="estimatedVendorCount" name="EstimatedVendorCount" class="form-input" min="1" max="500" value="@Model.EstimatedVendorCount">
+        </div>
+
+        <div class="form-group">
+            <label for="marketStartTime" class="form-label">Market Start Time</label>
+            <input type="time" id="marketStartTime" name="MarketStartTime" class="form-input" value="@Model.MarketStartTime">
+        </div>
+
+        <div class="form-group">
+            <label for="marketEndTime" class="form-label">Market End Time</label>
+            <input type="time" id="marketEndTime" name="MarketEndTime" class="form-input" value="@Model.MarketEndTime">
+        </div>
+
+        <div class="form-group">
+            <label for="entryFee" class="form-label">Entry Fee (R)</label>
+            <input type="number" id="entryFee" name="EntryFee" class="form-input" min="0" step="0.01" placeholder="0.00" value="@Model.EntryFee">
+            <span class="form-help">Leave blank if free entry</span>
+        </div>
+
+        <div class="form-group form-group-full">
+            <label for="vendorTypes" class="form-label">Vendor Types</label>
+            <textarea id="vendorTypes" name="VendorTypes" class="form-textarea" rows="3" placeholder="e.g., Fresh produce, Handmade crafts, Local art, Food vendors...">@Model.VendorTypes</textarea>
+        </div>
+
+        <div class="form-group form-group-full">
+            <label class="form-label">Market Features</label>
+            <div class="checkbox-group">
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasRestrooms" value="true" class="service-checkbox" checked="@Model.HasRestrooms">
+                    <span class="checkbox-label">Restroom Facilities</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="HasFoodVendors" value="true" class="service-checkbox" checked="@Model.HasFoodVendors">
+                    <span class="checkbox-label">Food Vendors Available</span>
+                </label>
+                <label class="checkbox-item">
+                    <input type="checkbox" name="IsCoveredVenue" value="true" class="service-checkbox" checked="@Model.IsCoveredVenue">
+                    <span class="checkbox-label">Covered/Indoor Venue</span>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>

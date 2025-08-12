@@ -580,7 +580,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 1,
                             Description = "Local shops and retail businesses",
-                            FormType = 0,
+                            FormType = 6,
                             IconClass = "fas fa-shopping-bag",
                             IsActive = true,
                             Key = "shops-retail",
@@ -785,6 +785,52 @@ namespace TownTrek.Migrations
                     b.ToTable("BusinessImages");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.BusinessReview", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Comment")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("BusinessId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("BusinessReviews");
+                });
+
             modelBuilder.Entity("TownTrek.Models.BusinessService", b =>
                 {
                     b.Property<int>("Id")
@@ -896,6 +942,14 @@ namespace TownTrek.Migrations
                             IsActive = true,
                             Key = "pharmacy",
                             Name = "Pharmacy & Health"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            CategoryId = 1,
+                            IsActive = true,
+                            Key = "antique-shop",
+                            Name = "Antique Shop"
                         },
                         new
                         {
@@ -1140,6 +1194,36 @@ namespace TownTrek.Migrations
                         .IsUnique();
 
                     b.ToTable("EventDetails");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.FavoriteBusiness", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("BusinessId", "UserId")
+                        .IsUnique();
+
+                    b.ToTable("FavoriteBusinesses");
                 });
 
             modelBuilder.Entity("TownTrek.Models.MarketDetails", b =>
@@ -1431,6 +1515,69 @@ namespace TownTrek.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TownTrek.Models.ShopDetails", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("AcceptsReturns")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("BrandNames")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("HasFittingRoom")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasLoyaltyProgram")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("HasOnlineStore")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("OffersLayaway")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("OffersRepairs")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PriceRange")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ShopSize")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ShopType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Specialties")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId")
+                        .IsUnique();
+
+                    b.ToTable("ShopDetails");
+                });
+
             modelBuilder.Entity("TownTrek.Models.SpecialOperatingHours", b =>
                 {
                     b.Property<int>("Id")
@@ -1577,7 +1724,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 9, 8, 28, 26, 670, DateTimeKind.Utc).AddTicks(5733),
+                            CreatedAt = new DateTime(2025, 8, 11, 20, 18, 22, 60, DateTimeKind.Utc).AddTicks(2030),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -1588,7 +1735,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 9, 8, 28, 26, 670, DateTimeKind.Utc).AddTicks(5735),
+                            CreatedAt = new DateTime(2025, 8, 11, 20, 18, 22, 60, DateTimeKind.Utc).AddTicks(2032),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -1599,7 +1746,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 9, 8, 28, 26, 670, DateTimeKind.Utc).AddTicks(5737),
+                            CreatedAt = new DateTime(2025, 8, 11, 20, 18, 22, 60, DateTimeKind.Utc).AddTicks(2035),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,
@@ -2117,6 +2264,25 @@ namespace TownTrek.Migrations
                     b.Navigation("Business");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.BusinessReview", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TownTrek.Models.BusinessService", b =>
                 {
                     b.HasOne("TownTrek.Models.Business", "Business")
@@ -2148,6 +2314,25 @@ namespace TownTrek.Migrations
                         .IsRequired();
 
                     b.Navigation("Business");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.FavoriteBusiness", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TownTrek.Models.MarketDetails", b =>
@@ -2185,6 +2370,17 @@ namespace TownTrek.Migrations
                     b.HasOne("TownTrek.Models.Business", "Business")
                         .WithOne()
                         .HasForeignKey("TownTrek.Models.RestaurantDetails", "BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Business");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.ShopDetails", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithOne()
+                        .HasForeignKey("TownTrek.Models.ShopDetails", "BusinessId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

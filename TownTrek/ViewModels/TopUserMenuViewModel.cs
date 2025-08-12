@@ -9,6 +9,8 @@ namespace TownTrek.Models.ViewModels
         public string DisplayName { get; set; } = "User";
         public string DisplayRole { get; set; } = "Free Tier";
         public SubscriptionTier? SubscriptionTier { get; set; }
+        public bool IsMember { get; set; } // Members are authenticated users without subscriptions
+        public bool IsBusinessOwner { get; set; } // Business owners have active subscriptions
     }
 }
 

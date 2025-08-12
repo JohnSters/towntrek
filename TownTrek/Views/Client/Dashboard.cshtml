@@ -1,4 +1,5 @@
 @model TownTrek.Models.ViewModels.ClientDashboardViewModel
+
 @{
     ViewData["Title"] = "Dashboard";
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
@@ -20,7 +21,7 @@
         <div class="page-actions">
             @if (Model.CanAddBusiness)
             {
-                <a asp-controller="Business" asp-action="AddBusiness" class="auth-btn auth-btn-cta">
+                <a asp-controller="Business" asp-action="Create" class="auth-btn auth-btn-cta">
                     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
@@ -176,7 +177,7 @@
                     <div class="activity-time">
                         @if (Model.CanAddBusiness)
                         {
-                            <a asp-controller="Business" asp-action="AddBusiness" class="text-primary">Add Business Now</a>
+                            <a asp-controller="Business" asp-action="Create" class="text-primary">Add Business Now</a>
                         }
                         else
                         {
@@ -198,7 +199,7 @@
     <div class="quick-actions-grid">
         @if (Model.CanAddBusiness)
         {
-            <a asp-controller="Business" asp-action="AddBusiness" class="quick-action-card">
+            <a asp-controller="Business" asp-action="Create" class="quick-action-card">
                 <div class="quick-action-icon">
                     <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -280,8 +281,4 @@
         }
     </div>
 </div>
-
-@section Scripts {
-    <script src="~/js/client-admin.js" asp-append-version="true"></script>
-}
    

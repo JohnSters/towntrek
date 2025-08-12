@@ -10,7 +10,6 @@
 }
 
 @section Scripts {
-    <script src="~/js/confirmation-modal.js" asp-append-version="true"></script>
 }
 
 <!-- Anti-forgery token for form submissions -->
@@ -103,7 +102,7 @@
     @if (Model.Any())
     {
         <div class="table-container">
-            <table class="admin-table">
+            <table class="admin-table" data-table>
                 <thead>
                     <tr>
                         <th>Business Name</th>
@@ -236,15 +235,3 @@
         </div>
     }
 </div>
-
-<script>
-function toggleFilters() {
-    // TODO: Implement filter functionality
-    console.log('Filter functionality to be implemented');
-}
-
-function exportBusinesses() {
-    // TODO: Implement export functionality
-    console.log('Export functionality to be implemented');
-}
-</script> 

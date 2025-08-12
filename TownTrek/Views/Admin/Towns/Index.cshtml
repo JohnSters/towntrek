@@ -9,23 +9,6 @@
 }
 
 @section Scripts {
-    <script src="~/js/confirmation-modal.js" asp-append-version="true"></script>
-    <script>
-        function confirmDeleteTown(townName, townId) {
-            showConfirmationModal({
-                title: 'Delete Town',
-                message: `Are you sure you want to delete "${townName}"?`,
-                details: 'This action cannot be undone. The town will be permanently removed.',
-                confirmText: 'Delete',
-                cancelText: 'Cancel',
-                iconType: 'danger',
-                confirmButtonType: 'danger',
-                formAction: '/AdminTowns/Delete',
-                formMethod: 'post',
-                formData: { id: townId }
-            });
-        }
-    </script>
 }
 
 <!-- Page Header -->

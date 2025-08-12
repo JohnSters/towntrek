@@ -157,6 +157,9 @@ namespace TownTrek.Services
         {
             switch (business.Category.ToLower())
             {
+                case "shops-retail":
+                    await LoadShopDetailsAsync(model, business.Id);
+                    break;
                 case "restaurants-food":
                     await LoadRestaurantDetailsAsync(model, business.Id);
                     break;
@@ -172,6 +175,25 @@ namespace TownTrek.Services
                 case "markets-vendors":
                     await LoadMarketDetailsAsync(model, business.Id);
                     break;
+            }
+        }
+
+        private async Task LoadShopDetailsAsync(AddBusinessViewModel model, int businessId)
+        {
+            var shopDetails = await _context.ShopDetails.FirstOrDefaultAsync(sd => sd.BusinessId == businessId);
+            if (shopDetails != null)
+            {
+                model.ShopType = shopDetails.ShopType;
+                model.ShopSize = shopDetails.ShopSize;
+                model.BrandNames = shopDetails.BrandNames;
+                model.PriceRange = shopDetails.PriceRange;
+                model.Specialties = shopDetails.Specialties;
+                model.HasOnlineStore = shopDetails.HasOnlineStore;
+                model.OffersLayaway = shopDetails.OffersLayaway;
+                model.HasFittingRoom = shopDetails.HasFittingRoom;
+                model.OffersRepairs = shopDetails.OffersRepairs;
+                model.HasLoyaltyProgram = shopDetails.HasLoyaltyProgram;
+                model.AcceptsReturns = shopDetails.AcceptsReturns;
             }
         }
 

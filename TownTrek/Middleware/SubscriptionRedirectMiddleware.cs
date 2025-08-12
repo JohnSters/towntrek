@@ -30,6 +30,16 @@ namespace TownTrek.Middleware
                     try
                     {
                         var authResult = await subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
+
+                        // Block members (no active subscription and no client roles) from accessing any /Client routes
+                        var roleClaims = context.User.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+                        var hasClientRole = roleClaims.Any(r => r.Equals("Client", StringComparison.OrdinalIgnoreCase) || r.StartsWith("Client-", StringComparison.OrdinalIgnoreCase));
+                        if (!hasClientRole && !authResult.HasActiveSubscription && context.Request.Path.StartsWithSegments("/Client"))
+                        {
+                            // Redirect to public browsing instead of member area
+                            context.Response.Redirect("/Public");
+                            return;
+                        }
                         
                         // If user has no subscription and is trying to access restricted areas
                         if (!authResult.HasActiveSubscription && 

@@ -27,6 +27,7 @@ namespace TownTrek.Data
         public DbSet<EventDetails> EventDetails { get; set; }
         public DbSet<RestaurantDetails> RestaurantDetails { get; set; }
         public DbSet<AccommodationDetails> AccommodationDetails { get; set; }
+        public DbSet<ShopDetails> ShopDetails { get; set; }
         
         // Notifications and special hours
         public DbSet<BusinessAlert> BusinessAlerts { get; set; }
@@ -38,6 +39,10 @@ namespace TownTrek.Data
         public DbSet<SubscriptionTierFeature> SubscriptionTierFeatures { get; set; }
         public DbSet<Subscription> Subscriptions { get; set; }
         public DbSet<PriceChangeHistory> PriceChangeHistory { get; set; }
+        
+        // Member Features
+        public DbSet<BusinessReview> BusinessReviews { get; set; }
+        public DbSet<FavoriteBusiness> FavoriteBusinesses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -163,6 +168,9 @@ namespace TownTrek.Data
             // Configure category-specific details
             ConfigureCategorySpecificEntities(builder);
             
+            // Configure member features
+            ConfigureMemberEntities(builder);
+            
             // Seed default data
             SeedData(builder);
         }
@@ -246,7 +254,7 @@ namespace TownTrek.Data
 
             // Seed business categories and subcategories (phase 1)
             builder.Entity<BusinessCategory>().HasData(
-                new BusinessCategory { Id = 1, Key = "shops-retail", Name = "Shops & Retail", Description = "Local shops and retail businesses", IconClass = "fas fa-shopping-bag", IsActive = true, FormType = Models.BusinessFormType.None },
+                new BusinessCategory { Id = 1, Key = "shops-retail", Name = "Shops & Retail", Description = "Local shops and retail businesses", IconClass = "fas fa-shopping-bag", IsActive = true, FormType = Models.BusinessFormType.Shop },
                 new BusinessCategory { Id = 2, Key = "restaurants-food", Name = "Restaurants & Food Services", Description = "Restaurants, cafes, and food services", IconClass = "fas fa-utensils", IsActive = true, FormType = Models.BusinessFormType.Restaurant },
                 new BusinessCategory { Id = 3, Key = "markets-vendors", Name = "Markets & Vendors", Description = "Local markets and vendor stalls", IconClass = "fas fa-store", IsActive = true, FormType = Models.BusinessFormType.Market },
                 new BusinessCategory { Id = 4, Key = "accommodation", Name = "Accommodation", Description = "Hotels, guesthouses, and lodging", IconClass = "fas fa-bed", IsActive = true, FormType = Models.BusinessFormType.Accommodation },
@@ -262,6 +270,7 @@ namespace TownTrek.Data
                 new BusinessSubCategory { Id = 4, CategoryId = 1, Key = "gifts", Name = "Gifts & Souvenirs", IsActive = true },
                 new BusinessSubCategory { Id = 5, CategoryId = 1, Key = "hardware", Name = "Hardware & Tools", IsActive = true },
                 new BusinessSubCategory { Id = 6, CategoryId = 1, Key = "pharmacy", Name = "Pharmacy & Health", IsActive = true },
+                new BusinessSubCategory { Id = 24, CategoryId = 1, Key = "antique-shop", Name = "Antique Shop", IsActive = true },
                 // restaurants-food
                 new BusinessSubCategory { Id = 7, CategoryId = 2, Key = "restaurant", Name = "Restaurant", IsActive = true },
                 new BusinessSubCategory { Id = 8, CategoryId = 2, Key = "cafe", Name = "Cafe & Coffee Shop", IsActive = true },
@@ -346,6 +355,16 @@ namespace TownTrek.Data
                       .OnDelete(DeleteBehavior.Cascade);
             });
 
+            // Configure ShopDetails
+            builder.Entity<ShopDetails>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.HasOne(e => e.Business)
+                      .WithOne()
+                      .HasForeignKey<ShopDetails>(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
             // Configure BusinessAlert
             builder.Entity<BusinessAlert>(entity =>
             {
@@ -397,6 +416,51 @@ namespace TownTrek.Data
                 entity.Property(e => e.Key).IsRequired().HasMaxLength(50);
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
                 entity.HasIndex(e => e.Key).IsUnique();
+            });
+        }
+
+        private void ConfigureMemberEntities(ModelBuilder builder)
+        {
+            // Configure BusinessReview
+            builder.Entity<BusinessReview>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Rating).IsRequired();
+                entity.Property(e => e.Comment).HasMaxLength(1000);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.Business)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Unique constraint: one review per user per business
+                entity.HasIndex(e => new { e.BusinessId, e.UserId }).IsUnique();
+            });
+
+            // Configure FavoriteBusiness
+            builder.Entity<FavoriteBusiness>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.Business)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Unique constraint: one favorite per user per business
+                entity.HasIndex(e => new { e.BusinessId, e.UserId }).IsUnique();
             });
         }
     }
