@@ -33,9 +33,18 @@
                             <option value="">All Towns</option>
                             @foreach (var town in Model.AvailableTowns)
                             {
-                                <option value="@town.Id" selected="@(Model.TownId == town.Id)">
-                                    @town.Name, @town.Province
-                                </option>
+                                @if (Model.TownId == town.Id)
+                                {
+                                    <option value="@town.Id" selected>
+                                        @town.Name, @town.Province
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@town.Id">
+                                        @town.Name, @town.Province
+                                    </option>
+                                }
                             }
                         </select>
                     </div>
@@ -47,9 +56,18 @@
                             <option value="">All Categories</option>
                             @foreach (var category in Model.AvailableCategories)
                             {
-                                <option value="@category.Key" selected="@(Model.Category == category.Key)">
-                                    @category.Name
-                                </option>
+                                @if (Model.Category == category.Key)
+                                {
+                                    <option value="@category.Key" selected>
+                                        @category.Name
+                                    </option>
+                                }
+                                else
+                                {
+                                    <option value="@category.Key">
+                                        @category.Name
+                                    </option>
+                                }
                             }
                         </select>
                     </div>
