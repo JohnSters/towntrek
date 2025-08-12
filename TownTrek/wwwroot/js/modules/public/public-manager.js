@@ -83,6 +83,9 @@ class PublicManager {
   }
 
   initializeCurrentPage() {
+    // Initialize favorite states for all business cards on page load
+    this.initializeFavoriteStates();
+
     // Prefer explicit body data attribute if set
     const explicitPage = document.body.dataset.page;
     if (explicitPage) {
@@ -175,12 +178,15 @@ class PublicManager {
       });
 
       if (response.success) {
+        // Update the visual state
         if (response.isFavorite) {
           icon.setAttribute('fill', 'currentColor');
           button.title = 'Remove from favorites';
+          button.classList.add('is-favorite');
         } else {
           icon.setAttribute('fill', 'none');
           button.title = 'Add to favorites';
+          button.classList.remove('is-favorite');
         }
 
         this.notifications.show(response.message, 'success');
@@ -431,6 +437,8 @@ class PublicManager {
         const html = await response.text();
         if (resultsContainer) {
           resultsContainer.innerHTML = html;
+          // Reinitialize favorite states for newly loaded content
+          this.initializeFavoriteStates();
         }
 
         // Update URL without page reload
@@ -629,6 +637,30 @@ class PublicManager {
         <button type="button" data-public-action="clear-filters" class="btn btn-primary">Clear Filters</button>
       </div>
     `;
+  }
+
+  initializeFavoriteStates() {
+    // Ensure all favorite buttons have correct visual state based on server-rendered data
+    const favoriteButtons = document.querySelectorAll('[data-public-action="toggle-favorite"]');
+    
+    favoriteButtons.forEach(button => {
+      const icon = button.querySelector('svg');
+      if (!icon) return;
+
+      // Check if the icon is already filled (server-rendered as favorite)
+      const currentFill = icon.getAttribute('fill');
+      const isFavorite = currentFill === 'currentColor';
+      
+      // Ensure the button title matches the state
+      button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
+      
+      // Ensure consistent styling
+      if (isFavorite) {
+        button.classList.add('is-favorite');
+      } else {
+        button.classList.remove('is-favorite');
+      }
+    });
   }
 }
 

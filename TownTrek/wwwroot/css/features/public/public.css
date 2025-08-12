@@ -185,7 +185,8 @@
     color: var(--orange-pantone);
 }
 
-.favorite-btn svg[fill="currentColor"] {
+.favorite-btn svg[fill="currentColor"],
+.favorite-btn.is-favorite svg {
     color: var(--orange-pantone);
 }
 
@@ -790,7 +791,8 @@
     background-color: var(--light-gray);
 }
 
-.favorite-btn-large svg[fill="currentColor"] {
+.favorite-btn-large svg[fill="currentColor"],
+.favorite-btn-large.is-favorite svg {
     color: var(--orange-pantone);
 }
 
