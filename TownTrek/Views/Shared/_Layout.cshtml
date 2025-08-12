@@ -197,8 +197,11 @@
     <script src="~/js/core/validation.js" asp-append-version="true"></script>
     <script src="~/js/modules/auth/auth-manager.js" asp-append-version="true"></script>
     <script src="~/js/core/app.js" asp-append-version="true"></script>
+    <!-- Member module for public/member features -->
+    <script src="~/js/modules/member/member-manager.js" asp-append-version="true"></script>
     
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @Html.AntiForgeryToken()
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

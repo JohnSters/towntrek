@@ -16,7 +16,7 @@
     <!-- Search Form -->
     <section class="search-form-section">
         <div class="container">
-            <form asp-action="Search" method="get" class="advanced-search-form">
+            <form asp-action="Search" method="get" class="advanced-search-form" data-member-form="search">
                 <div class="search-form-grid">
                     <!-- Search Term -->
                     <div class="search-field">
@@ -43,7 +43,7 @@
                     <!-- Category Filter -->
                     <div class="search-field">
                         <label for="categoryFilter">Category</label>
-                        <select name="category" id="categoryFilter" class="form-select">
+                        <select name="category" id="categoryFilter" class="form-select" data-member-filter="category">
                             <option value="">All Categories</option>
                             @foreach (var category in Model.AvailableCategories)
                             {
@@ -55,9 +55,9 @@
                     </div>
 
                     <!-- Sub-Category Filter -->
-                    <div class="search-field" id="subCategoryField" style="@(string.IsNullOrEmpty(Model.Category) ? "display: none;" : "")">
+                    <div id="subCategoryField" class="search-field @(string.IsNullOrEmpty(Model.Category) ? "d-none" : "")">
                         <label for="subCategoryFilter">Sub-Category</label>
-                        <select name="subCategory" id="subCategoryFilter" class="form-select">
+                        <select name="subCategory" id="subCategoryFilter" class="form-select" data-member-filter="subcategory">
                             <option value="">All Sub-Categories</option>
                         </select>
                     </div>
@@ -99,41 +99,41 @@
                 @if (Model.HasResults || !string.IsNullOrEmpty(Model.SearchTerm) || Model.TownId.HasValue || !string.IsNullOrEmpty(Model.Category))
                 {
                     <div class="results-actions">
-                        <button type="button" id="clearAllFilters" class="btn btn-secondary">Clear All Filters</button>
+                        <button type="button" id="clearAllFilters" class="btn btn-secondary" data-member-action="clear-filters">Clear All Filters</button>
                     </div>
                 }
             </div>
 
             <!-- Active Filters -->
-            <div class="active-filters" id="activeFilters" style="@(string.IsNullOrEmpty(Model.SearchTerm) && !Model.TownId.HasValue && string.IsNullOrEmpty(Model.Category) ? "display: none;" : "")">
+            <div class="active-filters @(string.IsNullOrEmpty(Model.SearchTerm) && !Model.TownId.HasValue && string.IsNullOrEmpty(Model.Category) ? "d-none" : "")" id="activeFilters">
                 <span class="filters-label">Active filters:</span>
                 <div class="filter-tags">
                     @if (!string.IsNullOrEmpty(Model.SearchTerm))
                     {
                         <div class="filter-tag">
                             <span>Search: "@Model.SearchTerm"</span>
-                            <button type="button" class="remove-filter" data-filter="search">×</button>
+                            <button type="button" class="remove-filter" data-member-action="remove-filter" data-filter="search">×</button>
                         </div>
                     }
                     @if (Model.TownId.HasValue)
                     {
                         <div class="filter-tag">
                             <span>Town: @Model.AvailableTowns.FirstOrDefault(t => t.Id == Model.TownId)?.Name</span>
-                            <button type="button" class="remove-filter" data-filter="town">×</button>
+                            <button type="button" class="remove-filter" data-member-action="remove-filter" data-filter="town">×</button>
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Model.Category))
                     {
                         <div class="filter-tag">
                             <span>Category: @Model.AvailableCategories.FirstOrDefault(c => c.Key == Model.Category)?.Name</span>
-                            <button type="button" class="remove-filter" data-filter="category">×</button>
+                            <button type="button" class="remove-filter" data-member-action="remove-filter" data-filter="category">×</button>
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Model.SubCategory))
                     {
                         <div class="filter-tag">
                             <span>Sub-Category: @Model.SubCategory</span>
-                            <button type="button" class="remove-filter" data-filter="subcategory">×</button>
+                            <button type="button" class="remove-filter" data-member-action="remove-filter" data-filter="subcategory">×</button>
                         </div>
                     }
                 </div>
@@ -157,7 +157,7 @@
                             <nav class="pagination">
                                 @if (Model.CurrentPage > 1)
                                 {
-                                    <a href="#" class="pagination-btn" data-page="@(Model.CurrentPage - 1)">
+                                    <a href="#" class="pagination-btn" data-page="@(Model.CurrentPage - 1)" data-member-action="load-page">
                                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <polyline points="15,18 9,12 15,6"/>
                                         </svg>
@@ -167,14 +167,14 @@
 
                                 @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
                                 {
-                                    <a href="#" class="pagination-btn @(i == Model.CurrentPage ? "active" : "")" data-page="@i">
+                                    <a href="#" class="pagination-btn @(i == Model.CurrentPage ? "active" : "")" data-page="@i" data-member-action="load-page">
                                         @i
                                     </a>
                                 }
 
                                 @if (Model.CurrentPage < Model.TotalPages)
                                 {
-                                    <a href="#" class="pagination-btn" data-page="@(Model.CurrentPage + 1)">
+                                    <a href="#" class="pagination-btn" data-page="@(Model.CurrentPage + 1)" data-member-action="load-page">
                                         Next
                                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <polyline points="9,18 15,12 9,6"/>
@@ -194,7 +194,7 @@
                         {
                             <p>Try adjusting your search criteria or explore other categories.</p>
                             <div class="no-results-actions">
-                                <button type="button" id="clearFiltersNoResults" class="btn btn-primary">Clear All Filters</button>
+                                <button type="button" id="clearFiltersNoResults" class="btn btn-primary" data-member-action="clear-filters">Clear All Filters</button>
                                 <a href="@Url.Action("Index", "Member")" class="btn btn-secondary">Back to Dashboard</a>
                             </div>
                         }
@@ -247,186 +247,7 @@
 </div>
 
 <!-- Hidden data for JavaScript -->
-<div id="searchPageData" style="display: none;"
+<div id="searchPageData" class="d-none"
+     data-selected-subcategory='@Model.SubCategory'
      data-categories='@Json.Serialize(Model.AvailableCategories.Select(c => new { key = c.Key, name = c.Name, subCategories = c.SubCategories.Select(sc => new { key = sc.Key, name = sc.Name }) }))'>
 </div>
-
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const pageData = document.getElementById('searchPageData');
-            const categories = JSON.parse(pageData.dataset.categories);
-            
-            const searchForm = document.querySelector('.advanced-search-form');
-            const categoryFilter = document.getElementById('categoryFilter');
-            const subCategoryFilter = document.getElementById('subCategoryFilter');
-            const subCategoryField = document.getElementById('subCategoryField');
-            const clearAllFilters = document.getElementById('clearAllFilters');
-            const clearFiltersNoResults = document.getElementById('clearFiltersNoResults');
-            
-            // Handle category change
-            categoryFilter.addEventListener('change', function() {
-                const selectedCategory = this.value;
-                updateSubCategories(selectedCategory);
-                
-                if (selectedCategory) {
-                    subCategoryField.style.display = 'block';
-                } else {
-                    subCategoryField.style.display = 'none';
-                    subCategoryFilter.value = '';
-                }
-            });
-            
-            // Handle pagination
-            document.addEventListener('click', function(e) {
-                if (e.target.matches('.pagination-btn[data-page]')) {
-                    e.preventDefault();
-                    const page = parseInt(e.target.dataset.page);
-                    performSearch(page);
-                }
-            });
-            
-            // Handle clear filters
-            function clearFilters() {
-                document.getElementById('searchTerm').value = '';
-                document.getElementById('townFilter').value = '';
-                categoryFilter.value = '';
-                subCategoryFilter.value = '';
-                subCategoryField.style.display = 'none';
-                searchForm.submit();
-            }
-            
-            if (clearAllFilters) {
-                clearAllFilters.addEventListener('click', clearFilters);
-            }
-            
-            if (clearFiltersNoResults) {
-                clearFiltersNoResults.addEventListener('click', clearFilters);
-            }
-            
-            // Handle individual filter removal
-            document.addEventListener('click', function(e) {
-                if (e.target.matches('.remove-filter')) {
-                    const filterType = e.target.dataset.filter;
-                    removeFilter(filterType);
-                }
-            });
-            
-            // Handle favorite buttons
-            document.addEventListener('click', function(e) {
-                if (e.target.matches('.favorite-btn') || e.target.closest('.favorite-btn')) {
-                    e.preventDefault();
-                    const btn = e.target.matches('.favorite-btn') ? e.target : e.target.closest('.favorite-btn');
-                    toggleFavorite(btn);
-                }
-            });
-            
-            function updateSubCategories(categoryKey) {
-                subCategoryFilter.innerHTML = '<option value="">All Sub-Categories</option>';
-                
-                if (categoryKey) {
-                    const category = categories.find(c => c.key === categoryKey);
-                    if (category && category.subCategories) {
-                        category.subCategories.forEach(sub => {
-                            const option = document.createElement('option');
-                            option.value = sub.key;
-                            option.textContent = sub.name;
-                            subCategoryFilter.appendChild(option);
-                        });
-                    }
-                }
-            }
-            
-            function removeFilter(filterType) {
-                switch (filterType) {
-                    case 'search':
-                        document.getElementById('searchTerm').value = '';
-                        break;
-                    case 'town':
-                        document.getElementById('townFilter').value = '';
-                        break;
-                    case 'category':
-                        categoryFilter.value = '';
-                        subCategoryFilter.value = '';
-                        subCategoryField.style.display = 'none';
-                        break;
-                    case 'subcategory':
-                        subCategoryFilter.value = '';
-                        break;
-                }
-                searchForm.submit();
-            }
-            
-            function performSearch(page = 1) {
-                const formData = new FormData(searchForm);
-                formData.set('page', page);
-                
-                const params = new URLSearchParams(formData);
-                
-                // Show loading state
-                const resultsContainer = document.getElementById('searchResults');
-                resultsContainer.innerHTML = '<div class="loading-state">Searching businesses...</div>';
-                
-                // Make AJAX request
-                fetch(`@Url.Action("Search", "Member")?${params}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.text())
-                .then(html => {
-                    resultsContainer.innerHTML = html;
-                    
-                    // Update URL without page reload
-                    const newUrl = `@Url.Action("Search", "Member")?${params}`;
-                    window.history.pushState({}, '', newUrl);
-                })
-                .catch(error => {
-                    console.error('Error searching businesses:', error);
-                    resultsContainer.innerHTML = '<div class="error-state">Error searching businesses. Please try again.</div>';
-                });
-            }
-            
-            function toggleFavorite(btn) {
-                const businessId = btn.dataset.businessId;
-                const icon = btn.querySelector('svg');
-                
-                fetch('@Url.Action("ToggleFavorite", "Member")', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: `businessId=${businessId}&__RequestVerificationToken=${document.querySelector('input[name="__RequestVerificationToken"]').value}`
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        if (data.isFavorite) {
-                            icon.setAttribute('fill', 'currentColor');
-                            btn.title = 'Remove from favorites';
-                        } else {
-                            icon.setAttribute('fill', 'none');
-                            btn.title = 'Add to favorites';
-                        }
-                    }
-                })
-                .catch(error => console.error('Error toggling favorite:', error));
-            }
-            
-            // Initialize sub-categories if category is pre-selected
-            if (categoryFilter.value) {
-                updateSubCategories(categoryFilter.value);
-                subCategoryField.style.display = 'block';
-                
-                // Set selected sub-category if exists
-                const selectedSubCategory = '@Model.SubCategory';
-                if (selectedSubCategory) {
-                    setTimeout(() => {
-                        subCategoryFilter.value = selectedSubCategory;
-                    }, 100);
-                }
-            }
-        });
-    </script>
-}

@@ -8,7 +8,7 @@
 class MemberManager {
   constructor() {
     this.apiClient = window.ApiClient;
-    this.notifications = window.Notifications;
+    this.notifications = window.NotificationManager;
     this.modalComponent = window.ModalComponent;
     this.init();
   }
@@ -45,6 +45,9 @@ class MemberManager {
       case 'clear-filters':
         this.clearFilters();
         break;
+      case 'remove-filter':
+        this.removeFilter(target.dataset.filter);
+        break;
       case 'load-page':
         this.loadPage(parseInt(target.dataset.page));
         break;
@@ -80,9 +83,29 @@ class MemberManager {
   }
 
   initializeCurrentPage() {
-    const page = document.body.dataset.page;
-    
-    switch (page) {
+    // Prefer explicit body data attribute if set
+    const explicitPage = document.body.dataset.page;
+    if (explicitPage) {
+      this.routeToPage(explicitPage);
+      return;
+    }
+
+    // Fallback to DOM-based detection (no inline scripts required in views)
+    if (document.querySelector('.business-search-page')) {
+      this.routeToPage('member-search');
+    } else if (document.querySelector('.favorites-page')) {
+      this.routeToPage('member-favorites');
+    } else if (document.querySelector('.town-businesses-page')) {
+      this.routeToPage('member-town-businesses');
+    } else if (document.querySelector('.business-details-page')) {
+      this.routeToPage('member-business-details');
+    } else if (document.querySelector('.member-dashboard')) {
+      this.routeToPage('member-dashboard');
+    }
+  }
+
+  routeToPage(pageKey) {
+    switch (pageKey) {
       case 'member-dashboard':
         this.initializeDashboard();
         break;
@@ -233,6 +256,17 @@ class MemberManager {
   }
 
   async loadCategoriesData() {
+    // Prefer embedded data in page to avoid extra network and keep logic in JS directory
+    const dataEl = document.getElementById('searchPageData');
+    if (dataEl && dataEl.dataset.categories) {
+      try {
+        this.categoriesData = JSON.parse(dataEl.dataset.categories);
+        return;
+      } catch (e) {
+        console.warn('Failed to parse embedded categories JSON. Falling back to API.', e);
+      }
+    }
+
     try {
       const response = await fetch('/Member/Api/Categories');
       this.categoriesData = await response.json();
@@ -266,18 +300,22 @@ class MemberManager {
     // Show/hide sub-category group
     if (subCategoryGroup) {
       subCategoryGroup.style.display = categoryKey ? 'block' : 'none';
+      // Also support utility class if present on element
+      if (categoryKey) {
+        subCategoryGroup.classList.remove('d-none');
+      } else {
+        subCategoryGroup.classList.add('d-none');
+      }
     }
   }
 
   initializeFilters() {
     const categoryFilter = document.getElementById('categoryFilter');
-    
     if (categoryFilter && categoryFilter.value) {
       this.updateSubCategories(categoryFilter.value);
-      
-      // Set selected sub-category if exists (try global variable first, then URL)
-      const selectedSubCategory = window.memberSelectedSubCategory || 
-                                new URLSearchParams(window.location.search).get('subCategory');
+      const dataEl = document.getElementById('searchPageData');
+      const selectedSubCategory = (dataEl && dataEl.dataset.selectedSubcategory) ||
+        new URLSearchParams(window.location.search).get('subCategory');
       if (selectedSubCategory) {
         setTimeout(() => {
           const subCategorySelect = document.getElementById('subCategoryFilter');
@@ -375,6 +413,37 @@ class MemberManager {
     }
   }
 
+  removeFilter(filterType) {
+    const searchForm = document.querySelector('.advanced-search-form');
+    if (!searchForm) return;
+    switch (filterType) {
+      case 'search':
+        const searchInput = document.getElementById('searchTerm');
+        if (searchInput) searchInput.value = '';
+        break;
+      case 'town':
+        const townSelect = document.getElementById('townFilter');
+        if (townSelect) townSelect.value = '';
+        break;
+      case 'category':
+        const categorySelect = document.getElementById('categoryFilter');
+        const subCategorySelect = document.getElementById('subCategoryFilter');
+        if (categorySelect) categorySelect.value = '';
+        if (subCategorySelect) subCategorySelect.value = '';
+        const subCategoryGroup = document.getElementById('subCategoryGroup') || document.getElementById('subCategoryField');
+        if (subCategoryGroup) {
+          subCategoryGroup.style.display = 'none';
+          subCategoryGroup.classList.add('d-none');
+        }
+        break;
+      case 'subcategory':
+        const s = document.getElementById('subCategoryFilter');
+        if (s) s.value = '';
+        break;
+    }
+    this.performSearch(searchForm);
+  }
+
   initializeImageGallery() {
     const galleryImages = document.querySelectorAll('.gallery-image img');
     galleryImages.forEach(img => {
@@ -434,9 +503,9 @@ class MemberManager {
     const categoryFilter = document.getElementById('categoryFilter');
     const sortFilter = document.getElementById('sortFilter');
     const favoritesGrid = document.getElementById('favoritesGrid');
-    
-    if (!businessCards.length) return;
-    
+
+    if (!favoritesGrid) return;
+
     // Store original business data for filtering/sorting
     const businessData = businessCards.map(card => ({
       element: card,
@@ -446,52 +515,52 @@ class MemberManager {
       rating: parseFloat(card.querySelector('.rating-value')?.textContent || '0'),
       businessId: card.dataset.businessId
     }));
-    
-    const applyFilters = () => {
-      const townValue = townFilter?.value.toLowerCase() || '';
-      const categoryValue = categoryFilter?.value.toLowerCase() || '';
-      const sortValue = sortFilter?.value || 'recent';
-      
-      // Filter businesses
-      let filteredBusinesses = businessData.filter(business => {
-        const townMatch = !townValue || business.town.toLowerCase().includes(townValue);
-        const categoryMatch = !categoryValue || business.category.toLowerCase().includes(categoryValue);
-        return townMatch && categoryMatch;
-      });
-      
-      // Sort businesses
-      filteredBusinesses.sort((a, b) => {
-        switch (sortValue) {
-          case 'name':
-            return a.name.localeCompare(b.name);
-          case 'rating':
-            return b.rating - a.rating;
-          case 'town':
-            return a.town.localeCompare(b.town);
-          case 'recent':
-          default:
-            return 0; // Keep original order for recent
-        }
-      });
-      
-      // Update grid
-      if (favoritesGrid) {
-        favoritesGrid.innerHTML = '';
-        filteredBusinesses.forEach(business => {
-          favoritesGrid.appendChild(business.element);
-        });
-        
-        // Show/hide no results message
-        if (filteredBusinesses.length === 0) {
-          this.showNoResultsMessage(favoritesGrid);
-        }
-      }
-    };
-    
+
+    this.favoritesContext = { businessData, townFilter, categoryFilter, sortFilter, favoritesGrid };
+    this.applyFavoritesFilters();
+
     // Event listeners
-    if (townFilter) townFilter.addEventListener('change', applyFilters);
-    if (categoryFilter) categoryFilter.addEventListener('change', applyFilters);
-    if (sortFilter) sortFilter.addEventListener('change', applyFilters);
+    if (townFilter) townFilter.addEventListener('change', () => this.applyFavoritesFilters());
+    if (categoryFilter) categoryFilter.addEventListener('change', () => this.applyFavoritesFilters());
+    if (sortFilter) sortFilter.addEventListener('change', () => this.applyFavoritesFilters());
+  }
+
+  applyFavoritesFilters() {
+    if (!this.favoritesContext) return;
+    const { businessData, townFilter, categoryFilter, sortFilter, favoritesGrid } = this.favoritesContext;
+    const townValue = (townFilter?.value || '').toLowerCase();
+    const categoryValue = (categoryFilter?.value || '').toLowerCase();
+    const sortValue = (sortFilter?.value || 'recent');
+
+    // Filter
+    let filteredBusinesses = businessData.filter(business => {
+      const townMatch = !townValue || business.town.toLowerCase().includes(townValue);
+      const categoryMatch = !categoryValue || business.category.toLowerCase().includes(categoryValue);
+      return townMatch && categoryMatch;
+    });
+
+    // Sort
+    filteredBusinesses.sort((a, b) => {
+      switch (sortValue) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'rating':
+          return b.rating - a.rating;
+        case 'town':
+          return a.town.localeCompare(b.town);
+        case 'recent':
+        default:
+          return 0;
+      }
+    });
+
+    // Render
+    favoritesGrid.innerHTML = '';
+    filteredBusinesses.forEach(business => favoritesGrid.appendChild(business.element));
+    if (filteredBusinesses.length === 0) {
+      this.showNoResultsMessage(favoritesGrid);
+      // No-results button will call clear-filters; we handle that to reset and re-apply
+    }
   }
 
   showNoResultsMessage(container) {
