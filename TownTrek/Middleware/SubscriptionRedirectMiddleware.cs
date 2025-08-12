@@ -36,7 +36,8 @@ namespace TownTrek.Middleware
                         var hasClientRole = roleClaims.Any(r => r.Equals("Client", StringComparison.OrdinalIgnoreCase) || r.StartsWith("Client-", StringComparison.OrdinalIgnoreCase));
                         if (!hasClientRole && !authResult.HasActiveSubscription && context.Request.Path.StartsWithSegments("/Client"))
                         {
-                            context.Response.Redirect("/Member");
+                            // Redirect to public browsing instead of member area
+                            context.Response.Redirect("/Public");
                             return;
                         }
                         

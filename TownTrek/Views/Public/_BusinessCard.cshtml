@@ -31,7 +31,7 @@
         
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <button class="favorite-btn" data-member-action="toggle-favorite" data-business-id="@Model.Id" title="@(Model.IsUserFavorite ? "Remove from favorites" : "Add to favorites")">
+            <button class="favorite-btn" data-public-action="toggle-favorite" data-business-id="@Model.Id" title="@(Model.IsUserFavorite ? "Remove from favorites" : "Add to favorites")">
                 <svg width="20" height="20" fill="@(Model.IsUserFavorite ? "currentColor" : "none")" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                 </svg>
@@ -41,7 +41,7 @@
     
     <div class="business-card-content">
         <h3 class="business-name">
-            <a href="@Url.Action("BusinessDetails", "Member", new { businessId = Model.Id })">
+            <a href="@Url.Action("BusinessDetails", "Public", new { businessId = Model.Id })">
                 @Model.Name
             </a>
         </h3>
@@ -134,7 +134,7 @@
             }
         </div>
         
-        <a href="@Url.Action("BusinessDetails", "Member", new { businessId = Model.Id })" class="view-details-btn">
+        <a href="@Url.Action("BusinessDetails", "Public", new { businessId = Model.Id })" class="view-details-btn">
             View Details
         </a>
     </div>

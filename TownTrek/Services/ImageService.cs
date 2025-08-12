@@ -13,6 +13,7 @@ namespace TownTrek.Services
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ILogger<ImageService> _logger;
+        private readonly ISubscriptionAuthService _subscriptionAuthService;
         
         // Configuration constants
         private const long MaxFileSizeBytes = 5 * 1024 * 1024; // 5MB
@@ -24,11 +25,13 @@ namespace TownTrek.Services
         public ImageService(
             ApplicationDbContext context,
             IWebHostEnvironment webHostEnvironment,
-            ILogger<ImageService> logger)
+            ILogger<ImageService> logger,
+            ISubscriptionAuthService subscriptionAuthService)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
             _logger = logger;
+            _subscriptionAuthService = subscriptionAuthService;
         }
 
         public async Task<ImageUploadResult> UploadBusinessImageAsync(int businessId, IFormFile imageFile, string imageType, int displayOrder = 0)
@@ -54,6 +57,17 @@ namespace TownTrek.Services
                     {
                         IsSuccess = false,
                         ErrorMessage = "Business not found"
+                    };
+                }
+
+                // Enforce subscription image limits per owner (free tiers are intentionally strict)
+                var limits = await _subscriptionAuthService.GetUserLimitsAsync(business.UserId);
+                if (limits.MaxImages != -1 && limits.CurrentImageCount >= limits.MaxImages)
+                {
+                    return new ImageUploadResult
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = "You have reached your image upload limit for your current plan."
                     };
                 }
 

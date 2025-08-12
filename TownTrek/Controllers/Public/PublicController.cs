@@ -5,44 +5,45 @@ using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Controllers.Member
+namespace TownTrek.Controllers.Public
 {
-    public class MemberController : Controller
+    public class PublicController : Controller
     {
         private readonly IMemberService _memberService;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ILogger<MemberController> _logger;
+        private readonly ILogger<PublicController> _logger;
 
-        public MemberController(
+        public PublicController(
             IMemberService memberService,
             UserManager<ApplicationUser> userManager,
-            ILogger<MemberController> logger)
+            ILogger<PublicController> logger)
         {
             _memberService = memberService;
             _userManager = userManager;
             _logger = logger;
         }
 
-        // GET: /Member
-        [Authorize]
-        public async Task<IActionResult> Index()
+        // GET: /Public
+        [AllowAnonymous]
+        public async Task<IActionResult> Index(string? search = null, int? townId = null, string? category = null, string? subCategory = null, int page = 1)
         {
             try
             {
-                var userId = _userManager.GetUserId(User);
-                var viewModel = await _memberService.GetMemberDashboardAsync(userId!);
+                // Use the search view model for public landing/search page
+                var viewModel = await _memberService.SearchBusinessesAsync(search, townId, category, subCategory, page);
                 return View(viewModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error loading member dashboard");
-                TempData["ErrorMessage"] = "An error occurred while loading the dashboard.";
+                _logger.LogError(ex, "Error loading public index/search page");
+                TempData["ErrorMessage"] = "An error occurred while loading businesses.";
                 return RedirectToAction("Index", "Home");
             }
         }
 
-        // GET: /Member/Town/{townId}
-        [Route("Member/Town/{townId:int}")]
+        // GET: /Public/Town/{townId}
+        [AllowAnonymous]
+        [Route("Public/Town/{townId:int}")]
         public async Task<IActionResult> TownBusinesses(int townId, string? category = null, string? subCategory = null, string? search = null, int page = 1)
         {
             try
@@ -69,8 +70,9 @@ namespace TownTrek.Controllers.Member
             }
         }
 
-        // GET: /Member/Business/{businessId}
-        [Route("Member/Business/{businessId:int}")]
+        // GET: /Public/Business/{businessId}
+        [AllowAnonymous]
+        [Route("Public/Business/{businessId:int}")]
         public async Task<IActionResult> BusinessDetails(int businessId)
         {
             try
@@ -92,7 +94,8 @@ namespace TownTrek.Controllers.Member
             }
         }
 
-        // GET: /Member/Search
+        // GET: /Public/Search
+        [AllowAnonymous]
         public async Task<IActionResult> Search(string? search = null, int? townId = null, string? category = null, string? subCategory = null, int page = 1)
         {
             try
@@ -132,7 +135,7 @@ namespace TownTrek.Controllers.Member
             }
         }
 
-        // POST: /Member/AddReview
+        // POST: /Public/AddReview (members only)
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -164,7 +167,7 @@ namespace TownTrek.Controllers.Member
             }
         }
 
-        // POST: /Member/ToggleFavorite
+        // POST: /Public/ToggleFavorite (members only)
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -188,8 +191,9 @@ namespace TownTrek.Controllers.Member
             }
         }
 
-        // API: /Member/Api/Towns
-        [Route("Member/Api/Towns")]
+        // API: /Public/Api/Towns
+        [AllowAnonymous]
+        [Route("Public/Api/Towns")]
         public async Task<IActionResult> GetTowns()
         {
             try
@@ -204,8 +208,9 @@ namespace TownTrek.Controllers.Member
             }
         }
 
-        // API: /Member/Api/Categories
-        [Route("Member/Api/Categories")]
+        // API: /Public/Api/Categories
+        [AllowAnonymous]
+        [Route("Public/Api/Categories")]
         public async Task<IActionResult> GetCategories()
         {
             try

@@ -28,7 +28,7 @@
                             <h1>@Model.Business.Name</h1>
                             @if (User.Identity?.IsAuthenticated == true)
                             {
-                                <button class="favorite-btn-large" data-member-action="toggle-favorite" data-business-id="@Model.Business.Id" title="@(Model.Business.IsUserFavorite ? "Remove from favorites" : "Add to favorites")">
+                                <button class="favorite-btn-large" data-public-action="toggle-favorite" data-business-id="@Model.Business.Id" title="@(Model.Business.IsUserFavorite ? "Remove from favorites" : "Add to favorites")">
                                     <svg width="24" height="24" fill="@(Model.Business.IsUserFavorite ? "currentColor" : "none")" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                                     </svg>
@@ -187,7 +187,7 @@
                             <h2>Reviews (@Model.Reviews.Count)</h2>
                                         @if (User.Identity?.IsAuthenticated == true && Model.CanUserReview)
                             {
-                                <button type="button" class="btn btn-cta" data-member-action="submit-review" data-business-id="@Model.Business.Id">
+                                <button type="button" class="btn btn-cta" data-public-action="submit-review" data-business-id="@Model.Business.Id">
                                     Write a Review
                                 </button>
                             }
@@ -331,7 +331,7 @@
                                 @foreach (var business in Model.RelatedBusinesses)
                                 {
                                     <div class="related-business-item">
-                                        <a href="@Url.Action("BusinessDetails", "Member", new { businessId = business.Id })">
+                                        <a href="@Url.Action("BusinessDetails", "Public", new { businessId = business.Id })">
                                             @if (!string.IsNullOrEmpty(business.LogoUrl))
                                             {
                                                 <img src="@business.LogoUrl" alt="@business.Name logo" class="related-logo" />
@@ -373,8 +373,8 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/modules/member/member-manager.js" asp-append-version="true"></script>
+    <script src="~/js/modules/public/public-manager.js" asp-append-version="true"></script>
     <script>
-        document.body.dataset.page = 'member-business-details';
+        document.body.dataset.page = 'public-business-details';
     </script>
 }

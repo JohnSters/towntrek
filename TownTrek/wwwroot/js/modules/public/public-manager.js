@@ -1,11 +1,11 @@
 /**
- * @fileoverview Member functionality manager for TownTrek
- * Handles business browsing, searching, reviews, and favorites for members
+ * @fileoverview Public browsing manager for TownTrek
+ * Handles public browsing/search; enables member-only actions (favorites, reviews) when signed in
  * @author TownTrek Development Team
  * @version 1.0.0
  */
 
-class MemberManager {
+class PublicManager {
   constructor() {
     this.apiClient = window.ApiClient;
     this.notifications = window.NotificationManager;
@@ -27,10 +27,10 @@ class MemberManager {
   }
 
   handleClick(e) {
-    const target = e.target.closest('[data-member-action]');
+    const target = e.target.closest('[data-public-action]');
     if (!target) return;
 
-    const action = target.dataset.memberAction;
+    const action = target.dataset.publicAction;
     e.preventDefault();
 
     switch (action) {
@@ -56,9 +56,9 @@ class MemberManager {
   }
 
   handleSubmit(e) {
-    if (e.target.matches('[data-member-form]')) {
+    if (e.target.matches('[data-public-form]')) {
       e.preventDefault();
-      const formType = e.target.dataset.memberForm;
+      const formType = e.target.dataset.publicForm;
       
       switch (formType) {
         case 'review':
@@ -72,8 +72,8 @@ class MemberManager {
   }
 
   handleChange(e) {
-    if (e.target.matches('[data-member-filter]')) {
-      const filterType = e.target.dataset.memberFilter;
+    if (e.target.matches('[data-public-filter]')) {
+      const filterType = e.target.dataset.publicFilter;
       
       switch (filterType) {
         case 'category':
@@ -93,33 +93,28 @@ class MemberManager {
 
     // Fallback to DOM-based detection (no inline scripts required in views)
     if (document.querySelector('.business-search-page')) {
-      this.routeToPage('member-search');
+      this.routeToPage('public-search');
     } else if (document.querySelector('.favorites-page')) {
-      this.routeToPage('member-favorites');
+      this.routeToPage('public-favorites');
     } else if (document.querySelector('.town-businesses-page')) {
-      this.routeToPage('member-town-businesses');
+      this.routeToPage('public-town-businesses');
     } else if (document.querySelector('.business-details-page')) {
-      this.routeToPage('member-business-details');
-    } else if (document.querySelector('.member-dashboard')) {
-      this.routeToPage('member-dashboard');
+      this.routeToPage('public-business-details');
     }
   }
 
   routeToPage(pageKey) {
     switch (pageKey) {
-      case 'member-dashboard':
-        this.initializeDashboard();
-        break;
-      case 'member-town-businesses':
+      case 'public-town-businesses':
         this.initializeTownBusinesses();
         break;
-      case 'member-search':
+      case 'public-search':
         this.initializeSearch();
         break;
-      case 'member-business-details':
+      case 'public-business-details':
         this.initializeBusinessDetails();
         break;
-      case 'member-favorites':
+      case 'public-favorites':
         this.initializeFavorites();
         break;
     }
@@ -141,8 +136,8 @@ class MemberManager {
 
   initializeTownBusinesses() {
     // Use global categories data if available
-    this.categoriesData = window.memberCategoriesData || [];
-    this.townId = window.memberTownId;
+    this.categoriesData = window.PublicCategoriesData || [];
+    this.townId = window.PublicTownId;
     
     // Initialize selected filters
     this.initializeFilters();
@@ -185,7 +180,7 @@ class MemberManager {
     const icon = button.querySelector('svg');
     
     try {
-      const response = await this.apiClient.post('/Member/ToggleFavorite', {
+      const response = await this.apiClient.post('/Public/ToggleFavorite', {
         businessId: businessId
       });
       
@@ -201,7 +196,7 @@ class MemberManager {
         this.notifications.show(response.message, 'success');
         
         // If on favorites page, remove the card with animation
-        if (document.body.dataset.page === 'member-favorites' && !response.isFavorite) {
+        if ((document.body.dataset.page || '').toLowerCase() === 'public-favorites' && !response.isFavorite) {
           this.removeFavoriteCard(button.closest('.business-card'));
         }
       } else {
@@ -248,7 +243,7 @@ class MemberManager {
 
   async submitReviewData(businessId, data) {
     try {
-      const response = await this.apiClient.post('/Member/AddReview', {
+      const response = await this.apiClient.post('/Public/AddReview', {
         BusinessId: businessId,
         Rating: parseInt(data.Rating),
         Comment: data.Comment || ''
@@ -283,7 +278,7 @@ class MemberManager {
     }
 
     try {
-      const response = await fetch('/Member/Api/Categories');
+      const response = await fetch('/Public/Api/Categories');
       this.categoriesData = await response.json();
     } catch (error) {
       console.error('Error loading categories:', error);
@@ -343,7 +338,7 @@ class MemberManager {
   }
 
   applyFilters() {
-    const form = document.querySelector('[data-member-form="search"]') || 
+    const form = document.querySelector('[data-public-form="search"]') || 
                  document.querySelector('.advanced-search-form') ||
                  document.querySelector('.filters-bar');
     
@@ -354,7 +349,7 @@ class MemberManager {
 
   clearFilters() {
     // Clear all filter inputs
-    const inputs = document.querySelectorAll('[data-member-filter], .search-input, .filter-select');
+    const inputs = document.querySelectorAll('[data-public-filter], .search-input, .filter-select');
     inputs.forEach(input => {
       if (input.type === 'select-one') {
         input.selectedIndex = 0;
@@ -379,6 +374,7 @@ class MemberManager {
     
     const params = new URLSearchParams(formData);
     const currentPath = window.location.pathname;
+    const actionUrl = (form.getAttribute('action') || '').trim() || currentPath;
     
     try {
       // Show loading state
@@ -390,7 +386,7 @@ class MemberManager {
       }
       
       // Make AJAX request
-      const response = await fetch(`${currentPath}?${params}`, {
+      const response = await fetch(`${actionUrl}?${params}`, {
         headers: {
           'X-Requested-With': 'XMLHttpRequest'
         }
@@ -403,7 +399,7 @@ class MemberManager {
         }
         
         // Update URL without page reload
-        const newUrl = `${currentPath}?${params}`;
+        const newUrl = `${actionUrl}?${params}`;
         window.history.pushState({}, '', newUrl);
       } else {
         throw new Error('Search request failed');
@@ -419,7 +415,7 @@ class MemberManager {
   }
 
   loadPage(page) {
-    const form = document.querySelector('[data-member-form="search"]') || 
+    const form = document.querySelector('[data-public-form="search"]') || 
                  document.querySelector('.advanced-search-form') ||
                  document.querySelector('.filters-bar');
     
@@ -584,29 +580,29 @@ class MemberManager {
         <div class="no-results-icon">🔍</div>
         <h3>No businesses match your filters</h3>
         <p>Try adjusting your filter criteria.</p>
-        <button type="button" data-member-action="clear-filters" class="btn btn-primary">Clear Filters</button>
+        <button type="button" data-public-action="clear-filters" class="btn btn-primary">Clear Filters</button>
       </div>
     `;
   }
 }
 
 // Guard against double registration and duplicate class definitions
-window.__memberManagerInitialized = window.__memberManagerInitialized || false;
-if (!window.__memberManagerInitialized) {
+window.__publicManagerInitialized = window.__publicManagerInitialized || false;
+if (!window.__publicManagerInitialized) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-      if (!window.__memberManagerInitialized) {
-        window.MemberManager = new MemberManager();
-        window.__memberManagerInitialized = true;
+      if (!window.__publicManagerInitialized) {
+        window.PublicManager = new PublicManager();
+        window.__publicManagerInitialized = true;
       }
     });
   } else {
-    window.MemberManager = new MemberManager();
-    window.__memberManagerInitialized = true;
+    window.PublicManager = new PublicManager();
+    window.__publicManagerInitialized = true;
   }
 }
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = MemberManager;
+  module.exports = PublicManager;
 }

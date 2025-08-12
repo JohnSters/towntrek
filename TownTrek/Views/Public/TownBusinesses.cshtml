@@ -40,7 +40,7 @@
                     <!-- Category Filter -->
                     <div class="filter-group">
                         <label for="categoryFilter">Category:</label>
-                        <select id="categoryFilter" class="form-select filter-select" data-member-filter="category">
+                        <select id="categoryFilter" class="form-select filter-select" data-public-filter="category">
                             <option value="">All Categories</option>
                             @foreach (var category in Model.Categories)
                             {
@@ -75,8 +75,8 @@
                 </div>
 
                 <div class="filter-actions">
-                    <button type="button" data-member-action="apply-filters" class="btn btn-primary">Apply Filters</button>
-                    <button type="button" data-member-action="clear-filters" class="btn btn-secondary">Clear All</button>
+                    <button type="button" data-public-action="apply-filters" class="btn btn-primary">Apply Filters</button>
+                    <button type="button" data-public-action="clear-filters" class="btn btn-secondary">Clear All</button>
                 </div>
             </div>
         </div>
@@ -124,7 +124,7 @@
                             <nav class="pagination">
                                 @if (Model.HasPreviousPage)
                                 {
-                                    <a href="#" class="pagination-btn" data-member-action="load-page" data-page="@(Model.CurrentPage - 1)">
+                                    <a href="#" class="pagination-btn" data-public-action="load-page" data-page="@(Model.CurrentPage - 1)">
                                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <polyline points="15,18 9,12 15,6"/>
                                         </svg>
@@ -134,14 +134,14 @@
 
                                 @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
                                 {
-                                    <a href="#" class="pagination-btn @(i == Model.CurrentPage ? "active" : "")" data-member-action="load-page" data-page="@i">
+                                    <a href="#" class="pagination-btn @(i == Model.CurrentPage ? "active" : "")" data-public-action="load-page" data-page="@i">
                                         @i
                                     </a>
                                 }
 
                                 @if (Model.HasNextPage)
                                 {
-                                    <a href="#" class="pagination-btn" data-member-action="load-page" data-page="@(Model.CurrentPage + 1)">
+                                    <a href="#" class="pagination-btn" data-public-action="load-page" data-page="@(Model.CurrentPage + 1)">
                                         Next
                                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <polyline points="9,18 15,12 9,6"/>
@@ -159,8 +159,8 @@
                         <h3>No businesses found</h3>
                         <p>Try adjusting your search criteria or explore other categories.</p>
                         <div class="no-results-actions">
-                            <button type="button" data-member-action="clear-filters" class="btn btn-primary">Clear Filters</button>
-                            <a href="@Url.Action("Index", "Member")" class="btn btn-secondary">Back to Dashboard</a>
+                            <button type="button" data-public-action="clear-filters" class="btn btn-primary">Clear Filters</button>
+                            <a href="@Url.Action("Index", "Public")" class="btn btn-secondary">Back to Dashboard</a>
                         </div>
                     </div>
                 }
@@ -176,12 +176,12 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/modules/member/member-manager.js" asp-append-version="true"></script>
+    <script src="~/js/modules/public/public-manager.js" asp-append-version="true"></script>
     <script>
-        document.body.dataset.page = 'member-town-businesses';
-        // Store categories data for the member manager
-        window.memberCategoriesData = @Html.Raw(Json.Serialize(Model.Categories.Select(c => new { key = c.Key, name = c.Name, subCategories = c.SubCategories.Select(sc => new { key = sc.Key, name = sc.Name }) })));
-        window.memberTownId = @Model.Town.Id;
-        window.memberSelectedSubCategory = '@Model.SelectedSubCategory';
+        document.body.dataset.page = 'public-town-businesses';
+        // Store categories data for the Public manager
+        window.PublicCategoriesData = @Html.Raw(Json.Serialize(Model.Categories.Select(c => new { key = c.Key, name = c.Name, subCategories = c.SubCategories.Select(sc => new { key = sc.Key, name = sc.Name }) })));
+        window.PublicTownId = @Model.Town.Id;
+        window.PublicSelectedSubCategory = '@Model.SelectedSubCategory';
     </script>
 }

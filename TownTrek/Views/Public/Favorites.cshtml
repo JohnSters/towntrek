@@ -73,24 +73,24 @@
                     <p>Start exploring and saving your favorite local businesses to see them here.</p>
                     
                     <div class="no-favorites-actions">
-                        <a href="@Url.Action("Index", "Member")" class="btn btn-primary">Explore Businesses</a>
-                        <a href="@Url.Action("Search", "Member")" class="btn btn-secondary">Search Businesses</a>
+                        <a href="@Url.Action("Index", "Public")" class="btn btn-primary">Explore Businesses</a>
+                        <a href="@Url.Action("Search", "Public")" class="btn btn-secondary">Search Businesses</a>
                     </div>
                     
                     <!-- Quick Categories -->
                     <div class="quick-categories">
                         <h3>Popular Categories</h3>
                         <div class="category-links">
-                            <a href="@Url.Action("Search", "Member", new { category = "restaurants-food" })" class="category-link">
+                            <a href="@Url.Action("Search", "Public", new { category = "restaurants-food" })" class="category-link">
                                 🍽️ Restaurants
                             </a>
-                            <a href="@Url.Action("Search", "Member", new { category = "shops-retail" })" class="category-link">
+                            <a href="@Url.Action("Search", "Public", new { category = "shops-retail" })" class="category-link">
                                 🛍️ Shops
                             </a>
-                            <a href="@Url.Action("Search", "Member", new { category = "accommodation" })" class="category-link">
+                            <a href="@Url.Action("Search", "Public", new { category = "accommodation" })" class="category-link">
                                 🏨 Accommodation
                             </a>
-                            <a href="@Url.Action("Search", "Member", new { category = "tours-experiences" })" class="category-link">
+                            <a href="@Url.Action("Search", "Public", new { category = "tours-experiences" })" class="category-link">
                                 🗺️ Tours
                             </a>
                         </div>

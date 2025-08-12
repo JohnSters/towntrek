@@ -48,7 +48,6 @@
     <Folder Include="wwwroot\js\modules\admin\" />
     <Folder Include="wwwroot\js\modules\auth\" />
     <Folder Include="wwwroot\js\modules\client\" />
-    <Folder Include="wwwroot\js\modules\member\" />
     <Folder Include="wwwroot\js\shared\" />
   </ItemGroup>
 

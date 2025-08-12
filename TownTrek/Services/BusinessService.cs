@@ -292,9 +292,9 @@ namespace TownTrek.Services
                 return false; // User not found
             }
 
-            // For development: If no active subscription, allow 1 free business
+            // Enforce strict free-tier/business limits
             var activeSubscription = user.Subscriptions.FirstOrDefault(s => s.IsActive);
-            int maxBusinesses = 1; // Default free limit
+            int maxBusinesses = 1; // Default strict free limit for non-subscribed users
 
             if (activeSubscription != null)
             {
