@@ -15,6 +15,7 @@ class MemberManager {
 
   init() {
     this.bindEventListeners();
+    this.setupUserMenu();
     this.initializeCurrentPage();
   }
 
@@ -163,6 +164,20 @@ class MemberManager {
   initializeFavorites() {
     // Initialize filtering and sorting
     this.initializeFavoritesFiltering();
+  }
+
+  setupUserMenu() {
+    const userMenu = document.querySelector('.user-menu');
+    if (!userMenu) return;
+    const dropdown = userMenu.querySelector('.user-dropdown');
+    if (!dropdown) return;
+    userMenu.addEventListener('click', () => dropdown.classList.toggle('active'));
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.user-menu')) dropdown.classList.remove('active');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') dropdown.classList.remove('active');
+    });
   }
 
   async toggleFavorite(button) {
@@ -575,13 +590,20 @@ class MemberManager {
   }
 }
 
-// Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+// Guard against double registration and duplicate class definitions
+window.__memberManagerInitialized = window.__memberManagerInitialized || false;
+if (!window.__memberManagerInitialized) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!window.__memberManagerInitialized) {
+        window.MemberManager = new MemberManager();
+        window.__memberManagerInitialized = true;
+      }
+    });
+  } else {
     window.MemberManager = new MemberManager();
-  });
-} else {
-  window.MemberManager = new MemberManager();
+    window.__memberManagerInitialized = true;
+  }
 }
 
 // Export for module systems
