@@ -23,33 +23,197 @@
 .user-name { font-size: var(--body-small); font-weight: var(--font-medium); color: var(--charcoal); }
 .user-role { font-size: var(--body-xs); color: var(--dark-gray); }
 
-/* User dropdown panel */
-.user-dropdown { position: absolute; top: 100%; left: 0; right: auto; margin-top: var(--space-sm); opacity: 0; visibility: hidden; transform: translateY(-10px); transform-origin: top left; transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal); z-index: 1000; }
-.user-dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
-
-/* If the avatar sits at the far right edge inside a navbar, keep the menu within viewport */
-.navbar .user-menu { position: relative; }
-.navbar .user-dropdown { left: 0; right: auto; }
-
-/* Admin layout specific positioning */
-.admin-header .user-menu { position: relative; }
-.admin-header .user-dropdown { right: 0; left: auto; }
-
-/* Debug: Add a subtle border to help identify dropdown positioning issues */
-.user-dropdown.active .dropdown-menu { 
-    border: 1px solid var(--medium-gray); 
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12); 
-    padding: var(--space-sm); 
+/* User menu trigger button */
+.user-menu-trigger {
+    background: none;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color var(--transition-normal);
 }
-.dropdown-menu { background: var(--white); border: 1px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-sm); min-width: 200px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-/* Override Bootstrap default which hides dropdowns */
-.user-dropdown .dropdown-menu { display: block; position: static; box-shadow: none; border: none; padding: 0; }
-.user-dropdown.active .dropdown-menu { box-shadow: 0 8px 24px rgba(0,0,0,0.12); border: 1px solid var(--medium-gray); padding: var(--space-sm); }
-.dropdown-item { display: flex; align-items: center; gap: var(--space-sm); padding: var(--space-sm) var(--space-md); color: var(--charcoal); text-decoration: none; font-size: var(--body-small); border-radius: var(--radius-md); transition: background-color var(--transition-normal); }
-.dropdown-item:visited { color: var(--charcoal); }
-.dropdown-item:hover { background-color: var(--light-gray); }
-.dropdown-divider { height: 1px; background-color: var(--medium-gray); margin: var(--space-sm) 0; }
-.dropdown-button { border: none; background: none; width: 100%; text-align: left; cursor: pointer; }
-.dropdown-logout-form { margin: 0; }
+
+.user-menu-trigger:hover {
+    background-color: var(--light-gray);
+}
+
+.user-menu-arrow {
+    transition: transform var(--transition-normal);
+}
+
+.user-menu[aria-expanded="true"] .user-menu-arrow {
+    transform: rotate(180deg);
+}
+
+/* User dropdown panel */
+.user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: var(--space-sm);
+    background: var(--white);
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    min-width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity var(--transition-normal), transform var(--transition-normal), visibility var(--transition-normal);
+    z-index: 1000;
+}
+
+.user-dropdown.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Dropdown header with user info */
+.user-dropdown-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--medium-gray);
+}
+
+.user-avatar-large {
+    width: 48px;
+    height: 48px;
+    background-color: var(--carolina-blue);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: var(--font-bold);
+    color: var(--charcoal);
+    font-size: var(--body-large);
+}
+
+.user-details {
+    flex: 1;
+}
+
+.user-details .user-name {
+    font-size: var(--body-medium);
+    font-weight: var(--font-semibold);
+    color: var(--charcoal);
+    margin-bottom: 2px;
+}
+
+.user-details .user-role {
+    font-size: var(--body-small);
+    color: var(--dark-gray);
+}
+
+/* Dropdown menu items */
+.user-dropdown-menu {
+    padding: var(--space-sm);
+}
+
+.user-dropdown-divider {
+    height: 1px;
+    background-color: var(--medium-gray);
+    margin: var(--space-sm) 0;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    color: var(--charcoal);
+    text-decoration: none;
+    font-size: var(--body-small);
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-normal);
+    width: 100%;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: var(--light-gray);
+    color: var(--charcoal);
+    text-decoration: none;
+}
+
+.dropdown-item svg {
+    flex-shrink: 0;
+}
+
+.dropdown-form {
+    margin: 0;
+}
+
+.logout-item {
+    color: var(--danger-color, #dc3545);
+}
+
+.logout-item:hover {
+    background-color: var(--danger-light, #f8d7da);
+    color: var(--danger-color, #dc3545);
+}
+
+/* Positioning adjustments for different layouts */
+.navbar .user-dropdown {
+    right: 0;
+    left: auto;
+}
+
+.admin-header .user-dropdown {
+    right: 0;
+    left: auto;
+}
+
+/* Auth buttons for non-authenticated users */
+.auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.auth-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-size: var(--body-small);
+    font-weight: var(--font-medium);
+    transition: all var(--transition-normal);
+    border: 1px solid transparent;
+}
+
+.auth-btn-secondary {
+    color: var(--charcoal);
+    background-color: transparent;
+    border-color: var(--medium-gray);
+}
+
+.auth-btn-secondary:hover {
+    background-color: var(--light-gray);
+    color: var(--charcoal);
+    text-decoration: none;
+}
+
+.auth-btn-cta {
+    color: var(--white);
+    background-color: var(--lapis-lazuli);
+}
+
+.auth-btn-cta:hover {
+    background-color: var(--charcoal);
+    color: var(--white);
+    text-decoration: none;
+}
 
 

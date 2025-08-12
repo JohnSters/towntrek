@@ -36,8 +36,15 @@ class UserMenuComponent {
     }
 
     bindEventListeners() {
-        // Toggle dropdown on user menu click
-        this.userMenu.addEventListener('click', (e) => {
+        // Find the trigger button
+        const trigger = this.userMenu.querySelector('.user-menu-trigger');
+        if (!trigger) {
+            console.warn('User menu trigger button not found');
+            return;
+        }
+
+        // Toggle dropdown on trigger click
+        trigger.addEventListener('click', (e) => {
             e.stopPropagation();
             this.toggleDropdown();
         });
@@ -84,6 +91,12 @@ class UserMenuComponent {
     openDropdown() {
         this.dropdown.classList.add('active');
         this.dropdown.setAttribute('aria-hidden', 'false');
+        
+        // Update trigger aria-expanded
+        const trigger = this.userMenu.querySelector('.user-menu-trigger');
+        if (trigger) {
+            trigger.setAttribute('aria-expanded', 'true');
+        }
 
         // Focus first focusable element in dropdown
         const firstFocusable = this.dropdown.querySelector('a, button, [tabindex]:not([tabindex="-1"])');
@@ -95,6 +108,12 @@ class UserMenuComponent {
     closeDropdown() {
         this.dropdown.classList.remove('active');
         this.dropdown.setAttribute('aria-hidden', 'true');
+        
+        // Update trigger aria-expanded
+        const trigger = this.userMenu.querySelector('.user-menu-trigger');
+        if (trigger) {
+            trigger.setAttribute('aria-expanded', 'false');
+        }
     }
 
     handleUserAction(action, target, event) {
