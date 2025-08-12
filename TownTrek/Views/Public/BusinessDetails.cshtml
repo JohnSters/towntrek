@@ -1,0 +1,380 @@
+@model TownTrek.Models.ViewModels.BusinessDetailsViewModel
+@{
+    ViewData["Title"] = Model.Business.Name;
+    Layout = "_Layout";
+}
+
+<div class="business-details-page">
+    <!-- Business Header -->
+    <section class="business-header-section">
+        <div class="container">
+            <div class="business-header">
+                <div class="business-main-info">
+                    <div class="business-logo-large">
+                        @if (!string.IsNullOrEmpty(Model.Business.LogoUrl))
+                        {
+                            <img src="@Model.Business.LogoUrl" alt="@Model.Business.Name logo" />
+                        }
+                        else
+                        {
+                            <div class="business-logo-placeholder-large">
+                                <span>@Model.Business.Name.Substring(0, 1).ToUpper()</span>
+                            </div>
+                        }
+                    </div>
+                    
+                    <div class="business-details">
+                        <div class="business-title-row">
+                            <h1>@Model.Business.Name</h1>
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <button class="favorite-btn-large" data-public-action="toggle-favorite" data-business-id="@Model.Business.Id" title="@(Model.Business.IsUserFavorite ? "Remove from favorites" : "Add to favorites")">
+                                    <svg width="24" height="24" fill="@(Model.Business.IsUserFavorite ? "currentColor" : "none")" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                                    </svg>
+                                </button>
+                            }
+                        </div>
+                        
+                        <div class="business-meta">
+                            <span class="business-category">
+                                @Model.Business.Category
+                                @if (!string.IsNullOrEmpty(Model.Business.SubCategory))
+                                {
+                                    <span> • @Model.Business.SubCategory</span>
+                                }
+                            </span>
+                            
+                            <div class="business-badges">
+                                @if (Model.Business.IsFeatured)
+                                {
+                                    <span class="badge badge-featured">Featured</span>
+                                }
+                                @if (Model.Business.IsVerified)
+                                {
+                                    <span class="badge badge-verified">
+                                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                        </svg>
+                                        Verified
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                        
+                        @if (Model.Business.Rating.HasValue)
+                        {
+                            <div class="business-rating-large">
+                                <div class="rating-stars">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        @if (i <= Model.Business.Rating.Value)
+                                        {
+                                            <svg class="star filled" width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <svg class="star" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                            </svg>
+                                        }
+                                    }
+                                </div>
+                                <span class="rating-value">@Model.Business.Rating.Value.ToString("F1")</span>
+                                <span class="rating-count">(@Model.Business.TotalReviews @(Model.Business.TotalReviews == 1 ? "review" : "reviews"))</span>
+                            </div>
+                        }
+                        
+                        <div class="business-location">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span>@Model.Business.PhysicalAddress, @Model.Business.TownName</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="business-contact-actions">
+                    <a href="tel:@Model.Business.PhoneNumber" class="btn btn-primary contact-action">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                        </svg>
+                        Call Now
+                    </a>
+                    
+                    @if (!string.IsNullOrEmpty(Model.Business.EmailAddress))
+                    {
+                        <a href="mailto:@Model.Business.EmailAddress" class="btn btn-secondary contact-action">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Email
+                        </a>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(Model.Business.Website))
+                    {
+                        <a href="@Model.Business.Website" target="_blank" class="btn btn-secondary contact-action">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m-9 9a9 9 0 019-9"/>
+                            </svg>
+                            Website
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Business Content -->
+    <section class="business-content-section">
+        <div class="container">
+            <div class="business-content-grid">
+                <!-- Main Content -->
+                <div class="business-main-content">
+                    <!-- Description -->
+                    <div class="content-card">
+                        <h2>About</h2>
+                        <p class="business-description">@Model.Business.ShortDescription</p>
+                    </div>
+                    
+                    <!-- Services -->
+                    @if (Model.Business.Services.Any())
+                    {
+                        <div class="content-card">
+                            <h2>Services & Features</h2>
+                            <div class="services-grid">
+                                @foreach (var service in Model.Business.Services)
+                                {
+                                    <div class="service-item">
+                                        <span class="service-name">@service.ServiceName</span>
+                                        @if (!string.IsNullOrEmpty(service.Description))
+                                        {
+                                            <span class="service-description">@service.Description</span>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Image Gallery -->
+                    @if (Model.Business.GalleryImages.Any())
+                    {
+                        <div class="content-card">
+                            <h2>Gallery</h2>
+                            <div class="image-gallery">
+                                @foreach (var image in Model.Business.GalleryImages.Take(6))
+                                {
+                                    <div class="gallery-image">
+                                        <img src="@image.ThumbnailUrl" alt="@image.AltText" data-full="@image.ImageUrl" />
+                                    </div>
+                                }
+                            </div>
+                            @if (Model.Business.GalleryImages.Count > 6)
+                            {
+                                <p class="gallery-more">And @(Model.Business.GalleryImages.Count - 6) more photos...</p>
+                            }
+                        </div>
+                    }
+                    
+                    <!-- Reviews Section -->
+                    <div class="content-card reviews-section">
+                        <div class="reviews-header">
+                            <h2>Reviews (@Model.Reviews.Count)</h2>
+                                        @if (User.Identity?.IsAuthenticated == true && Model.CanUserReview)
+                            {
+                                <button type="button" class="btn btn-cta" data-public-action="submit-review" data-business-id="@Model.Business.Id">
+                                    Write a Review
+                                </button>
+                            }
+                            else if (User.Identity?.IsAuthenticated != true)
+                            {
+                                <a href="@Url.Action("Login", "Auth")" class="btn btn-cta">
+                                    Login to Write Review
+                                </a>
+                            }
+                        </div>
+                        
+                        @if (Model.Reviews.Any())
+                        {
+                            <div class="reviews-list">
+                                @foreach (var review in Model.Reviews.Take(5))
+                                {
+                                    <div class="review-item">
+                                        <div class="review-header">
+                                            <div class="reviewer-info">
+                                                <strong>@review.User.UserName</strong>
+                                                <div class="review-rating">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        @if (i <= review.Rating)
+                                                        {
+                                                            <svg class="star filled" width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                                            </svg>
+                                                        }
+                                                        else
+                                                        {
+                                                            <svg class="star" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                                            </svg>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                            <span class="review-date">@review.CreatedAt.ToString("MMM d, yyyy")</span>
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(review.Comment))
+                                        {
+                                            <p class="review-comment">@review.Comment</p>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                            
+                            @if (Model.Reviews.Count > 5)
+                            {
+                                <button type="button" class="btn btn-secondary load-more-reviews">
+                                    Load More Reviews
+                                </button>
+                            }
+                        }
+                        else
+                        {
+                            <div class="no-reviews">
+                                <p>No reviews yet. Be the first to review this business!</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Sidebar -->
+                <div class="business-sidebar">
+                    <!-- Contact Info -->
+                    <div class="sidebar-card">
+                        <h3>Contact Information</h3>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                </svg>
+                                <a href="tel:@Model.Business.PhoneNumber">@Model.Business.PhoneNumber</a>
+                            </div>
+                            
+                            @if (!string.IsNullOrEmpty(Model.Business.EmailAddress))
+                            {
+                                <div class="contact-item">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                    </svg>
+                                    <a href="mailto:@Model.Business.EmailAddress">@Model.Business.EmailAddress</a>
+                                </div>
+                            }
+                            
+                            <div class="contact-item">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <span>@Model.Business.PhysicalAddress</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Business Hours -->
+                    @if (Model.Business.BusinessHours.Any())
+                    {
+                        <div class="sidebar-card">
+                            <h3>Business Hours</h3>
+                            <div class="business-hours">
+                                @{
+                                    string[] dayNames = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+                                }
+                                @for (int i = 0; i < 7; i++)
+                                {
+                                    var hour = Model.Business.BusinessHours.FirstOrDefault(h => h.DayOfWeek == i);
+                                    <div class="hours-row @(DateTime.Now.DayOfWeek == (DayOfWeek)i ? "today" : "")">
+                                        <span class="day">@dayNames[i]</span>
+                                        <span class="time">
+                                            @if (hour != null && hour.IsOpen)
+                                            {
+                                                if (hour.OpenTime.HasValue && hour.CloseTime.HasValue)
+                                                {
+                                                    <span>@hour.OpenTime.Value.ToString(@"hh\:mm") - @hour.CloseTime.Value.ToString(@"hh\:mm")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>Open</span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="closed">Closed</span>
+                                            }
+                                        </span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    
+                    <!-- Related Businesses -->
+                    @if (Model.RelatedBusinesses.Any())
+                    {
+                        <div class="sidebar-card">
+                            <h3>Related Businesses</h3>
+                            <div class="related-businesses">
+                                @foreach (var business in Model.RelatedBusinesses)
+                                {
+                                    <div class="related-business-item">
+                                        <a href="@Url.Action("BusinessDetails", "Public", new { businessId = business.Id })">
+                                            @if (!string.IsNullOrEmpty(business.LogoUrl))
+                                            {
+                                                <img src="@business.LogoUrl" alt="@business.Name logo" class="related-logo" />
+                                            }
+                                            else
+                                            {
+                                                <div class="related-logo-placeholder">
+                                                    @business.Name.Substring(0, 1).ToUpper()
+                                                </div>
+                                            }
+                                            <div class="related-info">
+                                                <strong>@business.Name</strong>
+                                                @if (business.Rating.HasValue)
+                                                {
+                                                    <div class="related-rating">
+                                                        @for (int i = 1; i <= 5; i++)
+                                                        {
+                                                            @if (i <= business.Rating.Value)
+                                                            {
+                                                                <svg class="star filled" width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                                                </svg>
+                                                            }
+                                                        }
+                                                        <span>@business.Rating.Value.ToString("F1")</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/modules/public/public-manager.js" asp-append-version="true"></script>
+    <script>
+        document.body.dataset.page = 'public-business-details';
+    </script>
+}

@@ -1,4 +1,5 @@
 @model TownTrek.Models.ViewModels.MediaGalleryOverviewViewModel
+
 @{
     ViewData["Title"] = "Media Gallery";
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
@@ -6,6 +7,10 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/features/image-gallery/gallery.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/modules/image/media-gallery-manager.js" asp-append-version="true"></script>
 }
 
 <!-- Page Header -->
@@ -178,7 +183,7 @@ else
             </svg>
             <h3 class="empty-state-title">No Images Found</h3>
             <p class="empty-state-description">Start by adding businesses and uploading images to showcase your services.</p>
-            <a href="@Url.Action("AddBusiness", "Business")" class="auth-btn auth-btn-cta">
+            <a href="@Url.Action("Create", "Business")" class="auth-btn auth-btn-cta">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
@@ -186,8 +191,4 @@ else
             </a>
         </div>
     </div>
-}
-
-@section Scripts {
-    <script src="~/js/media-gallery.js" asp-append-version="true"></script>
 }

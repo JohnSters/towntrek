@@ -68,6 +68,7 @@ public class Program
         builder.Services.AddScoped<IImageService, ImageService>();
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
         builder.Services.AddScoped<IClientService, ClientService>();
+        builder.Services.AddScoped<IMemberService, MemberService>();
 
         builder.Services.AddControllersWithViews()
             .AddRazorOptions(options =>

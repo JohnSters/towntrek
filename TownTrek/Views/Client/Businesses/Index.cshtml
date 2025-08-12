@@ -4,6 +4,10 @@
     Layout = "~/Views/Shared/_ClientLayout.cshtml";
 }
 
+@section Scripts {
+    <script src="~/js/modules/business/business-list.js" asp-append-version="true"></script>
+}
+
 <!-- Page Header -->
 <div class="page-header">
     <div class="page-header-content">
@@ -16,7 +20,7 @@
             {
                 @if (userLimits.MaxBusinesses == -1 || userLimits.CurrentBusinessCount < userLimits.MaxBusinesses)
                 {
-                    <a asp-controller="Business" asp-action="AddBusiness" class="auth-btn auth-btn-cta">
+                    <a asp-controller="Business" asp-action="Create" class="auth-btn auth-btn-cta">
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -97,7 +101,7 @@
             {
                 @if (cardLimits.MaxBusinesses == -1 || cardLimits.CurrentBusinessCount < cardLimits.MaxBusinesses)
                 {
-                    <a asp-controller="Business" asp-action="AddBusiness" class="header-btn" title="Add New Business">
+                    <a asp-controller="Business" asp-action="Create" class="header-btn" title="Add New Business">
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
@@ -117,7 +121,7 @@
             </div>
             <h3>No Businesses Yet</h3>
             <p>Get started by adding your first business listing to connect with customers in your community.</p>
-            <a asp-controller="Business" asp-action="AddBusiness" class="auth-btn auth-btn-cta">
+            <a asp-controller="Business" asp-action="Create" class="auth-btn auth-btn-cta">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>

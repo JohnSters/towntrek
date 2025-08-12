@@ -18,10 +18,10 @@
     else
     {
         // Fallback for admin pages or when tier isn't available
-        displayRole = isAuthenticated ? (User.IsInRole("Admin") ? "System Admin" : "Free Tier") : "Free Tier";
+        displayRole = isAuthenticated
+            ? ((User != null && User.IsInRole("Admin")) ? "System Admin" : "Free Tier")
+            : "Free Tier";
     }
 }
 
 @await Component.InvokeAsync("TopUserMenu")
-
-

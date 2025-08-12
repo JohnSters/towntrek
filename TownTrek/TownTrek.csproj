@@ -44,6 +44,11 @@
     <Folder Include="Services\Api\" />
     <Folder Include="Views\Admin\Towns\" />
     <Folder Include="Views\Client\Subscription\" />
+    <Folder Include="wwwroot\js\components\" />
+    <Folder Include="wwwroot\js\modules\admin\" />
+    <Folder Include="wwwroot\js\modules\auth\" />
+    <Folder Include="wwwroot\js\modules\client\" />
+    <Folder Include="wwwroot\js\shared\" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,187 @@
+@model TownTrek.Models.ViewModels.TownBusinessListViewModel
+@{
+    ViewData["Title"] = $"Businesses in {Model.Town.Name}";
+    Layout = "_Layout";
+}
+
+<div class="town-businesses-page">
+    <!-- Town Header -->
+    <section class="town-header-section">
+        <div class="container">
+            <div class="town-header">
+                <div class="town-info">
+                    <h1>@Model.Town.Name</h1>
+                    <p class="town-province">@Model.Town.Province</p>
+                    @if (!string.IsNullOrEmpty(Model.Town.Description))
+                    {
+                        <p class="town-description">@Model.Town.Description</p>
+                    }
+                    @if (Model.Town.Population.HasValue)
+                    {
+                        <p class="town-population">Population: @Model.Town.Population.Value.ToString("N0")</p>
+                    }
+                </div>
+                
+                <div class="town-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">@Model.TotalResults</span>
+                        <span class="stat-label">Businesses</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters-bar">
+                <div class="filter-groups">
+                    <!-- Category Filter -->
+                    <div class="filter-group">
+                        <label for="categoryFilter">Category:</label>
+                        <select id="categoryFilter" class="form-select filter-select" data-public-filter="category">
+                            <option value="">All Categories</option>
+                            @foreach (var category in Model.Categories)
+                            {
+                                <option value="@category.Key" selected="@(Model.SelectedCategory == category.Key)">
+                                    @category.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <!-- Sub-Category Filter -->
+                    <div class="filter-group" id="subCategoryGroup" style="@(string.IsNullOrEmpty(Model.SelectedCategory) ? "display: none;" : "")">
+                        <label for="subCategoryFilter">Sub-Category:</label>
+                        <select id="subCategoryFilter" class="form-select filter-select">
+                            <option value="">All Sub-Categories</option>
+                        </select>
+                    </div>
+
+                    <!-- Search Filter -->
+                    <div class="filter-group search-filter">
+                        <label for="searchFilter">Search:</label>
+                        <div class="search-input-wrapper">
+                            <input type="text" id="searchFilter" class="form-input" placeholder="Search businesses..." value="@Model.SearchTerm" />
+                            <button type="button" id="clearSearch" class="clear-search-btn" style="@(string.IsNullOrEmpty(Model.SearchTerm) ? "display: none;" : "")">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="button" data-public-action="apply-filters" class="btn btn-primary">Apply Filters</button>
+                    <button type="button" data-public-action="clear-filters" class="btn btn-secondary">Clear All</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="results-section">
+        <div class="container">
+            <!-- Results Header -->
+            <div class="results-header">
+                <div class="results-info">
+                    <h2>
+                        @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                        {
+                            <span>Search results for "@Model.SearchTerm"</span>
+                        }
+                        else if (!string.IsNullOrEmpty(Model.SelectedCategory))
+                        {
+                            <span>@Model.Categories.FirstOrDefault(c => c.Key == Model.SelectedCategory)?.Name businesses</span>
+                        }
+                        else
+                        {
+                            <span>All businesses</span>
+                        }
+                    </h2>
+                    <p class="results-count">@Model.TotalResults results found</p>
+                </div>
+            </div>
+
+            <!-- Business Grid -->
+            <div id="businessResults" class="business-results">
+                @if (Model.Businesses.Any())
+                {
+                    <div class="business-grid">
+                        @foreach (var business in Model.Businesses)
+                        {
+                            @await Html.PartialAsync("_BusinessCard", business)
+                        }
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (Model.TotalPages > 1)
+                    {
+                        <div class="pagination-wrapper">
+                            <nav class="pagination">
+                                @if (Model.HasPreviousPage)
+                                {
+                                    <a href="#" class="pagination-btn" data-public-action="load-page" data-page="@(Model.CurrentPage - 1)">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <polyline points="15,18 9,12 15,6"/>
+                                        </svg>
+                                        Previous
+                                    </a>
+                                }
+
+                                @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
+                                {
+                                    <a href="#" class="pagination-btn @(i == Model.CurrentPage ? "active" : "")" data-public-action="load-page" data-page="@i">
+                                        @i
+                                    </a>
+                                }
+
+                                @if (Model.HasNextPage)
+                                {
+                                    <a href="#" class="pagination-btn" data-public-action="load-page" data-page="@(Model.CurrentPage + 1)">
+                                        Next
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <polyline points="9,18 15,12 9,6"/>
+                                        </svg>
+                                    </a>
+                                }
+                            </nav>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="no-results">
+                        <div class="no-results-icon">🔍</div>
+                        <h3>No businesses found</h3>
+                        <p>Try adjusting your search criteria or explore other categories.</p>
+                        <div class="no-results-actions">
+                            <button type="button" data-public-action="clear-filters" class="btn btn-primary">Clear Filters</button>
+                            <a href="@Url.Action("Index", "Public")" class="btn btn-secondary">Back to Dashboard</a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Hidden data for JavaScript -->
+<div id="pageData" style="display: none;"
+     data-town-id="@Model.Town.Id"
+     data-categories='@Json.Serialize(Model.Categories.Select(c => new { key = c.Key, name = c.Name, subCategories = c.SubCategories.Select(sc => new { key = sc.Key, name = sc.Name }) }))'>
+</div>
+
+@section Scripts {
+    <script src="~/js/modules/public/public-manager.js" asp-append-version="true"></script>
+    <script>
+        document.body.dataset.page = 'public-town-businesses';
+        // Store categories data for the Public manager
+        window.PublicCategoriesData = @Html.Raw(Json.Serialize(Model.Categories.Select(c => new { key = c.Key, name = c.Name, subCategories = c.SubCategories.Select(sc => new { key = sc.Key, name = sc.Name }) })));
+        window.PublicTownId = @Model.Town.Id;
+        window.PublicSelectedSubCategory = '@Model.SelectedSubCategory';
+    </script>
+}

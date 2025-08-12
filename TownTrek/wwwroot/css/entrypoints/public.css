@@ -10,8 +10,12 @@
 @import url('../components/footer.css');
 @import url('../components/alerts.css');
 @import url('../components/modal.css');
+@import url('../components/notifications.css');
 
 /* Feature: landing */
 @import url('../features/landing/landing.css');
+
+/* Feature: public */
+@import url('../features/public/public.css');
 
 

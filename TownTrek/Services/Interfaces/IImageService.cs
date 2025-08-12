@@ -31,6 +31,11 @@ namespace TownTrek.Services.Interfaces
         Task<BusinessImage?> GetBusinessLogoAsync(int businessId);
 
         /// <summary>
+        /// Gets a single image by its identifier
+        /// </summary>
+        Task<BusinessImage?> GetImageByIdAsync(int imageId);
+
+        /// <summary>
         /// Soft deletes an image (sets IsActive to false)
         /// </summary>
         Task<bool> DeleteImageAsync(int imageId);

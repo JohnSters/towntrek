@@ -180,6 +180,18 @@ namespace TownTrek.Models.ViewModels
         public bool HasLaundry { get; set; } = false;
         public bool HasConferenceRoom { get; set; } = false;
 
+        // Shop-specific fields
+        public string? ShopType { get; set; }
+        public string? ShopSize { get; set; }
+        public string? BrandNames { get; set; }
+        public string? Specialties { get; set; }
+        public bool HasOnlineStore { get; set; } = false;
+        public bool OffersLayaway { get; set; } = false;
+        public bool HasFittingRoom { get; set; } = false;
+        public bool OffersRepairs { get; set; } = false;
+        public bool HasLoyaltyProgram { get; set; } = false;
+        public bool AcceptsReturns { get; set; } = false;
+
         // Available options for dropdowns (populated by controller)
         public List<TownTrek.Models.Town> AvailableTowns { get; set; } = new List<TownTrek.Models.Town>();
         public List<BusinessCategoryOption> AvailableCategories { get; set; } = new List<BusinessCategoryOption>();

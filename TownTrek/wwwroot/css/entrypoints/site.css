@@ -10,6 +10,7 @@
 @import url('../components/forms.css');
 @import url('../components/navigation.css');
 @import url('../components/footer.css');
+@import url('../components/notifications.css');
 
 /* Utilities */
 .sr-only {

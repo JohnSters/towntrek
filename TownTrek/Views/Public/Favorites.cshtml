@@ -1,0 +1,108 @@
+@model List<TownTrek.Models.ViewModels.BusinessCardViewModel>
+@{
+    ViewData["Title"] = "My Favorite Businesses";
+    Layout = "_Layout";
+}
+
+<div class="favorites-page">
+    <!-- Header -->
+    <section class="favorites-header-section">
+        <div class="container">
+            <div class="favorites-header">
+                <div class="favorites-title">
+                    <h1>My Favorite Businesses</h1>
+                    <p class="favorites-subtitle">Your saved businesses across South Africa</p>
+                </div>
+                
+                <div class="favorites-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">@Model.Count</span>
+                        <span class="stat-label">@(Model.Count == 1 ? "Favorite" : "Favorites")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Favorites Content -->
+    <section class="favorites-content-section">
+        <div class="container">
+            @if (Model.Any())
+            {
+                <div class="favorites-actions">
+                    <div class="favorites-filters">
+                        <select id="townFilter" class="form-select">
+                            <option value="">All Towns</option>
+                            @foreach (var town in Model.Select(b => b.TownName).Distinct().OrderBy(t => t))
+                            {
+                                <option value="@town">@town</option>
+                            }
+                        </select>
+                        
+                        <select id="categoryFilter" class="form-select">
+                            <option value="">All Categories</option>
+                            @foreach (var category in Model.Select(b => b.Category).Distinct().OrderBy(c => c))
+                            {
+                                <option value="@category">@category</option>
+                            }
+                        </select>
+                    </div>
+                    
+                    <div class="favorites-sort">
+                        <select id="sortFilter" class="form-select">
+                            <option value="recent">Recently Added</option>
+                            <option value="name">Business Name</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="town">By Town</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="favoritesGrid" class="business-grid">
+                    @foreach (var business in Model)
+                    {
+                        @await Html.PartialAsync("_BusinessCard", business)
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="no-favorites">
+                    <div class="no-favorites-icon">❤️</div>
+                    <h2>No favorite businesses yet</h2>
+                    <p>Start exploring and saving your favorite local businesses to see them here.</p>
+                    
+                    <div class="no-favorites-actions">
+                        <a href="@Url.Action("Index", "Public")" class="btn btn-primary">Explore Businesses</a>
+                        <a href="@Url.Action("Search", "Public")" class="btn btn-secondary">Search Businesses</a>
+                    </div>
+                    
+                    <!-- Quick Categories -->
+                    <div class="quick-categories">
+                        <h3>Popular Categories</h3>
+                        <div class="category-links">
+                            <a href="@Url.Action("Search", "Public", new { category = "restaurants-food" })" class="category-link">
+                                🍽️ Restaurants
+                            </a>
+                            <a href="@Url.Action("Search", "Public", new { category = "shops-retail" })" class="category-link">
+                                🛍️ Shops
+                            </a>
+                            <a href="@Url.Action("Search", "Public", new { category = "accommodation" })" class="category-link">
+                                🏨 Accommodation
+                            </a>
+                            <a href="@Url.Action("Search", "Public", new { category = "tours-experiences" })" class="category-link">
+                                🗺️ Tours
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+</div>
+@section Scripts {
+    <script src="~/js/modules/public/public-manager.js" asp-append-version="true"></script>
+    <script>
+        document.body.dataset.page = 'public-favorites';
+    </script>
+}
