@@ -10,7 +10,7 @@ using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {
-    [Authorize]
+    [Authorize(Policy = "ClientAccess")]
     [Route("Client/[controller]/[action]")] // Conventional: /Client/Subscription/Index
     public class SubscriptionController(
         IClientService clientService,

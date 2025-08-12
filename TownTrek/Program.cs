@@ -55,6 +55,25 @@ public class Program
             };
         });
 
+        // Add authorization policies
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("ClientAccess", policy =>
+                policy.RequireRole(
+                    TownTrek.Constants.AppRoles.ClientBasic,
+                    TownTrek.Constants.AppRoles.ClientStandard,
+                    TownTrek.Constants.AppRoles.ClientPremium,
+                    TownTrek.Constants.AppRoles.Admin));
+
+            options.AddPolicy("PremiumOrAdmin", policy =>
+                policy.RequireRole(
+                    TownTrek.Constants.AppRoles.ClientPremium,
+                    TownTrek.Constants.AppRoles.Admin));
+
+            options.AddPolicy("AdminOnly", policy =>
+                policy.RequireRole(TownTrek.Constants.AppRoles.Admin));
+        });
+
         // Add these service registrations
         builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
         builder.Services.AddScoped<ISubscriptionAuthService, SubscriptionAuthService>();

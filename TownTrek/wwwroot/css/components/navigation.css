@@ -78,7 +78,8 @@
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-md);
-    border-bottom: 1px solid var(--medium-gray);
+    background-color: #f8f9fa;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 .user-avatar-large {

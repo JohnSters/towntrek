@@ -217,6 +217,13 @@ namespace TownTrek.Controllers.Public
             }
         }
 
+        // GET: /Public/Plans - Subscription plans page
+        [AllowAnonymous]
+        public IActionResult Plans()
+        {
+            return View();
+        }
+
         // API: /Public/Api/Categories
         [AllowAnonymous]
         [Route("Public/Api/Categories")]
