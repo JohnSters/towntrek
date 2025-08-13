@@ -41,18 +41,78 @@
                     <div class="account-type-card" data-type="business">
                         <div class="account-type-icon">🏪</div>
                         <div class="account-type-name">Business Owner</div>
-                        <div class="account-type-desc">Manage business listings and connect with customers</div>
-                        <div class="account-type-price">From R199/month</div>
+                        <div class="account-type-desc">Showcase your business and connect with customers</div>
+                        <div class="account-type-price">Starting at R199/month</div>
                     </div>
                     
                     <div class="account-type-card" data-type="community">
                         <div class="account-type-icon">👥</div>
                         <div class="account-type-name">Community Member</div>
-                        <div class="account-type-desc">Discover businesses, leave reviews, and connect</div>
-                        <div class="account-type-price">Free</div>
+                        <div class="account-type-desc">Discover local businesses and share your experiences</div>
+                        <div class="account-type-price">Always Free</div>
                     </div>
                 </div>
                 <input asp-for="AccountType" type="hidden" id="accountType" value="business" />
+            </div>
+
+            <!-- Plan Selection (Only for Business Owners) -->
+            <div class="plan-selection" id="planSelection" style="display: none;">
+                <label class="form-label">Select Your Business Plan</label>
+                <p class="plan-selection-desc">Choose the plan that best fits your business needs</p>
+                <div class="plan-cards">
+                    @if (ViewBag.SubscriptionTiers != null)
+                    {
+                        @foreach (var tier in (List<TownTrek.Models.SubscriptionTier>)ViewBag.SubscriptionTiers)
+                        {
+                            var isFeatured = tier.Name.Equals("Standard", StringComparison.OrdinalIgnoreCase);
+                            var tierClass = tier.Name.ToLower() switch {
+                                "basic" => "bronze",
+                                "standard" => "silver",
+                                "premium" => "gold",
+                                _ => "bronze"
+                            };
+                            <div class="plan-card plan-card-@tierClass @(isFeatured ? "featured" : "")" data-plan="@tier.Id" data-tier-name="@tier.Name.ToLower()">
+                                @if (isFeatured)
+                                {
+                                    <div class="plan-badge">Most Popular</div>
+                                }
+                                <div class="plan-name">@tier.DisplayName</div>
+                                <div class="plan-price">R@(tier.MonthlyPrice.ToString("N0"))</div>
+                                <div class="plan-period">/month</div>
+                                @if (!string.IsNullOrEmpty(tier.Description))
+                                {
+                                    <div class="plan-description">@tier.Description</div>
+                                }
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <!-- Fallback if no tiers are loaded -->
+                        <div class="plan-card plan-card-bronze" data-plan="1" data-tier-name="basic">
+                            <div class="plan-name">Basic</div>
+                            <div class="plan-price">R199</div>
+                            <div class="plan-period">/month</div>
+                            <div class="plan-description">Perfect for small businesses getting started</div>
+                        </div>
+                        
+                        <div class="plan-card plan-card-silver featured" data-plan="2" data-tier-name="standard">
+                            <div class="plan-badge">Most Popular</div>
+                            <div class="plan-name">Standard</div>
+                            <div class="plan-price">R399</div>
+                            <div class="plan-period">/month</div>
+                            <div class="plan-description">Great for growing businesses with multiple locations</div>
+                        </div>
+                        
+                        <div class="plan-card plan-card-gold" data-plan="3" data-tier-name="premium">
+                            <div class="plan-name">Premium</div>
+                            <div class="plan-price">R599</div>
+                            <div class="plan-period">/month</div>
+                            <div class="plan-description">Full-featured plan for established businesses</div>
+                        </div>
+                    }
+                </div>
+                <input asp-for="SelectedPlan" type="hidden" id="selectedPlan" value="2" />
             </div>
 
             <!-- Personal Information -->
@@ -123,50 +183,7 @@
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
 
-            <!-- Plan Selection (Only for Business Owners) -->
-            <div class="plan-selection" id="planSelection" style="display: none;">
-                <label class="form-label">Choose Your Business Plan</label>
-                <div class="plan-cards">
-                    @if (ViewBag.SubscriptionTiers != null)
-                    {
-                        @foreach (var tier in (List<TownTrek.Models.SubscriptionTier>)ViewBag.SubscriptionTiers)
-                        {
-                            var isFeatured = tier.Name.Equals("Standard", StringComparison.OrdinalIgnoreCase);
-                            <div class="plan-card @(isFeatured ? "featured" : "")" data-plan="@tier.Id" data-tier-name="@tier.Name.ToLower()">
-                                <div class="plan-name">@tier.DisplayName</div>
-                                <div class="plan-price">R@(tier.MonthlyPrice.ToString("N0"))</div>
-                                <div class="plan-period">/month</div>
-                                @if (!string.IsNullOrEmpty(tier.Description))
-                                {
-                                    <div class="plan-description">@tier.Description</div>
-                                }
-                            </div>
-                        }
-                    }
-                    else
-                    {
-                        <!-- Fallback if no tiers are loaded -->
-                        <div class="plan-card" data-plan="1" data-tier-name="basic">
-                            <div class="plan-name">Basic</div>
-                            <div class="plan-price">R199</div>
-                            <div class="plan-period">/month</div>
-                        </div>
-                        
-                        <div class="plan-card featured" data-plan="2" data-tier-name="standard">
-                            <div class="plan-name">Standard</div>
-                            <div class="plan-price">R399</div>
-                            <div class="plan-period">/month</div>
-                        </div>
-                        
-                        <div class="plan-card" data-plan="3" data-tier-name="premium">
-                            <div class="plan-name">Premium</div>
-                            <div class="plan-price">R599</div>
-                            <div class="plan-period">/month</div>
-                        </div>
-                    }
-                </div>
-                <input asp-for="SelectedPlan" type="hidden" id="selectedPlan" value="2" />
-            </div>
+
 
             <!-- Terms and Conditions -->
             <div class="checkbox-group">

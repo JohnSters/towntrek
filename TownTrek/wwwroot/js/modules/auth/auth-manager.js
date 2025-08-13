@@ -85,7 +85,7 @@ class AuthManager {
             this.elements.planSelection.style.display = type === 'business' ? 'block' : 'none';
           }
           // Visual selection
-          this.elements.accountTypeCards.forEach(c => c.classList.toggle('active', c === card));
+          this.elements.accountTypeCards.forEach(c => c.classList.toggle('selected', c === card));
         });
       });
 
