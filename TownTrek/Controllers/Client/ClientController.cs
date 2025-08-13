@@ -11,7 +11,7 @@ using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {
-    [Authorize]
+    [Authorize(Policy = "ClientAccess")]
     [Route("Client/[action]")]
     public class ClientController(
         IClientService clientService,

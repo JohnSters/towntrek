@@ -1,246 +1,145 @@
 @model TownTrek.Models.ViewModels.BusinessSearchViewModel
 @{
-    ViewData["Title"] = "Search Businesses";
+    ViewData["Title"] = "Discover Local Businesses";
     Layout = "_Layout";
 }
 
-<div class="business-search-page">
-    <!-- Search Header -->
-    <section class="search-header-section">
+<div class="public-dashboard-page">
+    <!-- Hero Section with Integrated Search -->
+    <section class="hero-section" style="background: linear-gradient(135deg, var(--lapis-lazuli) 0%, var(--carolina-blue) 100%); color: white; padding: 4rem 0; margin-bottom: 4rem;">
         <div class="container">
-            <h1>Discover Local Businesses</h1>
-            <p class="search-subtitle">Find exactly what you're looking for across South Africa's vibrant towns</p>
-        </div>
-    </section>
-
-    <!-- Search Form -->
-    <section class="search-form-section">
-        <div class="container">
-            <form asp-action="Search" method="get" class="advanced-search-form" data-public-form="search">
-                <div class="search-form-grid">
-                    <!-- Search Term -->
-                    <div class="search-field">
-                        <label for="searchTerm">Search</label>
-                        <input type="text" name="search" id="searchTerm" class="form-input" 
-                               placeholder="Business name, service, or keyword..." 
-                               value="@Model.SearchTerm" />
-                    </div>
-
-                    <!-- Town Filter -->
-                    <div class="search-field">
-                        <label for="townFilter">Town</label>
-                        <select name="townId" id="townFilter" class="form-select">
-                            <option value="">All Towns</option>
-                            @foreach (var town in Model.AvailableTowns)
-                            {
-                                <option value="@town.Id" selected="@(Model.TownId == town.Id)">
-                                    @town.Name, @town.Province
-                                </option>
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Category Filter -->
-                    <div class="search-field">
-                        <label for="categoryFilter">Category</label>
-                        <select name="category" id="categoryFilter" class="form-select" data-public-filter="category">
-                            <option value="">All Categories</option>
-                            @foreach (var category in Model.AvailableCategories)
-                            {
-                                <option value="@category.Key" selected="@(Model.Category == category.Key)">
-                                    @category.Name
-                                </option>
-                            }
-                        </select>
-                    </div>
-
-                    <!-- Sub-Category Filter -->
-                    <div id="subCategoryField" class="search-field @(string.IsNullOrEmpty(Model.Category) ? "d-none" : "")">
-                        <label for="subCategoryFilter">Sub-Category</label>
-                        <select name="subCategory" id="subCategoryFilter" class="form-select" data-public-filter="subcategory">
-                            <option value="">All Sub-Categories</option>
-                        </select>
-                    </div>
-
-                    <!-- Search Button -->
-                    <div class="search-field search-action">
-                        <button type="submit" class="btn btn-cta search-submit-btn">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="hero-content" style="text-align: center; max-width: 600px; margin: 0 auto;">
+                <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; color: white;">
+                    Discover Local Businesses
+                </h1>
+                <p style="font-size: 1.25rem; margin-bottom: 2rem; opacity: 0.9;">
+                    Find amazing shops, restaurants, services, and experiences across South Africa's vibrant towns
+                </p>
+                
+                <!-- Integrated Search Form -->
+                <form asp-action="Search" method="get" class="hero-search-form" style="margin-bottom: 1.5rem;">
+                    <div class="search-input-group" style="display: flex; max-width: 500px; margin: 0 auto; background: white; border-radius: 50px; padding: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                        <input type="text" name="search" placeholder="Search for businesses, services, or locations..." 
+                               class="search-input" style="flex: 1; border: none; padding: 12px 20px; font-size: 1rem; background: transparent; outline: none;" />
+                        <button type="submit" class="search-btn" style="background: var(--hunyadi-yellow); border: none; border-radius: 50px; padding: 12px 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                            <svg width="20" height="20" fill="none" stroke="var(--charcoal)" viewBox="0 0 24 24" stroke-width="2">
                                 <circle cx="11" cy="11" r="8"/>
                                 <path d="m21 21-4.35-4.35"/>
                             </svg>
-                            Search
                         </button>
                     </div>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <!-- Search Results -->
-    <section class="search-results-section">
-        <div class="container">
-            <!-- Results Header -->
-            <div class="results-header">
-                <div class="results-info">
-                    <h2>
-                        @if (!string.IsNullOrEmpty(Model.SearchTerm))
-                        {
-                            <span>Search results for "@Model.SearchTerm"</span>
-                        }
-                        else
-                        {
-                            <span>Browse all businesses</span>
-                        }
-                    </h2>
-                    <p class="results-count">@Model.TotalResults results found</p>
-                </div>
-
-                @if (Model.HasResults || !string.IsNullOrEmpty(Model.SearchTerm) || Model.TownId.HasValue || !string.IsNullOrEmpty(Model.Category))
-                {
-                    <div class="results-actions">
-                        <button type="button" id="clearAllFilters" class="btn btn-secondary" data-public-action="clear-filters">Clear All Filters</button>
-                    </div>
-                }
-            </div>
-
-            <!-- Active Filters -->
-            <div class="active-filters @(string.IsNullOrEmpty(Model.SearchTerm) && !Model.TownId.HasValue && string.IsNullOrEmpty(Model.Category) ? "d-none" : "")" id="activeFilters">
-                <span class="filters-label">Active filters:</span>
-                <div class="filter-tags">
-                    @if (!string.IsNullOrEmpty(Model.SearchTerm))
-                    {
-                        <div class="filter-tag">
-                            <span>Search: "@Model.SearchTerm"</span>
-                            <button type="button" class="remove-filter" data-public-action="remove-filter" data-filter="search">×</button>
-                        </div>
-                    }
-                    @if (Model.TownId.HasValue)
-                    {
-                        <div class="filter-tag">
-                            <span>Town: @Model.AvailableTowns.FirstOrDefault(t => t.Id == Model.TownId)?.Name</span>
-                            <button type="button" class="remove-filter" data-public-action="remove-filter" data-filter="town">×</button>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.Category))
-                    {
-                        <div class="filter-tag">
-                            <span>Category: @Model.AvailableCategories.FirstOrDefault(c => c.Key == Model.Category)?.Name</span>
-                            <button type="button" class="remove-filter" data-public-action="remove-filter" data-filter="category">×</button>
-                        </div>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.SubCategory))
-                    {
-                        <div class="filter-tag">
-                            <span>Sub-Category: @Model.SubCategory</span>
-                            <button type="button" class="remove-filter" data-public-action="remove-filter" data-filter="subcategory">×</button>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <!-- Results Grid -->
-            <div id="searchResults" class="search-results">
-                @if (Model.HasResults)
-                {
-                    <div class="business-grid">
-                        @foreach (var business in Model.Results)
-                        {
-                            @await Html.PartialAsync("_BusinessCard", business)
-                        }
-                    </div>
-
-                    <!-- Pagination -->
-                    @if (Model.TotalPages > 1)
-                    {
-                        <div class="pagination-wrapper">
-                            <nav class="pagination">
-                                @if (Model.CurrentPage > 1)
-                                {
-                                    <a href="#" class="pagination-btn" data-page="@(Model.CurrentPage - 1)" data-public-action="load-page">
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <polyline points="15,18 9,12 15,6"/>
-                                        </svg>
-                                        Previous
-                                    </a>
-                                }
-
-                                @for (int i = Math.Max(1, Model.CurrentPage - 2); i <= Math.Min(Model.TotalPages, Model.CurrentPage + 2); i++)
-                                {
-                                    <a href="#" class="pagination-btn @(i == Model.CurrentPage ? "active" : "")" data-page="@i" data-public-action="load-page">
-                                        @i
-                                    </a>
-                                }
-
-                                @if (Model.CurrentPage < Model.TotalPages)
-                                {
-                                    <a href="#" class="pagination-btn" data-page="@(Model.CurrentPage + 1)" data-public-action="load-page">
-                                        Next
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <polyline points="9,18 15,12 9,6"/>
-                                        </svg>
-                                    </a>
-                                }
-                            </nav>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="no-results">
-                        <div class="no-results-icon">🔍</div>
-                        <h3>No businesses found</h3>
-                        @if (!string.IsNullOrEmpty(Model.SearchTerm) || Model.TownId.HasValue || !string.IsNullOrEmpty(Model.Category))
-                        {
-                            <p>Try adjusting your search criteria or explore other categories.</p>
-                            <div class="no-results-actions">
-                                <button type="button" id="clearFiltersNoResults" class="btn btn-primary" data-public-action="clear-filters">Clear All Filters</button>
-                                <a href="@Url.Action("Index", "Public")" class="btn btn-secondary">Back to Dashboard</a>
-                            </div>
-                        }
-                        else
-                        {
-                            <p>Start by entering a search term or selecting filters above.</p>
-                            <div class="no-results-actions">
-                                <a href="@Url.Action("Index", "Public")" class="btn btn-primary">Back to Dashboard</a>
-                            </div>
-                        }
-                    </div>
-                }
-            </div>
-        </div>
-    </section>
-
-    <!-- Quick Categories -->
-    @if (!Model.HasResults && string.IsNullOrEmpty(Model.SearchTerm) && !Model.TownId.HasValue && string.IsNullOrEmpty(Model.Category))
-    {
-        <section class="quick-categories-section">
-            <div class="container">
-                <h2>Popular Categories</h2>
-                <p>Explore businesses by category</p>
+                </form>
                 
-                <div class="category-grid">
-                    @foreach (var category in Model.AvailableCategories.Take(6))
-                    {
-                        <a href="@Url.Action("Search", "Public", new { category = category.Key })" class="category-card">
-                            <div class="category-icon">
-                                @if (!string.IsNullOrEmpty(category.IconClass))
+                <div style="margin-top: 1rem;">
+                    <a href="@Url.Action("Search", "Public")" class="browse-all-btn">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M3 7h18M3 12h18M3 17h18"/>
+                        </svg>
+                        Browse All Businesses
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Categories -->
+    <section class="categories-section" style="margin-bottom: 4rem;">
+        <div class="container">
+            <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+                <h2 style="font-size: 2rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.5rem;">
+                    Browse by Category
+                </h2>
+                <p style="font-size: 1.1rem; color: var(--dark-gray);">
+                    Explore businesses by what you're looking for
+                </p>
+            </div>
+            
+            <div class="category-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+                @foreach (var category in Model.AvailableCategories.Take(6))
+                {
+                    <a href="@Url.Action("Search", "Public", new { category = category.Key })" 
+                       class="category-card" 
+                       style="display: block; background: white; border: 1px solid var(--medium-gray); border-radius: 12px; padding: 2rem; text-align: center; text-decoration: none; color: inherit; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
+                        <div class="category-icon" style="width: 60px; height: 60px; background: var(--light-gray); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem;">
+                            @{
+                                string categoryIcon = category.Key.ToLower() switch
                                 {
-                                    <i class="@category.IconClass"></i>
-                                }
-                                else
-                                {
-                                    <span>@category.Name.Substring(0, 1)</span>
-                                }
-                            </div>
-                            <h3>@category.Name</h3>
-                            @if (!string.IsNullOrEmpty(category.Description))
-                            {
-                                <p>@category.Description</p>
+                                    "restaurants-food" => "🍽️",
+                                    "shops-retail" => "🛍️", 
+                                    "accommodation" => "🏨",
+                                    "tours-experiences" => "🗺️",
+                                    "events" => "🎉",
+                                    "markets-vendors" => "🏪",
+                                    _ => category.Name.Substring(0, 1)
+                                };
                             }
-                        </a>
+                            @if (!string.IsNullOrEmpty(category.IconClass))
+                            {
+                                <i class="@category.IconClass" style="color: var(--lapis-lazuli);"></i>
+                            }
+                            else
+                            {
+                                <span style="font-weight: 600; color: var(--charcoal);">@categoryIcon</span>
+                            }
+                        </div>
+                        <h3 style="font-size: 1.25rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.5rem;">
+                            @category.Name
+                        </h3>
+                        @if (!string.IsNullOrEmpty(category.Description))
+                        {
+                            <p style="font-size: 0.9rem; color: var(--dark-gray); margin: 0; line-height: 1.4;">
+                                @category.Description
+                            </p>
+                        }
+                    </a>
+                }
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Businesses -->
+    @if (Model.HasResults)
+    {
+        <section class="featured-businesses-section" style="background: var(--light-gray); padding: 4rem 0; margin-bottom: 0;">
+            <div class="container">
+                <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+                    <h2 style="font-size: 2rem; font-weight: 600; color: var(--charcoal); margin-bottom: 0.5rem;">
+                        Featured Businesses
+                    </h2>
+                    <p style="font-size: 1.1rem; color: var(--dark-gray);">
+                        Discover some of the amazing businesses in our community
+                    </p>
+                </div>
+                
+                <div class="business-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+                    @foreach (var business in Model.Results.Take(6))
+                    {
+                        @await Html.PartialAsync("_BusinessCard", business)
                     }
                 </div>
+                
+                <div class="text-center">
+                    <a href="@Url.Action("Search", "Public")" class="btn btn-primary btn-lg">
+                        Explore All Businesses
+                    </a>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <!-- Call to Action when no featured businesses -->
+        <section class="cta-section" style="background: var(--light-gray); padding: 4rem 0; text-align: center;">
+            <div class="container">
+                <h2 style="font-size: 2rem; font-weight: 600; color: var(--charcoal); margin-bottom: 1rem;">
+                    Ready to Explore?
+                </h2>
+                <p style="font-size: 1.1rem; color: var(--dark-gray); margin-bottom: 2rem;">
+                    Start discovering amazing local businesses in South African towns
+                </p>
+                <a href="@Url.Action("Search", "Public")" class="btn btn-primary btn-lg">
+                    Start Exploring
+                </a>
             </div>
         </section>
     }
@@ -255,6 +154,6 @@
 @section Scripts {
     <script src="~/js/modules/public/public-manager.js" asp-append-version="true"></script>
     <script>
-        document.body.dataset.page = 'public-search';
+        document.body.dataset.page = 'public-dashboard';
     </script>
 }

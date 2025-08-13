@@ -43,7 +43,7 @@ TownTrek/
 │   ├── Analytics/        # Analytics and reporting
 │   └── Home/             # Public pages
 ├── Models/               # Entity models and ViewModels
-│   └── ViewModels/       # Data transfer objects
+│   └── ViewModels/       # Data transfer objects (18 ViewModels)
 ├── Services/             # Business logic layer
 │   └── Interfaces/       # Service contracts
 ├── Data/                 # Data access layer

@@ -297,6 +297,9 @@ namespace TownTrek.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsTrialUser")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("datetime2");
 
@@ -304,6 +307,9 @@ namespace TownTrek.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("LastTrialCheck")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Location")
                         .HasMaxLength(200)
@@ -343,6 +349,27 @@ namespace TownTrek.Migrations
 
                     b.Property<DateTime?>("SubscriptionStartDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("TrialCheckCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("TrialEndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("TrialEndTicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("TrialExpired")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("TrialSecurityHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("TrialStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("TrialStartTicks")
+                        .HasColumnType("bigint");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -1724,7 +1751,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 11, 20, 18, 22, 60, DateTimeKind.Utc).AddTicks(2030),
+                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2597),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -1735,7 +1762,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 11, 20, 18, 22, 60, DateTimeKind.Utc).AddTicks(2032),
+                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2599),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -1746,7 +1773,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 11, 20, 18, 22, 60, DateTimeKind.Utc).AddTicks(2035),
+                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2600),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,
@@ -2127,6 +2154,64 @@ namespace TownTrek.Migrations
                     b.ToTable("Towns");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.TrialAuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("CheckCount")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DaysRemaining")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<long?>("TrialEndTicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<long?>("TrialStartTicks")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TrialAuditLogs");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -2457,6 +2542,17 @@ namespace TownTrek.Migrations
                         .IsRequired();
 
                     b.Navigation("Business");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.TrialAuditLog", b =>
+                {
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TownTrek.Models.ApplicationUser", b =>

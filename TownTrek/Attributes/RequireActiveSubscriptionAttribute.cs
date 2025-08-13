@@ -41,12 +41,12 @@ namespace TownTrek.Attributes
                 return;
             }
 
-            // If no active subscription and free tier is not allowed, redirect to subscription page
+            // If no active subscription and free tier is not allowed, redirect to subscription plans page
             if (!authResult.HasActiveSubscription && !_allowFreeTier)
             {
                 var controller = context.Controller as Controller;
                 controller?.TempData.Add("ErrorMessage", "An active subscription is required to access this feature.");
-                context.Result = new RedirectToActionResult("Subscription", "Client", null);
+                context.Result = new RedirectToActionResult("Plans", "Public", null);
                 return;
             }
 
@@ -78,7 +78,7 @@ namespace TownTrek.Attributes
                 {
                     var controller = context.Controller as Controller;
                     controller?.TempData.Add("ErrorMessage", "Your subscription plan does not include this feature. Please upgrade to access it.");
-                    context.Result = new RedirectToActionResult("Subscription", "Client", null);
+                    context.Result = new RedirectToActionResult("Plans", "Public", null);
                     return;
                 }
             }

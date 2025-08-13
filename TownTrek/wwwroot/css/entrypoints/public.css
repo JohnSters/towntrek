@@ -17,5 +17,6 @@
 
 /* Feature: public */
 @import url('../features/public/public.css');
+@import url('../features/public/dashboard.css');
 
 
