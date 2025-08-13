@@ -15,12 +15,11 @@ class PublicManager {
 
   init() {
     this.bindEventListeners();
-    this.setupUserMenu();
     this.initializeCurrentPage();
   }
 
   bindEventListeners() {
-    // Global event delegation for member features
+    // Global event delegation for public features
     document.addEventListener('click', this.handleClick.bind(this));
     document.addEventListener('submit', this.handleSubmit.bind(this));
     document.addEventListener('change', this.handleChange.bind(this));
@@ -59,7 +58,7 @@ class PublicManager {
     if (e.target.matches('[data-public-form]')) {
       e.preventDefault();
       const formType = e.target.dataset.publicForm;
-      
+
       switch (formType) {
         case 'review':
           this.submitReview(e.target);
@@ -74,7 +73,7 @@ class PublicManager {
   handleChange(e) {
     if (e.target.matches('[data-public-filter]')) {
       const filterType = e.target.dataset.publicFilter;
-      
+
       switch (filterType) {
         case 'category':
           this.updateSubCategories(e.target.value);
@@ -84,6 +83,9 @@ class PublicManager {
   }
 
   initializeCurrentPage() {
+    // Initialize favorite states for all business cards on page load
+    this.initializeFavoriteStates();
+
     // Prefer explicit body data attribute if set
     const explicitPage = document.body.dataset.page;
     if (explicitPage) {
@@ -92,7 +94,9 @@ class PublicManager {
     }
 
     // Fallback to DOM-based detection (no inline scripts required in views)
-    if (document.querySelector('.business-search-page')) {
+    if (document.querySelector('.public-dashboard-page')) {
+      this.routeToPage('public-dashboard');
+    } else if (document.querySelector('.business-search-page')) {
       this.routeToPage('public-search');
     } else if (document.querySelector('.favorites-page')) {
       this.routeToPage('public-favorites');
@@ -105,6 +109,9 @@ class PublicManager {
 
   routeToPage(pageKey) {
     switch (pageKey) {
+      case 'public-dashboard':
+        this.initializeDashboard();
+        break;
       case 'public-town-businesses':
         this.initializeTownBusinesses();
         break;
@@ -124,11 +131,11 @@ class PublicManager {
     // Initialize search functionality
     const searchInput = document.querySelector('.search-input');
     if (searchInput) {
-      searchInput.addEventListener('focus', function() {
+      searchInput.addEventListener('focus', function () {
         this.parentElement.classList.add('focused');
       });
-      
-      searchInput.addEventListener('blur', function() {
+
+      searchInput.addEventListener('blur', function () {
         this.parentElement.classList.remove('focused');
       });
     }
@@ -138,7 +145,7 @@ class PublicManager {
     // Use global categories data if available
     this.categoriesData = window.PublicCategoriesData || [];
     this.townId = window.PublicTownId;
-    
+
     // Initialize selected filters
     this.initializeFilters();
   }
@@ -146,7 +153,7 @@ class PublicManager {
   initializeSearch() {
     // Load categories data
     this.loadCategoriesData();
-    
+
     // Initialize selected filters
     this.initializeFilters();
   }
@@ -161,40 +168,29 @@ class PublicManager {
     this.initializeFavoritesFiltering();
   }
 
-  setupUserMenu() {
-    const userMenu = document.querySelector('.user-menu');
-    if (!userMenu) return;
-    const dropdown = userMenu.querySelector('.user-dropdown');
-    if (!dropdown) return;
-    userMenu.addEventListener('click', () => dropdown.classList.toggle('active'));
-    document.addEventListener('click', (e) => {
-      if (!e.target.closest('.user-menu')) dropdown.classList.remove('active');
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') dropdown.classList.remove('active');
-    });
-  }
-
   async toggleFavorite(button) {
     const businessId = button.dataset.businessId;
     const icon = button.querySelector('svg');
-    
+
     try {
       const response = await this.apiClient.post('/Public/ToggleFavorite', {
         businessId: businessId
       });
-      
+
       if (response.success) {
+        // Update the visual state
         if (response.isFavorite) {
           icon.setAttribute('fill', 'currentColor');
           button.title = 'Remove from favorites';
+          button.classList.add('is-favorite');
         } else {
           icon.setAttribute('fill', 'none');
           button.title = 'Add to favorites';
+          button.classList.remove('is-favorite');
         }
-        
+
         this.notifications.show(response.message, 'success');
-        
+
         // If on favorites page, remove the card with animation
         if ((document.body.dataset.page || '').toLowerCase() === 'public-favorites' && !response.isFavorite) {
           this.removeFavoriteCard(button.closest('.business-card'));
@@ -210,7 +206,7 @@ class PublicManager {
 
   showReviewModal(button) {
     const businessId = button.dataset.businessId;
-    
+
     // Prefer existing FormModal component if available
     if (typeof window.showFormModal === 'function') {
       window.showFormModal({
@@ -283,10 +279,10 @@ class PublicManager {
         Rating: parseInt(data.Rating),
         Comment: data.Comment || ''
       });
-      
+
       if (response.success) {
         this.notifications.show('Review submitted successfully!', 'success');
-        
+
         // Reload page to show new review
         setTimeout(() => {
           window.location.reload();
@@ -324,12 +320,12 @@ class PublicManager {
   updateSubCategories(categoryKey) {
     const subCategorySelect = document.getElementById('subCategoryFilter');
     const subCategoryGroup = document.getElementById('subCategoryGroup') || document.getElementById('subCategoryField');
-    
+
     if (!subCategorySelect) return;
-    
+
     // Clear existing options
     subCategorySelect.innerHTML = '<option value="">All Sub-Categories</option>';
-    
+
     if (categoryKey && this.categoriesData) {
       const category = this.categoriesData.find(c => c.key === categoryKey);
       if (category && category.subCategories) {
@@ -341,7 +337,7 @@ class PublicManager {
         });
       }
     }
-    
+
     // Show/hide sub-category group
     if (subCategoryGroup) {
       subCategoryGroup.style.display = categoryKey ? 'block' : 'none';
@@ -373,10 +369,10 @@ class PublicManager {
   }
 
   applyFilters() {
-    const form = document.querySelector('[data-public-form="search"]') || 
-                 document.querySelector('.advanced-search-form') ||
-                 document.querySelector('.filters-bar');
-    
+    const form = document.querySelector('[data-public-form="search"]') ||
+      document.querySelector('.advanced-search-form') ||
+      document.querySelector('.filters-bar');
+
     if (form) {
       this.performSearch(form);
     }
@@ -392,13 +388,13 @@ class PublicManager {
         input.value = '';
       }
     });
-    
+
     // Hide sub-category group
     const subCategoryGroup = document.getElementById('subCategoryGroup') || document.getElementById('subCategoryField');
     if (subCategoryGroup) {
       subCategoryGroup.style.display = 'none';
     }
-    
+
     // Apply cleared filters
     this.applyFilters();
   }
@@ -406,33 +402,45 @@ class PublicManager {
   async performSearch(form, page = 1) {
     const formData = new FormData(form);
     formData.set('page', page);
-    
+
     const params = new URLSearchParams(formData);
     const currentPath = window.location.pathname;
     const actionUrl = (form.getAttribute('action') || '').trim() || currentPath;
-    
+
+    // Find submit button - the global app.js will handle the processing state
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    console.log('Submit button found:', !!submitButton);
+    console.log('Button dataset originalText:', submitButton ? submitButton.dataset.originalText : 'N/A');
+    console.log('Button current state:', submitButton ? submitButton.textContent : 'N/A');
+
     try {
+      // Button state is already handled by global app.js form submission handler
+      console.log('Starting search request');
+
       // Show loading state
-      const resultsContainer = document.getElementById('businessResults') || 
-                              document.getElementById('searchResults');
-      
+      const resultsContainer = document.getElementById('businessResults') ||
+        document.getElementById('searchResults');
+
       if (resultsContainer) {
         resultsContainer.innerHTML = '<div class="loading-state">Loading businesses...</div>';
       }
-      
+
       // Make AJAX request
       const response = await fetch(`${actionUrl}?${params}`, {
         headers: {
           'X-Requested-With': 'XMLHttpRequest'
         }
       });
-      
+
       if (response.ok) {
         const html = await response.text();
         if (resultsContainer) {
           resultsContainer.innerHTML = html;
+          // Reinitialize favorite states for newly loaded content
+          this.initializeFavoriteStates();
         }
-        
+
         // Update URL without page reload
         const newUrl = `${actionUrl}?${params}`;
         window.history.pushState({}, '', newUrl);
@@ -441,19 +449,30 @@ class PublicManager {
       }
     } catch (error) {
       console.error('Error performing search:', error);
-      const resultsContainer = document.getElementById('businessResults') || 
-                              document.getElementById('searchResults');
+      const resultsContainer = document.getElementById('businessResults') ||
+        document.getElementById('searchResults');
       if (resultsContainer) {
         resultsContainer.innerHTML = '<div class="error-state">Error loading businesses. Please try again.</div>';
+      }
+    } finally {
+      // Reset button state using the original text stored by app.js
+      console.log('Finally block executing');
+      if (submitButton) {
+        console.log('Resetting button state');
+        submitButton.disabled = false;
+        submitButton.textContent = submitButton.dataset.originalText || 'Search';
+        console.log('Button reset complete');
+      } else {
+        console.log('No submit button to reset');
       }
     }
   }
 
   loadPage(page) {
-    const form = document.querySelector('[data-public-form="search"]') || 
-                 document.querySelector('.advanced-search-form') ||
-                 document.querySelector('.filters-bar');
-    
+    const form = document.querySelector('[data-public-form="search"]') ||
+      document.querySelector('.advanced-search-form') ||
+      document.querySelector('.filters-bar');
+
     if (form) {
       this.performSearch(form, page);
     }
@@ -493,11 +512,11 @@ class PublicManager {
   initializeImageGallery() {
     const galleryImages = document.querySelectorAll('.gallery-image img');
     galleryImages.forEach(img => {
-      img.addEventListener('click', function() {
+      img.addEventListener('click', function () {
         // Use existing modal system for image viewing
         const imageUrl = this.dataset.full || this.src;
         const altText = this.alt;
-        
+
         // Create simple image modal
         const modal = document.createElement('div');
         modal.className = 'image-modal';
@@ -517,22 +536,22 @@ class PublicManager {
     card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
     card.style.opacity = '0';
     card.style.transform = 'scale(0.8)';
-    
+
     setTimeout(() => {
       card.remove();
-      
+
       // Update favorites count
       const statNumber = document.querySelector('.stat-number');
       if (statNumber) {
         const currentCount = parseInt(statNumber.textContent);
         const newCount = currentCount - 1;
         statNumber.textContent = newCount;
-        
+
         const statLabel = document.querySelector('.stat-label');
         if (statLabel) {
           statLabel.textContent = newCount === 1 ? 'Favorite' : 'Favorites';
         }
-        
+
         // Show no favorites message if none left
         if (newCount === 0) {
           setTimeout(() => {
@@ -618,6 +637,30 @@ class PublicManager {
         <button type="button" data-public-action="clear-filters" class="btn btn-primary">Clear Filters</button>
       </div>
     `;
+  }
+
+  initializeFavoriteStates() {
+    // Ensure all favorite buttons have correct visual state based on server-rendered data
+    const favoriteButtons = document.querySelectorAll('[data-public-action="toggle-favorite"]');
+    
+    favoriteButtons.forEach(button => {
+      const icon = button.querySelector('svg');
+      if (!icon) return;
+
+      // Check if the icon is already filled (server-rendered as favorite)
+      const currentFill = icon.getAttribute('fill');
+      const isFavorite = currentFill === 'currentColor';
+      
+      // Ensure the button title matches the state
+      button.title = isFavorite ? 'Remove from favorites' : 'Add to favorites';
+      
+      // Ensure consistent styling
+      if (isFavorite) {
+        button.classList.add('is-favorite');
+      } else {
+        button.classList.remove('is-favorite');
+      }
+    });
   }
 }
 

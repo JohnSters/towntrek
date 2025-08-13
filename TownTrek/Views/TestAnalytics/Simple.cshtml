@@ -1,0 +1,77 @@
+@{
+    ViewData["Title"] = "Analytics Diagnostics";
+}
+
+<div class="container mt-4">
+    <h1>Analytics Diagnostics</h1>
+    <p class="text-muted">Use this page to troubleshoot analytics access issues</p>
+    
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger">
+            <strong>Error:</strong> @ViewBag.Error
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">User Information</h5>
+                        <p><strong>User ID:</strong> @ViewBag.UserId</p>
+                        <p><strong>Email:</strong> @ViewBag.UserEmail</p>
+                        <p><strong>Can Access Basic Analytics:</strong> 
+                            <span class="badge @(ViewBag.CanAccessBasicAnalytics ? "bg-success" : "bg-danger")">
+                                @(ViewBag.CanAccessBasicAnalytics ? "YES" : "NO")
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Quick Actions</h5>
+                        <div class="d-grid gap-2">
+                            <a href="/Client/TestAnalytics/Status" class="btn btn-primary btn-sm">Check Full Status (JSON)</a>
+                            <a href="/Client/TestAnalytics/UserData" class="btn btn-info btn-sm">Check User Data (JSON)</a>
+                            <a href="/Client/TestAnalytics/SeedTiers" class="btn btn-warning btn-sm">Seed Subscription Tiers</a>
+                            <a href="/Client/TestAnalytics/FixBasicTier" class="btn btn-success btn-sm">Fix Basic Tier</a>
+                            <a href="/Client/TestAnalytics/FixStandardTier" class="btn btn-success btn-sm">Fix Standard Tier</a>
+                            <a href="/Client/TestAnalytics/FixPremiumTier" class="btn btn-success btn-sm">Fix Premium Tier</a>
+                            <a href="/Client/TestAnalytics/SyncUserData" class="btn btn-secondary btn-sm">Sync User Data</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Test Analytics Access</h5>
+                    <p>Try accessing the main analytics page to see if the issue is resolved:</p>
+                    <a href="/Client/Analytics" class="btn btn-success">Go to Analytics Dashboard</a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Troubleshooting Steps</h5>
+                    <ol>
+                        <li><strong>Check User Data:</strong> Click "Check User Data" to see your subscription flags and available tiers</li>
+                        <li><strong>Seed Tiers:</strong> If no subscription tiers exist, click "Seed Subscription Tiers"</li>
+                        <li><strong>Fix Tiers:</strong> Click "Fix Basic/Standard/Premium Tier" to add missing analytics features</li>
+                        <li><strong>Sync Data:</strong> Click "Sync User Data" to align user flags with subscription records</li>
+                        <li><strong>Check Status:</strong> Click "Check Full Status" to see detailed subscription validation</li>
+                        <li><strong>Test Access:</strong> Try accessing the main analytics page</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    }
+</div>

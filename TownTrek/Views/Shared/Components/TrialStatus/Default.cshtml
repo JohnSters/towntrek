@@ -1,0 +1,37 @@
+@model TownTrek.Services.Interfaces.TrialStatus
+
+@if (Model.IsTrialUser)
+{
+    <div class="trial-status-banner @(Model.IsExpired ? "expired" : Model.DaysRemaining <= 7 ? "warning" : "active")">
+        <div class="trial-status-content">
+            <div class="trial-status-icon">
+                @if (Model.IsExpired)
+                {
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                }
+                else
+                {
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                }
+            </div>
+            <div class="trial-status-text">
+                <strong>@(Model.IsExpired ? "Trial Expired" : "Trial Period")</strong>
+                <span>@Model.StatusMessage</span>
+            </div>
+            <div class="trial-status-actions">
+                @if (Model.IsExpired)
+                {
+                    <a asp-controller="Client" asp-action="Subscription" class="btn btn-cta btn-sm">Upgrade Now</a>
+                }
+                else
+                {
+                    <a asp-controller="Client" asp-action="Subscription" class="btn btn-secondary btn-sm">Upgrade Early</a>
+                }
+            </div>
+        </div>
+    </div>
+}

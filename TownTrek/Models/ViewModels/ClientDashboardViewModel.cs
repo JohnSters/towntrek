@@ -18,5 +18,12 @@ namespace TownTrek.Models.ViewModels
         public bool HasAnalyticsAccess { get; set; }
         public bool HasPrioritySupport { get; set; }
         public bool HasDedicatedSupport { get; set; }
+        
+        // Trial-specific properties
+        public bool IsTrialUser { get; set; }
+        public int TrialDaysRemaining { get; set; }
+        public DateTime? TrialEndDate { get; set; }
+        public bool IsTrialExpired { get; set; }
+        public string? TrialStatusMessage { get; set; }
     }
 }

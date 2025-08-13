@@ -7,7 +7,7 @@ using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {
-    [Authorize]
+    [Authorize(Policy = "ClientAccess")]
     [Route("Client/Profile")] // Preserve existing URL structure
     public class ProfileController(
         UserManager<ApplicationUser> userManager,

@@ -9,6 +9,7 @@ namespace TownTrek.Services.Interfaces
         Task<SubscriptionTier?> GetSubscriptionTierByIdAsync(int tierId);
         Task<RegistrationResult> RegisterMemberAsync(RegisterViewModel model);
         Task<RegistrationResult> RegisterBusinessOwnerAsync(RegisterViewModel model);
+        Task<RegistrationResult> RegisterTrialUserAsync(RegisterViewModel model);
         Task<string> GeneratePayFastPaymentDataAsync(SubscriptionTier tier, ApplicationUser user);
     }
 

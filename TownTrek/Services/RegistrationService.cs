@@ -15,19 +15,22 @@ namespace TownTrek.Services
         private readonly ILogger<RegistrationService> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly ITrialService _trialService;
 
         public RegistrationService(
             ApplicationDbContext context,
             IConfiguration configuration,
             ILogger<RegistrationService> logger,
             UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager)
+            RoleManager<IdentityRole> roleManager,
+            ITrialService trialService)
         {
             _context = context;
             _configuration = configuration;
             _logger = logger;
             _userManager = userManager;
             _roleManager = roleManager;
+            _trialService = trialService;
         }
 
         public async Task<List<SubscriptionTier>> GetAvailableSubscriptionTiersAsync()
@@ -253,6 +256,58 @@ namespace TownTrek.Services
             _logger.LogInformation("PayFast signature generated successfully");
 
             return signature;
+        }
+
+        public async Task<RegistrationResult> RegisterTrialUserAsync(RegisterViewModel model)
+        {
+            try
+            {
+                // Check if user already exists
+                var existingUser = await _userManager.FindByEmailAsync(model.Email);
+                if (existingUser != null)
+                {
+                    return RegistrationResult.Error("A user with this email address already exists.");
+                }
+
+                // Create new trial user
+                var user = new ApplicationUser
+                {
+                    UserName = model.Email,
+                    Email = model.Email,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    PhoneNumber = model.Phone,
+                    Location = model.Location,
+                    AuthenticationMethod = "Email",
+                    IsActive = true,
+                    HasActiveSubscription = false, // Trial users don't have paid subscriptions
+                    IsTrialUser = true // Mark as trial user
+                };
+
+                var result = await _userManager.CreateAsync(user, model.Password);
+                if (!result.Succeeded)
+                {
+                    var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                    return RegistrationResult.Error($"Failed to create user: {errors}");
+                }
+
+                // Start trial period - this will add the Client-Trial role and set trial dates
+                var trialUser = await _trialService.StartTrialAsync(user);
+                if (trialUser == null)
+                {
+                    await _userManager.DeleteAsync(user);
+                    return RegistrationResult.Error("Failed to start trial period. Please try again.");
+                }
+
+                _logger.LogInformation("Trial user created successfully: {Email}, Trial expires: {ExpiryDate}", 
+                    model.Email, trialUser.TrialEndDate);
+                return RegistrationResult.Success(trialUser);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating trial user: {Email}", model.Email);
+                return RegistrationResult.Error("An error occurred during registration. Please try again.");
+            }
         }
     }
 }

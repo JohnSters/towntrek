@@ -9,7 +9,7 @@ using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {
-    [Authorize]
+    [Authorize(Policy = "ClientAccess")]
     public class ImageController(
         IImageService imageService,
         IBusinessService businessService,

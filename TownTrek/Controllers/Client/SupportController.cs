@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace TownTrek.Controllers.Client
 {
-    [Authorize]
+    [Authorize(Policy = "ClientAccess")]
     [Route("Client/Support/[action]")]
     public class SupportController(ILogger<SupportController> logger) : Controller
     {

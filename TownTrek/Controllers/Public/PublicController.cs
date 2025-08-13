@@ -29,8 +29,11 @@ namespace TownTrek.Controllers.Public
         {
             try
             {
+                // Get current user ID if authenticated
+                var userId = User.Identity?.IsAuthenticated == true ? _userManager.GetUserId(User) : null;
+                
                 // Use the search view model for public landing/search page
-                var viewModel = await _memberService.SearchBusinessesAsync(search, townId, category, subCategory, page);
+                var viewModel = await _memberService.SearchBusinessesAsync(search, townId, category, subCategory, page, userId: userId);
                 return View(viewModel);
             }
             catch (Exception ex)
@@ -48,7 +51,10 @@ namespace TownTrek.Controllers.Public
         {
             try
             {
-                var viewModel = await _memberService.GetTownBusinessListAsync(townId, category, subCategory, search, page);
+                // Get current user ID if authenticated
+                var userId = User.Identity?.IsAuthenticated == true ? _userManager.GetUserId(User) : null;
+                
+                var viewModel = await _memberService.GetTownBusinessListAsync(townId, category, subCategory, search, page, userId: userId);
                 
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
@@ -100,7 +106,10 @@ namespace TownTrek.Controllers.Public
         {
             try
             {
-                var viewModel = await _memberService.SearchBusinessesAsync(search, townId, category, subCategory, page);
+                // Get current user ID if authenticated
+                var userId = User.Identity?.IsAuthenticated == true ? _userManager.GetUserId(User) : null;
+                
+                var viewModel = await _memberService.SearchBusinessesAsync(search, townId, category, subCategory, page, userId: userId);
                 
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
                 {
@@ -206,6 +215,13 @@ namespace TownTrek.Controllers.Public
                 _logger.LogError(ex, "Error loading towns API");
                 return Json(new { error = "Failed to load towns" });
             }
+        }
+
+        // GET: /Public/Plans - Subscription plans page
+        [AllowAnonymous]
+        public IActionResult Plans()
+        {
+            return View();
         }
 
         // API: /Public/Api/Categories

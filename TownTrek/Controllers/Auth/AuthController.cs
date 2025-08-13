@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
+using TownTrek.Constants;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services;
@@ -51,7 +52,11 @@ namespace TownTrek.Controllers.Auth
             {
                 RegistrationResult result;
 
-                if (model.IsBusinessOwner)
+                if (model.IsTrialUser)
+                {
+                    result = await _registrationService.RegisterTrialUserAsync(model);
+                }
+                else if (model.IsBusinessOwner)
                 {
                     result = await _registrationService.RegisterBusinessOwnerAsync(model);
                 }
@@ -72,10 +77,20 @@ namespace TownTrek.Controllers.Auth
                     }
                     else
                     {
-                        _logger.LogInformation("Member {Email} registered successfully, signing in", model.Email);
                         await _signInManager.SignInAsync(result.User!, isPersistent: false);
-                        TempData["SuccessMessage"] = "Welcome to TownTrek! Your account has been created successfully.";
-                        return RedirectToAction("Index", "Public");
+                        
+                        if (model.IsTrialUser)
+                        {
+                            _logger.LogInformation("Trial user {Email} registered successfully, signing in", model.Email);
+                            TempData["SuccessMessage"] = "Welcome to TownTrek! Your 30-day trial has started.";
+                            return RedirectToAction("Dashboard", "Client");
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Member {Email} registered successfully, signing in", model.Email);
+                            TempData["SuccessMessage"] = "Welcome to TownTrek! Your account has been created successfully.";
+                            return RedirectToAction("Index", "Public");
+                        }
                     }
                 }
                 else
@@ -135,14 +150,34 @@ namespace TownTrek.Controllers.Auth
                     
                     var roles = await _userManager.GetRolesAsync(user);
                     
-                    // Ensure users with active subscriptions have proper roles
+                    // Ensure users with active subscriptions or trial users have proper roles
                     if (user.HasActiveSubscription && !string.IsNullOrEmpty(user.CurrentSubscriptionTier))
                     {
-                        var expectedClientRole = $"Client-{user.CurrentSubscriptionTier}";
-                        if (!roles.Contains(expectedClientRole))
+                        // Normalize tier to mapped role constant to avoid casing mismatches
+                        var tierUpper = user.CurrentSubscriptionTier.ToUpper();
+                        string? expectedClientRole = tierUpper switch
+                        {
+                            "BASIC" => AppRoles.ClientBasic,
+                            "STANDARD" => AppRoles.ClientStandard,
+                            "PREMIUM" => AppRoles.ClientPremium,
+                            _ => null
+                        };
+                        
+                        if (!string.IsNullOrEmpty(expectedClientRole) && !roles.Contains(expectedClientRole))
                         {
                             await _userManager.AddToRoleAsync(user, expectedClientRole);
                             _logger.LogInformation("Added {Role} role to user {Email}", expectedClientRole, user.Email);
+                            // Refresh roles after adding
+                            roles = await _userManager.GetRolesAsync(user);
+                        }
+                    }
+                    else if (user.IsTrialUser && user.CurrentSubscriptionTier == "Trial")
+                    {
+                        // Ensure trial users have the Client-Trial role
+                        if (!roles.Contains(AppRoles.ClientTrial))
+                        {
+                            await _userManager.AddToRoleAsync(user, AppRoles.ClientTrial);
+                            _logger.LogInformation("Added {Role} role to trial user {Email}", AppRoles.ClientTrial, user.Email);
                         }
                         // Refresh roles after adding
                         roles = await _userManager.GetRolesAsync(user);
@@ -217,6 +252,12 @@ namespace TownTrek.Controllers.Auth
             Response.Headers["Expires"] = "0";
             
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
         }
 
         [HttpGet]

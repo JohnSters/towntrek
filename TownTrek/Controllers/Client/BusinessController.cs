@@ -10,7 +10,7 @@ using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {
-    [Authorize]
+    [Authorize(Policy = "ClientAccess")]
     [Route("Client/Business/[action]")]
     public class BusinessController(
         IBusinessService businessService,

@@ -1,0 +1,130 @@
+/* Public Dashboard Styles */
+
+/* Hero Section */
+.hero-section .search-input:focus {
+    outline: none;
+}
+
+.hero-section .search-btn:hover {
+    background: var(--orange-pantone) !important;
+    transform: scale(1.05);
+}
+
+/* Browse All Button */
+.hero-section .browse-all-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255,255,255,0.2);
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.hero-section .browse-all-btn:hover {
+    background: rgba(255,255,255,0.3) !important;
+    transform: translateY(-2px);
+    color: white;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Category Cards */
+.category-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+    border-color: var(--carolina-blue);
+}
+
+.category-card:hover .category-icon {
+    background: var(--carolina-blue) !important;
+}
+
+.category-card:hover .category-icon span,
+.category-card:hover .category-icon i {
+    color: var(--charcoal) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 3rem 0 !important;
+    }
+    
+    .hero-section h1 {
+        font-size: 2rem !important;
+    }
+    
+    .hero-section p {
+        font-size: 1.1rem !important;
+    }
+    
+    .search-input-group {
+        max-width: 100% !important;
+        margin: 0 1rem !important;
+    }
+    
+    .category-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+    
+    .category-card {
+        padding: 1.5rem !important;
+    }
+    
+    .business-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-section {
+        padding: 2rem 0 !important;
+    }
+    
+    .hero-section h1 {
+        font-size: 1.75rem !important;
+    }
+    
+    .search-input-group {
+        flex-direction: column !important;
+        border-radius: 12px !important;
+    }
+    
+    .search-input {
+        border-radius: 8px !important;
+        margin-bottom: 8px !important;
+    }
+    
+    .search-btn {
+        border-radius: 8px !important;
+        align-self: stretch !important;
+    }
+}
+
+/* Smooth transitions */
+.category-card,
+.search-btn {
+    transition: all 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.search-input:focus {
+    box-shadow: 0 0 0 3px rgba(51, 101, 138, 0.2);
+}
+
+.search-btn:focus {
+    outline: 2px solid var(--lapis-lazuli);
+    outline-offset: 2px;
+}
+
+.category-card:focus {
+    outline: 2px solid var(--lapis-lazuli);
+    outline-offset: 2px;
+}

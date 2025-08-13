@@ -6,10 +6,18 @@
 
 <div class="admin-card">
     <div class="admin-card-header">
-        <h3 class="admin-card-title">Business Services</h3>
+        <h3 class="admin-card-title">Add Service</h3>
+        <div class="admin-card-actions">
+            <button type="submit" form="createServiceForm" class="auth-btn auth-btn-cta">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Service
+            </button>
+        </div>
     </div>
 
-    <form method="post" action="@Url.Action("Create", "AdminServices")" class="admin-form">
+    <form id="createServiceForm" method="post" action="@Url.Action("Create", "AdminServices")" class="admin-form">
         @Html.AntiForgeryToken()
         <div class="form-grid">
             <div class="form-group">
@@ -20,9 +28,6 @@
                 <label class="form-label required">Name</label>
                 <input name="name" class="form-input" placeholder="e.g., Free WiFi" required />
             </div>
-        </div>
-        <div class="form-actions">
-            <button type="submit" class="auth-btn auth-btn-cta">Add Service</button>
         </div>
     </form>
 </div>
@@ -57,12 +62,27 @@
                                 <span class="badge badge-warning">Inactive</span>
                             }
                         </td>
-                        <td class="table-actions">
-                            <form method="post" action="@Url.Action("Toggle")" style="display:inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@s.Id" />
-                                <button type="submit" class="auth-btn auth-btn-secondary">@(s.IsActive ? "Deactivate" : "Activate")</button>
-                            </form>
+                        <td>
+                            <div class="table-actions">
+                                <form method="post" action="@Url.Action("Toggle")" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@s.Id" />
+                                    <button type="submit" class="table-action-btn @(s.IsActive ? "danger" : "")" title="@(s.IsActive ? "Deactivate" : "Activate")">
+                                        @if (s.IsActive)
+                                        {
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        }
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }

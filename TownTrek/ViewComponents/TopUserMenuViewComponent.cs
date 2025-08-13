@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TownTrek.Constants;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
@@ -27,8 +28,8 @@ namespace TownTrek.ViewComponents
                 var user = await _userManager.FindByIdAsync(userId);
                 if (user != null)
                 {
-                    var firstInitial = string.IsNullOrWhiteSpace(user.FirstName) ? "U" : user.FirstName[0].ToString().ToUpper();
-                    var lastInitial = string.IsNullOrWhiteSpace(user.LastName) ? string.Empty : user.LastName[0].ToString().ToUpper();
+                    var firstInitial = !string.IsNullOrWhiteSpace(user.FirstName) ? user.FirstName[0].ToString().ToUpper() : "U";
+                    var lastInitial = !string.IsNullOrWhiteSpace(user.LastName) ? user.LastName[0].ToString().ToUpper() : string.Empty;
                     model.Initials = firstInitial + lastInitial;
                     model.DisplayName = string.IsNullOrWhiteSpace(user.FirstName) && string.IsNullOrWhiteSpace(user.LastName)
                         ? (user.UserName ?? "User")
@@ -38,19 +39,25 @@ namespace TownTrek.ViewComponents
                     model.SubscriptionTier = authResult.SubscriptionTier;
 
                     // Determine user type based on roles/subscription
-                    var isAdmin = principal.IsInRole("Admin");
-                    var hasClientRole = principal.IsInRole("Client") ||
-                                        principal.IsInRole("Client-Basic") ||
-                                        principal.IsInRole("Client-Standard") ||
-                                        principal.IsInRole("Client-Premium");
+                    var isAdmin = principal?.IsInRole("Admin") == true;
+                    var isTrialUser = principal?.IsInRole("Client-Trial") == true || user.IsTrialUser;
+                    var hasClientRole = principal?.IsInRole("Client-Basic") == true ||
+                                        principal?.IsInRole("Client-Standard") == true ||
+                                        principal?.IsInRole("Client-Premium") == true ||
+                                        isTrialUser;
 
-                    model.IsBusinessOwner = hasClientRole || (authResult.SubscriptionTier != null && authResult.HasActiveSubscription);
+                    model.IsTrialUser = isTrialUser;
+                    model.IsBusinessOwner = hasClientRole || (authResult.SubscriptionTier != null && authResult.HasActiveSubscription) || isTrialUser;
                     model.IsMember = !model.IsBusinessOwner && !isAdmin;
 
                     // Display role label
                     if (isAdmin)
                     {
                         model.DisplayRole = "System Admin";
+                    }
+                    else if (isTrialUser)
+                    {
+                        model.DisplayRole = "Trial User";
                     }
                     else if (model.IsBusinessOwner && authResult.SubscriptionTier != null)
                     {
