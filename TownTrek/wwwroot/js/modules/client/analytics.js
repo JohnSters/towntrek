@@ -82,9 +82,14 @@ class ClientAnalyticsManager {
 
     async createViewsChart(canvas) {
         try {
+            this.showChartLoading(canvas);
             const data = await this.fetchViewsData(30);
             
-            const ctx = canvas.getContext('2d');
+            // Clear loading state
+            canvas.parentElement.innerHTML = '<canvas id="viewsChart" width="400" height="200"></canvas>';
+            const newCanvas = canvas.parentElement.querySelector('#viewsChart');
+            
+            const ctx = newCanvas.getContext('2d');
             this.viewsChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -176,9 +181,14 @@ class ClientAnalyticsManager {
 
     async createReviewsChart(canvas) {
         try {
+            this.showChartLoading(canvas);
             const data = await this.fetchReviewsData(30);
             
-            const ctx = canvas.getContext('2d');
+            // Clear loading state
+            canvas.parentElement.innerHTML = '<canvas id="reviewsChart" width="400" height="200"></canvas>';
+            const newCanvas = canvas.parentElement.querySelector('#reviewsChart');
+            
+            const ctx = newCanvas.getContext('2d');
             this.reviewsChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -441,11 +451,26 @@ class ClientAnalyticsManager {
         const container = canvas.parentElement;
         container.innerHTML = `
             <div class="chart-loading">
-                <div style="text-align: center;">
+                <div style="text-align: center; color: #6c757d;">
                     <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-bottom: 1rem; opacity: 0.5;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <p>${message}</p>
+                    <p style="margin: 0; font-size: 0.875rem;">${message}</p>
+                    <button onclick="location.reload()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #33658a; color: white; border: none; border-radius: 0.375rem; font-size: 0.875rem; cursor: pointer;">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
+    showChartLoading(canvas) {
+        const container = canvas.parentElement;
+        container.innerHTML = `
+            <div class="chart-loading">
+                <div style="text-align: center; color: #6c757d;">
+                    <div style="width: 40px; height: 40px; border: 3px solid #e9ecef; border-top: 3px solid #33658a; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem;"></div>
+                    <p style="margin: 0; font-size: 0.875rem;">Loading chart data...</p>
                 </div>
             </div>
         `;
@@ -457,41 +482,69 @@ class ClientAnalyticsManager {
         
         // Stagger card animations
         this.staggerCardAnimations();
+        
+        // Setup intersection observer for animations
+        this.setupIntersectionObserver();
     }
 
     animateCounters() {
-        const counters = document.querySelectorAll('.card-value');
+        const counters = document.querySelectorAll('.card-value, .metric-value');
         
         counters.forEach(counter => {
-            const target = parseInt(counter.textContent.replace(/,/g, ''));
-            if (isNaN(target)) return;
+            const text = counter.textContent;
+            const target = parseFloat(text.replace(/[^0-9.]/g, ''));
+            if (isNaN(target) || target === 0) return;
             
             let current = 0;
-            const increment = target / 50;
+            const increment = target / 60;
+            const isDecimal = text.includes('.');
+            
             const timer = setInterval(() => {
                 current += increment;
                 if (current >= target) {
-                    counter.textContent = target.toLocaleString();
+                    counter.textContent = isDecimal ? target.toFixed(1) : target.toLocaleString();
                     clearInterval(timer);
                 } else {
-                    counter.textContent = Math.floor(current).toLocaleString();
+                    if (isDecimal) {
+                        counter.textContent = current.toFixed(1);
+                    } else {
+                        counter.textContent = Math.floor(current).toLocaleString();
+                    }
                 }
-            }, 20);
+            }, 16);
         });
     }
 
     staggerCardAnimations() {
-        const cards = document.querySelectorAll('.overview-card, .performance-card, .insight-card');
+        const cards = document.querySelectorAll('.overview-card, .performance-card, .insight-card, .metric-card');
         
         cards.forEach((card, index) => {
             card.style.opacity = '0';
             card.style.transform = 'translateY(20px)';
             
             setTimeout(() => {
-                card.style.transition = 'all 0.3s ease-out';
+                card.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
                 card.style.opacity = '1';
                 card.style.transform = 'translateY(0)';
-            }, index * 100);
+            }, index * 80);
+        });
+    }
+
+    setupIntersectionObserver() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-in');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        // Observe chart containers and premium cards
+        document.querySelectorAll('.chart-container, .premium-card').forEach(el => {
+            observer.observe(el);
         });
     }
 
