@@ -97,6 +97,8 @@ public class Program
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
         builder.Services.AddScoped<IClientService, ClientService>();
         builder.Services.AddScoped<IMemberService, MemberService>();
+        builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+        builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
 
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();

@@ -81,12 +81,13 @@ namespace TownTrek.Services
 
         public async Task<ClientAnalyticsViewModel> GetAnalyticsViewModelAsync(string userId)
         {
+            // This method is now deprecated - use IAnalyticsService directly
             var businesses = await _businessService.GetUserBusinessesAsync(userId);
             
             return new ClientAnalyticsViewModel
             {
                 Businesses = businesses,
-                TotalViews = businesses.Sum(b => b.ViewCount)
+                Overview = new AnalyticsOverview { TotalViews = businesses.Sum(b => b.ViewCount) }
             };
         }
 

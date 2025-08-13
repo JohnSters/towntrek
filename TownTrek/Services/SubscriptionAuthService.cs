@@ -202,7 +202,55 @@ namespace TownTrek.Services
         {
             var tier = await GetUserSubscriptionTierAsync(userId);
             
-            if (tier == null) return false;
+            if (tier == null) 
+            {
+                // Check if user has subscription flags set but no database record
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+                if (user?.HasActiveSubscription == true && !string.IsNullOrEmpty(user.CurrentSubscriptionTier))
+                {
+                    // For development/testing - allow features based on tier name
+                    var tierName = user.CurrentSubscriptionTier.ToUpper();
+                    
+                    // Analytics access based on tier
+                    if (featureKey == "BasicAnalytics" && (tierName == "BASIC" || tierName == "STANDARD" || tierName == "PREMIUM"))
+                    {
+                        return true;
+                    }
+                    
+                    if (featureKey == "StandardAnalytics" && (tierName == "STANDARD" || tierName == "PREMIUM"))
+                    {
+                        return true;
+                    }
+                    
+                    if (featureKey == "PremiumAnalytics" && tierName == "PREMIUM")
+                    {
+                        return true;
+                    }
+                    
+                    // Other features based on tier
+                    if (tierName == "PREMIUM")
+                    {
+                        var premiumFeatures = new[] { "BasicSupport", "PrioritySupport", "DedicatedSupport", 
+                                                    "BasicAnalytics", "StandardAnalytics", "PremiumAnalytics", "FeaturedPlacement", "PDFUploads" };
+                        if (premiumFeatures.Contains(featureKey))
+                            return true;
+                    }
+                    else if (tierName == "STANDARD")
+                    {
+                        var standardFeatures = new[] { "BasicSupport", "PrioritySupport", "BasicAnalytics", "StandardAnalytics", "PDFUploads" };
+                        if (standardFeatures.Contains(featureKey))
+                            return true;
+                    }
+                    else if (tierName == "BASIC")
+                    {
+                        var basicFeatures = new[] { "BasicSupport", "BasicAnalytics" };
+                        if (basicFeatures.Contains(featureKey))
+                            return true;
+                    }
+                }
+                
+                return false;
+            }
 
             var feature = tier.Features.FirstOrDefault(f => f.FeatureKey == featureKey);
             return feature?.IsEnabled ?? false;
