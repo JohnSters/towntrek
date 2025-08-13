@@ -144,7 +144,10 @@ class TownTrekApp {
         this.initializeModule('trial-countdown');
       }
 
-      if (currentPath.includes('/client/profile')) {
+      if (currentPath.includes('/client/analytics')) {
+        // Initialize analytics dashboard module
+        this.initializeModule('client-analytics');
+      } else if (currentPath.includes('/client/profile')) {
         this.initializeModule('client-profile');
       } else if (currentPath.includes('/client/subscription')) {
         this.initializeModule('client-subscription');
@@ -278,7 +281,9 @@ class TownTrekApp {
       'client-subscription': 'ClientSubscriptionManager',
       'trial-countdown': 'TrialCountdownManager',
       'image-gallery': 'ImageGalleryManager',
-      'media-gallery': 'MediaGalleryOverviewManager'
+      'media-gallery': 'MediaGalleryOverviewManager',
+      // Client analytics dashboard
+      'client-analytics': 'ClientAnalyticsManager'
     };
 
     const className = moduleClassMap[moduleName];

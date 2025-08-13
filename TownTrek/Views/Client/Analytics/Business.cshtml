@@ -1,6 +1,7 @@
 @model TownTrek.Models.ViewModels.BusinessAnalyticsData
 @{
     ViewData["Title"] = $"Analytics - {Model.BusinessName}";
+    Layout = "_ClientLayout";
 }
 
 <div class="business-analytics">
@@ -12,7 +13,6 @@
                 <span class="breadcrumb-separator">/</span>
                 <span class="breadcrumb-current">@Model.BusinessName</span>
             </nav>
-            <h1 class="page-title">@Model.BusinessName Analytics</h1>
             <p class="page-subtitle">Detailed performance metrics and insights</p>
         </div>
         <div class="business-status">

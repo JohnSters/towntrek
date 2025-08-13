@@ -311,6 +311,45 @@ wwwroot/js/
 
 ---
 
+## Pre-Production Hardening Checklist (see `FUTURE_TODO.md` for the live list)
+
+- Authentication and Roles
+  - Disable legacy subscription flag fallback in production. Add an app setting (e.g., `AllowLegacyTierFallback = false` in Production, true in Development) and gate the fallback in `SubscriptionAuthService`.
+  - Normalize client roles on login: map tiers to `AppRoles.ClientBasic`, `ClientStandard`, `ClientPremium`; remove any stale `Client-*` roles that don’t match the current tier; remove `Client-Trial` if the user isn’t a trial anymore.
+  - Enforce optional MFA and review password policy before go-live.
+
+- Diagnostics and Test Utilities
+  - Remove (or restrict to Admin only) the diagnostic endpoints in `TestAnalyticsController` and any temporary debug navigation links.
+  - Add an `EnableDiagnostics` flag (true in Development, false in Production).
+
+- Subscription Features and Seeding
+  - Standardize analytics features to two keys only: `BasicAnalytics` and `AdvancedAnalytics`. Ensure no `StandardAnalytics`/`PremiumAnalytics` keys remain in seeders or code.
+  - Verify `SubscriptionTiers` seed contains correct features: Basic and Standard include `BasicAnalytics`; Premium includes `AdvancedAnalytics` (plus `BasicAnalytics`).
+  - Route all subscription mutations through `SubscriptionManagementService`; avoid direct writes to legacy flags. Use `SyncUserSubscriptionFlagsAsync` to reconcile when needed.
+
+- Payments Integration
+  - Align on a single provider and naming. Current docs reference PayFast; if PayPal is the provider for production, update service names, configuration, and webhook/IPN handling accordingly.
+  - Validate webhook signatures/IPN, idempotently process payment events, and map provider statuses to internal statuses (e.g., Completed/Active/Paid vs Pending/Failed/Rejected).
+
+- Configuration and Environments
+  - Introduce environment-based toggles: `AllowLegacyTierFallback`, `EnableDiagnostics`, and payment `UseSandbox`.
+  - Verify Production appsettings exclude secrets; use environment variables or a secure secret store.
+
+- Access Control and Middleware
+  - Ensure `[RequireActiveSubscription(requiredFeature: "BasicAnalytics"|"AdvancedAnalytics")]` is used for all analytics features.
+  - Keep `SubscriptionRedirectMiddleware` active to protect `/Client` routes for non-client users.
+
+- Auditing and Observability
+  - Add audit logs for subscription tier changes, role changes, and payment state transitions (who/when/before/after).
+  - Ensure structured logging around authentication, authorization failures, and payment exceptions; configure alerting.
+
+- QA Coverage
+  - Test with: Member, Client-Basic, Client-Standard, Client-Premium, Client-Trial.
+  - Validate analytics access: Basic vs Advanced paths; charts and insights visibility.
+  - Exercise payment flows: Pending, Completed, Failed/Rejected; verify redirects and warnings.
+
+---
+
 ## Performance & Scalability
 
 ### Database Optimization

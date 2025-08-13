@@ -215,7 +215,6 @@ namespace TownTrek.Controllers.Analytics
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = standardTier.Id, FeatureKey = "BasicSupport", IsEnabled = true },
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = standardTier.Id, FeatureKey = "PrioritySupport", IsEnabled = true },
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = standardTier.Id, FeatureKey = "BasicAnalytics", IsEnabled = true },
-                    new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = standardTier.Id, FeatureKey = "StandardAnalytics", IsEnabled = true },
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = standardTier.Id, FeatureKey = "PDFUploads", IsEnabled = true }
                 });
 
@@ -246,8 +245,7 @@ namespace TownTrek.Controllers.Analytics
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = premiumTier.Id, FeatureKey = "PrioritySupport", IsEnabled = true },
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = premiumTier.Id, FeatureKey = "DedicatedSupport", IsEnabled = true },
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = premiumTier.Id, FeatureKey = "BasicAnalytics", IsEnabled = true },
-                    new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = premiumTier.Id, FeatureKey = "StandardAnalytics", IsEnabled = true },
-                    new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = premiumTier.Id, FeatureKey = "PremiumAnalytics", IsEnabled = true },
+                    new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = premiumTier.Id, FeatureKey = "AdvancedAnalytics", IsEnabled = true },
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = premiumTier.Id, FeatureKey = "FeaturedPlacement", IsEnabled = true },
                     new TownTrek.Models.SubscriptionTierFeature { SubscriptionTierId = premiumTier.Id, FeatureKey = "PDFUploads", IsEnabled = true }
                 });
@@ -270,7 +268,7 @@ namespace TownTrek.Controllers.Analytics
             }
         }
 
-        // Fix existing Premium tier missing BasicAnalytics
+        // Fix existing Premium tier to ensure BasicAnalytics/AdvancedAnalytics and remove deprecated analytics keys
         public async Task<IActionResult> FixPremiumTier()
         {
             try
@@ -287,24 +285,39 @@ namespace TownTrek.Controllers.Analytics
                     return Json(new { error = "Premium tier not found" });
                 }
 
-                // Check if BasicAnalytics feature exists
+                // Ensure BasicAnalytics exists
                 var hasBasicAnalytics = premiumTier.Features.Any(f => f.FeatureKey == "BasicAnalytics");
-                
                 if (!hasBasicAnalytics)
                 {
-                    // Add missing BasicAnalytics feature
                     context.SubscriptionTierFeatures.Add(new TownTrek.Models.SubscriptionTierFeature 
                     { 
                         SubscriptionTierId = premiumTier.Id, 
                         FeatureKey = "BasicAnalytics", 
                         IsEnabled = true 
                     });
-                    
-                    await context.SaveChangesAsync();
-                    return Json(new { message = "Added BasicAnalytics feature to Premium tier" });
                 }
 
-                return Json(new { message = "Premium tier already has BasicAnalytics feature" });
+                // Ensure AdvancedAnalytics exists
+                var hasAdvancedAnalytics = premiumTier.Features.Any(f => f.FeatureKey == "AdvancedAnalytics");
+                if (!hasAdvancedAnalytics)
+                {
+                    context.SubscriptionTierFeatures.Add(new TownTrek.Models.SubscriptionTierFeature 
+                    { 
+                        SubscriptionTierId = premiumTier.Id, 
+                        FeatureKey = "AdvancedAnalytics", 
+                        IsEnabled = true 
+                    });
+                }
+
+                // Remove deprecated keys if present
+                var deprecated = premiumTier.Features.Where(f => f.FeatureKey == "StandardAnalytics" || f.FeatureKey == "PremiumAnalytics").ToList();
+                if (deprecated.Any())
+                {
+                    context.SubscriptionTierFeatures.RemoveRange(deprecated);
+                }
+
+                await context.SaveChangesAsync();
+                return Json(new { message = "Premium tier fixed: ensured Basic/AdvancedAnalytics, removed deprecated analytics keys", removedDeprecated = deprecated.Count, addedBasicAnalytics = !hasBasicAnalytics, addedAdvancedAnalytics = !hasAdvancedAnalytics });
             }
             catch (Exception ex)
             {
@@ -404,7 +417,7 @@ namespace TownTrek.Controllers.Analytics
             }
         }
 
-        // Fix existing Standard tier to include StandardAnalytics
+        // Fix existing Standard tier to ensure BasicAnalytics is present and remove deprecated analytics keys
         public async Task<IActionResult> FixStandardTier()
         {
             try
@@ -421,24 +434,27 @@ namespace TownTrek.Controllers.Analytics
                     return Json(new { error = "Standard tier not found" });
                 }
 
-                // Check if StandardAnalytics feature exists
-                var hasStandardAnalytics = standardTier.Features.Any(f => f.FeatureKey == "StandardAnalytics");
-                
-                if (!hasStandardAnalytics)
+                // Ensure BasicAnalytics exists
+                var hasBasicAnalytics = standardTier.Features.Any(f => f.FeatureKey == "BasicAnalytics");
+                if (!hasBasicAnalytics)
                 {
-                    // Add missing StandardAnalytics feature
                     context.SubscriptionTierFeatures.Add(new TownTrek.Models.SubscriptionTierFeature 
                     { 
                         SubscriptionTierId = standardTier.Id, 
-                        FeatureKey = "StandardAnalytics", 
+                        FeatureKey = "BasicAnalytics", 
                         IsEnabled = true 
                     });
-                    
-                    await context.SaveChangesAsync();
-                    return Json(new { message = "Added StandardAnalytics feature to Standard tier" });
                 }
 
-                return Json(new { message = "Standard tier already has StandardAnalytics feature" });
+                // Remove deprecated keys if present
+                var deprecated = standardTier.Features.Where(f => f.FeatureKey == "StandardAnalytics" || f.FeatureKey == "PremiumAnalytics").ToList();
+                if (deprecated.Any())
+                {
+                    context.SubscriptionTierFeatures.RemoveRange(deprecated);
+                }
+
+                await context.SaveChangesAsync();
+                return Json(new { message = "Standard tier fixed: ensured BasicAnalytics, removed deprecated analytics keys", removedDeprecated = deprecated.Count, addedBasicAnalytics = !hasBasicAnalytics });
             }
             catch (Exception ex)
             {

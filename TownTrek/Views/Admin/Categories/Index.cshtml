@@ -8,6 +8,11 @@
     <div class="admin-card-header">
         <h3 class="admin-card-title">Business Categories</h3>
         <div class="admin-card-actions">
+            <a class="auth-btn" href="@Url.Action("Index", "AdminTowns")" title="Manage Towns">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                </svg>
+            </a>
             <a class="auth-btn auth-btn-cta" href="@Url.Action("Create", "AdminCategories")">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -48,14 +53,37 @@
                             <span class="badge badge-warning">Inactive</span>
                         }
                     </td>
-                    <td class="table-actions">
-                        <a class="auth-btn auth-btn-secondary" href="@Url.Action("Edit", new { id = c.Id })">Edit</a>
-                        <a class="auth-btn auth-btn-secondary" href="@Url.Action("Subcategories", new { id = c.Id })">Subcategories</a>
-                        <form method="post" action="@Url.Action("ToggleActive")" style="display:inline">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@c.Id" />
-                            <button type="submit" class="auth-btn auth-btn-secondary">@(c.IsActive ? "Deactivate" : "Activate")</button>
-                        </form>
+                    <td>
+                        <div class="table-actions">
+                            <a href="@Url.Action("Edit", new { id = c.Id })" class="table-action-btn" title="Edit">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </a>
+                            <a href="@Url.Action("Subcategories", new { id = c.Id })" class="table-action-btn" title="Subcategories">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"></path>
+                                </svg>
+                            </a>
+                            <form method="post" action="@Url.Action("ToggleActive")" style="display:inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@c.Id" />
+                                <button type="submit" class="table-action-btn @(c.IsActive ? "danger" : "")" title="@(c.IsActive ? "Deactivate" : "Activate")">
+                                    @if (c.IsActive)
+                                    {
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    }
+                                    else
+                                    {
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                    }
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             }

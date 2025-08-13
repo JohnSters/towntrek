@@ -1,3 +1,4 @@
+@model TownTrek.Models.ViewModels.HomeStatsViewModel
 @{
     ViewData["Title"] = "TownTrek - South African Small Business Gateway";
 }
@@ -22,15 +23,15 @@
     <div class="container">
         <div class="grid grid-3">
             <div class="stat-item">
-                <span class="stat-number">500+</span>
+                <span class="stat-number">@Model.TotalBusinesses.ToString("N0")+</span>
                 <span class="stat-label">Local Businesses</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">50+</span>
+                <span class="stat-number">@Model.TotalTowns.ToString("N0")+</span>
                 <span class="stat-label">South African Towns</span>
             </div>
             <div class="stat-item">
-                <span class="stat-number">10,000+</span>
+                <span class="stat-number">@Model.TotalHappyCustomers.ToString("N0")+</span>
                 <span class="stat-label">Happy Customers</span>
             </div>
         </div>

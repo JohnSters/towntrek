@@ -39,7 +39,7 @@ Users with `HasActiveSubscription = true` and `CurrentSubscriptionTier` set in t
 ### Step 3: Seed Subscription Tiers (if needed)
 1. If "AvailableTiers" is empty in the user data, click "Seed Subscription Tiers"
 2. This creates the required subscription tiers with proper features:
-   - **BASIC**: BasicSupport only
+   - **BASIC**: BasicSupport, BasicAnalytics
    - **STANDARD**: BasicSupport, PrioritySupport, BasicAnalytics, PDFUploads
    - **PREMIUM**: All features including AdvancedAnalytics
 
@@ -50,18 +50,19 @@ Users with `HasActiveSubscription = true` and `CurrentSubscriptionTier` set in t
 ## Subscription Tier Analytics Access
 
 ### Basic Plan (`CurrentSubscriptionTier = "BASIC"`)
-- **No Analytics Access**: Shows upgrade prompt
-- Redirected to subscription plans page
+- BasicAnalytics access (limited):
+  - Overview dashboard with key metrics
+  - Business performance cards
 
 ### Standard Plan (`CurrentSubscriptionTier = "STANDARD"`)
-- **Basic Analytics Access**: 
+- BasicAnalytics access (full basic feature set):
   - Overview dashboard with key metrics
   - Business performance cards
   - Time-based charts (views/reviews over time)
   - Performance insights and recommendations
 
 ### Premium Plan (`CurrentSubscriptionTier = "PREMIUM"`)
-- **Advanced Analytics Access**: All Standard features plus:
+- AdvancedAnalytics access (adds to Standard):
   - Category benchmarking
   - Competitor analysis
   - Advanced performance insights

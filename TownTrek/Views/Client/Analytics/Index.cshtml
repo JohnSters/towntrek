@@ -1,13 +1,13 @@
 @model TownTrek.Models.ViewModels.ClientAnalyticsViewModel
 @{
     ViewData["Title"] = "Analytics Dashboard";
+    Layout = "_ClientLayout";
 }
 
 <div class="analytics-dashboard">
-    <!-- Header Section -->
+    <!-- Subscription Badge -->
     <div class="analytics-header">
         <div class="header-content">
-            <h1 class="page-title">Analytics Dashboard</h1>
             <p class="page-subtitle">Track your business performance and customer engagement</p>
         </div>
         <div class="subscription-badge">
@@ -298,7 +298,7 @@
                 </div>
             </div>
         }
-        @if (!Model.HasPremiumAnalytics && (Model.HasBasicAnalytics || Model.HasStandardAnalytics))
+        @if (!Model.HasPremiumAnalytics && Model.HasBasicAnalytics)
         {
             <!-- Upgrade to Premium Prompt -->
             <div class="premium-upgrade">

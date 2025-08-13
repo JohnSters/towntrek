@@ -22,8 +22,8 @@ namespace TownTrek.Services
 
             var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
             var hasBasicAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
-            var hasStandardAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "StandardAnalytics");
-            var hasPremiumAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "PremiumAnalytics");
+            // Standardize to Basic/Advanced only
+            var hasAdvancedAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
 
             var businesses = await _context.Businesses
                 .Where(b => b.UserId == userId && b.Status != "Deleted")
@@ -47,8 +47,8 @@ namespace TownTrek.Services
                 User = user,
                 SubscriptionTier = authResult.SubscriptionTier?.Name ?? "None",
                 HasBasicAnalytics = hasBasicAnalytics,
-                HasStandardAnalytics = hasStandardAnalytics,
-                HasPremiumAnalytics = hasPremiumAnalytics,
+                HasStandardAnalytics = false,
+                HasPremiumAnalytics = hasAdvancedAnalytics,
                 Businesses = businesses,
                 BusinessAnalytics = businessAnalytics,
                 Overview = overview,
@@ -58,7 +58,7 @@ namespace TownTrek.Services
             };
 
             // Premium features
-            if (hasPremiumAnalytics && businesses.Any())
+            if (hasAdvancedAnalytics && businesses.Any())
             {
                 var primaryCategory = businesses.GroupBy(b => b.Category)
                     .OrderByDescending(g => g.Count())
