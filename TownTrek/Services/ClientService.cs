@@ -14,6 +14,7 @@ namespace TownTrek.Services
         ISubscriptionTierService subscriptionService,
         ISubscriptionAuthService subscriptionAuthService,
         UserManager<ApplicationUser> userManager,
+        ITrialService trialService,
         ILogger<ClientService> logger) : IClientService
     {
         private readonly ApplicationDbContext _context = context;
@@ -21,6 +22,7 @@ namespace TownTrek.Services
         private readonly ISubscriptionTierService _subscriptionService = subscriptionService;
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly ITrialService _trialService = trialService;
         private readonly ILogger<ClientService> _logger = logger;
 
         public async Task<ClientDashboardViewModel> GetDashboardViewModelAsync(string userId)
@@ -28,6 +30,9 @@ namespace TownTrek.Services
             var user = await _userManager.FindByIdAsync(userId);
             var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
             var businesses = await _businessService.GetUserBusinessesAsync(userId);
+
+            // Get trial status if user is a trial user
+            var trialStatus = await _trialService.GetTrialStatusAsync(userId);
 
             return new ClientDashboardViewModel
             {
@@ -43,7 +48,14 @@ namespace TownTrek.Services
                 CanAddBusiness = authResult.Limits?.MaxBusinesses == -1 || (authResult.Limits?.CurrentBusinessCount < authResult.Limits?.MaxBusinesses),
                 HasAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics"),
                 HasPrioritySupport = authResult.Limits?.HasPrioritySupport ?? false,
-                HasDedicatedSupport = authResult.Limits?.HasDedicatedSupport ?? false
+                HasDedicatedSupport = authResult.Limits?.HasDedicatedSupport ?? false,
+                
+                // Trial information
+                IsTrialUser = trialStatus.IsTrialUser,
+                TrialDaysRemaining = trialStatus.DaysRemaining,
+                TrialEndDate = trialStatus.TrialEndDate,
+                IsTrialExpired = trialStatus.IsExpired,
+                TrialStatusMessage = trialStatus.StatusMessage
             };
         }
 
@@ -69,12 +81,13 @@ namespace TownTrek.Services
 
         public async Task<ClientAnalyticsViewModel> GetAnalyticsViewModelAsync(string userId)
         {
+            // This method is now deprecated - use IAnalyticsService directly
             var businesses = await _businessService.GetUserBusinessesAsync(userId);
             
             return new ClientAnalyticsViewModel
             {
                 Businesses = businesses,
-                TotalViews = businesses.Sum(b => b.ViewCount)
+                Overview = new AnalyticsOverview { TotalViews = businesses.Sum(b => b.ViewCount) }
             };
         }
 

@@ -16,6 +16,7 @@ namespace TownTrek.Data
             await CreateRoleIfNotExists(roleManager, "Client-Basic");
             await CreateRoleIfNotExists(roleManager, "Client-Standard");
             await CreateRoleIfNotExists(roleManager, "Client-Premium");
+            await CreateRoleIfNotExists(roleManager, "Client-Trial");
             await CreateRoleIfNotExists(roleManager, "Member");
 
             // Create admin user

@@ -32,6 +32,19 @@ namespace TownTrek.Models
         public DateTime? SubscriptionStartDate { get; set; }
         public DateTime? SubscriptionEndDate { get; set; }
 
+        // Trial Period Information
+        public bool IsTrialUser { get; set; } = false;
+        public DateTime? TrialStartDate { get; set; }
+        public DateTime? TrialEndDate { get; set; }
+        public bool TrialExpired { get; set; } = false;
+        
+        // Security: Additional trial tracking
+        public long TrialStartTicks { get; set; } = 0; // UTC ticks for precision
+        public long TrialEndTicks { get; set; } = 0; // UTC ticks for precision
+        public string? TrialSecurityHash { get; set; } // Hash to prevent tampering
+        public int TrialCheckCount { get; set; } = 0; // Track validation attempts
+        public DateTime? LastTrialCheck { get; set; } // Last validation timestamp
+
         // Navigation properties
         public virtual ICollection<Business> Businesses { get; set; } = new List<Business>();
         public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();

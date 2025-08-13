@@ -12,16 +12,29 @@
             <p class="page-description">Manage subcategories for this category.</p>
         </div>
         <div class="page-actions">
-            <a href="@Url.Action("Index")" class="auth-btn auth-btn-secondary">Back to Categories</a>
+            <a href="@Url.Action("Index")" class="auth-btn" title="Back to Categories">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                Back
+            </a>
         </div>
     </div>
-    </div>
+</div>
 
 <div class="admin-card">
     <div class="admin-card-header">
         <h3 class="admin-card-title">Add Subcategory</h3>
+        <div class="admin-card-actions">
+            <button type="submit" form="addSubcategoryForm" class="auth-btn auth-btn-cta">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Subcategory
+            </button>
+        </div>
     </div>
-    <form method="post" action="@Url.Action("AddSubcategory")" class="admin-form">
+    <form id="addSubcategoryForm" method="post" action="@Url.Action("AddSubcategory")" class="admin-form">
         @Html.AntiForgeryToken()
         <input type="hidden" name="categoryId" value="@category!.Id" />
         <div class="form-grid">
@@ -33,9 +46,6 @@
                 <label class="form-label required">Name</label>
                 <input name="name" class="form-input" placeholder="Display name" required />
             </div>
-        </div>
-        <div class="form-actions">
-            <button type="submit" class="auth-btn auth-btn-cta">Add Subcategory</button>
         </div>
     </form>
 </div>
@@ -70,12 +80,27 @@
                                 <span class="badge badge-warning">Inactive</span>
                             }
                         </td>
-                        <td class="table-actions">
-                            <form method="post" action="@Url.Action("ToggleSubcategory")" style="display:inline">
-                                @Html.AntiForgeryToken()
-                                <input type="hidden" name="id" value="@s.Id" />
-                                <button type="submit" class="auth-btn auth-btn-secondary">@(s.IsActive ? "Deactivate" : "Activate")</button>
-                            </form>
+                        <td>
+                            <div class="table-actions">
+                                <form method="post" action="@Url.Action("ToggleSubcategory")" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@s.Id" />
+                                    <button type="submit" class="table-action-btn @(s.IsActive ? "danger" : "")" title="@(s.IsActive ? "Deactivate" : "Activate")">
+                                        @if (s.IsActive)
+                                        {
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        }
+                                        else
+                                        {
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                        }
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 }

@@ -24,7 +24,8 @@ namespace TownTrek.Services
                 "Member",
                 "Client-Basic",
                 "Client-Standard", 
-                "Client-Premium"
+                "Client-Premium",
+                "Client-Trial"
             };
 
             foreach (var roleName in roles)

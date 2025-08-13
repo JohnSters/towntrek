@@ -16,7 +16,7 @@ class TownTrekApp {
     this.isInitialized = false;
     this.modules = new Map();
     this.components = new Map();
-    
+
     this.init();
   }
 
@@ -32,7 +32,7 @@ class TownTrekApp {
       this.initializeCore();
       this.autoInitializeModules();
       this.setupGlobalEventListeners();
-      
+
       this.isInitialized = true;
       console.log('🚀 TownTrek application initialized successfully');
     } catch (error) {
@@ -91,16 +91,16 @@ class TownTrekApp {
    */
   autoInitializeModules() {
     const currentPath = window.location.pathname.toLowerCase();
-    
+
     // Business-related pages
     if (currentPath.includes('/client/business/create')) {
       this.initializeModule('business-form', 'create');
     } else if (currentPath.includes('/client/business/edit')) {
       this.initializeModule('business-form', 'edit');
-      } else if (
-        (currentPath.includes('/client/business/manage') || currentPath.includes('/client/business/index')) &&
-        (document.querySelector('[data-business-list]') || document.querySelector('.business-list') || document.querySelector('.admin-table'))
-      ) {
+    } else if (
+      (currentPath.includes('/client/business/manage') || currentPath.includes('/client/business/index')) &&
+      (document.querySelector('[data-business-list]') || document.querySelector('.business-list') || document.querySelector('.admin-table'))
+    ) {
       this.initializeModule('business-list');
     }
 
@@ -138,8 +138,16 @@ class TownTrekApp {
     // Client pages
     if (currentPath.includes('/client/')) {
       this.initializeModule('client');
-      
-      if (currentPath.includes('/client/profile')) {
+
+      // Initialize trial countdown if trial elements are present
+      if (document.querySelector('[data-trial-end]') || document.querySelector('.trial-countdown-card')) {
+        this.initializeModule('trial-countdown');
+      }
+
+      if (currentPath.includes('/client/analytics')) {
+        // Initialize analytics dashboard module
+        this.initializeModule('client-analytics');
+      } else if (currentPath.includes('/client/profile')) {
         this.initializeModule('client-profile');
       } else if (currentPath.includes('/client/subscription')) {
         this.initializeModule('client-subscription');
@@ -196,7 +204,7 @@ class TownTrekApp {
   initializeModule(moduleName, mode = 'default') {
     try {
       const moduleKey = `${moduleName}-${mode}`;
-      
+
       if (this.modules.has(moduleKey)) {
         console.warn(`Module ${moduleKey} already initialized`);
         return;
@@ -204,7 +212,7 @@ class TownTrekApp {
 
       // Try to find and initialize the module
       const moduleClass = this.findModuleClass(moduleName, mode);
-      
+
       if (moduleClass) {
         const instance = new moduleClass({ mode });
         this.modules.set(moduleKey, instance);
@@ -230,16 +238,16 @@ class TownTrekApp {
       }
 
       const componentClass = this.findComponentClass(componentName);
-      
+
       if (componentClass) {
         const instance = new componentClass();
         this.components.set(componentName, instance);
-        
+
         // Set global flags for specific components
         if (componentName === 'user-menu') {
           window.__userMenuInitialized = true;
         }
-        
+
         console.log(`✅ Initialized component: ${componentName}`);
       } else {
         console.warn(`⚠️ Component class not found: ${componentName}`);
@@ -271,8 +279,11 @@ class TownTrekApp {
       'client': 'ClientManager',
       'client-profile': 'ClientProfileManager',
       'client-subscription': 'ClientSubscriptionManager',
+      'trial-countdown': 'TrialCountdownManager',
       'image-gallery': 'ImageGalleryManager',
-      'media-gallery': 'MediaGalleryOverviewManager'
+      'media-gallery': 'MediaGalleryOverviewManager',
+      // Client analytics dashboard
+      'client-analytics': 'ClientAnalyticsManager'
     };
 
     const className = moduleClassMap[moduleName];
@@ -366,7 +377,7 @@ class TownTrekApp {
    */
   handleGlobalFormSubmit(event) {
     const form = event.target;
-    
+
     // Add loading state to submit buttons
     const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
     submitButtons.forEach(button => {
@@ -374,7 +385,7 @@ class TownTrekApp {
         button.dataset.originalText = button.textContent || button.value;
         button.textContent = 'Processing...';
         button.disabled = true;
-        
+
         // Re-enable after a timeout as fallback
         setTimeout(() => {
           if (button.disabled) {
@@ -434,7 +445,7 @@ class TownTrekApp {
   destroyModule(moduleName, mode = 'default') {
     const moduleKey = `${moduleName}-${mode}`;
     const module = this.modules.get(moduleKey);
-    
+
     if (module) {
       if (module.destroy && typeof module.destroy === 'function') {
         module.destroy();
@@ -450,7 +461,7 @@ class TownTrekApp {
    */
   destroyComponent(componentName) {
     const component = this.components.get(componentName);
-    
+
     if (component) {
       if (component.destroy && typeof component.destroy === 'function') {
         component.destroy();

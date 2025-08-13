@@ -78,7 +78,7 @@
         </div>
         <div class="stat-value">@Model.TownsWithLandmarks</div>
         <div class="stat-label">Towns with Landmarks</div>
-        <div class="stat-change">@((double)Model.TownsWithLandmarks / Math.Max(Model.TotalTowns, 1) * 100).ToString("F0")% coverage</div>
+        <div class="stat-change">@($"{(double)Model.TownsWithLandmarks / Math.Max(Model.TotalTowns, 1) * 100:F0}% coverage")</div>
     </div>
 </div>
 
