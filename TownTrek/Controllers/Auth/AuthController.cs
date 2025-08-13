@@ -220,6 +220,12 @@ namespace TownTrek.Controllers.Auth
         }
 
         [HttpGet]
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult ForgotPassword()
         {
             return View();

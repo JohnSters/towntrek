@@ -13,5 +13,3 @@ namespace TownTrek.Models.ViewModels
         public bool IsBusinessOwner { get; set; } // Business owners have active subscriptions
     }
 }
-
-

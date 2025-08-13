@@ -29,10 +29,10 @@ namespace TownTrek.Services
             viewModel.AvailableTowns = await GetAvailableTownsAsync();
 
             // Get featured businesses
-            viewModel.FeaturedBusinesses = await GetFeaturedBusinessesAsync(count: 6);
+            viewModel.FeaturedBusinesses = await GetFeaturedBusinessesAsync(count: 6, userId: userId);
 
             // Get recent businesses
-            viewModel.RecentBusinesses = await GetRecentBusinessesAsync(6);
+            viewModel.RecentBusinesses = await GetRecentBusinessesAsync(6, userId);
 
             // Get total business count
             viewModel.TotalBusinessCount = await _context.Businesses
@@ -51,7 +51,7 @@ namespace TownTrek.Services
             return viewModel;
         }
 
-        public async Task<TownBusinessListViewModel> GetTownBusinessListAsync(int townId, string? category = null, string? subCategory = null, string? searchTerm = null, int page = 1, int pageSize = 12)
+        public async Task<TownBusinessListViewModel> GetTownBusinessListAsync(int townId, string? category = null, string? subCategory = null, string? searchTerm = null, int page = 1, int pageSize = 12, string? userId = null)
         {
             var town = await _context.Towns.FindAsync(townId);
             if (town == null)
@@ -95,11 +95,17 @@ namespace TownTrek.Services
                 .Take(pageSize)
                 .ToListAsync();
 
+            var businessCards = new List<BusinessCardViewModel>();
+            foreach (var business in businesses)
+            {
+                businessCards.Add(await MapToBusinessCardViewModelAsync(business, userId));
+            }
+
             return new TownBusinessListViewModel
             {
                 Town = town,
                 Categories = await GetBusinessCategoriesAsync(),
-                Businesses = businesses.Select(b => MapToBusinessCardViewModel(b)).ToList(),
+                Businesses = businessCards,
                 SelectedCategory = category,
                 SelectedSubCategory = subCategory,
                 SearchTerm = searchTerm,
@@ -148,14 +154,14 @@ namespace TownTrek.Services
             }
 
             // Get related businesses (same category in same town)
-            viewModel.RelatedBusinesses = await GetRelatedBusinessesAsync(business.TownId, business.Category, businessId, 4);
+            viewModel.RelatedBusinesses = await GetRelatedBusinessesAsync(business.TownId, business.Category, businessId, 4, userId);
 
             viewModel.NewReview.BusinessId = businessId;
 
             return viewModel;
         }
 
-        public async Task<BusinessSearchViewModel> SearchBusinessesAsync(string? searchTerm = null, int? townId = null, string? category = null, string? subCategory = null, int page = 1, int pageSize = 12)
+        public async Task<BusinessSearchViewModel> SearchBusinessesAsync(string? searchTerm = null, int? townId = null, string? category = null, string? subCategory = null, int page = 1, int pageSize = 12, string? userId = null)
         {
             var query = _context.Businesses
                 .Where(b => b.Status == "Active")
@@ -200,6 +206,12 @@ namespace TownTrek.Services
                 .Take(pageSize)
                 .ToListAsync();
 
+            var businessCards = new List<BusinessCardViewModel>();
+            foreach (var business in businesses)
+            {
+                businessCards.Add(await MapToBusinessCardViewModelAsync(business, userId));
+            }
+
             return new BusinessSearchViewModel
             {
                 SearchTerm = searchTerm,
@@ -208,7 +220,7 @@ namespace TownTrek.Services
                 SubCategory = subCategory,
                 AvailableTowns = await GetAvailableTownsAsync(),
                 AvailableCategories = await GetBusinessCategoriesAsync(),
-                Results = businesses.Select(b => MapToBusinessCardViewModel(b)).ToList(),
+                Results = businessCards,
                 CurrentPage = page,
                 TotalPages = totalPages,
                 TotalResults = totalResults
@@ -334,7 +346,7 @@ namespace TownTrek.Services
             return favorites.Select(f => MapToBusinessCardViewModel(f.Business, true)).ToList();
         }
 
-        public async Task<List<BusinessCardViewModel>> GetFeaturedBusinessesAsync(int? townId = null, int count = 6)
+        public async Task<List<BusinessCardViewModel>> GetFeaturedBusinessesAsync(int? townId = null, int count = 6, string? userId = null)
         {
             var query = _context.Businesses
                 .Where(b => b.Status == "Active" && b.IsFeatured)
@@ -355,7 +367,13 @@ namespace TownTrek.Services
                 .Take(count)
                 .ToListAsync();
 
-            return businesses.Select(b => MapToBusinessCardViewModel(b)).ToList();
+            var businessCards = new List<BusinessCardViewModel>();
+            foreach (var business in businesses)
+            {
+                businessCards.Add(await MapToBusinessCardViewModelAsync(business, userId));
+            }
+
+            return businessCards;
         }
 
         public async Task IncrementBusinessViewCountAsync(int businessId)
@@ -375,7 +393,7 @@ namespace TownTrek.Services
             }
         }
 
-        private async Task<List<BusinessCardViewModel>> GetRecentBusinessesAsync(int count)
+        private async Task<List<BusinessCardViewModel>> GetRecentBusinessesAsync(int count, string? userId = null)
         {
             var businesses = await _context.Businesses
                 .Where(b => b.Status == "Active")
@@ -387,10 +405,16 @@ namespace TownTrek.Services
                 .Take(count)
                 .ToListAsync();
 
-            return businesses.Select(b => MapToBusinessCardViewModel(b)).ToList();
+            var businessCards = new List<BusinessCardViewModel>();
+            foreach (var business in businesses)
+            {
+                businessCards.Add(await MapToBusinessCardViewModelAsync(business, userId));
+            }
+
+            return businessCards;
         }
 
-        private async Task<List<BusinessCardViewModel>> GetRelatedBusinessesAsync(int townId, string category, int excludeBusinessId, int count)
+        private async Task<List<BusinessCardViewModel>> GetRelatedBusinessesAsync(int townId, string category, int excludeBusinessId, int count, string? userId = null)
         {
             var businesses = await _context.Businesses
                 .Where(b => b.TownId == townId && 
@@ -405,7 +429,13 @@ namespace TownTrek.Services
                 .Take(count)
                 .ToListAsync();
 
-            return businesses.Select(b => MapToBusinessCardViewModel(b)).ToList();
+            var businessCards = new List<BusinessCardViewModel>();
+            foreach (var business in businesses)
+            {
+                businessCards.Add(await MapToBusinessCardViewModelAsync(business, userId));
+            }
+
+            return businessCards;
         }
 
         private async Task UpdateBusinessRatingAsync(int businessId)
@@ -448,6 +478,18 @@ namespace TownTrek.Services
                 BusinessHours = business.BusinessHours.OrderBy(h => h.DayOfWeek).ToList(),
                 Services = business.BusinessServices.Where(s => s.IsActive).ToList()
             };
+        }
+
+        private async Task<BusinessCardViewModel> MapToBusinessCardViewModelAsync(Business business, string? userId = null)
+        {
+            bool isUserFavorite = false;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                isUserFavorite = await _context.Set<FavoriteBusiness>()
+                    .AnyAsync(f => f.BusinessId == business.Id && f.UserId == userId);
+            }
+
+            return MapToBusinessCardViewModel(business, isUserFavorite);
         }
     }
 }

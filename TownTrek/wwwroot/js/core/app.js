@@ -162,6 +162,11 @@ class TownTrekApp {
    * @private
    */
   initializeCommonComponents() {
+    // User menu component is now self-initializing, no need to initialize here
+    // if (document.querySelector('.user-menu')) {
+    //   this.initializeComponent('user-menu');
+    // }
+
     // Modal component
     if (document.querySelector('.modal') || document.querySelector('[data-modal]')) {
       this.initializeComponent('modal');
@@ -229,6 +234,12 @@ class TownTrekApp {
       if (componentClass) {
         const instance = new componentClass();
         this.components.set(componentName, instance);
+        
+        // Set global flags for specific components
+        if (componentName === 'user-menu') {
+          window.__userMenuInitialized = true;
+        }
+        
         console.log(`✅ Initialized component: ${componentName}`);
       } else {
         console.warn(`⚠️ Component class not found: ${componentName}`);
@@ -277,6 +288,7 @@ class TownTrekApp {
   findComponentClass(componentName) {
     // Map component names to class names
     const componentClassMap = {
+      'user-menu': 'UserMenuComponent',
       'modal': 'ModalComponent',
       'file-upload': 'FileUploadComponent',
       'data-table': 'DataTableComponent',
