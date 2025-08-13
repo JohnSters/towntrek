@@ -153,14 +153,23 @@ namespace TownTrek.Controllers.Auth
                     // Ensure users with active subscriptions or trial users have proper roles
                     if (user.HasActiveSubscription && !string.IsNullOrEmpty(user.CurrentSubscriptionTier))
                     {
-                        var expectedClientRole = $"Client-{user.CurrentSubscriptionTier}";
-                        if (!roles.Contains(expectedClientRole))
+                        // Normalize tier to mapped role constant to avoid casing mismatches
+                        var tierUpper = user.CurrentSubscriptionTier.ToUpper();
+                        string? expectedClientRole = tierUpper switch
+                        {
+                            "BASIC" => AppRoles.ClientBasic,
+                            "STANDARD" => AppRoles.ClientStandard,
+                            "PREMIUM" => AppRoles.ClientPremium,
+                            _ => null
+                        };
+                        
+                        if (!string.IsNullOrEmpty(expectedClientRole) && !roles.Contains(expectedClientRole))
                         {
                             await _userManager.AddToRoleAsync(user, expectedClientRole);
                             _logger.LogInformation("Added {Role} role to user {Email}", expectedClientRole, user.Email);
+                            // Refresh roles after adding
+                            roles = await _userManager.GetRolesAsync(user);
                         }
-                        // Refresh roles after adding
-                        roles = await _userManager.GetRolesAsync(user);
                     }
                     else if (user.IsTrialUser && user.CurrentSubscriptionTier == "Trial")
                     {

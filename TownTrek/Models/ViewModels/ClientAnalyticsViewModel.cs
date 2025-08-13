@@ -8,6 +8,7 @@ namespace TownTrek.Models.ViewModels
         public ApplicationUser User { get; set; } = null!;
         public string SubscriptionTier { get; set; } = string.Empty;
         public bool HasBasicAnalytics { get; set; }
+        // Deprecated in favor of AdvancedAnalytics
         public bool HasStandardAnalytics { get; set; }
         public bool HasPremiumAnalytics { get; set; }
         

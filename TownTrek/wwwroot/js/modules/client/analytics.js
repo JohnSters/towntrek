@@ -82,12 +82,15 @@ class ClientAnalyticsManager {
 
     async createViewsChart(canvas) {
         try {
-            this.showChartLoading(canvas);
+            const container = canvas ? canvas.parentElement : null;
+            if (!container) throw new Error('Views chart container not found');
+            this.showChartLoading(container);
             const data = await this.fetchViewsData(30);
             
             // Clear loading state
-            canvas.parentElement.innerHTML = '<canvas id="viewsChart" width="400" height="200"></canvas>';
-            const newCanvas = canvas.parentElement.querySelector('#viewsChart');
+            container.innerHTML = '<canvas id="viewsChart" width="400" height="200"></canvas>';
+            const newCanvas = container.querySelector('#viewsChart');
+            if (!newCanvas) throw new Error('Views chart canvas not created');
             
             const ctx = newCanvas.getContext('2d');
             this.viewsChart = new Chart(ctx, {
@@ -175,18 +178,22 @@ class ClientAnalyticsManager {
             });
         } catch (error) {
             console.error('Error creating views chart:', error);
-            this.showChartError(canvas, 'Unable to load views data');
+            const container = canvas ? canvas.parentElement : null;
+            this.showChartError(container, 'Unable to load views data');
         }
     }
 
     async createReviewsChart(canvas) {
         try {
-            this.showChartLoading(canvas);
+            const container = canvas ? canvas.parentElement : null;
+            if (!container) throw new Error('Reviews chart container not found');
+            this.showChartLoading(container);
             const data = await this.fetchReviewsData(30);
             
             // Clear loading state
-            canvas.parentElement.innerHTML = '<canvas id="reviewsChart" width="400" height="200"></canvas>';
-            const newCanvas = canvas.parentElement.querySelector('#reviewsChart');
+            container.innerHTML = '<canvas id="reviewsChart" width="400" height="200"></canvas>';
+            const newCanvas = container.querySelector('#reviewsChart');
+            if (!newCanvas) throw new Error('Reviews chart canvas not created');
             
             const ctx = newCanvas.getContext('2d');
             this.reviewsChart = new Chart(ctx, {
@@ -269,7 +276,8 @@ class ClientAnalyticsManager {
             });
         } catch (error) {
             console.error('Error creating reviews chart:', error);
-            this.showChartError(canvas, 'Unable to load reviews data');
+            const container = canvas ? canvas.parentElement : null;
+            this.showChartError(container, 'Unable to load reviews data');
         }
     }
 
@@ -447,8 +455,11 @@ class ClientAnalyticsManager {
         }
     }
 
-    showChartError(canvas, message) {
-        const container = canvas.parentElement;
+    showChartError(target, message) {
+        const container = target && target.classList && target.classList.contains('chart-content')
+            ? target
+            : (target ? target.parentElement : null);
+        if (!container) return;
         container.innerHTML = `
             <div class="chart-loading">
                 <div style="text-align: center; color: #6c757d;">
@@ -464,8 +475,11 @@ class ClientAnalyticsManager {
         `;
     }
 
-    showChartLoading(canvas) {
-        const container = canvas.parentElement;
+    showChartLoading(target) {
+        const container = target && target.classList && target.classList.contains('chart-content')
+            ? target
+            : (target ? target.parentElement : null);
+        if (!container) return;
         container.innerHTML = `
             <div class="chart-loading">
                 <div style="text-align: center; color: #6c757d;">
@@ -564,12 +578,26 @@ class ClientAnalyticsManager {
     }
 }
 
-// Register with the global app
-if (typeof window.TownTrekApp !== 'undefined') {
-    window.TownTrekApp.registerModule('ClientAnalyticsManager', ClientAnalyticsManager);
-} else {
-    console.warn('TownTrekApp not found. ClientAnalyticsManager not registered.');
-}
+// Expose globally for app initialization mapping
+window.ClientAnalyticsManager = ClientAnalyticsManager;
+
+// Fallback self-initialization if app bootstrap does not handle this page
+document.addEventListener('DOMContentLoaded', () => {
+    try {
+        const app = (typeof window.getApp === 'function') ? window.getApp() : null;
+        const isAnalyticsPage = ClientAnalyticsManager.shouldInitialize();
+        
+        // If global app didn’t initialize a client-analytics module, self-init
+        const alreadyInitialized = !!window.__clientAnalyticsManager;
+        if (isAnalyticsPage && !alreadyInitialized) {
+            const manager = new ClientAnalyticsManager();
+            manager.init();
+            window.__clientAnalyticsManager = manager;
+        }
+    } catch (e) {
+        console.error('Failed to initialize ClientAnalyticsManager:', e);
+    }
+});
 
 // Export for module systems
 if (typeof module !== 'undefined' && module.exports) {

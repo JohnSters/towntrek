@@ -211,18 +211,12 @@ namespace TownTrek.Services
                     // For development/testing - allow features based on tier name
                     var tierName = user.CurrentSubscriptionTier.ToUpper();
                     
-                    // Analytics access based on tier
+                    // Analytics access based on tier (standardized keys)
                     if (featureKey == "BasicAnalytics" && (tierName == "BASIC" || tierName == "STANDARD" || tierName == "PREMIUM"))
                     {
                         return true;
                     }
-                    
-                    if (featureKey == "StandardAnalytics" && (tierName == "STANDARD" || tierName == "PREMIUM"))
-                    {
-                        return true;
-                    }
-                    
-                    if (featureKey == "PremiumAnalytics" && tierName == "PREMIUM")
+                    if (featureKey == "AdvancedAnalytics" && tierName == "PREMIUM")
                     {
                         return true;
                     }
@@ -231,13 +225,13 @@ namespace TownTrek.Services
                     if (tierName == "PREMIUM")
                     {
                         var premiumFeatures = new[] { "BasicSupport", "PrioritySupport", "DedicatedSupport", 
-                                                    "BasicAnalytics", "StandardAnalytics", "PremiumAnalytics", "FeaturedPlacement", "PDFUploads" };
+                                                    "BasicAnalytics", "AdvancedAnalytics", "FeaturedPlacement", "PDFUploads" };
                         if (premiumFeatures.Contains(featureKey))
                             return true;
                     }
                     else if (tierName == "STANDARD")
                     {
-                        var standardFeatures = new[] { "BasicSupport", "PrioritySupport", "BasicAnalytics", "StandardAnalytics", "PDFUploads" };
+                        var standardFeatures = new[] { "BasicSupport", "PrioritySupport", "BasicAnalytics", "PDFUploads" };
                         if (standardFeatures.Contains(featureKey))
                             return true;
                     }

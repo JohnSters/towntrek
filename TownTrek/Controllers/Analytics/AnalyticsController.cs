@@ -17,8 +17,8 @@ namespace TownTrek.Controllers.Analytics
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly ILogger<AnalyticsController> _logger = logger;
 
-        // Analytics Dashboard - Basic analytics for Standard+ subscribers
-        [RequireActiveSubscription(allowFreeTier: false)]
+        // Analytics Dashboard - requires BasicAnalytics
+        [RequireActiveSubscription(requiredFeature: "BasicAnalytics", allowFreeTier: false)]
         public async Task<IActionResult> Index()
         {
             try
@@ -29,16 +29,6 @@ namespace TownTrek.Controllers.Analytics
                 var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
                 _logger.LogInformation("Analytics access attempt - User: {UserId}, HasActiveSubscription: {HasActive}, IsPaymentValid: {PaymentValid}, Tier: {Tier}", 
                     userId, authResult.HasActiveSubscription, authResult.IsPaymentValid, authResult.SubscriptionTier?.Name ?? "None");
-                
-                // Check if user can access any level of analytics
-                var canAccessBasicAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
-                _logger.LogInformation("BasicAnalytics access check for user {UserId}: {CanAccess}", userId, canAccessBasicAnalytics);
-                
-                if (!canAccessBasicAnalytics)
-                {
-                    TempData["ErrorMessage"] = "Analytics access requires an active subscription. Please check your subscription status.";
-                    return RedirectToAction("Plans", "Public");
-                }
 
                 var analyticsModel = await _analyticsService.GetClientAnalyticsAsync(userId);
                 return View(analyticsModel);
@@ -51,21 +41,13 @@ namespace TownTrek.Controllers.Analytics
             }
         }
 
-        // Business-specific analytics - Basic analytics for Standard+ subscribers
-        [RequireActiveSubscription(allowFreeTier: false)]
+        // Business-specific analytics - requires BasicAnalytics
+        [RequireActiveSubscription(requiredFeature: "BasicAnalytics", allowFreeTier: false)]
         public async Task<IActionResult> Business(int id)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-                
-                // Check if user can access basic analytics
-                var canAccessBasicAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
-                if (!canAccessBasicAnalytics)
-                {
-                    TempData["ErrorMessage"] = "Analytics access requires a Standard or Premium subscription.";
-                    return RedirectToAction("Index");
-                }
 
                 var businessAnalytics = await _analyticsService.GetBusinessAnalyticsAsync(id, userId);
                 return View(businessAnalytics);
@@ -133,21 +115,13 @@ namespace TownTrek.Controllers.Analytics
             }
         }
 
-        // Premium analytics features - Advanced analytics for Premium subscribers only
-        [RequireActiveSubscription(allowFreeTier: false)]
+        // Premium analytics features - requires AdvancedAnalytics
+        [RequireActiveSubscription(requiredFeature: "AdvancedAnalytics", allowFreeTier: false)]
         public async Task<IActionResult> Benchmarks(string category)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-                
-                // Check if user can access advanced analytics
-                var canAccessAdvancedAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
-                if (!canAccessAdvancedAnalytics)
-                {
-                    TempData["ErrorMessage"] = "Advanced analytics requires a Premium subscription. Please upgrade to access this feature.";
-                    return RedirectToAction("Index");
-                }
 
                 var benchmarks = await _analyticsService.GetCategoryBenchmarksAsync(userId, category);
                 
@@ -167,21 +141,13 @@ namespace TownTrek.Controllers.Analytics
             }
         }
 
-        // Premium competitor insights - Advanced analytics for Premium subscribers only
-        [RequireActiveSubscription(allowFreeTier: false)]
+        // Premium competitor insights - requires AdvancedAnalytics
+        [RequireActiveSubscription(requiredFeature: "AdvancedAnalytics", allowFreeTier: false)]
         public async Task<IActionResult> Competitors()
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-                
-                // Check if user can access advanced analytics
-                var canAccessAdvancedAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
-                if (!canAccessAdvancedAnalytics)
-                {
-                    TempData["ErrorMessage"] = "Advanced analytics requires a Premium subscription. Please upgrade to access this feature.";
-                    return RedirectToAction("Index");
-                }
 
                 var insights = await _analyticsService.GetCompetitorInsightsAsync(userId);
                 return View(insights);
