@@ -311,7 +311,7 @@ wwwroot/js/
 
 ---
 
-## Pre-Production Hardening Checklist
+## Pre-Production Hardening Checklist (see `FUTURE_TODO.md` for the live list)
 
 - Authentication and Roles
   - Disable legacy subscription flag fallback in production. Add an app setting (e.g., `AllowLegacyTierFallback = false` in Production, true in Development) and gate the fallback in `SubscriptionAuthService`.
