@@ -6,7 +6,7 @@ namespace TownTrek.Models.ViewModels
     {
         [Required]
         [Display(Name = "Account Type")]
-        public string AccountType { get; set; } = "business"; // "business" or "community"
+        public string AccountType { get; set; } = "business"; // "business", "trial", or "community"
 
         [Required]
         [StringLength(50)]
@@ -52,5 +52,6 @@ namespace TownTrek.Models.ViewModels
         public string FirstName => FullName.Split(' ').FirstOrDefault() ?? "";
         public string LastName => FullName.Contains(' ') ? FullName.Substring(FullName.IndexOf(' ') + 1) : "";
         public bool IsBusinessOwner => AccountType == "business";
+        public bool IsTrialUser => AccountType == "trial";
     }
 }

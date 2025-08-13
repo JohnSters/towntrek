@@ -41,7 +41,37 @@
     </div>
 </div>
 
-@if (!string.IsNullOrEmpty(Model.PaymentStatus) && Model.PaymentStatus != "Completed" && Model.PaymentStatus != "Active")
+@if (Model.IsTrialUser && !Model.IsTrialExpired)
+{
+    <div class="alert alert-info trial-countdown-alert" data-trial-end="@Model.TrialEndDate?.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+        <div class="alert-content">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <strong>Trial Period Active</strong>
+                <p>Your 30-day trial expires in <span class="trial-countdown-days">@Model.TrialDaysRemaining</span> day@(Model.TrialDaysRemaining != 1 ? "s" : ""). Upgrade now to continue using all features.</p>
+                <a asp-controller="Subscription" asp-action="Index" class="alert-action">Upgrade Now</a>
+            </div>
+        </div>
+    </div>
+}
+else if (Model.IsTrialUser && Model.IsTrialExpired)
+{
+    <div class="alert alert-danger">
+        <div class="alert-content">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+            </svg>
+            <div>
+                <strong>Trial Period Expired</strong>
+                <p>Your trial period has ended. Please upgrade to a paid plan to continue using TownTrek.</p>
+                <a asp-controller="Subscription" asp-action="Index" class="alert-action">Choose Plan</a>
+            </div>
+        </div>
+    </div>
+}
+else if (!string.IsNullOrEmpty(Model.PaymentStatus) && Model.PaymentStatus != "Completed" && Model.PaymentStatus != "Active")
 {
     <div class="alert alert-warning">
         <div class="alert-content">
@@ -106,16 +136,32 @@
         </div>
     }
 
-    <div class="stat-card">
-        <div class="stat-icon @(Model.PaymentStatus == "Completed" || Model.PaymentStatus == "Active" ? "success" : "danger")">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-            </svg>
+    @if (Model.IsTrialUser)
+    {
+        <div class="stat-card trial-countdown-card" data-trial-end="@Model.TrialEndDate?.ToString("yyyy-MM-ddTHH:mm:ssZ")">
+            <div class="stat-icon @(Model.IsTrialExpired ? "danger" : (Model.TrialDaysRemaining <= 3 ? "warning" : "info"))">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="stat-value trial-countdown-days">@Model.TrialDaysRemaining</div>
+            <div class="stat-label">Days Remaining</div>
+            <div class="stat-change">Trial Period</div>
         </div>
-        <div class="stat-value">R@(Model.SubscriptionTier?.MonthlyPrice ?? 0)</div>
-        <div class="stat-label">Monthly Plan</div>
-        <div class="stat-change">@(Model.SubscriptionTier?.DisplayName ?? "No Plan")</div>
-    </div>
+    }
+    else
+    {
+        <div class="stat-card">
+            <div class="stat-icon @(Model.PaymentStatus == "Completed" || Model.PaymentStatus == "Active" ? "success" : "danger")">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                </svg>
+            </div>
+            <div class="stat-value">R@(Model.SubscriptionTier?.MonthlyPrice ?? 0)</div>
+            <div class="stat-label">Monthly Plan</div>
+            <div class="stat-change">@(Model.SubscriptionTier?.DisplayName ?? "No Plan")</div>
+        </div>
+    }
 </div>
 
 <!-- Recent Activity -->

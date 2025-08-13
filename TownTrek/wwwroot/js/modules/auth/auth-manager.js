@@ -80,7 +80,7 @@ class AuthManager {
           if (this.elements.accountTypeInput) {
             this.elements.accountTypeInput.value = type;
           }
-          // Show plans for business, hide for community
+          // Show plans for business, hide for trial and community
           if (this.elements.planSelection) {
             this.elements.planSelection.style.display = type === 'business' ? 'block' : 'none';
           }

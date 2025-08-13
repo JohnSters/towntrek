@@ -22,6 +22,17 @@
 .account-type-name { font-size: var(--body-large); font-weight: var(--font-semibold); color: var(--charcoal); margin-bottom: var(--space-xs); }
 .account-type-desc { font-size: var(--body-small); color: var(--dark-gray); margin-bottom: var(--space-sm); line-height: var(--line-height-normal); }
 .account-type-price { font-size: var(--body-small); font-weight: var(--font-medium); color: var(--lapis-lazuli); }
+
+/* Trial Status Banner */
+.trial-status-banner { background: linear-gradient(135deg, var(--hunyadi-yellow) 0%, #e69d1a 100%); color: var(--charcoal); padding: var(--space-md); border-radius: var(--radius-lg); margin-bottom: var(--space-lg); }
+.trial-status-banner.warning { background: linear-gradient(135deg, var(--orange-pantone) 0%, #d63384 100%); color: var(--white); }
+.trial-status-banner.expired { background: linear-gradient(135deg, #dc3545 0%, #b02a37 100%); color: var(--white); }
+.trial-status-content { display: flex; align-items: center; gap: var(--space-md); }
+.trial-status-icon { flex-shrink: 0; }
+.trial-status-text { flex: 1; }
+.trial-status-text strong { display: block; font-weight: var(--font-semibold); margin-bottom: var(--space-xs); }
+.trial-status-text span { font-size: var(--body-small); opacity: 0.9; }
+.trial-status-actions { flex-shrink: 0; }
 .account-type-card { border: 2px solid var(--medium-gray); border-radius: var(--radius-lg); padding: var(--space-lg); text-align: center; cursor: pointer; transition: all var(--transition-normal); background-color: var(--white); position: relative; }
 .account-type-card:hover { border-color: var(--carolina-blue); transform: translateY(-2px); }
 .account-type-card.selected { border-color: var(--lapis-lazuli); background-color: rgba(51, 101, 138, 0.08); box-shadow: 0 0 0 1px rgba(51, 101, 138, 0.1); transform: translateY(-1px); }

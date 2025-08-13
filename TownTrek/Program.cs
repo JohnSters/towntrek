@@ -63,6 +63,14 @@ public class Program
                     TownTrek.Constants.AppRoles.ClientBasic,
                     TownTrek.Constants.AppRoles.ClientStandard,
                     TownTrek.Constants.AppRoles.ClientPremium,
+                    TownTrek.Constants.AppRoles.ClientTrial,
+                    TownTrek.Constants.AppRoles.Admin));
+
+            options.AddPolicy("PaidClientAccess", policy =>
+                policy.RequireRole(
+                    TownTrek.Constants.AppRoles.ClientBasic,
+                    TownTrek.Constants.AppRoles.ClientStandard,
+                    TownTrek.Constants.AppRoles.ClientPremium,
                     TownTrek.Constants.AppRoles.Admin));
 
             options.AddPolicy("PremiumOrAdmin", policy =>
@@ -78,6 +86,7 @@ public class Program
         builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
         builder.Services.AddScoped<ISubscriptionAuthService, SubscriptionAuthService>();
         builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+        builder.Services.AddScoped<ITrialService, SecureTrialService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<IPaymentService, PaymentService>();
@@ -88,6 +97,9 @@ public class Program
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
         builder.Services.AddScoped<IClientService, ClientService>();
         builder.Services.AddScoped<IMemberService, MemberService>();
+
+        // Add HTTP context accessor for security services
+        builder.Services.AddHttpContextAccessor();
 
         builder.Services.AddControllersWithViews()
             .AddRazorOptions(options =>
@@ -129,6 +141,9 @@ public class Program
         
         // Add subscription redirect middleware
         app.UseMiddleware<TownTrek.Middleware.SubscriptionRedirectMiddleware>();
+        
+        // Add trial validation middleware
+        app.UseMiddleware<TownTrek.Middleware.TrialValidationMiddleware>();
 
         app.MapControllerRoute(
             name: "default",

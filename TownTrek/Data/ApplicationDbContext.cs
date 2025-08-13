@@ -43,6 +43,9 @@ namespace TownTrek.Data
         // Member Features
         public DbSet<BusinessReview> BusinessReviews { get; set; }
         public DbSet<FavoriteBusiness> FavoriteBusinesses { get; set; }
+        
+        // Trial Security
+        public DbSet<TrialAuditLog> TrialAuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -170,6 +173,9 @@ namespace TownTrek.Data
             
             // Configure member features
             ConfigureMemberEntities(builder);
+            
+            // Configure trial security
+            ConfigureTrialEntities(builder);
             
             // Seed default data
             SeedData(builder);
@@ -461,6 +467,30 @@ namespace TownTrek.Data
 
                 // Unique constraint: one favorite per user per business
                 entity.HasIndex(e => new { e.BusinessId, e.UserId }).IsUnique();
+            });
+        }
+
+        private void ConfigureTrialEntities(ModelBuilder builder)
+        {
+            // Configure TrialAuditLog
+            builder.Entity<TrialAuditLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.Action).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Details).HasMaxLength(1000);
+                entity.Property(e => e.IpAddress).HasMaxLength(45);
+                entity.Property(e => e.UserAgent).HasMaxLength(500);
+                entity.Property(e => e.Timestamp).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => e.Action);
+                entity.HasIndex(e => e.Timestamp);
             });
         }
     }

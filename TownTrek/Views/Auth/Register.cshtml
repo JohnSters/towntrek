@@ -38,10 +38,17 @@
             <div class="form-group">
                 <label class="form-label">Account Type</label>
                 <div class="account-type-selection">
+                    <div class="account-type-card" data-type="trial">
+                        <div class="account-type-icon">🚀</div>
+                        <div class="account-type-name">Free Trial</div>
+                        <div class="account-type-desc">Try all business features for 30 days</div>
+                        <div class="account-type-price">30 Days Free</div>
+                    </div>
+                    
                     <div class="account-type-card" data-type="business">
                         <div class="account-type-icon">🏪</div>
                         <div class="account-type-name">Business Owner</div>
-                        <div class="account-type-desc">Showcase your business and connect with customers</div>
+                        <div class="account-type-desc">Full access with monthly subscription</div>
                         <div class="account-type-price">Starting at R199/month</div>
                     </div>
                     
@@ -52,7 +59,7 @@
                         <div class="account-type-price">Always Free</div>
                     </div>
                 </div>
-                <input asp-for="AccountType" type="hidden" id="accountType" value="business" />
+                <input asp-for="AccountType" type="hidden" id="accountType" value="trial" />
             </div>
 
             <!-- Plan Selection (Only for Business Owners) -->
