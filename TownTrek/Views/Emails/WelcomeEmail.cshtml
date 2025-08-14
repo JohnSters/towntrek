@@ -1,0 +1,12 @@
+@model TownTrek.Models.ViewModels.Emails.WelcomeEmailViewModel
+@{
+	ViewData["Subject"] = "Welcome to TownTrek";
+	Layout = "/Views/Emails/_EmailBaseLayout.cshtml";
+}
+
+<h2 style="font-size:18px;margin:0 0 12px;">Welcome to TownTrek</h2>
+<p style="margin:0 0 12px;">Hi @Model.FirstName,</p>
+<p style="margin:0 0 12px;">We're excited to have you on board. Explore features, browse towns, and get started right away.</p>
+<p style="margin:0;">— The TownTrek Team</p>
+
+

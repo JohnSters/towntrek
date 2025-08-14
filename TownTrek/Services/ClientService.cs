@@ -46,7 +46,8 @@ namespace TownTrek.Services
                 UserLimits = authResult.Limits,
                 PaymentStatus = authResult.PaymentStatus,
                 CanAddBusiness = authResult.Limits?.MaxBusinesses == -1 || (authResult.Limits?.CurrentBusinessCount < authResult.Limits?.MaxBusinesses),
-                HasAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics"),
+                // Everyone except active trial users can access analytics
+                HasAnalyticsAccess = !(trialStatus.IsTrialUser && !trialStatus.IsExpired),
                 HasPrioritySupport = authResult.Limits?.HasPrioritySupport ?? false,
                 HasDedicatedSupport = authResult.Limits?.HasDedicatedSupport ?? false,
                 

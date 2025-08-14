@@ -1,0 +1,15 @@
+@model TownTrek.Models.ViewModels.Emails.ConfirmEmailViewModel
+@{
+	ViewData["Subject"] = "Confirm your email";
+	Layout = "/Views/Emails/_EmailBaseLayout.cshtml";
+}
+
+<h2 style="font-size:18px;margin:0 0 12px;">Confirm your email</h2>
+<p style="margin:0 0 12px;">Hi @Model.FirstName,</p>
+<p style="margin:0 0 12px;">Please confirm your email to complete your account setup.</p>
+<p style="margin:0 0 16px;">
+	<a href="@Model.ConfirmationUrl" style="background-color:#33658a;color:#ffffff;text-decoration:none;padding:12px 16px;border-radius:8px;display:inline-block;">Confirm Email</a>
+</p>
+<p style="margin:0;">If you did not create this account, you can safely ignore this email.</p>
+
+

@@ -46,12 +46,27 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a asp-controller="Analytics" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Analytics" ? "active" : "")">
-                                <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                                </svg>
-                                Analytics
-                            </a>
+                            @{
+                                var isTrialUser = (ViewData["IsTrialUser"] as bool?) == true || User.IsInRole("Client-Trial");
+                            }
+                            @if (isTrialUser)
+                            {
+                                <a class="nav-link disabled" aria-disabled="true" title="Unavailable during trial">
+                                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Analytics
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Analytics" asp-action="Index" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Analytics" ? "active" : "")">
+                                    <svg class="nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                    </svg>
+                                    Analytics
+                                </a>
+                            }
                         </li>
                         <li class="nav-item">
                             <a asp-controller="TestAnalytics" asp-action="Simple" class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "TestAnalytics" ? "active" : "")" style="opacity: 0.7;">

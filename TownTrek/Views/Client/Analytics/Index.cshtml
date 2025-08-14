@@ -5,17 +5,27 @@
 }
 
 <div class="analytics-dashboard">
-    <!-- Subscription Badge -->
+    <!-- Header -->
     <div class="analytics-header">
         <div class="header-content">
             <p class="page-subtitle">Track your business performance and customer engagement</p>
         </div>
-        <div class="subscription-badge">
-            <span class="badge badge-@(Model.SubscriptionTier.ToLower())">@Model.SubscriptionTier Plan</span>
-        </div>
     </div>
 
-    @if (Model.HasBasicAnalytics)
+    @if (ViewBag.NoBusinesses == true)
+    {
+        <div class="empty-state">
+            <div class="empty-icon" aria-hidden="true">
+                <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h8m-6 8h6" />
+                </svg>
+            </div>
+            <h2>No businesses yet</h2>
+            <p>Add your first business to start seeing analytics.</p>
+            <a href="@Url.Action("Create", "Business")" class="btn btn-primary">Add a Business</a>
+        </div>
+    }
+    else
     {
         <!-- Analytics Overview Cards -->
         <div class="analytics-overview">
@@ -136,7 +146,7 @@
                 <h2>Business Performance</h2>
                 <p>Individual performance metrics for each of your businesses</p>
             </div>
-            
+
             <div class="performance-grid">
                 @foreach (var business in Model.BusinessAnalytics)
                 {
@@ -165,7 +175,7 @@
                                 }
                             </div>
                         </div>
-                        
+
                         <div class="performance-metrics">
                             <div class="metric">
                                 <span class="metric-label">Views</span>
@@ -214,7 +224,7 @@
                     <h2>Performance Insights</h2>
                     <p>AI-powered recommendations to improve your business performance</p>
                 </div>
-                
+
                 <div class="insights-grid">
                     @foreach (var insight in Model.PerformanceInsights.Take(6))
                     {
@@ -252,22 +262,23 @@
             </div>
         }
 
-        <!-- Premium Features -->
-        @if (Model.HasPremiumAnalytics)
+        <!-- Advanced Features (available to all) -->
+        var showAdvanced = Model.CategoryBenchmarks != null || Model.CompetitorInsights.Any();
+
+        @if (showAdvanced)
         {
             <div class="premium-features">
                 <div class="section-header">
                     <h2>Advanced Analytics</h2>
-                    <p>Premium insights and competitive analysis</p>
+                    <p>Category benchmarks and competitive analysis</p>
                 </div>
-                
+
                 <div class="premium-grid">
                     @if (Model.CategoryBenchmarks != null)
                     {
                         <div class="premium-card">
                             <div class="premium-header">
                                 <h3>Category Benchmarks</h3>
-                                <span class="premium-badge">Premium</span>
                             </div>
                             <div class="benchmark-content">
                                 <p>Your performance vs. @Model.CategoryBenchmarks.Category category average:</p>
@@ -284,7 +295,6 @@
                         <div class="premium-card">
                             <div class="premium-header">
                                 <h3>Competitor Analysis</h3>
-                                <span class="premium-badge">Premium</span>
                             </div>
                             <div class="competitor-content">
                                 <p>Market position analysis for your business categories</p>
@@ -295,30 +305,6 @@
                             </div>
                         </div>
                     }
-                </div>
-            </div>
-        }
-        @if (!Model.HasPremiumAnalytics && Model.HasBasicAnalytics)
-        {
-            <!-- Upgrade to Premium Prompt -->
-            <div class="premium-upgrade">
-                <div class="upgrade-content">
-                    <div class="upgrade-icon">
-                        <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                    </div>
-                    <div class="upgrade-text">
-                        <h3>Unlock Premium Analytics</h3>
-                        <p>Get category benchmarks, competitor analysis, and advanced performance insights with Premium.</p>
-                        <ul>
-                            <li>Category performance benchmarks</li>
-                            <li>Competitor analysis and market positioning</li>
-                            <li>Advanced performance insights</li>
-                            <li>Detailed trend analysis</li>
-                        </ul>
-                        <a href="@Url.Action("Index", "Subscription")" class="btn btn-cta">Upgrade to Premium</a>
-                    </div>
                 </div>
             </div>
         }
