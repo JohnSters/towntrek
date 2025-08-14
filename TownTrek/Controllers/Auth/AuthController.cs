@@ -184,6 +184,13 @@ namespace TownTrek.Controllers.Auth
                 }
 
                 // If RememberMe is checked, extend session to 7 days, otherwise use default 8 hours
+                // Enforce confirmed email before sign-in
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    ModelState.AddModelError("", "Please confirm your email address before signing in.");
+                    return View();
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(user, password, rememberMe, lockoutOnFailure: false);
                 
                 if (result.Succeeded)

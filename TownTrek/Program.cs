@@ -31,6 +31,8 @@ public class Program
             
             // User settings
             options.User.RequireUniqueEmail = true;
+            // Require confirmed email before sign-in
+            options.SignIn.RequireConfirmedEmail = true;
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();

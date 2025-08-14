@@ -109,31 +109,25 @@ const Utils = {
    */
   formatPhoneNumber(phone) {
     if (!phone) return '';
-    
-    let value = phone.replace(/\D/g, '');
+    const digits = String(phone).replace(/\D/g, '');
 
-    // Handle different input formats
-    if (value.startsWith('27') && value.length >= 3) {
-      // International format starting with 27
-      value = '+27 ' + value.substring(2, 4) + ' ' + value.substring(4, 7) + ' ' + value.substring(7, 11);
-    } else if (value.startsWith('0') && value.length >= 2) {
-      // Local format starting with 0
-      const localNumber = value.substring(1);
-      if (localNumber.length >= 2) {
-        value = '+27 ' + localNumber.substring(0, 2) + ' ' + localNumber.substring(2, 5) + ' ' + localNumber.substring(5, 9);
-      }
-    } else if (value.length >= 9 && !value.startsWith('27') && !value.startsWith('0')) {
-      // Assume it's a local number without leading 0
-      value = '+27 ' + value.substring(0, 2) + ' ' + value.substring(2, 5) + ' ' + value.substring(5, 9);
+    // Normalize to ZA format (E.164-ish display): +27 XX XXX XXXX
+    // Accept inputs: 0XXXXXXXXX, 27XXXXXXXXX, +27XXXXXXXXX
+    let local;
+    if (digits.startsWith('27')) {
+      local = digits.slice(2);
+    } else if (digits.startsWith('0')) {
+      local = digits.slice(1);
+    } else {
+      local = digits;
     }
 
-    // Clean up extra spaces and limit length
-    value = value.replace(/\s+/g, ' ').trim();
-    if (value.length > 17) { // +27 XX XXX XXXX = 17 chars max
-      value = value.substring(0, 17);
-    }
-
-    return value;
+    // Only digits now, expect 9 for mobile/landline without leading 0
+    if (local.length < 9) return phone.trim();
+    const a = local.slice(0, 2);
+    const b = local.slice(2, 5);
+    const c = local.slice(5, 9);
+    return `+27 ${a} ${b} ${c}`.trim();
   },
 
   /**

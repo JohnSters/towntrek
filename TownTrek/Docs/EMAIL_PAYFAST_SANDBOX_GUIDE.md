@@ -142,6 +142,39 @@ $md5 = [System.Security.Cryptography.MD5]::Create()
 
 If your PayFast account expects encoded signature values, compute the hash on the URL‑encoded values (spaces as `+`). Toggle via `PayFast:UseEncodedSignature`.
 
+## ngrok (tunnel) quick commands
+
+```powershell
+# Install (Windows)
+winget install ngrok.ngrok
+
+# Authenticate (copy token from ngrok dashboard)
+ngrok config add-authtoken <YOUR_AUTHTOKEN>
+
+# Start tunnel to Kestrel HTTPS (replace port)
+ngrok http https://localhost:44316 --host-header=rewrite --region=eu
+
+# Alternative: to Kestrel HTTP
+ngrok http http://localhost:5220 --host-header=rewrite --region=eu
+
+# Alternate:
+ngrok http https://localhost:44316 --host-header=rewrite
+
+# Inspect live traffic UI
+start http://127.0.0.1:4040
+
+# Stop: Ctrl + C in terminal
+
+# After tunnel starts, set BaseUrl to the forwarding URL
+# Example:
+dotnet user-secrets set "BaseUrl" "https://<id>.ngrok-free.app"
+dotnet user-secrets list
+```
+
+Tips
+- Keep the same tunnel URL active while testing PayFast; regenerate payment links if the URL changes.
+- Use the ngrok web UI (http://127.0.0.1:4040) to replay requests and inspect headers/body.
+
 ## Logging & diagnostics
 
 - Email sends log: `Email sent to {Email} with subject ...` (Information)
