@@ -11,43 +11,98 @@ namespace TownTrek.Controllers.Analytics
     public class AnalyticsController(
         IAnalyticsService analyticsService,
         ISubscriptionAuthService subscriptionAuthService,
+        ITrialService trialService,
+        IBusinessService businessService,
         ILogger<AnalyticsController> logger) : Controller
     {
         private readonly IAnalyticsService _analyticsService = analyticsService;
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
+        private readonly ITrialService _trialService = trialService;
+        private readonly IBusinessService _businessService = businessService;
         private readonly ILogger<AnalyticsController> _logger = logger;
 
-        // Analytics Dashboard - requires BasicAnalytics
-        [RequireActiveSubscription(requiredFeature: "BasicAnalytics", allowFreeTier: false)]
+        // Analytics Dashboard - available to all non-trial authenticated clients with active subscription
+        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Index()
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-                
-                // Log subscription validation for debugging
-                var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-                _logger.LogInformation("Analytics access attempt - User: {UserId}, HasActiveSubscription: {HasActive}, IsPaymentValid: {PaymentValid}, Tier: {Tier}", 
-                    userId, authResult.HasActiveSubscription, authResult.IsPaymentValid, authResult.SubscriptionTier?.Name ?? "None");
 
+                // Block trial users from accessing analytics
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    TempData["ErrorMessage"] = "Analytics are not available during the trial period. Please upgrade to access analytics.";
+                    return RedirectToAction("Index", "Subscription");
+                }
+
+                // Fast-path: If user has no businesses, show empty state without invoking full analytics
+                var userBusinesses = await _businessService.GetUserBusinessesAsync(userId);
+                if (userBusinesses == null || userBusinesses.Count == 0)
+                {
+                    ViewBag.NoBusinesses = true;
+                    return View(new Models.ViewModels.ClientAnalyticsViewModel
+                    {
+                        Businesses = new List<Models.Business>(),
+                        BusinessAnalytics = new List<Models.ViewModels.BusinessAnalyticsData>(),
+                        Overview = new Models.ViewModels.AnalyticsOverview(),
+                        ViewsOverTime = new List<Models.ViewModels.ViewsOverTimeData>(),
+                        ReviewsOverTime = new List<Models.ViewModels.ReviewsOverTimeData>(),
+                        PerformanceInsights = new List<Models.ViewModels.BusinessPerformanceInsight>(),
+                        CategoryBenchmarks = null,
+                        CompetitorInsights = new List<Models.ViewModels.CompetitorInsight>(),
+                        SubscriptionTier = string.Empty,
+                        HasBasicAnalytics = true,
+                        HasStandardAnalytics = false,
+                        HasPremiumAnalytics = true
+                    });
+                }
+                
                 var analyticsModel = await _analyticsService.GetClientAnalyticsAsync(userId);
+                
                 return View(analyticsModel);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error loading analytics dashboard for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                try
+                {
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+                    var userBusinesses = await _businessService.GetUserBusinessesAsync(userId);
+                    if (userBusinesses == null || userBusinesses.Count == 0)
+                    {
+                        ViewBag.NoBusinesses = true;
+                        return View(new Models.ViewModels.ClientAnalyticsViewModel
+                        {
+                            Businesses = new List<Models.Business>(),
+                            BusinessAnalytics = new List<Models.ViewModels.BusinessAnalyticsData>(),
+                            Overview = new Models.ViewModels.AnalyticsOverview()
+                        });
+                    }
+                }
+                catch { /* swallow and fall back to generic error */ }
+
                 TempData["ErrorMessage"] = "Unable to load analytics data. Please try again.";
                 return RedirectToAction("Dashboard", "Client");
             }
         }
 
-        // Business-specific analytics - requires BasicAnalytics
-        [RequireActiveSubscription(requiredFeature: "BasicAnalytics", allowFreeTier: false)]
+        // Business-specific analytics - available to all non-trial authenticated clients with active subscription
+        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Business(int id)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users from accessing analytics
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    TempData["ErrorMessage"] = "Analytics are not available during the trial period. Please upgrade to access analytics.";
+                    return RedirectToAction("Index", "Subscription");
+                }
 
                 var businessAnalytics = await _analyticsService.GetBusinessAnalyticsAsync(id, userId);
                 return View(businessAnalytics);
@@ -72,12 +127,13 @@ namespace TownTrek.Controllers.Analytics
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-                
-                // Check if user can access basic analytics
-                var canAccessBasicAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
-                if (!canAccessBasicAnalytics)
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
                 {
-                    return Json(new { error = "Analytics access requires a Standard or Premium subscription." });
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Analytics are not available during the trial period." });
                 }
 
                 var data = await _analyticsService.GetViewsOverTimeAsync(userId, days);
@@ -97,12 +153,13 @@ namespace TownTrek.Controllers.Analytics
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-                
-                // Check if user can access basic analytics
-                var canAccessBasicAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
-                if (!canAccessBasicAnalytics)
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
                 {
-                    return Json(new { error = "Analytics access requires a Standard or Premium subscription." });
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Analytics are not available during the trial period." });
                 }
 
                 var data = await _analyticsService.GetReviewsOverTimeAsync(userId, days);
@@ -115,13 +172,21 @@ namespace TownTrek.Controllers.Analytics
             }
         }
 
-        // Premium analytics features - requires AdvancedAnalytics
-        [RequireActiveSubscription(requiredFeature: "AdvancedAnalytics", allowFreeTier: false)]
+        // Advanced analytics features - now available to all non-trial authenticated clients with active subscription
+        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Benchmarks(string category)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    TempData["ErrorMessage"] = "Analytics are not available during the trial period. Please upgrade to access analytics.";
+                    return RedirectToAction("Index", "Subscription");
+                }
 
                 var benchmarks = await _analyticsService.GetCategoryBenchmarksAsync(userId, category);
                 
@@ -141,13 +206,21 @@ namespace TownTrek.Controllers.Analytics
             }
         }
 
-        // Premium competitor insights - requires AdvancedAnalytics
-        [RequireActiveSubscription(requiredFeature: "AdvancedAnalytics", allowFreeTier: false)]
+        // Competitor insights - now available to all non-trial authenticated clients with active subscription
+        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Competitors()
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    TempData["ErrorMessage"] = "Analytics are not available during the trial period. Please upgrade to access analytics.";
+                    return RedirectToAction("Index", "Subscription");
+                }
 
                 var insights = await _analyticsService.GetCompetitorInsightsAsync(userId);
                 return View(insights);
@@ -161,7 +234,6 @@ namespace TownTrek.Controllers.Analytics
         }
 
         // Debug action to check subscription status (remove in production)
-        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Debug()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
@@ -169,8 +241,8 @@ namespace TownTrek.Controllers.Analytics
             var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
             var tier = await _subscriptionAuthService.GetUserSubscriptionTierAsync(userId);
             var limits = await _subscriptionAuthService.GetUserLimitsAsync(userId);
-            var canAccessBasic = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
-            var canAccessAdvanced = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
+            var canAccessBasic = true;
+            var canAccessAdvanced = true;
 
             var debugInfo = new
             {

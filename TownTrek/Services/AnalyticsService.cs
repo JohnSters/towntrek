@@ -20,10 +20,10 @@ namespace TownTrek.Services
             var user = await _context.Users.FindAsync(userId);
             if (user == null) throw new ArgumentException("User not found", nameof(userId));
 
+            // All non-trial users get the same analytics experience.
             var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-            var hasBasicAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
-            // Standardize to Basic/Advanced only
-            var hasAdvancedAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
+            var hasBasicAnalytics = true;
+            var hasAdvancedAnalytics = true;
 
             var businesses = await _context.Businesses
                 .Where(b => b.UserId == userId && b.Status != "Deleted")
@@ -38,9 +38,9 @@ namespace TownTrek.Services
             }
 
             var overview = await GetAnalyticsOverviewAsync(userId, businessAnalytics);
-            var viewsOverTime = hasBasicAnalytics ? await GetViewsOverTimeAsync(userId, 30) : new List<ViewsOverTimeData>();
-            var reviewsOverTime = hasBasicAnalytics ? await GetReviewsOverTimeAsync(userId, 30) : new List<ReviewsOverTimeData>();
-            var performanceInsights = hasBasicAnalytics ? await GetPerformanceInsightsAsync(userId) : new List<BusinessPerformanceInsight>();
+            var viewsOverTime = await GetViewsOverTimeAsync(userId, 30);
+            var reviewsOverTime = await GetReviewsOverTimeAsync(userId, 30);
+            var performanceInsights = await GetPerformanceInsightsAsync(userId);
 
             var model = new ClientAnalyticsViewModel
             {
@@ -63,7 +63,7 @@ namespace TownTrek.Services
                 var primaryCategory = businesses.GroupBy(b => b.Category)
                     .OrderByDescending(g => g.Count())
                     .First().Key;
-                
+
                 model.CategoryBenchmarks = await GetCategoryBenchmarksAsync(userId, primaryCategory);
                 model.CompetitorInsights = await GetCompetitorInsightsAsync(userId);
             }
