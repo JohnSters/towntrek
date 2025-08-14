@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services;
 
 
 namespace TownTrek.Controllers.Admin
@@ -13,15 +14,18 @@ namespace TownTrek.Controllers.Admin
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IDatabaseErrorLogger _errorLogger;
 
-        public AdminController(ApplicationDbContext context)
+        public AdminController(ApplicationDbContext context, IDatabaseErrorLogger errorLogger)
         {
             _context = context;
+            _errorLogger = errorLogger;
         }
 
         // Dashboard - Main admin overview
         public async Task<IActionResult> Dashboard()
         {
+            // Get basic statistics
             var stats = new AdminDashboardViewModel
             {
                 TotalTowns = await _context.Towns.CountAsync(),
@@ -31,6 +35,23 @@ namespace TownTrek.Controllers.Admin
                 TotalPopulation = await _context.Towns.Where(t => t.Population.HasValue).SumAsync(t => t.Population!.Value),
                 TownsWithLandmarks = await _context.Towns.CountAsync(t => !string.IsNullOrEmpty(t.Landmarks))
             };
+
+            // Get error statistics
+            try
+            {
+                var errorStats = await _errorLogger.GetErrorStatsAsync(TimeSpan.FromDays(30));
+                stats.ErrorStats = errorStats;
+                stats.CriticalErrorsLast24Hours = errorStats.CriticalErrorsLast24Hours;
+                stats.UnresolvedErrorsTotal = errorStats.UnresolvedErrors;
+                stats.RecentErrors = errorStats.RecentErrors;
+            }
+            catch (Exception)
+            {
+                // If error statistics fail, continue with basic dashboard
+                stats.CriticalErrorsLast24Hours = 0;
+                stats.UnresolvedErrorsTotal = 0;
+                stats.RecentErrors = new List<RecentErrorActivity>();
+            }
 
             return View(stats);
         }

@@ -24,7 +24,7 @@
 </div>
 
 <!-- Stats Overview -->
-<div class="stats-grid" style="grid-template-columns: repeat(5, 1fr);">
+<div class="stats-grid" style="grid-template-columns: repeat(6, 1fr);">
     <div class="stat-card">
         <div class="stat-icon primary">
             <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,6 +79,17 @@
         <div class="stat-value">@Model.TownsWithLandmarks</div>
         <div class="stat-label">Towns with Landmarks</div>
         <div class="stat-change">@($"{(double)Model.TownsWithLandmarks / Math.Max(Model.TotalTowns, 1) * 100:F0}% coverage")</div>
+    </div>
+
+    <div class="stat-card @(Model.CriticalErrorsLast24Hours > 10 ? "stat-card-danger" : "")">
+        <div class="stat-icon @(Model.CriticalErrorsLast24Hours > 0 ? "danger" : "success")">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.CriticalErrorsLast24Hours</div>
+        <div class="stat-label">Critical Errors (24h)</div>
+        <div class="stat-change @(Model.UnresolvedErrorsTotal > 0 ? "negative" : "")">@Model.UnresolvedErrorsTotal unresolved</div>
     </div>
 </div>
 
@@ -159,6 +170,16 @@
             <div class="quick-action-title">Subscription Tiers</div>
             <div class="quick-action-description">Manage pricing and tier limits</div>
         </a>
+
+        <a href="@Url.Action("Index", "Errors")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <div class="quick-action-title">System Errors</div>
+            <div class="quick-action-description">Monitor and resolve system errors</div>
+        </a>
 </div>
 </div>
 
@@ -176,44 +197,40 @@
     </div>
     
     <div class="activity-list">
-        <div class="activity-item">
-            <div class="activity-icon success">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
+        @if (Model.RecentErrors?.Any() == true)
+        {
+            @foreach (var error in Model.RecentErrors.Take(3))
+            {
+                <div class="activity-item">
+                    <div class="activity-icon @(error.Severity == "Critical" ? "danger" : error.Severity == "Error" ? "warning" : "info")">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">@error.Severity @error.ErrorType Error</div>
+                        <div class="activity-description">@error.Message</div>
+                        <div class="activity-time">@((DateTime.UtcNow - error.Timestamp).TotalHours < 1 ? 
+                            $"{(int)(DateTime.UtcNow - error.Timestamp).TotalMinutes} minutes ago" : 
+                            $"{(int)(DateTime.UtcNow - error.Timestamp).TotalHours} hours ago")</div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="activity-item">
+                <div class="activity-icon success">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">System Running Smoothly</div>
+                    <div class="activity-description">No recent critical errors detected</div>
+                    <div class="activity-time">Last 24 hours</div>
+                </div>
             </div>
-            <div class="activity-content">
-                <div class="activity-title">New business approved</div>
-                <div class="activity-description">"Stellenbosch Coffee Co" has been approved and is now live</div>
-                <div class="activity-time">2 hours ago</div>
-            </div>
-        </div>
-
-        <div class="activity-item">
-            <div class="activity-icon primary">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-            </div>
-            <div class="activity-content">
-                <div class="activity-title">New town added</div>
-                <div class="activity-description">Hermanus, Western Cape has been added to the system</div>
-                <div class="activity-time">4 hours ago</div>
-            </div>
-        </div>
-
-        <div class="activity-item">
-            <div class="activity-icon warning">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <div class="activity-content">
-                <div class="activity-title">Business pending approval</div>
-                <div class="activity-description">"Mountain View Restaurant" is waiting for admin approval</div>
-                <div class="activity-time">6 hours ago</div>
-            </div>
-        </div>
+        }
     </div>
 </div>

@@ -1,0 +1,207 @@
+@using TownTrek.Models.ViewModels
+@model ErrorLogStats
+@{
+    ViewData["Title"] = "Error Statistics";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Error Statistics</h1>
+            <p class="page-description">System error analytics and trends for the last 30 days.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Index", "Errors")" class="auth-btn auth-btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Error List
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Overview Stats -->
+<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.TotalErrors</div>
+        <div class="stat-label">Total Errors</div>
+        <div class="stat-change">Last 30 days</div>
+    </div>
+
+    <div class="stat-card @(Model.CriticalErrors > 0 ? "stat-card-danger" : "")">
+        <div class="stat-icon @(Model.CriticalErrors > 0 ? "danger" : "success")">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.CriticalErrors</div>
+        <div class="stat-label">Critical Errors</div>
+        <div class="stat-change">@Model.CriticalErrorsLast24Hours in last 24h</div>
+    </div>
+
+    <div class="stat-card @(Model.UnresolvedErrors > 0 ? "stat-card-warning" : "")">
+        <div class="stat-icon @(Model.UnresolvedErrors > 0 ? "warning" : "success")">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.UnresolvedErrors</div>
+        <div class="stat-label">Unresolved Errors</div>
+        <div class="stat-change">Need attention</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon success">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@((Model.TotalErrors - Model.UnresolvedErrors))</div>
+        <div class="stat-label">Resolved Errors</div>
+        <div class="stat-change">@(Model.TotalErrors > 0 ? Math.Round((double)(Model.TotalErrors - Model.UnresolvedErrors) / Model.TotalErrors * 100, 1) : 0)% resolution rate</div>
+    </div>
+</div>
+
+<!-- Error Breakdown -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Error Breakdown</h3>
+    </div>
+    
+    <div class="breakdown-grid">
+        <div class="breakdown-section">
+            <h4>By Type</h4>
+            @if (Model.ErrorsByType.Any())
+            {
+                <div class="breakdown-list">
+                    @foreach (var item in Model.ErrorsByType.OrderByDescending(x => x.Value))
+                    {
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">@item.Key</span>
+                            <span class="breakdown-value">@item.Value</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill" style="width: @(Model.TotalErrors > 0 ? (double)item.Value / Model.TotalErrors * 100 : 0)%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No errors by type</p>
+            }
+        </div>
+        
+        <div class="breakdown-section">
+            <h4>By Severity</h4>
+            @if (Model.ErrorsBySeverity.Any())
+            {
+                <div class="breakdown-list">
+                    @foreach (var item in Model.ErrorsBySeverity.OrderByDescending(x => x.Value))
+                    {
+                        <div class="breakdown-item">
+                            <span class="breakdown-label">
+                                <span class="badge badge-@item.Key.ToLower()">@item.Key</span>
+                            </span>
+                            <span class="breakdown-value">@item.Value</span>
+                            <div class="breakdown-bar">
+                                <div class="breakdown-fill severity-@item.Key.ToLower()" style="width: @(Model.TotalErrors > 0 ? (double)item.Value / Model.TotalErrors * 100 : 0)%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No errors by severity</p>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Daily Trends -->
+@if (Model.DailyTrends.Any())
+{
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">Daily Error Trends (Last 7 Days)</h3>
+        </div>
+        
+        <div class="trend-chart">
+            @{
+                var maxCount = Model.DailyTrends.Max(d => d.Count);
+                var maxHeight = 200;
+            }
+            
+            <div class="chart-container">
+                @foreach (var trend in Model.DailyTrends.OrderBy(d => d.Date))
+                {
+                    var height = maxCount > 0 ? (double)trend.Count / maxCount * maxHeight : 0;
+                    var criticalHeight = maxCount > 0 ? (double)trend.CriticalCount / maxCount * maxHeight : 0;
+                    
+                    <div class="chart-bar">
+                        <div class="bar-container" style="height: @(maxHeight)px;">
+                            @if (trend.CriticalCount > 0)
+                            {
+                                <div class="bar-critical" style="height: @(criticalHeight)px;" title="@trend.CriticalCount critical errors"></div>
+                            }
+                            @if (trend.Count > trend.CriticalCount)
+                            {
+                                <div class="bar-normal" style="height: @(height - criticalHeight)px;" title="@(trend.Count - trend.CriticalCount) other errors"></div>
+                            }
+                        </div>
+                        <div class="bar-label">
+                            <div class="bar-date">@trend.Date.ToString("MM/dd")</div>
+                            <div class="bar-count">@trend.Count</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Recent Errors -->
+@if (Model.RecentErrors.Any())
+{
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">Recent Errors (Last 24 Hours)</h3>
+        </div>
+        
+        <div class="recent-errors-list">
+            @foreach (var error in Model.RecentErrors.Take(10))
+            {
+                <div class="recent-error-item">
+                    <div class="error-icon @(error.Severity.ToLower())">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div class="error-content">
+                        <div class="error-header">
+                            <span class="badge badge-@error.ErrorType.ToLower()">@error.ErrorType</span>
+                            <span class="badge badge-@error.Severity.ToLower()">@error.Severity</span>
+                            <span class="error-time">@error.Timestamp.ToString("HH:mm")</span>
+                        </div>
+                        <div class="error-message">@error.Message</div>
+                        @if (!string.IsNullOrEmpty(error.UserName))
+                        {
+                            <div class="error-user">User: @error.UserName</div>
+                        }
+                    </div>
+                    <div class="error-actions">
+                        <a href="@Url.Action("Details", "Errors", new { id = error.Id })" class="btn btn-sm btn-primary">View</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

@@ -115,6 +115,7 @@ public class Program
         builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
         builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
         builder.Services.AddScoped<IApplicationLogger, ApplicationLogger>();
+        builder.Services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();
 
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();

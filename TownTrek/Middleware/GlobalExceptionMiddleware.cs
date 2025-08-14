@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
+using TownTrek.Models;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services;
 
 namespace TownTrek.Middleware;
 
@@ -12,15 +14,18 @@ public class GlobalExceptionMiddleware
     private readonly RequestDelegate _next;
     private readonly ILogger<GlobalExceptionMiddleware> _logger;
     private readonly IWebHostEnvironment _environment;
+    private readonly IServiceProvider _serviceProvider;
 
     public GlobalExceptionMiddleware(
         RequestDelegate next,
         ILogger<GlobalExceptionMiddleware> logger,
-        IWebHostEnvironment environment)
+        IWebHostEnvironment environment,
+        IServiceProvider serviceProvider)
     {
         _next = next;
         _logger = logger;
         _environment = environment;
+        _serviceProvider = serviceProvider;
     }
 
     public async Task InvokeAsync(HttpContext context)
@@ -36,6 +41,9 @@ public class GlobalExceptionMiddleware
                 context.Request.Path,
                 context.Request.Method,
                 context.User?.Identity?.Name ?? "Anonymous");
+
+            // Log to database
+            await LogErrorToDatabaseAsync(context, ex);
 
             await HandleExceptionAsync(context, ex);
         }
@@ -120,5 +128,60 @@ public class GlobalExceptionMiddleware
         return context.Request.Path.StartsWithSegments("/api") ||
                context.Request.Headers.Accept.Any(h => h?.Contains("application/json") == true) ||
                context.Request.ContentType?.Contains("application/json") == true;
+    }
+
+    private async Task LogErrorToDatabaseAsync(HttpContext context, Exception exception)
+    {
+        try
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var databaseErrorLogger = scope.ServiceProvider.GetService<IDatabaseErrorLogger>();
+            
+            if (databaseErrorLogger != null)
+            {
+                var (errorType, severity) = ErrorClassificationRules.ClassifyException(exception);
+                
+                var errorEntry = new ErrorLogEntry
+                {
+                    Timestamp = DateTime.UtcNow,
+                    ErrorType = errorType,
+                    Message = exception.Message,
+                    StackTrace = exception.ToString(),
+                    UserId = context.User?.Identity?.IsAuthenticated == true ? 
+                             context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value : null,
+                    RequestPath = $"{context.Request.Method} {context.Request.Path}{context.Request.QueryString}",
+                    UserAgent = context.Request.Headers.UserAgent.ToString(),
+                    IpAddress = GetClientIpAddress(context),
+                    Severity = severity
+                };
+
+                await databaseErrorLogger.LogErrorAsync(errorEntry);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Don't let database logging errors crash the application
+            _logger.LogError(ex, "Failed to log error to database");
+        }
+    }
+
+    private static string? GetClientIpAddress(HttpContext context)
+    {
+        // Check for forwarded IP first (for load balancers/proxies)
+        var forwardedFor = context.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(forwardedFor))
+        {
+            return forwardedFor.Split(',')[0].Trim();
+        }
+
+        // Check for real IP header
+        var realIp = context.Request.Headers["X-Real-IP"].FirstOrDefault();
+        if (!string.IsNullOrEmpty(realIp))
+        {
+            return realIp;
+        }
+
+        // Fall back to connection remote IP
+        return context.Connection.RemoteIpAddress?.ToString();
     }
 }

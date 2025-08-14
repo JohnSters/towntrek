@@ -46,6 +46,9 @@ namespace TownTrek.Data
         
         // Trial Security
         public DbSet<TrialAuditLog> TrialAuditLogs { get; set; }
+        
+        // Error Logging
+        public DbSet<ErrorLogEntry> ErrorLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -176,6 +179,9 @@ namespace TownTrek.Data
             
             // Configure trial security
             ConfigureTrialEntities(builder);
+            
+            // Configure error logging
+            ConfigureErrorLoggingEntities(builder);
             
             // Seed default data
             SeedData(builder);
@@ -491,6 +497,43 @@ namespace TownTrek.Data
                 entity.HasIndex(e => e.UserId);
                 entity.HasIndex(e => e.Action);
                 entity.HasIndex(e => e.Timestamp);
+            });
+        }
+
+        private void ConfigureErrorLoggingEntities(ModelBuilder builder)
+        {
+            // Configure ErrorLogEntry
+            builder.Entity<ErrorLogEntry>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Timestamp).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.ErrorType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Message).IsRequired();
+                entity.Property(e => e.UserId).HasMaxLength(450);
+                entity.Property(e => e.RequestPath).HasMaxLength(500);
+                entity.Property(e => e.UserAgent).HasMaxLength(1000);
+                entity.Property(e => e.IpAddress).HasMaxLength(45);
+                entity.Property(e => e.Severity).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.ResolvedBy).HasMaxLength(450);
+
+                // Foreign key relationships
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(e => e.ResolvedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.ResolvedBy)
+                      .OnDelete(DeleteBehavior.NoAction);
+
+                // Indexes for performance
+                entity.HasIndex(e => e.Timestamp).HasDatabaseName("IX_ErrorLogs_Timestamp");
+                entity.HasIndex(e => e.ErrorType).HasDatabaseName("IX_ErrorLogs_ErrorType");
+                entity.HasIndex(e => e.Severity).HasDatabaseName("IX_ErrorLogs_Severity");
+                entity.HasIndex(e => e.IsResolved).HasDatabaseName("IX_ErrorLogs_IsResolved");
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_ErrorLogs_UserId");
+                entity.HasIndex(e => new { e.Timestamp, e.Severity }).HasDatabaseName("IX_ErrorLogs_Timestamp_Severity");
             });
         }
     }
