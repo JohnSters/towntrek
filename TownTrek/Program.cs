@@ -4,6 +4,7 @@ using TownTrek.Data;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 using TownTrek.Models;
+using TownTrek.Options;
 
 namespace TownTrek;
 
@@ -82,12 +83,17 @@ public class Program
                 policy.RequireRole(TownTrek.Constants.AppRoles.Admin));
         });
 
+        // Configure options
+        builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+        builder.Services.Configure<PayFastOptions>(builder.Configuration.GetSection("PayFast"));
+
         // Add these service registrations
         builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
         builder.Services.AddScoped<ISubscriptionAuthService, SubscriptionAuthService>();
         builder.Services.AddScoped<IRegistrationService, RegistrationService>();
         builder.Services.AddScoped<ITrialService, SecureTrialService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddSingleton<IEmailTemplateRenderer, EmailTemplateRenderer>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<IPaymentService, PaymentService>();
         builder.Services.AddScoped<IRoleInitializationService, RoleInitializationService>();
@@ -146,6 +152,8 @@ public class Program
         
         // Add trial validation middleware
         app.UseMiddleware<TownTrek.Middleware.TrialValidationMiddleware>();
+
+        app.MapControllers();
 
         app.MapControllerRoute(
             name: "default",

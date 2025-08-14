@@ -1,0 +1,12 @@
+@model TownTrek.Models.ViewModels.Emails.PaymentEmailViewModel
+@{
+	ViewData["Subject"] = "Payment failed";
+	Layout = "/Views/Emails/_EmailBaseLayout.cshtml";
+}
+
+<h2 style="font-size:18px;margin:0 0 12px;">Payment failed</h2>
+<p style="margin:0 0 12px;">Hi @Model.FirstName,</p>
+<p style="margin:0 0 12px;">Unfortunately, we could not process your payment. Please update your billing details and try again.</p>
+<p style="margin:0;">If you need help, contact support.</p>
+
+

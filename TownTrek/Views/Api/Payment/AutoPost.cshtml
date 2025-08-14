@@ -1,0 +1,24 @@
+@model TownTrek.Models.ViewModels.PayFast.PayFastPostViewModel
+@{
+	Layout = null;
+}
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<title>Redirecting to PayFast…</title>
+</head>
+<body onload="document.forms[0].submit()">
+	<form method="post" action="@Model.ActionUrl">
+		@foreach (var kv in Model.Fields)
+		{
+			<input type="hidden" name="@kv.Key" value="@kv.Value" />
+		}
+		<noscript>
+			<button type="submit">Continue to PayFast</button>
+		</noscript>
+	</form>
+</body>
+</html>
+
+

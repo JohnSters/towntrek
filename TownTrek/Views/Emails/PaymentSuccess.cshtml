@@ -1,0 +1,12 @@
+@model TownTrek.Models.ViewModels.Emails.PaymentEmailViewModel
+@{
+	ViewData["Subject"] = "Payment successful";
+	Layout = "/Views/Emails/_EmailBaseLayout.cshtml";
+}
+
+<h2 style="font-size:18px;margin:0 0 12px;">Payment successful</h2>
+<p style="margin:0 0 12px;">Hi @Model.FirstName,</p>
+<p style="margin:0 0 12px;">Your payment was successful. Your subscription@((!string.IsNullOrWhiteSpace(Model.TierName) ? $" to {Model.TierName}" : "")) is now active.</p>
+<p style="margin:0;">Thank you for supporting TownTrek!</p>
+
+
