@@ -5,6 +5,8 @@ using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 using TownTrek.Models;
 using TownTrek.Options;
+using TownTrek.Middleware;
+using Serilog;
 
 namespace TownTrek;
 
@@ -13,6 +15,11 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
+        // Configure Serilog
+        builder.Host.UseSerilog((context, configuration) =>
+            configuration.ReadFrom.Configuration(context.Configuration));
+        
         builder.AddServiceDefaults();
         
         // Add Entity Framework
@@ -136,10 +143,14 @@ public class Program
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
-            app.UseExceptionHandler("/Home/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
+
+        // Add global exception handling middleware
+        app.UseMiddleware<GlobalExceptionMiddleware>();
+        
+        // Configure status code pages for common HTTP errors
+        app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();

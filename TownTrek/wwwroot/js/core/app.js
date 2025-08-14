@@ -37,7 +37,7 @@ class TownTrekApp {
       console.log('🚀 TownTrek application initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize TownTrek application:', error);
-      ErrorHandler.handle(error, 'Application initialization');
+      ClientErrorHandler.showError('Failed to initialize application. Please refresh the page.');
     }
   }
 
@@ -46,10 +46,12 @@ class TownTrekApp {
    * @private
    */
   setupGlobalErrorHandling() {
-    // This is handled in error-handler.js, but we ensure it's called
-    if (window.ErrorHandler && typeof ErrorHandler.setupGlobalHandlers === 'function') {
-      ErrorHandler.setupGlobalHandlers();
-    }
+    // Simple global error handling for unhandled promise rejections
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      // Don't show user notification for every unhandled promise
+      // Let the server-side error handling deal with it
+    });
   }
 
   /**
@@ -222,7 +224,7 @@ class TownTrekApp {
       }
     } catch (error) {
       console.error(`❌ Failed to initialize module ${moduleName}:`, error);
-      ErrorHandler.handle(error, `Module initialization: ${moduleName}`);
+      ClientErrorHandler.showError(`Failed to initialize ${moduleName}. Some features may not work properly.`);
     }
   }
 
@@ -254,7 +256,7 @@ class TownTrekApp {
       }
     } catch (error) {
       console.error(`❌ Failed to initialize component ${componentName}:`, error);
-      ErrorHandler.handle(error, `Component initialization: ${componentName}`);
+      ClientErrorHandler.showError(`Failed to initialize ${componentName}. Some features may not work properly.`);
     }
   }
 
