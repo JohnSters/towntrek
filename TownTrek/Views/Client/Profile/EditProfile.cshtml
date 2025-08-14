@@ -17,7 +17,7 @@
             <p class="page-description">Update your personal information and account details.</p>
         </div>
         <div class="page-actions">
-            <a href="@Url.Action("Profile", "Client")" class="auth-btn auth-btn-secondary">
+            <a href="@Url.Action("Index", "Profile")" class="auth-btn auth-btn-secondary">
                 <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                 </svg>
@@ -34,7 +34,7 @@
         <p class="admin-card-description">Update your account details below</p>
     </div>
     
-    <form asp-action="EditProfile" method="post" class="add-business-form">
+    <form asp-action="Edit" asp-controller="Profile" method="post" class="add-business-form">
         @Html.AntiForgeryToken()
         
         <div class="form-section">
@@ -139,7 +139,7 @@
                 </svg>
                 Save Changes
             </button>
-            <a href="@Url.Action("Profile", "Client")" class="auth-btn auth-btn-secondary">
+            <a href="@Url.Action("Index", "Profile")" class="auth-btn auth-btn-secondary">
                 Cancel
             </a>
         </div>
