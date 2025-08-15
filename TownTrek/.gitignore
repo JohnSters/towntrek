@@ -401,3 +401,5 @@ FodyWeavers.xsd
 Logs/
 *.log
 appsettings.Local.json
+.env
+https/

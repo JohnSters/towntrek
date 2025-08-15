@@ -20,7 +20,7 @@ public class Program
         builder.Host.UseSerilog((context, configuration) =>
             configuration.ReadFrom.Configuration(context.Configuration));
         
-        builder.AddServiceDefaults();
+
         
         // Add Entity Framework
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -130,11 +130,14 @@ public class Program
 
         var app = builder.Build();
 
-        app.MapDefaultEndpoints();
 
-        // Seed the database and initialize roles
+
+        // Apply migrations and seed the database
         using (var scope = app.Services.CreateScope())
         {
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await context.Database.MigrateAsync();
+            
             await DbSeeder.SeedAsync(scope.ServiceProvider);
             
             // Initialize roles

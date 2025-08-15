@@ -216,6 +216,16 @@ class BusinessFormManager {
           this.elements.subCategorySelect.appendChild(option);
         });
 
+        // Preselect existing value in edit mode if present
+        const currentValue = this.elements.subCategorySelect.dataset.currentValue || '';
+        if (currentValue) {
+          const options = Array.from(this.elements.subCategorySelect.options);
+          const match = options.find(opt => opt.value === currentValue);
+          if (match) {
+            this.elements.subCategorySelect.value = currentValue;
+          }
+        }
+
         // Show subcategory container if there are options
         if (response.length > 0 && this.elements.subCategoryContainer) {
           this.elements.subCategoryContainer.style.display = 'block';
