@@ -11,5 +11,6 @@ namespace TownTrek.Services
         Task<ErrorLogEntry?> GetErrorByIdAsync(long id);
         Task MarkAsResolvedAsync(long id, string resolvedBy, string? notes = null);
         Task MarkAsUnresolvedAsync(long id);
+        Task DeleteErrorAsync(long id);
     }
 }

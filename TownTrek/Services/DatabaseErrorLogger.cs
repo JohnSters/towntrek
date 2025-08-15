@@ -225,5 +225,23 @@ namespace TownTrek.Services
                 _appLogger.LogError(ex, $"Failed to mark error {id} as unresolved", null);
             }
         }
+
+        public async Task DeleteErrorAsync(long id)
+        {
+            try
+            {
+                var error = await _context.ErrorLogs.FindAsync(id);
+                if (error != null)
+                {
+                    _context.ErrorLogs.Remove(error);
+                    await _context.SaveChangesAsync();
+                    _appLogger.LogInformation($"Error {id} deleted", null);
+                }
+            }
+            catch (Exception ex)
+            {
+                _appLogger.LogError(ex, $"Failed to delete error {id}", null);
+            }
+        }
     }
 }

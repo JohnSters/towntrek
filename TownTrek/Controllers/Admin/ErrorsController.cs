@@ -81,6 +81,16 @@ namespace TownTrek.Controllers.Admin
             return RedirectToAction(nameof(Details), new { id });
         }
 
+        // POST: AdminErrors/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(long id)
+        {
+            await _errorLogger.DeleteErrorAsync(id);
+            TempData["SuccessMessage"] = "Error log has been deleted.";
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: AdminErrors/Stats
         public async Task<IActionResult> Stats()
         {
