@@ -41,7 +41,7 @@ namespace TownTrek.Controllers.Client
                 CanUpload = true,
                 MaxImagesAllowed = 10,
                 MaxFileSizeBytes = 5 * 1024 * 1024,
-                AllowedFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+                AllowedFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
             };
 
             return View(model);
@@ -72,7 +72,7 @@ namespace TownTrek.Controllers.Client
                 TotalGalleryImages = allImages.Count(i => i.ImageType == "Gallery"),
                 CanUpload = true,
                 MaxFileSizeBytes = 5 * 1024 * 1024,
-                AllowedFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+                AllowedFileTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
             };
 
             return View(model);

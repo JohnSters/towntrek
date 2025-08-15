@@ -380,18 +380,43 @@ class TownTrekApp {
   handleGlobalFormSubmit(event) {
     const form = event.target;
 
+    // If another handler prevented the submission (e.g., custom validation),
+    // don't force a loading state on the buttons.
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    // Skip when HTML5 validity fails or custom validation has marked errors
+    const hasClientErrors = form.querySelector('.field-error, .invalid-feedback');
+    if ((typeof form.checkValidity === 'function' && !form.checkValidity()) || hasClientErrors) {
+      return;
+    }
+
+    // Allow opting out per form if needed
+    if (form.hasAttribute('data-skip-global-submit')) {
+      return;
+    }
+
     // Add loading state to submit buttons
     const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
     submitButtons.forEach(button => {
       if (!button.disabled) {
         button.dataset.originalText = button.textContent || button.value;
-        button.textContent = 'Processing...';
+        if (button.tagName === 'BUTTON') {
+          button.textContent = 'Processing...';
+        } else {
+          button.value = 'Processing...';
+        }
         button.disabled = true;
 
         // Re-enable after a timeout as fallback
         setTimeout(() => {
           if (button.disabled) {
-            button.textContent = button.dataset.originalText;
+            if (button.tagName === 'BUTTON') {
+              button.textContent = button.dataset.originalText;
+            } else {
+              button.value = button.dataset.originalText;
+            }
             button.disabled = false;
           }
         }, 30000);
