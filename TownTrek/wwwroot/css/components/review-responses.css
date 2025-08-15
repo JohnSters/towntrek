@@ -1,0 +1,238 @@
+/* Review Response Styles - Following Design System */
+
+.review-response {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background-color: var(--white);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--lapis-lazuli);
+    position: relative;
+}
+
+.response-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+}
+
+.owner-badge {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.owner-initials {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: var(--lapis-lazuli);
+    color: white;
+    border-radius: var(--radius-full);
+    font-size: var(--body-small);
+    font-weight: var(--font-semibold);
+    text-transform: uppercase;
+}
+
+.owner-label {
+    background-color: var(--hunyadi-yellow);
+    color: var(--charcoal);
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: var(--body-xs);
+    font-weight: var(--font-medium);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.response-date {
+    color: var(--dark-gray);
+    font-size: var(--body-small);
+}
+
+.response-text {
+    margin: 0;
+    color: var(--charcoal);
+    font-size: var(--body-medium);
+    line-height: var(--line-height-normal);
+}
+
+/* Response Form Styles */
+.response-form-container {
+    margin-top: var(--space-md);
+    padding: var(--space-md);
+    background-color: white;
+    border: 2px solid var(--medium-gray);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-normal);
+}
+
+.response-form-container.active {
+    border-color: var(--lapis-lazuli);
+}
+
+.response-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.response-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: var(--space-md);
+    border: 2px solid var(--medium-gray);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--body-medium);
+    line-height: var(--line-height-normal);
+    resize: vertical;
+    transition: border-color var(--transition-normal);
+}
+
+.response-textarea:focus {
+    outline: none;
+    border-color: var(--lapis-lazuli);
+}
+
+.response-textarea::placeholder {
+    color: var(--dark-gray);
+}
+
+.response-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-sm);
+}
+
+.respond-to-review {
+    margin-top: var(--space-sm);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: var(--body-small);
+}
+
+/* Character Counter */
+.character-counter {
+    text-align: right;
+    font-size: var(--body-xs);
+    color: var(--dark-gray);
+    margin-top: var(--space-xs);
+}
+
+.character-counter.warning {
+    color: var(--orange-pantone);
+}
+
+.character-counter.error {
+    color: var(--orange-pantone);
+    font-weight: var(--font-medium);
+}
+
+/* Loading States */
+.response-form.loading .submit-response {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.response-form.loading .submit-response::after {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-left: var(--space-xs);
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .response-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-xs);
+    }
+    
+    .owner-badge {
+        align-self: flex-start;
+    }
+    
+    .response-date {
+        align-self: flex-end;
+        margin-top: -24px;
+    }
+    
+    .response-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .response-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Animation for showing/hiding response form */
+.response-form-container {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.response-form-container.show {
+    max-height: 300px;
+    opacity: 1;
+    padding-top: var(--space-md);
+    padding-bottom: var(--space-md);
+}
+
+/* Success message styling */
+.response-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    color: #155724;
+    margin-top: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.response-success svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* Error message styling */
+.response-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    color: #721c24;
+    margin-top: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.response-error svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}

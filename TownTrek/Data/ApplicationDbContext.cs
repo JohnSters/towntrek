@@ -42,6 +42,7 @@ namespace TownTrek.Data
         
         // Member Features
         public DbSet<BusinessReview> BusinessReviews { get; set; }
+        public DbSet<BusinessReviewResponse> BusinessReviewResponses { get; set; }
         public DbSet<FavoriteBusiness> FavoriteBusinesses { get; set; }
         
         // Trial Security
@@ -453,6 +454,27 @@ namespace TownTrek.Data
 
                 // Unique constraint: one review per user per business
                 entity.HasIndex(e => new { e.BusinessId, e.UserId }).IsUnique();
+            });
+
+            // Configure BusinessReviewResponse
+            builder.Entity<BusinessReviewResponse>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Response).IsRequired().HasMaxLength(1000);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                entity.HasOne(e => e.BusinessReview)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessReviewId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Unique constraint: one response per review (business owner can only respond once)
+                entity.HasIndex(e => e.BusinessReviewId).IsUnique();
             });
 
             // Configure FavoriteBusiness

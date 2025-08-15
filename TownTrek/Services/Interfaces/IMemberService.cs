@@ -12,6 +12,7 @@ namespace TownTrek.Services.Interfaces
         Task<List<Town>> GetAvailableTownsAsync();
         Task<List<BusinessCategory>> GetBusinessCategoriesAsync();
         Task<ReviewSubmissionResult> AddReviewAsync(string userId, AddReviewViewModel model);
+        Task<ReviewResponseSubmissionResult> SubmitReviewResponseAsync(AddReviewResponseViewModel model, string userId);
         Task<bool> ToggleFavoriteAsync(string userId, int businessId);
         Task<List<BusinessCardViewModel>> GetUserFavoritesAsync(string userId);
         Task<List<BusinessCardViewModel>> GetFeaturedBusinessesAsync(int? townId = null, int count = 6, string? userId = null);

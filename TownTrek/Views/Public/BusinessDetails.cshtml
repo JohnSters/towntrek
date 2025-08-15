@@ -202,37 +202,9 @@
                         @if (Model.Reviews.Any())
                         {
                             <div class="reviews-list">
-                                @foreach (var review in Model.Reviews.Take(5))
+                                @foreach (var reviewItem in Model.Reviews.Take(5))
                                 {
-                                    <div class="review-item">
-                                        <div class="review-header">
-                                            <div class="reviewer-info">
-                                                <strong>@review.User.UserName</strong>
-                                                <div class="review-rating">
-                                                    @for (int i = 1; i <= 5; i++)
-                                                    {
-                                                        @if (i <= review.Rating)
-                                                        {
-                                                            <svg class="star filled" width="14" height="14" fill="currentColor" viewBox="0 0 23 23">
-                                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                                            </svg>
-                                                        }
-                                                        else
-                                                        {
-                                                            <svg class="star" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 23 23">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                                            </svg>
-                                                        }
-                                                    }
-                                                </div>
-                                            </div>
-                                            <span class="review-date">@review.CreatedAt.ToString("MMM d, yyyy")</span>
-                                        </div>
-                                        @if (!string.IsNullOrEmpty(review.Comment))
-                                        {
-                                            <p class="review-comment">@review.Comment</p>
-                                        }
-                                    </div>
+                                    @await Html.PartialAsync("_ReviewWithResponse", reviewItem)
                                 }
                             </div>
                             

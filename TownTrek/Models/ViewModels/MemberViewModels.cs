@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TownTrek.Models;
 
 namespace TownTrek.Models.ViewModels
@@ -55,7 +56,7 @@ namespace TownTrek.Models.ViewModels
     public class BusinessDetailsViewModel
     {
         public BusinessCardViewModel Business { get; set; } = null!;
-        public List<BusinessReview> Reviews { get; set; } = new List<BusinessReview>();
+        public List<ReviewWithResponseViewModel> Reviews { get; set; } = new List<ReviewWithResponseViewModel>();
         public bool CanUserReview { get; set; } = true;
         public BusinessReview? UserReview { get; set; }
         public AddReviewViewModel NewReview { get; set; } = new AddReviewViewModel();
@@ -74,6 +75,30 @@ namespace TownTrek.Models.ViewModels
         public bool IsSuccess { get; set; }
         public string? ErrorMessage { get; set; }
         public BusinessReview? Review { get; set; }
+    }
+
+    public class ReviewWithResponseViewModel
+    {
+        public BusinessReview Review { get; set; } = null!;
+        public BusinessReviewResponse? Response { get; set; }
+        public bool CanUserRespond { get; set; } = false;
+    }
+
+    public class AddReviewResponseViewModel
+    {
+        [Required]
+        public int ReviewId { get; set; }
+
+        [Required]
+        [StringLength(1000, ErrorMessage = "Response cannot exceed 1000 characters")]
+        public string Response { get; set; } = string.Empty;
+    }
+
+    public class ReviewResponseSubmissionResult
+    {
+        public bool IsSuccess { get; set; }
+        public string? ErrorMessage { get; set; }
+        public BusinessReviewResponse? Response { get; set; }
     }
 
     public class BusinessSearchViewModel
