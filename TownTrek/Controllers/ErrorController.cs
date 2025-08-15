@@ -7,14 +7,9 @@ namespace TownTrek.Controllers;
 /// <summary>
 /// Handles error pages and error responses
 /// </summary>
-public class ErrorController : Controller
+public class ErrorController(ILogger<ErrorController> logger) : Controller
 {
-    private readonly ILogger<ErrorController> _logger;
-
-    public ErrorController(ILogger<ErrorController> logger)
-    {
-        _logger = logger;
-    }
+    private readonly ILogger<ErrorController> _logger = logger;
 
     /// <summary>
     /// Default error page
@@ -23,9 +18,7 @@ public class ErrorController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Index()
     {
-        var errorViewModel = HttpContext.Items["ErrorViewModel"] as ErrorViewModel;
-        
-        if (errorViewModel == null)
+        if (HttpContext.Items["ErrorViewModel"] is not ErrorViewModel errorViewModel)
         {
             errorViewModel = new ErrorViewModel
             {
@@ -46,9 +39,7 @@ public class ErrorController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult HandleStatusCode(int statusCode)
     {
-        var errorViewModel = HttpContext.Items["ErrorViewModel"] as ErrorViewModel;
-        
-        if (errorViewModel == null)
+        if (HttpContext.Items["ErrorViewModel"] is not ErrorViewModel errorViewModel)
         {
             errorViewModel = new ErrorViewModel
             {

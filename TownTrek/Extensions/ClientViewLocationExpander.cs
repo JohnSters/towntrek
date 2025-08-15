@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.Controllers;
 
 namespace TownTrek.Extensions
 {
@@ -11,9 +12,17 @@ namespace TownTrek.Extensions
 
         public IEnumerable<string> ExpandViewLocations(ViewLocationExpanderContext context, IEnumerable<string> viewLocations)
         {
-            // Add additional search locations so controllers can
-            // discover views located under Views/Client/**
-            // Include plural fallbacks to support folders like "Businesses"
+            // Only apply to controllers in the Client namespace
+            var actionDescriptor = context.ActionContext.ActionDescriptor as ControllerActionDescriptor;
+            var controllerNamespace = actionDescriptor?.ControllerTypeInfo?.Namespace ?? string.Empty;
+            var isClientController = controllerNamespace.Contains(".Controllers.Client", StringComparison.OrdinalIgnoreCase);
+
+            if (!isClientController)
+            {
+                return viewLocations;
+            }
+
+            // Add additional search locations so controllers can discover views under Views/Client/**
             var clientLocations = new[]
             {
                 "/Views/Client/{1}/{0}.cshtml",
