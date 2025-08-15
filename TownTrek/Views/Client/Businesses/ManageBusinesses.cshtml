@@ -26,7 +26,7 @@
                 @if (limits.MaxBusinesses == -1 || limits.CurrentBusinessCount < limits.MaxBusinesses)
                 {
                     <a asp-controller="Business" asp-action="Create" class="auth-btn auth-btn-cta">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                         </svg>
                         Add New Business
@@ -35,7 +35,7 @@
                 else
                 {
                     <a asp-controller="Subscription" asp-action="Index" class="auth-btn auth-btn-secondary">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                         </svg>
                         Upgrade Plan
@@ -50,7 +50,7 @@
 <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
     <div class="stat-card">
         <div class="stat-icon primary">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
             </svg>
         </div>
@@ -64,7 +64,7 @@
 
     <div class="stat-card">
         <div class="stat-icon success">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
         </div>
@@ -75,7 +75,7 @@
 
     <div class="stat-card">
         <div class="stat-icon warning">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
         </div>
@@ -86,7 +86,7 @@
 
     <div class="stat-card">
         <div class="stat-icon info">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
             </svg>
@@ -103,12 +103,12 @@
         <h3 class="admin-card-title">Your Business Listings</h3>
         <div class="admin-card-actions">
             <button class="header-btn" title="Filter">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
                 </svg>
             </button>
             <button class="header-btn" title="Refresh">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
             </button>
@@ -190,13 +190,13 @@
                                             {
                                                 @if (i <= business.Rating.Value)
                                                 {
-                                                    <svg class="star filled" width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+                                                    <svg class="star filled" width="12" height="12" fill="currentColor" viewBox="0 0 23 23">
                                                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                                     </svg>
                                                 }
                                                 else
                                                 {
-                                                    <svg class="star" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg class="star" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                                     </svg>
                                                 }
@@ -214,17 +214,17 @@
                             <td>
                                 <div class="table-actions">
                                     <a href="@Url.Action("Edit", "Business", new { id = business.Id })" class="table-action-btn primary" title="Edit">
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                         </svg>
                                     </a>
                                     <a href="@Url.Action("Gallery", "Image", new { businessId = business.Id })" class="table-action-btn info" title="Manage Images">
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                         </svg>
                                     </a>
                                     <button class="table-action-btn danger" title="Delete" onclick="confirmDeleteClientBusiness('@business.Name', '@business.Id')">
-                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                                         </svg>
                                     </button>
@@ -239,7 +239,7 @@
     else
     {
         <div class="empty-state">
-            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-state-icon">
+            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 23 23" class="empty-state-icon">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
             </svg>
             <h3 class="empty-state-title">No Businesses Found</h3>
@@ -247,7 +247,7 @@
             @if (ViewBag.UserLimits is SubscriptionLimits emptyLimits && (emptyLimits.MaxBusinesses == -1 || emptyLimits.CurrentBusinessCount < emptyLimits.MaxBusinesses))
             {
                 <a asp-controller="Business" asp-action="Create" class="auth-btn auth-btn-cta">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
                     Add First Business
@@ -256,7 +256,7 @@
             else
             {
                 <a asp-controller="Subscription" asp-action="Index" class="auth-btn auth-btn-secondary">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                     </svg>
                     Upgrade to Add Business

@@ -1116,6 +1116,90 @@ namespace TownTrek.Migrations
                         });
                 });
 
+            modelBuilder.Entity("TownTrek.Models.ErrorLogEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ErrorType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ResolvedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("StackTrace")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ErrorType")
+                        .HasDatabaseName("IX_ErrorLogs_ErrorType");
+
+                    b.HasIndex("IsResolved")
+                        .HasDatabaseName("IX_ErrorLogs_IsResolved");
+
+                    b.HasIndex("ResolvedBy");
+
+                    b.HasIndex("Severity")
+                        .HasDatabaseName("IX_ErrorLogs_Severity");
+
+                    b.HasIndex("Timestamp")
+                        .HasDatabaseName("IX_ErrorLogs_Timestamp");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_ErrorLogs_UserId");
+
+                    b.HasIndex("Timestamp", "Severity")
+                        .HasDatabaseName("IX_ErrorLogs_Timestamp_Severity");
+
+                    b.ToTable("ErrorLogs");
+                });
+
             modelBuilder.Entity("TownTrek.Models.EventDetails", b =>
                 {
                     b.Property<int>("Id")
@@ -1751,7 +1835,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2597),
+                            CreatedAt = new DateTime(2025, 8, 14, 21, 18, 31, 389, DateTimeKind.Utc).AddTicks(8966),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -1762,7 +1846,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2599),
+                            CreatedAt = new DateTime(2025, 8, 14, 21, 18, 31, 389, DateTimeKind.Utc).AddTicks(8968),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -1773,7 +1857,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2600),
+                            CreatedAt = new DateTime(2025, 8, 14, 21, 18, 31, 389, DateTimeKind.Utc).AddTicks(8970),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,
@@ -2388,6 +2472,23 @@ namespace TownTrek.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.ErrorLogEntry", b =>
+                {
+                    b.HasOne("TownTrek.Models.ApplicationUser", "ResolvedByUser")
+                        .WithMany()
+                        .HasForeignKey("ResolvedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("ResolvedByUser");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TownTrek.Models.EventDetails", b =>

@@ -11,5 +11,11 @@ namespace TownTrek.Models.ViewModels
         public int NewUsersThisMonth { get; set; }
         public int TotalPopulation { get; set; }
         public int TownsWithLandmarks { get; set; }
+        
+        // Error logging statistics
+        public int CriticalErrorsLast24Hours { get; set; }
+        public int UnresolvedErrorsTotal { get; set; }
+        public List<RecentErrorActivity> RecentErrors { get; set; } = new();
+        public ErrorLogStats? ErrorStats { get; set; }
     }
 }

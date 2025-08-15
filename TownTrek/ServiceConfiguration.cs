@@ -26,6 +26,9 @@ namespace TownTrek
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IRoleInitializationService, RoleInitializationService>();
+            
+            // Register error logging services
+            services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();
         }
     }
 }

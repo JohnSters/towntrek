@@ -415,7 +415,7 @@ const businessScore = (reviews * 0.4) + (ratings * 0.3) + (activity * 0.3);
 ## Error Handling
 
 ### Error Handling Strategy
-Use the centralized `core/error-handler.js` for all error handling. Avoid duplicating error logic in modules. Ensure notifications adhere to the design system (no drop shadows). Use CSRF headers on form posts/fetches.
+Use the simplified `ClientErrorHandler` for client-side error handling. Server-side errors are handled by ASP.NET middleware. For AJAX calls, use `ClientErrorHandler.handleApiError()`. For user notifications, use `ClientErrorHandler.showError()` or `ClientErrorHandler.showSuccess()`. Avoid complex client-side error logging - let the server handle that.
 
 ### Try-Catch Usage
 ```javascript
