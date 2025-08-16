@@ -371,6 +371,53 @@ namespace TownTrek.Services
             return insights;
         }
 
+        public async Task<CategoryBenchmarks?> GetDetailedCategoryBenchmarksAsync(string userId, string category)
+        {
+            var basicBenchmarks = await GetCategoryBenchmarksAsync(userId, category);
+            if (basicBenchmarks == null) return null;
+
+            var userBusinesses = await _context.Businesses
+                .Where(b => b.UserId == userId && b.Category == category && b.Status != "Deleted")
+                .ToListAsync();
+
+            var userReviews = await _context.BusinessReviews
+                .Where(r => userBusinesses.Select(b => b.Id).Contains(r.BusinessId) && r.IsActive)
+                .ToListAsync();
+
+            var insights = new List<string>();
+            
+            // Generate insights based on performance
+            if (basicBenchmarks.YourPerformanceVsAverage == "above")
+            {
+                insights.Add("Your businesses are performing above category average - great work!");
+                insights.Add("Consider sharing your success strategies with other businesses in your network.");
+            }
+            else if (basicBenchmarks.YourPerformanceVsAverage == "below")
+            {
+                insights.Add("There's room for improvement compared to category averages.");
+                insights.Add("Focus on improving customer engagement and service quality.");
+                insights.Add("Consider updating your business information and photos regularly.");
+            }
+            else
+            {
+                insights.Add("Your performance is on par with category averages.");
+                insights.Add("Small improvements in customer service could help you stand out.");
+            }
+
+            return new CategoryBenchmarks
+            {
+                Category = category,
+                YourPerformanceVsAverage = basicBenchmarks.YourPerformanceVsAverage,
+                YourAverageViews = (int)userBusinesses.Average(b => b.ViewCount),
+                YourAverageReviews = (int)userBusinesses.Average(b => userReviews.Count(r => r.BusinessId == b.Id)),
+                YourAverageRating = userReviews.Any() ? userReviews.Average(r => r.Rating) : 0,
+                CategoryAverageViews = (int)basicBenchmarks.AverageViewsInCategory,
+                CategoryAverageReviews = (int)basicBenchmarks.AverageReviewsInCategory,
+                CategoryAverageRating = basicBenchmarks.AverageRatingInCategory,
+                Insights = insights
+            };
+        }
+
         public async Task RecordBusinessViewAsync(int businessId)
         {
             var business = await _context.Businesses.FindAsync(businessId);

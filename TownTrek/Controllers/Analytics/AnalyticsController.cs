@@ -4,9 +4,9 @@ using System.Security.Claims;
 using TownTrek.Attributes;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Controllers.Analytics
+namespace TownTrek.Controllers.Client
 {
-    [Authorize]
+    [Authorize(Policy = "PaidClientAccess")] // Only allow paid clients (Basic, Standard, Premium) + Admin
     [Route("Client/[controller]/[action]")]
     public class AnalyticsController(
         IAnalyticsService analyticsService,
@@ -22,7 +22,6 @@ namespace TownTrek.Controllers.Analytics
         private readonly ILogger<AnalyticsController> _logger = logger;
 
         // Analytics Dashboard - available to all non-trial authenticated clients with active subscription
-        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Index()
         {
             try
@@ -89,7 +88,6 @@ namespace TownTrek.Controllers.Analytics
         }
 
         // Business-specific analytics - available to all non-trial authenticated clients with active subscription
-        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Business(int id)
         {
             try
@@ -121,7 +119,6 @@ namespace TownTrek.Controllers.Analytics
         }
 
         // API endpoint for views over time data (for charts)
-        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> ViewsOverTimeData(int days = 30)
         {
             try
@@ -147,7 +144,6 @@ namespace TownTrek.Controllers.Analytics
         }
 
         // API endpoint for reviews over time data (for charts)
-        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> ReviewsOverTimeData(int days = 30)
         {
             try
@@ -173,7 +169,6 @@ namespace TownTrek.Controllers.Analytics
         }
 
         // Advanced analytics features - now available to all non-trial authenticated clients with active subscription
-        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Benchmarks(string category)
         {
             try
@@ -188,7 +183,7 @@ namespace TownTrek.Controllers.Analytics
                     return RedirectToAction("Index", "Subscription");
                 }
 
-                var benchmarks = await _analyticsService.GetCategoryBenchmarksAsync(userId, category);
+                var benchmarks = await _analyticsService.GetDetailedCategoryBenchmarksAsync(userId, category);
                 
                 if (benchmarks == null)
                 {
@@ -207,7 +202,6 @@ namespace TownTrek.Controllers.Analytics
         }
 
         // Competitor insights - now available to all non-trial authenticated clients with active subscription
-        [RequireActiveSubscription(allowFreeTier: false)]
         public async Task<IActionResult> Competitors()
         {
             try
@@ -232,6 +226,8 @@ namespace TownTrek.Controllers.Analytics
                 return RedirectToAction("Index");
             }
         }
+
+
 
         // Debug action to check subscription status (remove in production)
         public async Task<IActionResult> Debug()

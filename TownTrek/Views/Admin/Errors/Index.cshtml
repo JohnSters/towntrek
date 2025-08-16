@@ -36,7 +36,7 @@
                 <label for="ErrorType" class="form-label">Error Type</label>
                 <select name="ErrorType" id="ErrorType" class="form-select">
                     <option value="">All Types</option>
-                    @foreach (var type in ViewBag.ErrorTypes as string[])
+                    @foreach (var type in (ViewBag.ErrorTypes as string[]) ?? Array.Empty<string>())
                     {
                         <option value="@type" selected="@(filter?.ErrorType == type)">@type</option>
                     }
@@ -47,7 +47,7 @@
                 <label for="Severity" class="form-label">Severity</label>
                 <select name="Severity" id="Severity" class="form-select">
                     <option value="">All Severities</option>
-                    @foreach (var severity in ViewBag.Severities as string[])
+                    @foreach (var severity in (ViewBag.Severities as string[]) ?? Array.Empty<string>())
                     {
                         <option value="@severity" selected="@(filter?.Severity == severity)">@severity</option>
                     }
@@ -181,19 +181,19 @@
                 <nav class="pagination">
                     @if (Model.HasPreviousPage)
                     {
-                        <a href="@Url.Action("Index", "Errors", new { page = Model.Page - 1, filter.ErrorType, filter.Severity, filter.IsResolved, filter.SearchTerm })" 
+                        <a href="@Url.Action("Index", "Errors", new { page = Model.Page - 1, filter?.ErrorType, filter?.Severity, filter?.IsResolved, filter?.SearchTerm })" 
                            class="pagination-link">Previous</a>
                     }
                     
                     @for (int i = Math.Max(1, Model.Page - 2); i <= Math.Min(Model.TotalPages, Model.Page + 2); i++)
                     {
-                        <a href="@Url.Action("Index", "Errors", new { page = i, filter.ErrorType, filter.Severity, filter.IsResolved, filter.SearchTerm })" 
+                        <a href="@Url.Action("Index", "Errors", new { page = i, filter?.ErrorType, filter?.Severity, filter?.IsResolved, filter?.SearchTerm })" 
                            class="pagination-link @(i == Model.Page ? "active" : "")">@i</a>
                     }
                     
                     @if (Model.HasNextPage)
                     {
-                        <a href="@Url.Action("Index", "Errors", new { page = Model.Page + 1, filter.ErrorType, filter.Severity, filter.IsResolved, filter.SearchTerm })" 
+                        <a href="@Url.Action("Index", "Errors", new { page = Model.Page + 1, filter?.ErrorType, filter?.Severity, filter?.IsResolved, filter?.SearchTerm })" 
                            class="pagination-link">Next</a>
                     }
                 </nav>

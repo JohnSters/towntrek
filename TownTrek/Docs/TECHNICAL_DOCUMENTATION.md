@@ -319,7 +319,7 @@ wwwroot/js/
   - Enforce optional MFA and review password policy before go-live.
 
 - Diagnostics and Test Utilities
-  - Remove (or restrict to Admin only) the diagnostic endpoints in `TestAnalyticsController` and any temporary debug navigation links.
+  - ✅ Removed diagnostic endpoints and temporary debug navigation links.
   - Add an `EnableDiagnostics` flag (true in Development, false in Production).
 
 - Subscription Features and Seeding

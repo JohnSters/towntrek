@@ -22,7 +22,7 @@
             </div>
             <h2>No businesses yet</h2>
             <p>Add your first business to start seeing analytics.</p>
-            <a href="@Url.Action("Create", "Business")" class="btn btn-primary">Add a Business</a>
+            <a asp-controller="Business" asp-action="Create" class="btn btn-primary">Add a Business</a>
         </div>
     }
     else
@@ -209,7 +209,7 @@
                         }
 
                         <div class="performance-actions">
-                            <a href="@Url.Action("Business", new { id = business.BusinessId })" class="btn btn-secondary btn-sm">View Details</a>
+                            <a asp-controller="Analytics" asp-action="Business" asp-route-id="@business.BusinessId" class="btn btn-secondary btn-sm">View Details</a>
                         </div>
                     </div>
                 }
@@ -285,7 +285,7 @@
                                 <div class="benchmark-status @Model.CategoryBenchmarks.YourPerformanceVsAverage">
                                     @Model.CategoryBenchmarks.YourPerformanceVsAverage.ToUpper()
                                 </div>
-                                <a href="@Url.Action("Benchmarks", new { category = Model.CategoryBenchmarks.Category })" class="btn btn-primary btn-sm">View Details</a>
+                                <a asp-controller="Analytics" asp-action="Benchmarks" asp-route-category="@Model.CategoryBenchmarks.Category" class="btn btn-primary btn-sm">View Details</a>
                             </div>
                         </div>
                     }
@@ -301,7 +301,7 @@
                                 <div class="competitor-summary">
                                     @Model.CompetitorInsights.Count markets analyzed
                                 </div>
-                                <a href="@Url.Action("Competitors")" class="btn btn-primary btn-sm">View Analysis</a>
+                                <a asp-controller="Analytics" asp-action="Competitors" class="btn btn-primary btn-sm">View Analysis</a>
                             </div>
                         </div>
                     }

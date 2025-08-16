@@ -10,6 +10,7 @@ namespace TownTrek.Services.Interfaces
         Task<List<ReviewsOverTimeData>> GetReviewsOverTimeAsync(string userId, int days = 30);
         Task<List<BusinessPerformanceInsight>> GetPerformanceInsightsAsync(string userId);
         Task<CategoryBenchmarkData?> GetCategoryBenchmarksAsync(string userId, string category);
+        Task<CategoryBenchmarks?> GetDetailedCategoryBenchmarksAsync(string userId, string category);
         Task<List<CompetitorInsight>> GetCompetitorInsightsAsync(string userId);
         Task RecordBusinessViewAsync(int businessId);
     }
