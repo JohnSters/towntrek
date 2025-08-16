@@ -50,6 +50,10 @@ namespace TownTrek.Data
         
         // Error Logging
         public DbSet<ErrorLogEntry> ErrorLogs { get; set; }
+        
+        // Admin Messages
+        public DbSet<AdminMessageTopic> AdminMessageTopics { get; set; }
+        public DbSet<AdminMessage> AdminMessages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -184,6 +188,9 @@ namespace TownTrek.Data
             // Configure error logging
             ConfigureErrorLoggingEntities(builder);
             
+            // Configure admin messages
+            ConfigureAdminMessageEntities(builder);
+            
             // Seed default data
             SeedData(builder);
         }
@@ -313,6 +320,25 @@ namespace TownTrek.Data
                 new ServiceDefinition { Id = 4, Key = "parking", Name = "Parking Available", IsActive = true },
                 new ServiceDefinition { Id = 5, Key = "wifi", Name = "Free WiFi", IsActive = true },
                 new ServiceDefinition { Id = 6, Key = "cards", Name = "Card Payments Accepted", IsActive = true }
+            );
+
+            // Seed admin message topics
+            builder.Entity<AdminMessageTopic>().HasData(
+                // High Priority Topics
+                new AdminMessageTopic { Id = 1, Key = "payment-issues", Name = "Payment Issues", Description = "Billing problems, payment failures, subscription issues", IconClass = "fas fa-credit-card", Priority = "High", ColorClass = "danger", SortOrder = 1, CreatedAt = DateTime.UtcNow },
+                new AdminMessageTopic { Id = 2, Key = "technical-problems", Name = "Technical Problems", Description = "Site bugs, login issues, functionality not working", IconClass = "fas fa-bug", Priority = "High", ColorClass = "danger", SortOrder = 2, CreatedAt = DateTime.UtcNow },
+                new AdminMessageTopic { Id = 3, Key = "account-access", Name = "Account Access", Description = "Password resets, account lockouts, permission issues", IconClass = "fas fa-user-lock", Priority = "High", ColorClass = "warning", SortOrder = 3, CreatedAt = DateTime.UtcNow },
+                
+                // Medium Priority Topics
+                new AdminMessageTopic { Id = 4, Key = "feature-requests", Name = "Feature Requests", Description = "New functionality suggestions, improvements", IconClass = "fas fa-lightbulb", Priority = "Medium", ColorClass = "info", SortOrder = 4, CreatedAt = DateTime.UtcNow },
+                new AdminMessageTopic { Id = 5, Key = "business-listing", Name = "Business Listing Issues", Description = "Problems with business information, images, approval delays", IconClass = "fas fa-store", Priority = "Medium", ColorClass = "info", SortOrder = 5, CreatedAt = DateTime.UtcNow },
+                new AdminMessageTopic { Id = 6, Key = "subscription-changes", Name = "Subscription Changes", Description = "Upgrade/downgrade requests, plan modifications", IconClass = "fas fa-exchange-alt", Priority = "Medium", ColorClass = "info", SortOrder = 6, CreatedAt = DateTime.UtcNow },
+                new AdminMessageTopic { Id = 7, Key = "data-corrections", Name = "Data Corrections", Description = "Incorrect town information, business details", IconClass = "fas fa-edit", Priority = "Medium", ColorClass = "warning", SortOrder = 7, CreatedAt = DateTime.UtcNow },
+                
+                // Low Priority Topics
+                new AdminMessageTopic { Id = 8, Key = "general-support", Name = "General Support", Description = "How-to questions, usage guidance", IconClass = "fas fa-question-circle", Priority = "Low", ColorClass = "secondary", SortOrder = 8, CreatedAt = DateTime.UtcNow },
+                new AdminMessageTopic { Id = 9, Key = "feedback", Name = "Feedback & Suggestions", Description = "General feedback about the platform", IconClass = "fas fa-comment", Priority = "Low", ColorClass = "secondary", SortOrder = 9, CreatedAt = DateTime.UtcNow },
+                new AdminMessageTopic { Id = 10, Key = "partnership-inquiries", Name = "Partnership Inquiries", Description = "Business partnerships, collaboration requests", IconClass = "fas fa-handshake", Priority = "Low", ColorClass = "secondary", SortOrder = 10, CreatedAt = DateTime.UtcNow }
             );
         }
 
@@ -556,6 +582,69 @@ namespace TownTrek.Data
                 entity.HasIndex(e => e.IsResolved).HasDatabaseName("IX_ErrorLogs_IsResolved");
                 entity.HasIndex(e => e.UserId).HasDatabaseName("IX_ErrorLogs_UserId");
                 entity.HasIndex(e => new { e.Timestamp, e.Severity }).HasDatabaseName("IX_ErrorLogs_Timestamp_Severity");
+            });
+        }
+
+        private void ConfigureAdminMessageEntities(ModelBuilder builder)
+        {
+            // Configure AdminMessageTopic
+            builder.Entity<AdminMessageTopic>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Key).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.IconClass).HasMaxLength(100);
+                entity.Property(e => e.Priority).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.ColorClass).HasMaxLength(50);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                
+                entity.HasIndex(e => e.Key).IsUnique();
+                entity.HasIndex(e => e.SortOrder);
+            });
+
+            // Configure AdminMessage
+            builder.Entity<AdminMessage>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.Subject).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Message).IsRequired().HasMaxLength(2000);
+                entity.Property(e => e.Status).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Priority).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.ResolvedBy).HasMaxLength(450);
+                entity.Property(e => e.AdminResponse).HasMaxLength(2000);
+                entity.Property(e => e.ResponseBy).HasMaxLength(450);
+
+                // Foreign key relationships
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.Topic)
+                      .WithMany(t => t.Messages)
+                      .HasForeignKey(e => e.TopicId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(e => e.ResolvedByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.ResolvedBy)
+                      .OnDelete(DeleteBehavior.NoAction);
+
+                entity.HasOne(e => e.ResponseByUser)
+                      .WithMany()
+                      .HasForeignKey(e => e.ResponseBy)
+                      .OnDelete(DeleteBehavior.NoAction);
+
+                // Indexes for performance
+                entity.HasIndex(e => e.UserId);
+                entity.HasIndex(e => e.TopicId);
+                entity.HasIndex(e => e.Status);
+                entity.HasIndex(e => e.Priority);
+                entity.HasIndex(e => e.CreatedAt);
+                entity.HasIndex(e => new { e.Status, e.Priority });
             });
         }
     }

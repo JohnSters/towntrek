@@ -15,6 +15,7 @@ namespace TownTrek.Services
         ISubscriptionAuthService subscriptionAuthService,
         UserManager<ApplicationUser> userManager,
         ITrialService trialService,
+        IAdminMessageService adminMessageService,
         ILogger<ClientService> logger) : IClientService
     {
         private readonly ApplicationDbContext _context = context;
@@ -23,6 +24,7 @@ namespace TownTrek.Services
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly ITrialService _trialService = trialService;
+        private readonly IAdminMessageService _adminMessageService = adminMessageService;
         private readonly ILogger<ClientService> _logger = logger;
 
         public async Task<ClientDashboardViewModel> GetDashboardViewModelAsync(string userId)
@@ -346,6 +348,21 @@ namespace TownTrek.Services
             baseModel.Services = formData.Services;
             
             return baseModel;
+        }
+
+        public async Task<ContactAdminViewModel> GetContactAdminViewModelAsync(string userId)
+        {
+            return await _adminMessageService.GetContactAdminViewModelAsync(userId);
+        }
+
+        public async Task<AdminMessage> CreateAdminMessageAsync(string userId, int topicId, string subject, string message)
+        {
+            return await _adminMessageService.CreateMessageAsync(userId, topicId, subject, message);
+        }
+
+        public async Task<AdminMessageTopic?> GetAdminMessageTopicAsync(int topicId)
+        {
+            return await _adminMessageService.GetTopicByIdAsync(topicId);
         }
 
         private static string GetDayName(int dayOfWeek)

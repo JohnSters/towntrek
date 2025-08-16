@@ -6,6 +6,7 @@ using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 
 namespace TownTrek.Controllers.Admin
@@ -15,11 +16,16 @@ namespace TownTrek.Controllers.Admin
     {
         private readonly ApplicationDbContext _context;
         private readonly IDatabaseErrorLogger _errorLogger;
+        private readonly IAdminMessageService _adminMessageService;
 
-        public AdminController(ApplicationDbContext context, IDatabaseErrorLogger errorLogger)
+        public AdminController(
+            ApplicationDbContext context, 
+            IDatabaseErrorLogger errorLogger,
+            IAdminMessageService adminMessageService)
         {
             _context = context;
             _errorLogger = errorLogger;
+            _adminMessageService = adminMessageService;
         }
 
         // Dashboard - Main admin overview
@@ -51,6 +57,19 @@ namespace TownTrek.Controllers.Admin
                 stats.CriticalErrorsLast24Hours = 0;
                 stats.UnresolvedErrorsTotal = 0;
                 stats.RecentErrors = new List<RecentErrorActivity>();
+            }
+
+            // Get message statistics
+            try
+            {
+                stats.MessageStats = await _adminMessageService.GetMessageStatsAsync();
+                stats.RecentMessages = await _adminMessageService.GetRecentMessagesAsync(5);
+            }
+            catch (Exception)
+            {
+                // If message statistics fail, continue with basic dashboard
+                stats.MessageStats = new AdminMessageStats();
+                stats.RecentMessages = new List<AdminMessage>();
             }
 
             return View(stats);

@@ -1,0 +1,287 @@
+@model TownTrek.Models.ViewModels.AdminMessagesViewModel
+@{
+    ViewData["Title"] = "Client Messages";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/components/modal.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components/admin-messages.css" asp-append-version="true" />
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Client Messages</h1>
+            <p class="page-description">Manage and respond to messages from clients.</p>
+        </div>
+        <div class="page-actions">
+            <button class="auth-btn auth-btn-secondary" onclick="refreshMessages()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Message Statistics -->
+<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Stats.TotalMessages</div>
+        <div class="stat-label">Total Messages</div>
+        <div class="stat-change">@Model.Stats.MessagesToday today</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon warning">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Stats.OpenMessages</div>
+        <div class="stat-label">Open Messages</div>
+        <div class="stat-change">Need attention</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Stats.InProgressMessages</div>
+        <div class="stat-label">In Progress</div>
+        <div class="stat-change">Being handled</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon @(Model.Stats.CriticalMessages > 0 ? "danger" : "success")">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.Stats.CriticalMessages</div>
+        <div class="stat-label">Critical Priority</div>
+        <div class="stat-change">@Model.Stats.HighPriorityMessages high priority</div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="admin-card" style="margin-bottom: 1.5rem;">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Filters</h3>
+    </div>
+    
+    <form method="get" class="filter-form">
+        <div class="filter-grid">
+            <div class="form-group">
+                <label class="form-label">Status</label>
+                <select name="Status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="Open" selected="@(Model.Filters.Status == "Open")">Open</option>
+                    <option value="InProgress" selected="@(Model.Filters.Status == "InProgress")">In Progress</option>
+                    <option value="Resolved" selected="@(Model.Filters.Status == "Resolved")">Resolved</option>
+                    <option value="Closed" selected="@(Model.Filters.Status == "Closed")">Closed</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Priority</label>
+                <select name="Priority" class="form-select">
+                    <option value="">All Priorities</option>
+                    <option value="Critical" selected="@(Model.Filters.Priority == "Critical")">Critical</option>
+                    <option value="High" selected="@(Model.Filters.Priority == "High")">High</option>
+                    <option value="Medium" selected="@(Model.Filters.Priority == "Medium")">Medium</option>
+                    <option value="Low" selected="@(Model.Filters.Priority == "Low")">Low</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Topic</label>
+                <select name="TopicId" class="form-select">
+                    <option value="">All Topics</option>
+                    @foreach (var topic in Model.Topics)
+                    {
+                        <option value="@topic.Id" selected="@(Model.Filters.TopicId == topic.Id)">@topic.Name</option>
+                    }
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Search</label>
+                <input type="text" name="SearchTerm" value="@Model.Filters.SearchTerm" class="form-input" placeholder="Search messages..." />
+            </div>
+        </div>
+        
+        <div class="filter-actions">
+            <button type="submit" class="auth-btn auth-btn-primary">Apply Filters</button>
+            <a href="@Url.Action("Index")" class="auth-btn auth-btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Messages Table -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Messages (@Model.Messages.Count)</h3>
+        <div class="admin-card-actions">
+            <div class="bulk-actions" style="display: none;">
+                <select id="bulkActionSelect" class="form-select">
+                    <option value="">Bulk Actions</option>
+                    <option value="resolve">Mark as Resolved</option>
+                    <option value="close">Mark as Closed</option>
+                    <option value="delete">Delete</option>
+                </select>
+                <button type="button" class="auth-btn auth-btn-secondary" onclick="performBulkAction()">Apply</button>
+            </div>
+        </div>
+    </div>
+    
+    @if (Model.Messages.Any())
+    {
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)" />
+                        </th>
+                        <th>User & Subject</th>
+                        <th>Topic</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var message in Model.Messages)
+                    {
+                        <tr class="message-row @GetRowClass(message.Priority, message.Status)">
+                            <td>
+                                <input type="checkbox" class="message-checkbox" value="@message.Id" onchange="updateBulkActions()" />
+                            </td>
+                            <td>
+                                <div class="table-cell-content">
+                                    <div class="table-cell-title">@message.Subject</div>
+                                    <div class="table-cell-subtitle">
+                                        <strong>From:</strong> @message.User.Email
+                                    </div>
+                                    <div class="message-preview">
+                                        @(message.Message.Length > 100 ? message.Message.Substring(0, 100) + "..." : message.Message)
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="topic-info">
+                                    <i class="@message.Topic.IconClass"></i>
+                                    <span>@message.Topic.Name</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge badge-@GetPriorityClass(message.Priority)">@message.Priority</span>
+                            </td>
+                            <td>
+                                <span class="badge badge-@GetStatusClass(message.Status)">@message.Status</span>
+                            </td>
+                            <td>
+                                <div class="date-info">
+                                    <div>@message.CreatedAt.ToString("MMM dd, yyyy")</div>
+                                    <div class="time-info">@message.CreatedAt.ToString("HH:mm")</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <a href="@Url.Action("Details", new { id = message.Id })" class="table-action-btn" title="View Details">
+                                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                        </svg>
+                                    </a>
+                                    @if (message.Status != "Resolved" && message.Status != "Closed")
+                                    {
+                                        <form method="post" asp-action="UpdateStatus" style="display: inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="messageId" value="@message.Id" />
+                                            <input type="hidden" name="status" value="Resolved" />
+                                            <button type="submit" class="table-action-btn success" title="Mark as Resolved" onclick="return confirm('Mark this message as resolved?')">
+                                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    }
+                                    <form method="post" asp-action="Delete" style="display: inline;">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="messageId" value="@message.Id" />
+                                        <button type="submit" class="table-action-btn danger" title="Delete" onclick="return confirm('Are you sure you want to delete this message?')">
+                                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="empty-state-icon">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+            </svg>
+            <h3 class="empty-state-title">No Messages Found</h3>
+            <p class="empty-state-description">No client messages match your current filters.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/modules/admin/admin-messages.js" asp-append-version="true"></script>
+}
+
+@functions {
+    private string GetRowClass(string priority, string status)
+    {
+        if (priority == "Critical") return "row-critical";
+        if (priority == "High") return "row-high";
+        if (status == "Open") return "row-open";
+        return "";
+    }
+    
+    private string GetPriorityClass(string priority)
+    {
+        return priority.ToLower() switch
+        {
+            "critical" => "danger",
+            "high" => "danger",
+            "medium" => "warning",
+            "low" => "secondary",
+            _ => "secondary"
+        };
+    }
+    
+    private string GetStatusClass(string status)
+    {
+        return status.ToLower() switch
+        {
+            "open" => "info",
+            "inprogress" => "warning",
+            "resolved" => "success",
+            "closed" => "secondary",
+            _ => "secondary"
+        };
+    }
+}

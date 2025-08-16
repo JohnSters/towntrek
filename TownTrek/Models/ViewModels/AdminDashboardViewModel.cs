@@ -17,5 +17,9 @@ namespace TownTrek.Models.ViewModels
         public int UnresolvedErrorsTotal { get; set; }
         public List<RecentErrorActivity> RecentErrors { get; set; } = new();
         public ErrorLogStats? ErrorStats { get; set; }
+        
+        // Admin message statistics
+        public AdminMessageStats? MessageStats { get; set; }
+        public List<AdminMessage> RecentMessages { get; set; } = new();
     }
 }
