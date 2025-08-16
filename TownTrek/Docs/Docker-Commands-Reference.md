@@ -385,4 +385,20 @@ curl -I http://localhost:8080
 docker-compose down
 ```
 
+### When all else fails
+```bash
+cd C:\Users\Admin\projects\web-development\TownTrek-Project\
+docker-compose down -v --remove-orphans
+docker system prune -a --volumes
+
+docker-compose up --build
+
+If migration errors occur:
+cd TownTrek
+dotnet ef database update --connection "Server=localhost,1433;Database=TownTrekDb_Docker;User Id=sa;Password=Delsup123@sch;TrustServerCertificate=true;MultipleActiveResultSets=true"
+
+```
+
+
+
 This reference guide covers the most commonly used Docker commands for developing and troubleshooting the TownTrek application. Keep this handy for quick reference during development and deployment activities.
