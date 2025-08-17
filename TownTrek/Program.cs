@@ -95,6 +95,7 @@ public class Program
         // Configure options
         builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
         builder.Services.Configure<PayFastOptions>(builder.Configuration.GetSection("PayFast"));
+        builder.Services.Configure<CacheOptions>(builder.Configuration.GetSection(CacheOptions.SectionName));
 
         // Add these service registrations
         builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
@@ -116,6 +117,10 @@ public class Program
         builder.Services.AddScoped<IViewTrackingService, ViewTrackingService>();
         builder.Services.AddScoped<IAnalyticsSnapshotService, AnalyticsSnapshotService>();
         builder.Services.AddHostedService<AnalyticsSnapshotBackgroundService>();
+        
+        // Add cache services
+        builder.Services.AddScoped<ICacheService, CacheService>();
+        builder.Services.AddScoped<IAnalyticsCacheService, AnalyticsCacheService>();
         builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
         builder.Services.AddScoped<IApplicationLogger, ApplicationLogger>();
         builder.Services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();
@@ -123,6 +128,24 @@ public class Program
 
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();
+
+        // Add caching services
+        builder.Services.AddMemoryCache();
+        
+        // Configure Redis or in-memory cache based on configuration
+        var cacheOptions = builder.Configuration.GetSection(CacheOptions.SectionName).Get<CacheOptions>();
+        if (cacheOptions?.UseRedis == true && !string.IsNullOrEmpty(cacheOptions.RedisConnectionString))
+        {
+            builder.Services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = cacheOptions.RedisConnectionString;
+                options.InstanceName = "TownTrek_";
+            });
+        }
+        else
+        {
+            builder.Services.AddDistributedMemoryCache();
+        }
 
         builder.Services.AddControllersWithViews()
             .AddRazorOptions(options =>

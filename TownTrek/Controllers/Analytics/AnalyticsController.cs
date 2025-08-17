@@ -10,12 +10,14 @@ namespace TownTrek.Controllers.Client
     [Route("Client/[controller]/[action]")]
     public class AnalyticsController(
         IAnalyticsService analyticsService,
+        IAnalyticsCacheService analyticsCacheService,
         ISubscriptionAuthService subscriptionAuthService,
         ITrialService trialService,
         IBusinessService businessService,
         ILogger<AnalyticsController> logger) : Controller
     {
         private readonly IAnalyticsService _analyticsService = analyticsService;
+        private readonly IAnalyticsCacheService _analyticsCacheService = analyticsCacheService;
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly ITrialService _trialService = trialService;
         private readonly IBusinessService _businessService = businessService;
@@ -58,7 +60,7 @@ namespace TownTrek.Controllers.Client
                     });
                 }
                 
-                var analyticsModel = await _analyticsService.GetClientAnalyticsAsync(userId);
+                var analyticsModel = await _analyticsCacheService.GetClientAnalyticsAsync(userId);
                 
                 return View(analyticsModel);
             }
@@ -102,7 +104,7 @@ namespace TownTrek.Controllers.Client
                     return RedirectToAction("Index", "Subscription");
                 }
 
-                var businessAnalytics = await _analyticsService.GetBusinessAnalyticsAsync(id, userId);
+                var businessAnalytics = await _analyticsCacheService.GetBusinessAnalyticsAsync(id, userId);
                 return View(businessAnalytics);
             }
             catch (ArgumentException)
@@ -133,7 +135,7 @@ namespace TownTrek.Controllers.Client
                     return Json(new { error = "Analytics are not available during the trial period." });
                 }
 
-                var data = await _analyticsService.GetViewsOverTimeAsync(userId, days);
+                var data = await _analyticsCacheService.GetViewsOverTimeAsync(userId, days);
                 return Json(data);
             }
             catch (Exception ex)
@@ -158,7 +160,7 @@ namespace TownTrek.Controllers.Client
                     return Json(new { error = "Analytics are not available during the trial period." });
                 }
 
-                var data = await _analyticsService.GetReviewsOverTimeAsync(userId, days);
+                var data = await _analyticsCacheService.GetReviewsOverTimeAsync(userId, days);
                 return Json(data);
             }
             catch (Exception ex)
@@ -245,7 +247,7 @@ namespace TownTrek.Controllers.Client
                     return Json(new { error = "Analytics are not available during the trial period." });
                 }
 
-                var chartData = await _analyticsService.GetViewsChartDataAsync(userId, days, platform);
+                var chartData = await _analyticsCacheService.GetViewsChartDataAsync(userId, days, platform);
                 return Json(chartData);
             }
             catch (Exception ex)
@@ -272,7 +274,7 @@ namespace TownTrek.Controllers.Client
                     return Json(new { error = "Analytics are not available during the trial period." });
                 }
 
-                var chartData = await _analyticsService.GetReviewsChartDataAsync(userId, days);
+                var chartData = await _analyticsCacheService.GetReviewsChartDataAsync(userId, days);
                 return Json(chartData);
             }
             catch (Exception ex)
@@ -330,7 +332,7 @@ namespace TownTrek.Controllers.Client
                     return RedirectToAction("Index", "Subscription");
                 }
 
-                var insights = await _analyticsService.GetCompetitorInsightsAsync(userId);
+                var insights = await _analyticsCacheService.GetCompetitorInsightsAsync(userId);
                 return View(insights);
             }
             catch (Exception ex)
@@ -372,6 +374,69 @@ namespace TownTrek.Controllers.Client
             {
                 _logger.LogError(ex, "Error creating test snapshots");
                 return Json(new { error = "Unable to create snapshots" });
+            }
+        }
+
+        // ===== CACHE MANAGEMENT ENDPOINTS =====
+
+        /// <summary>
+        /// Invalidate all analytics cache for the current user
+        /// </summary>
+        [HttpPost]
+        public async Task<IActionResult> InvalidateCache()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+                await _analyticsCacheService.InvalidateUserAnalyticsAsync(userId);
+                
+                return Json(new { success = true, message = "Analytics cache invalidated successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error invalidating analytics cache");
+                return Json(new { success = false, message = "Failed to invalidate cache" });
+            }
+        }
+
+        /// <summary>
+        /// Get cache statistics (admin only)
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CacheStatistics()
+        {
+            try
+            {
+                var stats = await _analyticsCacheService.GetAnalyticsCacheStatisticsAsync();
+                return Json(stats);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting cache statistics");
+                return Json(new { error = "Failed to get cache statistics" });
+            }
+        }
+
+        /// <summary>
+        /// Warm up cache for active users (admin only)
+        /// </summary>
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> WarmUpCache()
+        {
+            try
+            {
+                // Get list of active users (simplified - in production you'd get this from a service)
+                var activeUsers = new List<string>(); // TODO: Get from user service
+                
+                await _analyticsCacheService.WarmUpAnalyticsCacheAsync(activeUsers);
+                
+                return Json(new { success = true, message = "Cache warm-up completed" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error warming up cache");
+                return Json(new { success = false, message = "Failed to warm up cache" });
             }
         }
 
