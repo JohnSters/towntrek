@@ -178,9 +178,9 @@ class AnalyticsExportModal {
   async exportPdf() {
     try {
       const dateRange = document.getElementById('export-date-range').value;
-      const url = this.currentBusinessId 
-        ? `/Analytics/ExportBusinessPdf?businessId=${this.currentBusinessId}&dateRange=${dateRange}`
-        : `/Analytics/ExportOverviewPdf?dateRange=${dateRange}`;
+              const url = this.currentBusinessId 
+          ? `/Client/Analytics/ExportBusinessPdf?businessId=${this.currentBusinessId}&dateRange=${dateRange}`
+          : `/Client/Analytics/ExportOverviewPdf?dateRange=${dateRange}`;
 
       window.open(url, '_blank');
     } catch (error) {
@@ -192,9 +192,9 @@ class AnalyticsExportModal {
   async exportCsv() {
     try {
       const dateRange = document.getElementById('export-date-range').value;
-      const url = this.currentBusinessId 
-        ? `/Analytics/ExportCsv?businessId=${this.currentBusinessId}&dateRange=${dateRange}`
-        : `/Analytics/ExportCsv?dateRange=${dateRange}`;
+              const url = this.currentBusinessId 
+          ? `/Client/Analytics/ExportCsv?businessId=${this.currentBusinessId}&dateRange=${dateRange}`
+          : `/Client/Analytics/ExportCsv?dateRange=${dateRange}`;
 
       window.open(url, '_blank');
     } catch (error) {
@@ -209,7 +209,7 @@ class AnalyticsExportModal {
       const description = document.getElementById('link-description').value;
       const dashboardType = this.currentBusinessId ? 'business' : 'overview';
 
-      const response = await fetch('/Analytics/GenerateShareableLink', {
+      const response = await fetch('/Client/Analytics/GenerateShareableLink', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,7 +263,7 @@ class AnalyticsExportModal {
         return;
       }
 
-      const response = await fetch('/Analytics/SendEmailReport', {
+      const response = await fetch('/Client/Analytics/SendEmailReport', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -305,7 +305,7 @@ class AnalyticsExportModal {
         return;
       }
 
-      const response = await fetch('/Analytics/ScheduleEmailReport', {
+      const response = await fetch('/Client/Analytics/ScheduleEmailReport', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -358,10 +358,13 @@ class AnalyticsExportModal {
   }
 }
 
-// Global instance
-window.analyticsExportModal = new AnalyticsExportModal();
+// Global instance - lazy initialization
+window.analyticsExportModal = null;
 
 // Global function for opening the modal
 window.openAnalyticsExportModal = function(businessId = null) {
+  if (!window.analyticsExportModal) {
+    window.analyticsExportModal = new AnalyticsExportModal();
+  }
   window.analyticsExportModal.show(businessId);
 };

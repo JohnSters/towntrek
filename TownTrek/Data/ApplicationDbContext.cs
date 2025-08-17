@@ -70,6 +70,14 @@ namespace TownTrek.Data
         // Analytics Export and Sharing
         public DbSet<AnalyticsShareableLink> AnalyticsShareableLinks { get; set; }
         public DbSet<AnalyticsEmailReport> AnalyticsEmailReports { get; set; }
+        
+        // Advanced Analytics
+        public DbSet<CustomMetric> CustomMetrics { get; set; }
+        public DbSet<CustomMetricDataPoint> CustomMetricDataPoints { get; set; }
+        public DbSet<CustomMetricGoal> CustomMetricGoals { get; set; }
+        public DbSet<AnomalyDetection> AnomalyDetections { get; set; }
+        public DbSet<PredictiveForecast> PredictiveForecasts { get; set; }
+        public DbSet<SeasonalPattern> SeasonalPatterns { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

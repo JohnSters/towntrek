@@ -33,6 +33,7 @@ namespace TownTrek
             // Register analytics services
             services.AddScoped<IAnalyticsService, AnalyticsService>();
             services.AddScoped<IViewTrackingService, ViewTrackingService>();
+            services.AddScoped<IAdvancedAnalyticsService, AdvancedAnalyticsService>();
         }
     }
 }
