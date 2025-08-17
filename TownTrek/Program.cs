@@ -8,6 +8,7 @@ using TownTrek.Options;
 using TownTrek.Middleware;
 using Serilog;
 using System.Threading.RateLimiting;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace TownTrek;
 
@@ -177,8 +178,18 @@ public class Program
         // Add analytics audit service
         builder.Services.AddScoped<IAnalyticsAuditService, AnalyticsAuditService>();
 
+        // Add analytics monitoring and observability services
+        builder.Services.AddScoped<IAnalyticsPerformanceMonitor, AnalyticsPerformanceMonitor>();
+        builder.Services.AddScoped<IAnalyticsErrorTracker, AnalyticsErrorTracker>();
+        builder.Services.AddScoped<IAnalyticsUsageTracker, AnalyticsUsageTracker>();
+
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();
+
+        // Add health checks
+        builder.Services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>("database")
+            .AddCheck<AnalyticsHealthCheck>("analytics");
 
         // Add caching services
         builder.Services.AddMemoryCache();
@@ -254,6 +265,9 @@ public class Program
         
         // Add view tracking middleware
         app.UseViewTracking();
+
+        // Map health checks
+        app.MapHealthChecks("/health");
 
         app.MapControllers();
 

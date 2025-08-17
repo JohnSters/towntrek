@@ -61,6 +61,11 @@ namespace TownTrek.Data
         
         // Analytics Audit Logs
         public DbSet<AnalyticsAuditLog> AnalyticsAuditLogs { get; set; }
+        
+        // Analytics Monitoring and Observability
+        public DbSet<AnalyticsPerformanceLog> AnalyticsPerformanceLogs { get; set; }
+        public DbSet<AnalyticsErrorLog> AnalyticsErrorLogs { get; set; }
+        public DbSet<AnalyticsUsageLog> AnalyticsUsageLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -198,6 +203,7 @@ namespace TownTrek.Data
             // Configure admin messages
             ConfigureAdminMessageEntities(builder);
             ConfigureAnalyticsAuditLogEntity(builder);
+            ConfigureAnalyticsMonitoringEntities(builder);
             
             // Seed default data
             SeedData(builder);
@@ -724,6 +730,112 @@ namespace TownTrek.Data
                 entity.HasIndex(e => e.IpAddress).HasDatabaseName("IX_AnalyticsAuditLogs_IpAddress");
                 entity.HasIndex(e => new { e.UserId, e.Timestamp }).HasDatabaseName("IX_AnalyticsAuditLogs_UserId_Timestamp");
                 entity.HasIndex(e => new { e.IsSuspicious, e.Timestamp }).HasDatabaseName("IX_AnalyticsAuditLogs_Suspicious_Timestamp");
+            });
+        }
+
+        private void ConfigureAnalyticsMonitoringEntities(ModelBuilder builder)
+        {
+            // Configure AnalyticsPerformanceLog
+            builder.Entity<AnalyticsPerformanceLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.MetricType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.MetricName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Value).IsRequired();
+                entity.Property(e => e.Unit).HasMaxLength(50);
+                entity.Property(e => e.IsSuccess).HasDefaultValue(true);
+                entity.Property(e => e.ErrorMessage).HasMaxLength(500);
+                entity.Property(e => e.Platform).HasMaxLength(100);
+                entity.Property(e => e.UserAgent).HasMaxLength(100);
+                entity.Property(e => e.IpAddress).HasMaxLength(45);
+                entity.Property(e => e.Context).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                // Foreign key relationship to ApplicationUser
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes for performance and querying
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_AnalyticsPerformanceLogs_UserId");
+                entity.HasIndex(e => e.MetricType).HasDatabaseName("IX_AnalyticsPerformanceLogs_MetricType");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_AnalyticsPerformanceLogs_CreatedAt");
+                entity.HasIndex(e => e.IsSuccess).HasDatabaseName("IX_AnalyticsPerformanceLogs_IsSuccess");
+                entity.HasIndex(e => new { e.MetricType, e.CreatedAt }).HasDatabaseName("IX_AnalyticsPerformanceLogs_MetricType_CreatedAt");
+                entity.HasIndex(e => new { e.UserId, e.CreatedAt }).HasDatabaseName("IX_AnalyticsPerformanceLogs_UserId_CreatedAt");
+            });
+
+            // Configure AnalyticsErrorLog
+            builder.Entity<AnalyticsErrorLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.ErrorType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.ErrorCategory).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.ErrorMessage).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.StackTrace).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.Context).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.Severity).IsRequired().HasMaxLength(20).HasDefaultValue("Medium");
+                entity.Property(e => e.IsResolved).HasDefaultValue(false);
+                entity.Property(e => e.ResolvedBy).HasMaxLength(450);
+                entity.Property(e => e.Platform).HasMaxLength(100);
+                entity.Property(e => e.UserAgent).HasMaxLength(100);
+                entity.Property(e => e.IpAddress).HasMaxLength(45);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                // Foreign key relationships
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.ResolvedBy)
+                      .OnDelete(DeleteBehavior.NoAction);
+
+                // Indexes for performance and querying
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_AnalyticsErrorLogs_UserId");
+                entity.HasIndex(e => e.ErrorType).HasDatabaseName("IX_AnalyticsErrorLogs_ErrorType");
+                entity.HasIndex(e => e.Severity).HasDatabaseName("IX_AnalyticsErrorLogs_Severity");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_AnalyticsErrorLogs_CreatedAt");
+                entity.HasIndex(e => e.IsResolved).HasDatabaseName("IX_AnalyticsErrorLogs_IsResolved");
+                entity.HasIndex(e => new { e.ErrorType, e.CreatedAt }).HasDatabaseName("IX_AnalyticsErrorLogs_ErrorType_CreatedAt");
+                entity.HasIndex(e => new { e.Severity, e.IsResolved }).HasDatabaseName("IX_AnalyticsErrorLogs_Severity_Resolved");
+            });
+
+            // Configure AnalyticsUsageLog
+            builder.Entity<AnalyticsUsageLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.UsageType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.FeatureName).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Duration);
+                entity.Property(e => e.InteractionType).HasMaxLength(100);
+                entity.Property(e => e.Metadata).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.Platform).HasMaxLength(100);
+                entity.Property(e => e.UserAgent).HasMaxLength(100);
+                entity.Property(e => e.IpAddress).HasMaxLength(45);
+                entity.Property(e => e.SessionId).HasMaxLength(100);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                // Foreign key relationship to ApplicationUser
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes for performance and querying
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_AnalyticsUsageLogs_UserId");
+                entity.HasIndex(e => e.UsageType).HasDatabaseName("IX_AnalyticsUsageLogs_UsageType");
+                entity.HasIndex(e => e.FeatureName).HasDatabaseName("IX_AnalyticsUsageLogs_FeatureName");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_AnalyticsUsageLogs_CreatedAt");
+                entity.HasIndex(e => e.SessionId).HasDatabaseName("IX_AnalyticsUsageLogs_SessionId");
+                entity.HasIndex(e => new { e.UsageType, e.CreatedAt }).HasDatabaseName("IX_AnalyticsUsageLogs_UsageType_CreatedAt");
+                entity.HasIndex(e => new { e.UserId, e.CreatedAt }).HasDatabaseName("IX_AnalyticsUsageLogs_UserId_CreatedAt");
             });
         }
     }
