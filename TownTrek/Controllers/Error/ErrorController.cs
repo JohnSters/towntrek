@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using TownTrek.Models.ViewModels;
 using System.Diagnostics;
 
-namespace TownTrek.Controllers;
+namespace TownTrek.Controllers.Error;
 
 /// <summary>
 /// Handles error pages and error responses

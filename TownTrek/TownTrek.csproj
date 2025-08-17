@@ -48,7 +48,6 @@
 
 
   <ItemGroup>
-    <Folder Include="Controllers\Error\" />
     <Folder Include="Data\" />
     <Folder Include="Migrations\" />
     <Folder Include="Services\Api\" />
