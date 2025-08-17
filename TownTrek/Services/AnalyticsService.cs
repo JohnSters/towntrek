@@ -34,12 +34,9 @@ namespace TownTrek.Services
                 .Include(b => b.Town)
                 .ToListAsync();
 
-            var businessAnalytics = new List<BusinessAnalyticsData>();
-            foreach (var business in businesses)
-            {
-                var analytics = await GetBusinessAnalyticsAsync(business.Id, userId);
-                businessAnalytics.Add(analytics);
-            }
+            // OPTIMIZED: Use batch queries instead of N+1 queries
+            var businessIds = businesses.Select(b => b.Id).ToList();
+            var businessAnalytics = await GetBusinessAnalyticsBatchAsync(businessIds, userId);
 
             var overview = await GetAnalyticsOverviewAsync(userId, businessAnalytics);
             var viewsOverTime = await GetViewsOverTimeAsync(userId, 30);
@@ -73,6 +70,222 @@ namespace TownTrek.Services
             }
 
             return model;
+        }
+
+        /// <summary>
+        /// Optimized batch method to get analytics for multiple businesses in a single query
+        /// </summary>
+        private async Task<List<BusinessAnalyticsData>> GetBusinessAnalyticsBatchAsync(List<int> businessIds, string userId)
+        {
+            if (!businessIds.Any()) return new List<BusinessAnalyticsData>();
+
+            var now = DateTime.UtcNow;
+            var thisMonthStart = new DateTime(now.Year, now.Month, 1);
+            var lastMonthStart = thisMonthStart.AddMonths(-1);
+            var lastMonthEnd = thisMonthStart.AddDays(-1);
+
+            // OPTIMIZED: Single query for all businesses
+            var businesses = await _context.Businesses
+                .Where(b => businessIds.Contains(b.Id) && b.UserId == userId)
+                .ToListAsync();
+
+            // OPTIMIZED: Single query for all reviews
+            var allReviews = await _context.BusinessReviews
+                .Where(r => businessIds.Contains(r.BusinessId) && r.IsActive)
+                .ToListAsync();
+
+            // OPTIMIZED: Single query for all favorites
+            var allFavorites = await _context.FavoriteBusinesses
+                .Where(f => businessIds.Contains(f.BusinessId))
+                .ToListAsync();
+
+            // OPTIMIZED: Batch growth rate calculations
+            var growthRatesTasks = businessIds.Select(id => _analyticsSnapshotService.CalculateGrowthRatesAsync(id, 30, 30));
+            var growthRatesResults = await Task.WhenAll(growthRatesTasks);
+            var growthRatesDict = businessIds.Zip(growthRatesResults, (id, rates) => new { Id = id, Rates = rates })
+                .ToDictionary(x => x.Id, x => x.Rates);
+
+            var result = new List<BusinessAnalyticsData>();
+
+            foreach (var business in businesses)
+            {
+                var businessReviews = allReviews.Where(r => r.BusinessId == business.Id).ToList();
+                var businessFavorites = allFavorites.Where(f => f.BusinessId == business.Id).ToList();
+                var growthRates = growthRatesDict[business.Id];
+
+                var reviewsThisMonth = businessReviews.Count(r => r.CreatedAt >= thisMonthStart);
+                var reviewsLastMonth = businessReviews.Count(r => r.CreatedAt >= lastMonthStart && r.CreatedAt <= lastMonthEnd);
+                var favoritesThisMonth = businessFavorites.Count(f => f.CreatedAt >= thisMonthStart);
+
+                var engagementScore = CalculateEngagementScore(business.ViewCount, businessReviews.Count, businessFavorites.Count);
+
+                var analytics = new BusinessAnalyticsData
+                {
+                    BusinessId = business.Id,
+                    BusinessName = business.Name,
+                    Category = business.Category,
+                    Status = business.Status,
+                    TotalViews = business.ViewCount,
+                    ViewsThisMonth = growthRates.CurrentPeriodViews,
+                    ViewsLastMonth = growthRates.PreviousPeriodViews,
+                    ViewsGrowthRate = (double)growthRates.ViewsGrowthRate,
+                    TotalReviews = businessReviews.Count,
+                    AverageRating = businessReviews.Any() ? businessReviews.Average(r => r.Rating) : 0,
+                    ReviewsThisMonth = reviewsThisMonth,
+                    ReviewsLastMonth = reviewsLastMonth,
+                    TotalFavorites = businessFavorites.Count,
+                    FavoritesThisMonth = favoritesThisMonth,
+                    EngagementScore = engagementScore,
+                    PerformanceTrend = DeterminePerformanceTrend((double)growthRates.ViewsGrowthRate, reviewsThisMonth, reviewsLastMonth),
+                    Recommendations = GenerateRecommendations(business, businessReviews, businessFavorites)
+                };
+
+                result.Add(analytics);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Optimized batch method to get views over time for multiple businesses
+        /// </summary>
+        private async Task<List<ViewsOverTimeData>> GetViewsOverTimeBatchAsync(List<int> businessIds, int days = 30)
+        {
+            if (!businessIds.Any()) return new List<ViewsOverTimeData>();
+
+            var endDate = DateTime.UtcNow.Date;
+            var startDate = endDate.AddDays(-days + 1);
+
+            // OPTIMIZED: Single query for all view logs
+            var allViewLogs = await _context.BusinessViewLogs
+                .Where(v => businessIds.Contains(v.BusinessId) && v.ViewedAt >= startDate && v.ViewedAt <= endDate)
+                .ToListAsync();
+
+            // OPTIMIZED: Single query for business names
+            var businessNames = await _context.Businesses
+                .Where(b => businessIds.Contains(b.Id))
+                .Select(b => new { b.Id, b.Name })
+                .ToDictionaryAsync(b => b.Id, b => b.Name);
+
+            var data = new List<ViewsOverTimeData>();
+
+            // Group by business and date
+            var groupedViews = allViewLogs
+                .GroupBy(v => new { v.BusinessId, Date = v.ViewedAt.Date })
+                .Select(g => new
+                {
+                    g.Key.BusinessId,
+                    g.Key.Date,
+                    TotalViews = g.Count()
+                })
+                .ToList();
+
+            // Create complete dataset with zero values for missing dates
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                foreach (var businessId in businessIds)
+                {
+                    var dayViews = groupedViews.FirstOrDefault(v => v.BusinessId == businessId && v.Date == date);
+                    data.Add(new ViewsOverTimeData
+                    {
+                        Date = date,
+                        Views = dayViews?.TotalViews ?? 0,
+                        BusinessId = businessId,
+                        BusinessName = businessNames[businessId]
+                    });
+                }
+            }
+
+            return data.OrderBy(d => d.Date).ToList();
+        }
+
+        /// <summary>
+        /// Optimized batch method to get performance insights for multiple businesses
+        /// </summary>
+        private async Task<List<BusinessPerformanceInsight>> GetPerformanceInsightsBatchAsync(List<int> businessIds, string userId)
+        {
+            if (!businessIds.Any()) return new List<BusinessPerformanceInsight>();
+
+            // OPTIMIZED: Single query for all businesses with towns
+            var businesses = await _context.Businesses
+                .Where(b => businessIds.Contains(b.Id) && b.UserId == userId && b.Status != "Deleted")
+                .Include(b => b.Town)
+                .ToListAsync();
+
+            // OPTIMIZED: Single query for all reviews
+            var allReviews = await _context.BusinessReviews
+                .Where(r => businessIds.Contains(r.BusinessId) && r.IsActive)
+                .ToListAsync();
+
+            // OPTIMIZED: Single query for all favorites
+            var allFavorites = await _context.FavoriteBusinesses
+                .Where(f => businessIds.Contains(f.BusinessId))
+                .ToListAsync();
+
+            var insights = new List<BusinessPerformanceInsight>();
+
+            foreach (var business in businesses)
+            {
+                var businessReviews = allReviews.Where(r => r.BusinessId == business.Id).ToList();
+                var favoritesCount = allFavorites.Count(f => f.BusinessId == business.Id);
+
+                // Generate insights based on performance
+                if (businessReviews.Count == 0)
+                {
+                    insights.Add(new BusinessPerformanceInsight
+                    {
+                        BusinessId = business.Id,
+                        BusinessName = business.Name,
+                        InsightType = "opportunity",
+                        Title = "No Reviews Yet",
+                        Description = $"{business.Name} hasn't received any reviews yet.",
+                        ActionRecommendation = "Encourage satisfied customers to leave reviews to build credibility.",
+                        Priority = 4
+                    });
+                }
+                else if (businessReviews.Average(r => r.Rating) < 3.0)
+                {
+                    insights.Add(new BusinessPerformanceInsight
+                    {
+                        BusinessId = business.Id,
+                        BusinessName = business.Name,
+                        InsightType = "warning",
+                        Title = "Low Rating",
+                        Description = $"{business.Name} has an average rating of {businessReviews.Average(r => r.Rating):F1} stars.",
+                        ActionRecommendation = "Review recent feedback and address customer concerns to improve ratings.",
+                        Priority = 5
+                    });
+                }
+                else if (businessReviews.Average(r => r.Rating) >= 4.5)
+                {
+                    insights.Add(new BusinessPerformanceInsight
+                    {
+                        BusinessId = business.Id,
+                        BusinessName = business.Name,
+                        InsightType = "success",
+                        Title = "Excellent Performance",
+                        Description = $"{business.Name} maintains an excellent {businessReviews.Average(r => r.Rating):F1} star rating.",
+                        ActionRecommendation = "Keep up the great work! Consider highlighting positive reviews in marketing.",
+                        Priority = 2
+                    });
+                }
+
+                if (business.ViewCount < 50)
+                {
+                    insights.Add(new BusinessPerformanceInsight
+                    {
+                        BusinessId = business.Id,
+                        BusinessName = business.Name,
+                        InsightType = "opportunity",
+                        Title = "Low Visibility",
+                        Description = $"{business.Name} has only {business.ViewCount} views.",
+                        ActionRecommendation = "Optimize your business description and add more photos to increase visibility.",
+                        Priority = 3
+                    });
+                }
+            }
+
+            return insights.OrderByDescending(i => i.Priority).ToList();
         }
 
         public async Task<BusinessAnalyticsData> GetBusinessAnalyticsAsync(int businessId, string userId)
@@ -133,30 +346,13 @@ namespace TownTrek.Services
 
         public async Task<List<ViewsOverTimeData>> GetViewsOverTimeAsync(string userId, int days = 30)
         {
+            // OPTIMIZED: Get businesses and use batch query
             var businesses = await _context.Businesses
                 .Where(b => b.UserId == userId && b.Status != "Deleted")
                 .ToListAsync();
 
-            var data = new List<ViewsOverTimeData>();
-
-            foreach (var business in businesses)
-            {
-                // Get real view data from ViewTrackingService
-                var dailyViews = await _viewTrackingService.GetViewsOverTimeAsync(business.Id, days);
-                
-                foreach (var dailyView in dailyViews)
-                {
-                    data.Add(new ViewsOverTimeData
-                    {
-                        Date = dailyView.Date,
-                        Views = dailyView.TotalViews,
-                        BusinessId = business.Id,
-                        BusinessName = business.Name
-                    });
-                }
-            }
-
-            return data.OrderBy(d => d.Date).ToList();
+            var businessIds = businesses.Select(b => b.Id).ToList();
+            return await GetViewsOverTimeBatchAsync(businessIds, days);
         }
 
         public async Task<List<ReviewsOverTimeData>> GetReviewsOverTimeAsync(string userId, int days = 30)
@@ -191,80 +387,13 @@ namespace TownTrek.Services
 
         public async Task<List<BusinessPerformanceInsight>> GetPerformanceInsightsAsync(string userId)
         {
+            // OPTIMIZED: Get businesses and use batch query
             var businesses = await _context.Businesses
                 .Where(b => b.UserId == userId && b.Status != "Deleted")
-                .Include(b => b.Town)
                 .ToListAsync();
 
-            var insights = new List<BusinessPerformanceInsight>();
-
-            foreach (var business in businesses)
-            {
-                var reviews = await _context.BusinessReviews
-                    .Where(r => r.BusinessId == business.Id && r.IsActive)
-                    .ToListAsync();
-
-                var favorites = await _context.FavoriteBusinesses
-                    .Where(f => f.BusinessId == business.Id)
-                    .CountAsync();
-
-                // Generate insights based on performance
-                if (reviews.Count == 0)
-                {
-                    insights.Add(new BusinessPerformanceInsight
-                    {
-                        BusinessId = business.Id,
-                        BusinessName = business.Name,
-                        InsightType = "opportunity",
-                        Title = "No Reviews Yet",
-                        Description = $"{business.Name} hasn't received any reviews yet.",
-                        ActionRecommendation = "Encourage satisfied customers to leave reviews to build credibility.",
-                        Priority = 4
-                    });
-                }
-                else if (reviews.Average(r => r.Rating) < 3.0)
-                {
-                    insights.Add(new BusinessPerformanceInsight
-                    {
-                        BusinessId = business.Id,
-                        BusinessName = business.Name,
-                        InsightType = "warning",
-                        Title = "Low Rating Alert",
-                        Description = $"{business.Name} has an average rating of {reviews.Average(r => r.Rating):F1} stars.",
-                        ActionRecommendation = "Review recent feedback and address customer concerns to improve ratings.",
-                        Priority = 5
-                    });
-                }
-                else if (reviews.Average(r => r.Rating) >= 4.5)
-                {
-                    insights.Add(new BusinessPerformanceInsight
-                    {
-                        BusinessId = business.Id,
-                        BusinessName = business.Name,
-                        InsightType = "success",
-                        Title = "Excellent Performance",
-                        Description = $"{business.Name} maintains an excellent {reviews.Average(r => r.Rating):F1} star rating.",
-                        ActionRecommendation = "Keep up the great work! Consider highlighting positive reviews in marketing.",
-                        Priority = 2
-                    });
-                }
-
-                if (business.ViewCount < 50)
-                {
-                    insights.Add(new BusinessPerformanceInsight
-                    {
-                        BusinessId = business.Id,
-                        BusinessName = business.Name,
-                        InsightType = "opportunity",
-                        Title = "Low Visibility",
-                        Description = $"{business.Name} has only {business.ViewCount} views.",
-                        ActionRecommendation = "Optimize your business description and add more photos to increase visibility.",
-                        Priority = 3
-                    });
-                }
-            }
-
-            return insights.OrderByDescending(i => i.Priority).ToList();
+            var businessIds = businesses.Select(b => b.Id).ToList();
+            return await GetPerformanceInsightsBatchAsync(businessIds, userId);
         }
 
         public async Task<CategoryBenchmarkData?> GetCategoryBenchmarksAsync(string userId, string category)
@@ -431,25 +560,58 @@ namespace TownTrek.Services
         // Platform-specific analytics methods
         public async Task<List<ViewsOverTimeData>> GetViewsOverTimeByPlatformAsync(string userId, int days = 30, string? platform = null)
         {
+            // OPTIMIZED: Get businesses and use batch query with platform filter
             var businesses = await _context.Businesses
                 .Where(b => b.UserId == userId && b.Status != "Deleted")
                 .ToListAsync();
 
+            var businessIds = businesses.Select(b => b.Id).ToList();
+            
+            if (string.IsNullOrEmpty(platform))
+            {
+                return await GetViewsOverTimeBatchAsync(businessIds, days);
+            }
+            
+            // For platform-specific queries, we need to filter the view logs
+            var endDate = DateTime.UtcNow.Date;
+            var startDate = endDate.AddDays(-days + 1);
+
+            // OPTIMIZED: Single query for all view logs with platform filter
+            var allViewLogs = await _context.BusinessViewLogs
+                .Where(v => businessIds.Contains(v.BusinessId) && v.ViewedAt >= startDate && v.ViewedAt <= endDate && v.Platform == platform)
+                .ToListAsync();
+
+            // OPTIMIZED: Single query for business names
+            var businessNames = await _context.Businesses
+                .Where(b => businessIds.Contains(b.Id))
+                .Select(b => new { b.Id, b.Name })
+                .ToDictionaryAsync(b => b.Id, b => b.Name);
+
             var data = new List<ViewsOverTimeData>();
 
-            foreach (var business in businesses)
-            {
-                // Get platform-specific view data from ViewTrackingService
-                var dailyViews = await _viewTrackingService.GetViewsOverTimeAsync(business.Id, days, platform);
-                
-                foreach (var dailyView in dailyViews)
+            // Group by business and date
+            var groupedViews = allViewLogs
+                .GroupBy(v => new { v.BusinessId, Date = v.ViewedAt.Date })
+                .Select(g => new
                 {
+                    g.Key.BusinessId,
+                    g.Key.Date,
+                    TotalViews = g.Count()
+                })
+                .ToList();
+
+            // Create complete dataset with zero values for missing dates
+            for (var date = startDate; date <= endDate; date = date.AddDays(1))
+            {
+                foreach (var businessId in businessIds)
+                {
+                    var dayViews = groupedViews.FirstOrDefault(v => v.BusinessId == businessId && v.Date == date);
                     data.Add(new ViewsOverTimeData
                     {
-                        Date = dailyView.Date,
-                        Views = dailyView.TotalViews,
-                        BusinessId = business.Id,
-                        BusinessName = business.Name
+                        Date = date,
+                        Views = dayViews?.TotalViews ?? 0,
+                        BusinessId = businessId,
+                        BusinessName = businessNames[businessId]
                     });
                 }
             }

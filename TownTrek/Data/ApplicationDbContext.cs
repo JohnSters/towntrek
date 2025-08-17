@@ -484,6 +484,10 @@ namespace TownTrek.Data
 
                 // Unique constraint: one review per user per business
                 entity.HasIndex(e => new { e.BusinessId, e.UserId }).IsUnique();
+                
+                // Indexes for analytics queries
+                entity.HasIndex(e => new { e.BusinessId, e.CreatedAt }).HasDatabaseName("IX_BusinessReviews_BusinessId_CreatedAt");
+                entity.HasIndex(e => new { e.BusinessId, e.IsActive, e.CreatedAt }).HasDatabaseName("IX_BusinessReviews_BusinessId_IsActive_CreatedAt");
             });
 
             // Configure BusinessReviewResponse
@@ -525,6 +529,9 @@ namespace TownTrek.Data
 
                 // Unique constraint: one favorite per user per business
                 entity.HasIndex(e => new { e.BusinessId, e.UserId }).IsUnique();
+                
+                // Indexes for analytics queries
+                entity.HasIndex(e => new { e.BusinessId, e.CreatedAt }).HasDatabaseName("IX_FavoriteBusinesses_BusinessId_CreatedAt");
             });
         }
 
@@ -613,7 +620,10 @@ namespace TownTrek.Data
                 entity.HasIndex(e => e.SnapshotDate).HasDatabaseName("IX_AnalyticsSnapshots_SnapshotDate");
                 entity.HasIndex(e => e.BusinessId).HasDatabaseName("IX_AnalyticsSnapshots_BusinessId");
             });
+
         }
+
+
 
         private void ConfigureAdminMessageEntities(ModelBuilder builder)
         {

@@ -248,7 +248,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId")
                         .IsUnique();
 
-                    b.ToTable("AccommodationDetails");
+                    b.ToTable("AccommodationDetails", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.AdminMessage", b =>
@@ -328,7 +328,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("Status", "Priority");
 
-                    b.ToTable("AdminMessages");
+                    b.ToTable("AdminMessages", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.AdminMessageTopic", b =>
@@ -387,7 +387,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("SortOrder");
 
-                    b.ToTable("AdminMessageTopics");
+                    b.ToTable("AdminMessageTopics", (string)null);
 
                     b.HasData(
                         new
@@ -573,7 +573,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId", "SnapshotDate")
                         .IsUnique();
 
-                    b.ToTable("AnalyticsSnapshots");
+                    b.ToTable("AnalyticsSnapshots", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.ApplicationUser", b =>
@@ -835,7 +835,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Businesses");
+                    b.ToTable("Businesses", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessAlert", b =>
@@ -885,7 +885,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("BusinessId");
 
-                    b.ToTable("BusinessAlerts");
+                    b.ToTable("BusinessAlerts", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessCategory", b =>
@@ -925,7 +925,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("Key")
                         .IsUnique();
 
-                    b.ToTable("BusinessCategories");
+                    b.ToTable("BusinessCategories", (string)null);
 
                     b.HasData(
                         new
@@ -1025,7 +1025,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("BusinessId");
 
-                    b.ToTable("BusinessContacts");
+                    b.ToTable("BusinessContacts", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessHour", b =>
@@ -1061,7 +1061,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("BusinessId");
 
-                    b.ToTable("BusinessHours");
+                    b.ToTable("BusinessHours", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessImage", b =>
@@ -1134,7 +1134,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("BusinessId");
 
-                    b.ToTable("BusinessImages");
+                    b.ToTable("BusinessImages", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessReview", b =>
@@ -1180,7 +1180,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("BusinessReviews");
+                    b.ToTable("BusinessReviews", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessReviewResponse", b =>
@@ -1221,7 +1221,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BusinessReviewResponses");
+                    b.ToTable("BusinessReviewResponses", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessService", b =>
@@ -1253,7 +1253,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("BusinessId");
 
-                    b.ToTable("BusinessServices");
+                    b.ToTable("BusinessServices", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.BusinessSubCategory", b =>
@@ -1285,7 +1285,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("CategoryId", "Key")
                         .IsUnique();
 
-                    b.ToTable("BusinessSubCategories");
+                    b.ToTable("BusinessSubCategories", (string)null);
 
                     b.HasData(
                         new
@@ -1526,7 +1526,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BusinessViewLogs");
+                    b.ToTable("BusinessViewLogs", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.ErrorLogEntry", b =>
@@ -1610,7 +1610,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("Timestamp", "Severity")
                         .HasDatabaseName("IX_ErrorLogs_Timestamp_Severity");
 
-                    b.ToTable("ErrorLogs");
+                    b.ToTable("ErrorLogs", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.EventDetails", b =>
@@ -1717,7 +1717,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId")
                         .IsUnique();
 
-                    b.ToTable("EventDetails");
+                    b.ToTable("EventDetails", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.FavoriteBusiness", b =>
@@ -1747,7 +1747,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("FavoriteBusinesses");
+                    b.ToTable("FavoriteBusinesses", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.MarketDetails", b =>
@@ -1819,7 +1819,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId")
                         .IsUnique();
 
-                    b.ToTable("MarketDetails");
+                    b.ToTable("MarketDetails", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.PriceChangeHistory", b =>
@@ -1861,7 +1861,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("SubscriptionTierId");
 
-                    b.ToTable("PriceChangeHistory");
+                    b.ToTable("PriceChangeHistory", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.RestaurantDetails", b =>
@@ -1963,7 +1963,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId")
                         .IsUnique();
 
-                    b.ToTable("RestaurantDetails");
+                    b.ToTable("RestaurantDetails", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.ServiceDefinition", b =>
@@ -1992,7 +1992,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("Key")
                         .IsUnique();
 
-                    b.ToTable("ServiceDefinitions");
+                    b.ToTable("ServiceDefinitions", (string)null);
 
                     b.HasData(
                         new
@@ -2099,7 +2099,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId")
                         .IsUnique();
 
-                    b.ToTable("ShopDetails");
+                    b.ToTable("ShopDetails", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.SpecialOperatingHours", b =>
@@ -2137,7 +2137,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("BusinessId");
 
-                    b.ToTable("SpecialOperatingHours");
+                    b.ToTable("SpecialOperatingHours", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.Subscription", b =>
@@ -2189,7 +2189,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Subscriptions");
+                    b.ToTable("Subscriptions", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.SubscriptionTier", b =>
@@ -2242,7 +2242,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("SubscriptionTiers");
+                    b.ToTable("SubscriptionTiers", (string)null);
 
                     b.HasData(
                         new
@@ -2311,7 +2311,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("SubscriptionTierId", "FeatureKey")
                         .IsUnique();
 
-                    b.ToTable("SubscriptionTierFeatures");
+                    b.ToTable("SubscriptionTierFeatures", (string)null);
 
                     b.HasData(
                         new
@@ -2431,7 +2431,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("SubscriptionTierId", "LimitType")
                         .IsUnique();
 
-                    b.ToTable("SubscriptionTierLimits");
+                    b.ToTable("SubscriptionTierLimits", (string)null);
 
                     b.HasData(
                         new
@@ -2590,7 +2590,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("BusinessId")
                         .IsUnique();
 
-                    b.ToTable("TourDetails");
+                    b.ToTable("TourDetails", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.Town", b =>
@@ -2648,7 +2648,7 @@ namespace TownTrek.Migrations
                     b.HasIndex("Name", "Province")
                         .IsUnique();
 
-                    b.ToTable("Towns");
+                    b.ToTable("Towns", (string)null);
                 });
 
             modelBuilder.Entity("TownTrek.Models.TrialAuditLog", b =>
@@ -2706,7 +2706,7 @@ namespace TownTrek.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TrialAuditLogs");
+                    b.ToTable("TrialAuditLogs", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
