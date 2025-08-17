@@ -7,6 +7,7 @@ using TownTrek.Models;
 using TownTrek.Options;
 using TownTrek.Middleware;
 using Serilog;
+using System.Threading.RateLimiting;
 
 namespace TownTrek;
 
@@ -65,6 +66,52 @@ public class Program
             };
         });
 
+        // Add rate limiting services
+        builder.Services.AddRateLimiter(options =>
+        {
+            // Global rate limiting policy
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.User.Identity?.IsAuthenticated == true 
+                        ? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "anonymous"
+                        : context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: partition => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = 1000, // 1000 requests per window
+                        Window = TimeSpan.FromMinutes(1) // 1 minute window
+                    }));
+
+            // Analytics-specific rate limiting
+            options.AddPolicy("AnalyticsRateLimit", context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.User.Identity?.IsAuthenticated == true 
+                        ? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "anonymous"
+                        : context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: partition => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = 100, // 100 analytics requests per window
+                        Window = TimeSpan.FromMinutes(1) // 1 minute window
+                    }));
+
+            // Chart data rate limiting (more restrictive)
+            options.AddPolicy("ChartDataRateLimit", context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: context.User.Identity?.IsAuthenticated == true 
+                        ? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "anonymous"
+                        : context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+                    factory: partition => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = 50, // 50 chart data requests per window
+                        Window = TimeSpan.FromMinutes(1) // 1 minute window
+                    }));
+
+            // On rejection, return 429 Too Many Requests
+            options.RejectionStatusCode = 429;
+        });
+
         // Add authorization policies
         builder.Services.AddAuthorization(options =>
         {
@@ -117,6 +164,7 @@ public class Program
         builder.Services.AddScoped<IViewTrackingService, ViewTrackingService>();
         builder.Services.AddScoped<IAnalyticsSnapshotService, AnalyticsSnapshotService>();
         builder.Services.AddHostedService<AnalyticsSnapshotBackgroundService>();
+        builder.Services.AddHostedService<AnalyticsAuditCleanupBackgroundService>();
         
         // Add cache services
         builder.Services.AddScoped<ICacheService, CacheService>();
@@ -125,6 +173,9 @@ public class Program
         builder.Services.AddScoped<IApplicationLogger, ApplicationLogger>();
         builder.Services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();
         builder.Services.AddScoped<IAdminMessageService, AdminMessageService>();
+
+        // Add analytics audit service
+        builder.Services.AddScoped<IAnalyticsAuditService, AnalyticsAuditService>();
 
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();
@@ -188,6 +239,9 @@ public class Program
         app.UseStaticFiles();
 
         app.UseRouting();
+
+        // Add rate limiting middleware
+        app.UseRateLimiter();
 
         app.UseAuthentication();
         app.UseAuthorization();

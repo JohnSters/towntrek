@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TownTrek.Attributes;
 using TownTrek.Services.Interfaces;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace TownTrek.Controllers.Client
 {
@@ -14,6 +15,7 @@ namespace TownTrek.Controllers.Client
         ISubscriptionAuthService subscriptionAuthService,
         ITrialService trialService,
         IBusinessService businessService,
+        IAnalyticsAuditService analyticsAuditService,
         ILogger<AnalyticsController> logger) : Controller
     {
         private readonly IAnalyticsService _analyticsService = analyticsService;
@@ -21,9 +23,11 @@ namespace TownTrek.Controllers.Client
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly ITrialService _trialService = trialService;
         private readonly IBusinessService _businessService = businessService;
+        private readonly IAnalyticsAuditService _analyticsAuditService = analyticsAuditService;
         private readonly ILogger<AnalyticsController> _logger = logger;
 
         // Analytics Dashboard - available to all non-trial authenticated clients with active subscription
+        [EnableRateLimiting("AnalyticsRateLimit")]
         public async Task<IActionResult> Index()
         {
             try
@@ -37,6 +41,9 @@ namespace TownTrek.Controllers.Client
                     TempData["ErrorMessage"] = "Analytics are not available during the trial period. Please upgrade to access analytics.";
                     return RedirectToAction("Index", "Subscription");
                 }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "AnalyticsDashboard");
 
                 // Fast-path: If user has no businesses, show empty state without invoking full analytics
                 var userBusinesses = await _businessService.GetUserBusinessesAsync(userId);
@@ -121,11 +128,20 @@ namespace TownTrek.Controllers.Client
         }
 
         // API endpoint for views over time data (for charts)
+        [EnableRateLimiting("ChartDataRateLimit")]
         public async Task<IActionResult> ViewsOverTimeData(int days = 30)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Input validation
+                if (days < 1 || days > 365)
+                {
+                    _logger.LogWarning("Invalid days parameter: {Days} for user {UserId}", days, userId);
+                    await _analyticsAuditService.LogSuspiciousActivityAsync(userId, "InvalidParameter", $"Invalid days parameter: {days}", Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    return BadRequest(new { error = "Days parameter must be between 1 and 365" });
+                }
 
                 // Block trial users
                 var trialStatus = await _trialService.GetTrialStatusAsync(userId);
@@ -134,6 +150,9 @@ namespace TownTrek.Controllers.Client
                     Response.StatusCode = 403;
                     return Json(new { error = "Analytics are not available during the trial period." });
                 }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ViewsOverTimeData", null, "Web");
 
                 var data = await _analyticsCacheService.GetViewsOverTimeAsync(userId, days);
                 return Json(data);
@@ -146,11 +165,20 @@ namespace TownTrek.Controllers.Client
         }
 
         // API endpoint for reviews over time data (for charts)
+        [EnableRateLimiting("ChartDataRateLimit")]
         public async Task<IActionResult> ReviewsOverTimeData(int days = 30)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Input validation
+                if (days < 1 || days > 365)
+                {
+                    _logger.LogWarning("Invalid days parameter: {Days} for user {UserId}", days, userId);
+                    await _analyticsAuditService.LogSuspiciousActivityAsync(userId, "InvalidParameter", $"Invalid days parameter: {days}", Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    return BadRequest(new { error = "Days parameter must be between 1 and 365" });
+                }
 
                 // Block trial users
                 var trialStatus = await _trialService.GetTrialStatusAsync(userId);
@@ -159,6 +187,9 @@ namespace TownTrek.Controllers.Client
                     Response.StatusCode = 403;
                     return Json(new { error = "Analytics are not available during the trial period." });
                 }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ReviewsOverTimeData", null, "Web");
 
                 var data = await _analyticsCacheService.GetReviewsOverTimeAsync(userId, days);
                 return Json(data);
@@ -233,11 +264,28 @@ namespace TownTrek.Controllers.Client
         /// <summary>
         /// Get pre-formatted views chart data for Chart.js
         /// </summary>
+        [EnableRateLimiting("ChartDataRateLimit")]
         public async Task<IActionResult> ViewsChartData(int days = 30, string? platform = null)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Input validation
+                if (days < 1 || days > 365)
+                {
+                    _logger.LogWarning("Invalid days parameter: {Days} for user {UserId}", days, userId);
+                    await _analyticsAuditService.LogSuspiciousActivityAsync(userId, "InvalidParameter", $"Invalid days parameter: {days}", Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    return BadRequest(new { error = "Days parameter must be between 1 and 365" });
+                }
+
+                // Validate platform parameter
+                if (!string.IsNullOrEmpty(platform) && !new[] { "Web", "Mobile", "API" }.Contains(platform))
+                {
+                    _logger.LogWarning("Invalid platform parameter: {Platform} for user {UserId}", platform, userId);
+                    await _analyticsAuditService.LogSuspiciousActivityAsync(userId, "InvalidParameter", $"Invalid platform parameter: {platform}", Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    return BadRequest(new { error = "Platform parameter must be Web, Mobile, or API" });
+                }
 
                 // Block trial users
                 var trialStatus = await _trialService.GetTrialStatusAsync(userId);
@@ -246,6 +294,9 @@ namespace TownTrek.Controllers.Client
                     Response.StatusCode = 403;
                     return Json(new { error = "Analytics are not available during the trial period." });
                 }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ViewsChartData", null, platform ?? "Web");
 
                 var chartData = await _analyticsCacheService.GetViewsChartDataAsync(userId, days, platform);
                 return Json(chartData);
@@ -260,11 +311,20 @@ namespace TownTrek.Controllers.Client
         /// <summary>
         /// Get pre-formatted reviews chart data for Chart.js
         /// </summary>
+        [EnableRateLimiting("ChartDataRateLimit")]
         public async Task<IActionResult> ReviewsChartData(int days = 30)
         {
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Input validation
+                if (days < 1 || days > 365)
+                {
+                    _logger.LogWarning("Invalid days parameter: {Days} for user {UserId}", days, userId);
+                    await _analyticsAuditService.LogSuspiciousActivityAsync(userId, "InvalidParameter", $"Invalid days parameter: {days}", Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    return BadRequest(new { error = "Days parameter must be between 1 and 365" });
+                }
 
                 // Block trial users
                 var trialStatus = await _trialService.GetTrialStatusAsync(userId);
@@ -273,6 +333,9 @@ namespace TownTrek.Controllers.Client
                     Response.StatusCode = 403;
                     return Json(new { error = "Analytics are not available during the trial period." });
                 }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ReviewsChartData", null, "Web");
 
                 var chartData = await _analyticsCacheService.GetReviewsChartDataAsync(userId, days);
                 return Json(chartData);
@@ -437,6 +500,81 @@ namespace TownTrek.Controllers.Client
             {
                 _logger.LogError(ex, "Error warming up cache");
                 return Json(new { success = false, message = "Failed to warm up cache" });
+            }
+        }
+
+        // ===== ANALYTICS AUDIT ENDPOINTS (Admin Only) =====
+
+        /// <summary>
+        /// Get analytics audit logs for a specific user (admin only)
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> UserAuditLogs(string userId, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                var logs = await _analyticsAuditService.GetUserAuditLogsAsync(userId, startDate, endDate);
+                return Json(new { success = true, data = logs });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting user audit logs for {UserId}", userId);
+                return Json(new { success = false, message = "Failed to get audit logs" });
+            }
+        }
+
+        /// <summary>
+        /// Get all analytics audit logs (admin only)
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AllAuditLogs(DateTime? startDate = null, DateTime? endDate = null, string? userId = null)
+        {
+            try
+            {
+                var logs = await _analyticsAuditService.GetAllAuditLogsAsync(startDate, endDate, userId);
+                return Json(new { success = true, data = logs });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting all audit logs");
+                return Json(new { success = false, message = "Failed to get audit logs" });
+            }
+        }
+
+        /// <summary>
+        /// Get suspicious activity logs (admin only)
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> SuspiciousActivityLogs(DateTime? startDate = null, DateTime? endDate = null)
+        {
+            try
+            {
+                var logs = await _analyticsAuditService.GetSuspiciousActivityLogsAsync(startDate, endDate);
+                return Json(new { success = true, data = logs });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting suspicious activity logs");
+                return Json(new { success = false, message = "Failed to get suspicious activity logs" });
+            }
+        }
+
+        /// <summary>
+        /// Clean up old audit logs (admin only)
+        /// </summary>
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CleanupAuditLogs(int retentionDays = 365)
+        {
+            try
+            {
+                var count = await _analyticsAuditService.CleanupOldAuditLogsAsync(retentionDays);
+                return Json(new { success = true, message = $"Cleaned up {count} old audit logs" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error cleaning up audit logs");
+                return Json(new { success = false, message = "Failed to clean up audit logs" });
             }
         }
 

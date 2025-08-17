@@ -21,5 +21,10 @@ namespace TownTrek.Models.ViewModels
         // Admin message statistics
         public AdminMessageStats? MessageStats { get; set; }
         public List<AdminMessage> RecentMessages { get; set; } = new();
+        
+        // Analytics audit statistics
+        public int TotalAnalyticsAccesses { get; set; }
+        public int SuspiciousActivities { get; set; }
+        public List<AnalyticsAuditLog> RecentAnalyticsAccesses { get; set; } = new();
     }
 }

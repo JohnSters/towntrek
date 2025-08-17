@@ -17,15 +17,18 @@ namespace TownTrek.Controllers.Admin
         private readonly ApplicationDbContext _context;
         private readonly IDatabaseErrorLogger _errorLogger;
         private readonly IAdminMessageService _adminMessageService;
+        private readonly IAnalyticsAuditService _analyticsAuditService;
 
         public AdminController(
             ApplicationDbContext context, 
             IDatabaseErrorLogger errorLogger,
-            IAdminMessageService adminMessageService)
+            IAdminMessageService adminMessageService,
+            IAnalyticsAuditService analyticsAuditService)
         {
             _context = context;
             _errorLogger = errorLogger;
             _adminMessageService = adminMessageService;
+            _analyticsAuditService = analyticsAuditService;
         }
 
         // Dashboard - Main admin overview
@@ -70,6 +73,25 @@ namespace TownTrek.Controllers.Admin
                 // If message statistics fail, continue with basic dashboard
                 stats.MessageStats = new AdminMessageStats();
                 stats.RecentMessages = new List<AdminMessage>();
+            }
+
+            // Get analytics audit statistics
+            try
+            {
+                var recentLogs = await _analyticsAuditService.GetAllAuditLogsAsync(
+                    startDate: DateTime.UtcNow.AddDays(-7), 
+                    endDate: DateTime.UtcNow);
+                
+                stats.TotalAnalyticsAccesses = recentLogs.Count;
+                stats.SuspiciousActivities = recentLogs.Count(l => l.IsSuspicious);
+                stats.RecentAnalyticsAccesses = recentLogs.Take(5).ToList();
+            }
+            catch (Exception)
+            {
+                // If analytics audit statistics fail, continue with basic dashboard
+                stats.TotalAnalyticsAccesses = 0;
+                stats.SuspiciousActivities = 0;
+                stats.RecentAnalyticsAccesses = new List<AnalyticsAuditLog>();
             }
 
             return View(stats);

@@ -58,6 +58,9 @@ namespace TownTrek.Data
         // Admin Messages
         public DbSet<AdminMessageTopic> AdminMessageTopics { get; set; }
         public DbSet<AdminMessage> AdminMessages { get; set; }
+        
+        // Analytics Audit Logs
+        public DbSet<AnalyticsAuditLog> AnalyticsAuditLogs { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -194,6 +197,7 @@ namespace TownTrek.Data
             
             // Configure admin messages
             ConfigureAdminMessageEntities(builder);
+            ConfigureAnalyticsAuditLogEntity(builder);
             
             // Seed default data
             SeedData(builder);
@@ -685,6 +689,41 @@ namespace TownTrek.Data
                 entity.HasIndex(e => e.Priority);
                 entity.HasIndex(e => e.CreatedAt);
                 entity.HasIndex(e => new { e.Status, e.Priority });
+            });
+        }
+
+        private void ConfigureAnalyticsAuditLogEntity(ModelBuilder builder)
+        {
+            // Configure AnalyticsAuditLog
+            builder.Entity<AnalyticsAuditLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.Action).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.BusinessId).HasMaxLength(50);
+                entity.Property(e => e.Platform).HasMaxLength(20);
+                entity.Property(e => e.ExportType).HasMaxLength(50);
+                entity.Property(e => e.Format).HasMaxLength(20);
+                entity.Property(e => e.Details).HasMaxLength(1000);
+                entity.Property(e => e.IpAddress).IsRequired().HasMaxLength(45);
+                entity.Property(e => e.UserAgent).HasMaxLength(500);
+                entity.Property(e => e.Timestamp).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.IsSuspicious).HasDefaultValue(false);
+
+                // Foreign key relationship to ApplicationUser
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes for performance and querying
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_AnalyticsAuditLogs_UserId");
+                entity.HasIndex(e => e.Action).HasDatabaseName("IX_AnalyticsAuditLogs_Action");
+                entity.HasIndex(e => e.Timestamp).HasDatabaseName("IX_AnalyticsAuditLogs_Timestamp");
+                entity.HasIndex(e => e.IsSuspicious).HasDatabaseName("IX_AnalyticsAuditLogs_IsSuspicious");
+                entity.HasIndex(e => e.IpAddress).HasDatabaseName("IX_AnalyticsAuditLogs_IpAddress");
+                entity.HasIndex(e => new { e.UserId, e.Timestamp }).HasDatabaseName("IX_AnalyticsAuditLogs_UserId_Timestamp");
+                entity.HasIndex(e => new { e.IsSuspicious, e.Timestamp }).HasDatabaseName("IX_AnalyticsAuditLogs_Suspicious_Timestamp");
             });
         }
     }
