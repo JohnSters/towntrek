@@ -34,6 +34,7 @@ namespace TownTrek
             services.AddScoped<IAnalyticsService, AnalyticsService>();
             services.AddScoped<IViewTrackingService, ViewTrackingService>();
             services.AddScoped<IAdvancedAnalyticsService, AdvancedAnalyticsService>();
+            services.AddScoped<IDashboardCustomizationService, DashboardCustomizationService>();
         }
     }
 }

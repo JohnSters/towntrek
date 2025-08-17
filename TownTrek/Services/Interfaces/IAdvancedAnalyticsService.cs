@@ -22,7 +22,7 @@ namespace TownTrek.Services.Interfaces
         /// <summary>
         /// Analyzes seasonal patterns in business data
         /// </summary>
-        Task<SeasonalPattern> AnalyzeSeasonalPatternsAsync(string userId, string metricType = "Views", int analysisDays = 365);
+        Task<SeasonalPatternDto> AnalyzeSeasonalPatternsAsync(string userId, string metricType = "Views", int analysisDays = 365);
 
         /// <summary>
         /// Generates growth predictions for business metrics
@@ -65,12 +65,12 @@ namespace TownTrek.Services.Interfaces
         /// <summary>
         /// Creates a new custom metric
         /// </summary>
-        Task<CustomMetric> CreateCustomMetricAsync(CreateCustomMetricRequest request, string userId);
+        Task<CustomMetricDto> CreateCustomMetricAsync(CreateCustomMetricRequest request, string userId);
 
         /// <summary>
         /// Updates an existing custom metric
         /// </summary>
-        Task<CustomMetric> UpdateCustomMetricAsync(int metricId, CreateCustomMetricRequest request, string userId);
+        Task<CustomMetricDto> UpdateCustomMetricAsync(int metricId, CreateCustomMetricRequest request, string userId);
 
         /// <summary>
         /// Deletes a custom metric
@@ -95,7 +95,7 @@ namespace TownTrek.Services.Interfaces
         /// <summary>
         /// Gets system-defined metrics
         /// </summary>
-        Task<List<CustomMetric>> GetSystemMetricsAsync();
+        Task<List<CustomMetricDto>> GetSystemMetricsAsync();
 
         #endregion
 

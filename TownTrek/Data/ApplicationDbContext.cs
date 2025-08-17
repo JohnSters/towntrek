@@ -78,6 +78,10 @@ namespace TownTrek.Data
         public DbSet<AnomalyDetection> AnomalyDetections { get; set; }
         public DbSet<PredictiveForecast> PredictiveForecasts { get; set; }
         public DbSet<SeasonalPattern> SeasonalPatterns { get; set; }
+        
+        // Dashboard Customization
+        public DbSet<DashboardPreferences> DashboardPreferences { get; set; }
+        public DbSet<SavedDashboardView> SavedDashboardViews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

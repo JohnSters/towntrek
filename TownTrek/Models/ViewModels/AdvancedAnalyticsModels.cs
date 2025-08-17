@@ -10,7 +10,7 @@ namespace TownTrek.Models.ViewModels
         public List<ForecastData> ViewsForecast { get; set; } = new();
         public List<ForecastData> EngagementForecast { get; set; } = new();
         public List<ForecastData> RevenueForecast { get; set; } = new();
-        public SeasonalPattern SeasonalPatterns { get; set; } = new();
+        public SeasonalPatternDto SeasonalPatterns { get; set; } = new();
         public GrowthPrediction GrowthPrediction { get; set; } = new();
         public DateTime ForecastGeneratedAt { get; set; } = DateTime.UtcNow;
         public int ForecastDays { get; set; } = 30;
@@ -30,9 +30,9 @@ namespace TownTrek.Models.ViewModels
     }
 
     /// <summary>
-    /// Seasonal pattern analysis
+    /// Seasonal pattern analysis DTO
     /// </summary>
-    public class SeasonalPattern
+    public class SeasonalPatternDto
     {
         public Dictionary<string, double> WeeklyPattern { get; set; } = new();
         public Dictionary<string, double> MonthlyPattern { get; set; } = new();
@@ -104,16 +104,16 @@ namespace TownTrek.Models.ViewModels
     /// </summary>
     public class CustomMetricsResponse
     {
-        public List<CustomMetric> UserMetrics { get; set; } = new();
-        public List<CustomMetric> SystemMetrics { get; set; } = new();
+        public List<CustomMetricDto> UserMetrics { get; set; } = new();
+        public List<CustomMetricDto> SystemMetrics { get; set; } = new();
         public List<GoalTracking> GoalProgress { get; set; } = new();
         public CustomMetricsSummary Summary { get; set; } = new();
     }
 
     /// <summary>
-    /// Custom metric definition and calculation
+    /// Custom metric definition and calculation DTO
     /// </summary>
-    public class CustomMetric
+    public class CustomMetricDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

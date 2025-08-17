@@ -70,14 +70,14 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<SeasonalPattern> AnalyzeSeasonalPatternsAsync(string userId, string metricType = "Views", int analysisDays = 365)
+        public async Task<SeasonalPatternDto> AnalyzeSeasonalPatternsAsync(string userId, string metricType = "Views", int analysisDays = 365)
         {
             try
             {
                 _logger.LogInformation("Analyzing seasonal patterns for user {UserId} and metric {MetricType}", userId, metricType);
 
                 // Basic implementation - will expand in next edit
-                return new SeasonalPattern
+                return new SeasonalPatternDto
                 {
                     SeasonalityStrength = 0.5,
                     PrimarySeason = "Summer"
@@ -209,14 +209,14 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<CustomMetric> CreateCustomMetricAsync(CreateCustomMetricRequest request, string userId)
+        public async Task<CustomMetricDto> CreateCustomMetricAsync(CreateCustomMetricRequest request, string userId)
         {
             try
             {
                 _logger.LogInformation("Creating custom metric for user {UserId}", userId);
 
                 // Basic implementation - will expand in next edit
-                return new CustomMetric
+                return new CustomMetricDto
                 {
                     Id = 1,
                     Name = request.Name,
@@ -235,14 +235,14 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<CustomMetric> UpdateCustomMetricAsync(int metricId, CreateCustomMetricRequest request, string userId)
+        public async Task<CustomMetricDto> UpdateCustomMetricAsync(int metricId, CreateCustomMetricRequest request, string userId)
         {
             try
             {
                 _logger.LogInformation("Updating custom metric {MetricId} for user {UserId}", metricId, userId);
 
                 // Basic implementation - will expand in next edit
-                return new CustomMetric
+                return new CustomMetricDto
                 {
                     Id = metricId,
                     Name = request.Name,
@@ -330,19 +330,19 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<List<CustomMetric>> GetSystemMetricsAsync()
+        public async Task<List<CustomMetricDto>> GetSystemMetricsAsync()
         {
             try
             {
                 _logger.LogInformation("Getting system metrics");
 
                 // Basic implementation - will expand in next edit
-                return new List<CustomMetric>();
+                return new List<CustomMetricDto>();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting system metrics");
-                return new List<CustomMetric>();
+                return new List<CustomMetricDto>();
             }
         }
 
