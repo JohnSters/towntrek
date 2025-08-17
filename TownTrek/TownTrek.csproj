@@ -7,6 +7,7 @@
     <UserSecretsId>7259293f-e480-40cb-a7be-53076394815c</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+    <NoWarn>NU1603</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,7 +43,7 @@
     <PackageReference Include="MailKit" Version="4.13.0" />
     <PackageReference Include="MimeKit" Version="4.13.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor" Version="2.3.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.8" />
+    <PackageReference Include="System.Text.Json" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.8" />
   </ItemGroup>

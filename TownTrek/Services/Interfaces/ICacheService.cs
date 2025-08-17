@@ -8,17 +8,17 @@ namespace TownTrek.Services.Interfaces
         /// <summary>
         /// Get a value from cache
         /// </summary>
-        Task<T?> GetAsync<T>(string key) where T : class;
+        Task<T?> GetAsync<T>(string key) where T : class?;
 
         /// <summary>
         /// Set a value in cache with default expiration
         /// </summary>
-        Task SetAsync<T>(string key, T value) where T : class;
+        Task SetAsync<T>(string key, T value) where T : class?;
 
         /// <summary>
         /// Set a value in cache with custom expiration
         /// </summary>
-        Task SetAsync<T>(string key, T value, TimeSpan expiration) where T : class;
+        Task SetAsync<T>(string key, T value, TimeSpan expiration) where T : class?;
 
         /// <summary>
         /// Remove a value from cache

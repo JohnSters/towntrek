@@ -104,7 +104,7 @@ namespace TownTrek.Services
                     query = query.Where(m => 
                         m.Subject.ToLower().Contains(searchTerm) ||
                         m.Message.ToLower().Contains(searchTerm) ||
-                        m.User.Email.ToLower().Contains(searchTerm));
+                        (m.User != null && m.User.Email != null && m.User.Email.ToLower().Contains(searchTerm)));
                 }
             }
 
