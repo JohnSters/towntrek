@@ -82,6 +82,9 @@ namespace TownTrek.Data
         // Dashboard Customization
         public DbSet<DashboardPreferences> DashboardPreferences { get; set; }
         public DbSet<SavedDashboardView> SavedDashboardViews { get; set; }
+        
+        // Analytics Events (Event Sourcing)
+        public DbSet<AnalyticsEvent> AnalyticsEvents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

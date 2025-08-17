@@ -161,6 +161,10 @@ public class Program
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
         builder.Services.AddScoped<IClientService, ClientService>();
         builder.Services.AddScoped<IMemberService, MemberService>();
+        // Add analytics architecture services
+        builder.Services.AddScoped<IAnalyticsDataService, AnalyticsDataService>();
+        builder.Services.AddScoped<IAnalyticsValidationService, AnalyticsValidationService>();
+        builder.Services.AddScoped<IAnalyticsEventService, AnalyticsEventService>();
         builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
         builder.Services.AddScoped<IViewTrackingService, ViewTrackingService>();
         builder.Services.AddScoped<IAnalyticsSnapshotService, AnalyticsSnapshotService>();

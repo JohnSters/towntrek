@@ -37,6 +37,7 @@ namespace TownTrek.Models.ViewModels
         public string BusinessName { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
+        public string Town { get; set; } = string.Empty;
         
         // View metrics
         public int TotalViews { get; set; }
@@ -49,14 +50,19 @@ namespace TownTrek.Models.ViewModels
         public double AverageRating { get; set; }
         public int ReviewsThisMonth { get; set; }
         public int ReviewsLastMonth { get; set; }
+        public double ReviewsGrowthRate { get; set; }
+        public double RatingGrowthRate { get; set; }
         
         // Engagement metrics
         public int TotalFavorites { get; set; }
         public int FavoritesThisMonth { get; set; }
+        public int FavoritesLastMonth { get; set; }
+        public double FavoritesGrowthRate { get; set; }
         public double EngagementScore { get; set; }
         
         // Performance indicators
         public string PerformanceTrend { get; set; } = string.Empty; // "up", "down", "stable"
+        public double PerformanceRating { get; set; }
         public List<string> Recommendations { get; set; } = new();
     }
 
@@ -67,6 +73,9 @@ namespace TownTrek.Models.ViewModels
         public int TotalReviews { get; set; }
         public int TotalFavorites { get; set; }
         public double OverallRating { get; set; }
+        public int TotalBusinesses { get; set; }
+        public double AverageRating { get; set; }
+        public double AverageEngagementScore { get; set; }
         
         // This month metrics
         public int ViewsThisMonth { get; set; }
@@ -100,6 +109,7 @@ namespace TownTrek.Models.ViewModels
     {
         public DateTime Date { get; set; }
         public int ReviewCount { get; set; }
+        public int Reviews { get; set; } // Alias for ReviewCount for compatibility
         public double AverageRating { get; set; }
         public int BusinessId { get; set; }
         public string BusinessName { get; set; } = string.Empty;
@@ -114,6 +124,9 @@ namespace TownTrek.Models.ViewModels
         public string Description { get; set; } = string.Empty;
         public string ActionRecommendation { get; set; } = string.Empty;
         public int Priority { get; set; } // 1-5, 5 being highest
+        public string Insight { get; set; } = string.Empty; // Alias for Description
+        public double PerformanceRating { get; set; }
+        public string Trend { get; set; } = string.Empty; // "up", "down", "stable"
     }
 
     // Premium-only features
@@ -125,6 +138,13 @@ namespace TownTrek.Models.ViewModels
         public double AverageReviewsInCategory { get; set; }
         public string YourPerformanceVsAverage { get; set; } = string.Empty; // "above", "below", "average"
         public List<BenchmarkMetric> Metrics { get; set; } = new();
+        
+        // Additional properties for compatibility
+        public int UserBusinessesCount { get; set; }
+        public int CategoryTotalBusinesses { get; set; }
+        public double AverageCategoryRating { get; set; }
+        public double UserAverageRating { get; set; }
+        public double PerformanceRating { get; set; }
     }
 
     public class BenchmarkMetric
@@ -149,6 +169,11 @@ namespace TownTrek.Models.ViewModels
         public double MarketSharePercentage { get; set; }
         public string KeyInsight { get; set; } = string.Empty;
         public List<string> Recommendations { get; set; } = new();
+        
+        // Additional properties for compatibility
+        public int BusinessId { get; set; }
+        public string BusinessName { get; set; } = string.Empty;
+        public int CompetitorsCount { get; set; } // Alias for CompetitorCount
     }
 
     // Extended model for detailed benchmarks view
@@ -169,5 +194,15 @@ namespace TownTrek.Models.ViewModels
         
         // Insights and recommendations
         public List<string> Insights { get; set; } = new();
+        
+        // Additional properties for compatibility
+        public int UserBusinessesCount { get; set; }
+        public int CategoryTotalBusinesses { get; set; }
+        public double AverageCategoryRating { get; set; }
+        public double UserAverageRating { get; set; }
+        public double PerformanceRating { get; set; }
+        public List<BenchmarkMetric> DetailedMetrics { get; set; } = new();
     }
+
+
 }

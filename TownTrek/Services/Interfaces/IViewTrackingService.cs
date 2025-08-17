@@ -46,6 +46,14 @@ namespace TownTrek.Services.Interfaces
         public int ApiViews { get; set; }
         public double AverageViewsPerDay { get; set; }
         public DateTime? LastViewed { get; set; }
+        
+        // Additional properties for analytics service compatibility
+        public int ViewsThisMonth { get; set; }
+        public int ViewsLastMonth { get; set; }
+        public double ViewsGrowthRate { get; set; }
+        public int PeakDayViews { get; set; }
+        public DateTime PeakDayDate { get; set; }
+        public Dictionary<string, int> PlatformBreakdown { get; set; } = new();
     }
 
     public class DailyViews
