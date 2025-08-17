@@ -1,0 +1,401 @@
+/* Real-Time Analytics Styles */
+
+/* Connection Status */
+.connection-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 12px;
+    transition: all 0.3s ease;
+}
+
+.connection-status.success {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.connection-status.warning {
+    background-color: var(--warning-color);
+    color: white;
+}
+
+.connection-status.error {
+    background-color: var(--error-color);
+    color: white;
+}
+
+/* Refresh Controls */
+.refresh-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--surface-color);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.refresh-controls label {
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.refresh-controls select {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--background-color);
+    color: var(--text-primary);
+    font-size: 14px;
+    min-width: 120px;
+}
+
+.refresh-controls button {
+    padding: 6px 12px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.refresh-controls button:hover {
+    background: var(--primary-hover-color);
+}
+
+.refresh-status {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-left: auto;
+}
+
+.refresh-status.active {
+    background: var(--success-color);
+    color: white;
+}
+
+.refresh-status.disabled {
+    background: var(--muted-color);
+    color: var(--text-secondary);
+}
+
+/* Analytics Notifications */
+.analytics-notifications {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 400px;
+}
+
+.analytics-notification {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 100%;
+}
+
+.analytics-notification.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.analytics-notification.success {
+    border-left: 4px solid var(--success-color);
+}
+
+.analytics-notification.info {
+    border-left: 4px solid var(--info-color);
+}
+
+.analytics-notification.warning {
+    border-left: 4px solid var(--warning-color);
+}
+
+.analytics-notification.error {
+    border-left: 4px solid var(--error-color);
+}
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.notification-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.notification-close:hover {
+    background: var(--muted-color);
+    color: var(--text-primary);
+}
+
+.analytics-notification p {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+}
+
+/* Real-Time Updates Animation */
+.real-time-update {
+    animation: realTimePulse 2s ease-in-out;
+}
+
+@keyframes realTimePulse {
+    0% {
+        background-color: transparent;
+    }
+    50% {
+        background-color: rgba(var(--success-color-rgb), 0.1);
+    }
+    100% {
+        background-color: transparent;
+    }
+}
+
+/* Live Data Indicators */
+.live-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--success-color);
+    margin-left: 8px;
+}
+
+.live-indicator::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--success-color);
+    border-radius: 50%;
+    animation: livePulse 2s infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
+}
+
+/* Auto-refresh Settings */
+.auto-refresh-settings {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.auto-refresh-settings h3 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.auto-refresh-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.auto-refresh-option {
+    padding: 6px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--background-color);
+    color: var(--text-primary);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.auto-refresh-option:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.auto-refresh-option.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Connection Management */
+.connection-management {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: var(--surface-color);
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.connection-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.connection-actions {
+    margin-left: auto;
+    display: flex;
+    gap: 8px;
+}
+
+.connection-actions button {
+    padding: 4px 8px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--background-color);
+    color: var(--text-primary);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.connection-actions button:hover {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .analytics-notifications {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+
+    .refresh-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .refresh-status {
+        margin-left: 0;
+        text-align: center;
+    }
+
+    .connection-management {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .connection-actions {
+        margin-left: 0;
+        justify-content: center;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .analytics-notification {
+        background: var(--surface-dark-color);
+        border-color: var(--border-dark-color);
+    }
+
+    .refresh-controls,
+    .auto-refresh-settings,
+    .connection-management {
+        background: var(--surface-dark-color);
+        border-color: var(--border-dark-color);
+    }
+
+    .refresh-controls select,
+    .auto-refresh-option {
+        background: var(--background-dark-color);
+        border-color: var(--border-dark-color);
+        color: var(--text-primary-dark);
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .analytics-notification {
+        border-width: 2px;
+    }
+
+    .connection-status,
+    .refresh-status {
+        border: 1px solid currentColor;
+    }
+
+    .live-indicator::before {
+        border: 1px solid currentColor;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .analytics-notification,
+    .real-time-update,
+    .live-indicator::before {
+        animation: none;
+        transition: none;
+    }
+}

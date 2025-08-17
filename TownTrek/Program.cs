@@ -186,6 +186,10 @@ public class Program
         // Add analytics export and sharing services
         builder.Services.AddScoped<IAnalyticsExportService, AnalyticsExportService>();
 
+        // Add real-time analytics services
+        builder.Services.AddScoped<IRealTimeAnalyticsService, RealTimeAnalyticsService>();
+        builder.Services.AddHostedService<RealTimeAnalyticsBackgroundService>();
+
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();
 
@@ -211,6 +215,9 @@ public class Program
         {
             builder.Services.AddDistributedMemoryCache();
         }
+
+        // Add SignalR
+        builder.Services.AddSignalR();
 
         builder.Services.AddControllersWithViews()
             .AddRazorOptions(options =>
@@ -271,6 +278,9 @@ public class Program
 
         // Map health checks
         app.MapHealthChecks("/health");
+
+        // Map SignalR hub
+        app.MapHub<TownTrek.Hubs.AnalyticsHub>("/analyticsHub");
 
         app.MapControllers();
 

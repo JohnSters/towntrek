@@ -27,6 +27,23 @@
     }
     else
     {
+        <!-- Real-Time Analytics Controls -->
+        <div class="refresh-controls">
+            <label for="refreshInterval">Auto-refresh:</label>
+            <select id="refreshInterval">
+                <option value="0">Disabled</option>
+                <option value="30">30 seconds</option>
+                <option value="60">1 minute</option>
+                <option value="300">5 minutes</option>
+            </select>
+            <button id="manualRefresh" type="button">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refresh Now
+            </button>
+            <div id="refresh-status" class="refresh-status disabled">Auto-refresh: Disabled</div>
+        </div>
         <!-- Analytics Overview Cards -->
         <div class="analytics-overview">
             <div class="overview-cards">
@@ -313,9 +330,12 @@
 
 @section Styles {
     <link rel="stylesheet" href="~/css/features/client/analytics.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/real-time-analytics.css" asp-append-version="true" />
 }
 
 @section Scripts {
     <script src="~/lib/chart.js/chart.min.js"></script>
+    <script src="~/lib/signalr/signalr.min.js"></script>
     <script src="~/js/modules/client/analytics.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/real-time-analytics.js" asp-append-version="true"></script>
 }

@@ -605,6 +605,61 @@ class ClientAnalyticsManager {
         return breakdown;
     }
 
+    // Real-time update methods
+    updateViewsChart(chartData) {
+        if (this.viewsChart && chartData) {
+            this.viewsChart.data = chartData;
+            this.viewsChart.update('active');
+            
+            // Add real-time update animation
+            const chartContainer = document.querySelector('.chart-container:first-child');
+            if (chartContainer) {
+                chartContainer.classList.add('real-time-update');
+                setTimeout(() => {
+                    chartContainer.classList.remove('real-time-update');
+                }, 2000);
+            }
+        }
+    }
+
+    updateReviewsChart(chartData) {
+        if (this.reviewsChart && chartData) {
+            this.reviewsChart.data = chartData;
+            this.reviewsChart.update('active');
+            
+            // Add real-time update animation
+            const chartContainer = document.querySelector('.chart-container:last-child');
+            if (chartContainer) {
+                chartContainer.classList.add('real-time-update');
+                setTimeout(() => {
+                    chartContainer.classList.remove('real-time-update');
+                }, 2000);
+            }
+        }
+    }
+
+    async refreshAllData() {
+        try {
+            // Refresh views chart
+            const viewsData = await this.fetchViewsData(30);
+            if (this.viewsChart) {
+                this.viewsChart.data = viewsData;
+                this.viewsChart.update('active');
+            }
+
+            // Refresh reviews chart
+            const reviewsData = await this.fetchReviewsData(30);
+            if (this.reviewsChart) {
+                this.reviewsChart.data = reviewsData;
+                this.reviewsChart.update('active');
+            }
+
+            console.log('All analytics data refreshed');
+        } catch (error) {
+            console.error('Error refreshing analytics data:', error);
+        }
+    }
+
     destroy() {
         if (this.viewsChart) {
             this.viewsChart.destroy();
@@ -636,6 +691,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const manager = new ClientAnalyticsManager();
             manager.init();
             window.__clientAnalyticsManager = manager;
+
+            // Initialize real-time analytics if available
+            if (window.realTimeAnalyticsManager) {
+                window.realTimeAnalyticsManager.init(manager);
+            }
         }
     } catch (e) {
         console.error('Failed to initialize ClientAnalyticsManager:', e);
