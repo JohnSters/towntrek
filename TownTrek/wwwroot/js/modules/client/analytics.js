@@ -9,6 +9,7 @@ class ClientAnalyticsManager {
         this.viewsChart = null;
         this.reviewsChart = null;
         this.isInitialized = false;
+        this.chartJsAvailable = false;
     }
 
     // Static method to check if analytics should be initialized
@@ -20,6 +21,9 @@ class ClientAnalyticsManager {
         if (this.isInitialized) return;
         
         try {
+            // Check if Chart.js is available
+            this.checkChartJsAvailability();
+            
             this.bindEvents();
             this.initializeCharts();
             this.setupAnimations();
@@ -28,6 +32,16 @@ class ClientAnalyticsManager {
             console.log('ClientAnalyticsManager initialized successfully');
         } catch (error) {
             console.error('Error initializing ClientAnalyticsManager:', error);
+        }
+    }
+
+    checkChartJsAvailability() {
+        if (typeof Chart !== 'undefined' && Chart) {
+            this.chartJsAvailable = true;
+            console.log('Chart.js is available');
+        } else {
+            this.chartJsAvailable = false;
+            console.warn('Chart.js is not available - charts will be disabled');
         }
     }
 
@@ -67,6 +81,11 @@ class ClientAnalyticsManager {
     }
 
     async initializeCharts() {
+        if (!this.chartJsAvailable) {
+            this.showChartJsUnavailable();
+            return;
+        }
+
         // Initialize views chart
         const viewsCanvas = document.getElementById('viewsChart');
         if (viewsCanvas) {
@@ -82,6 +101,10 @@ class ClientAnalyticsManager {
 
     async createViewsChart(canvas) {
         try {
+            if (!this.chartJsAvailable) {
+                throw new Error('Chart.js is not available');
+            }
+
             const container = canvas ? canvas.parentElement : null;
             if (!container) throw new Error('Views chart container not found');
             this.showChartLoading(container);
@@ -185,6 +208,10 @@ class ClientAnalyticsManager {
 
     async createReviewsChart(canvas) {
         try {
+            if (!this.chartJsAvailable) {
+                throw new Error('Chart.js is not available');
+            }
+
             const container = canvas ? canvas.parentElement : null;
             if (!container) throw new Error('Reviews chart container not found');
             this.showChartLoading(container);
@@ -432,7 +459,7 @@ class ClientAnalyticsManager {
     }
 
     async updateViewsChart(days) {
-        if (!this.viewsChart) return;
+        if (!this.chartJsAvailable || !this.viewsChart) return;
         
         try {
             const data = await this.fetchViewsData(days);
@@ -444,7 +471,7 @@ class ClientAnalyticsManager {
     }
 
     async updateReviewsChart(days) {
-        if (!this.reviewsChart) return;
+        if (!this.chartJsAvailable || !this.reviewsChart) return;
         
         try {
             const data = await this.fetchReviewsData(days);
@@ -488,6 +515,25 @@ class ClientAnalyticsManager {
                 </div>
             </div>
         `;
+    }
+
+    showChartJsUnavailable() {
+        const chartContainers = document.querySelectorAll('.chart-content, [id*="Chart"]');
+        chartContainers.forEach(container => {
+            if (container && !container.querySelector('.chart-loading')) {
+                container.innerHTML = `
+                    <div class="chart-loading">
+                        <div style="text-align: center; color: #6c757d;">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-bottom: 1rem; opacity: 0.5;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p style="margin: 0; font-size: 0.875rem;">Chart functionality is currently unavailable</p>
+                            <p style="margin: 0.5rem 0 0; font-size: 0.75rem; opacity: 0.7;">Please refresh the page or try again later</p>
+                        </div>
+                    </div>
+                `;
+            }
+        });
     }
 
     setupAnimations() {
