@@ -800,5 +800,264 @@ namespace TownTrek.Services
             
             return opportunities;
         }
+
+        // ===== CHART DATA PROCESSING METHODS (Phase 2.2) =====
+
+        /// <summary>
+        /// Get pre-formatted views chart data for Chart.js
+        /// </summary>
+        public async Task<ViewsChartDataResponse> GetViewsChartDataAsync(string userId, int days = 30, string? platform = null)
+        {
+            try
+            {
+                var rawData = await GetViewsOverTimeByPlatformAsync(userId, days, platform);
+                
+                if (!rawData.Any())
+                {
+                    return CreateEmptyViewsChartData(days);
+                }
+
+                // Generate date labels
+                var labels = GenerateDateLabels(days);
+                
+                // Group data by business
+                var businessGroups = rawData
+                    .GroupBy(d => d.BusinessName)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                // Create datasets for each business
+                var datasets = new List<ChartDataset>();
+                var colors = GetChartColors();
+                var colorIndex = 0;
+
+                foreach (var businessGroup in businessGroups)
+                {
+                    var businessName = businessGroup.Key;
+                    var businessData = businessGroup.Value;
+                    var color = colors[colorIndex % colors.Length];
+                    colorIndex++;
+
+                    // Fill in missing dates with 0 views
+                    var dataPoints = labels.Select(label =>
+                    {
+                        var date = ParseDateLabel(label, days);
+                        var dataPoint = businessData.FirstOrDefault(d => d.Date.Date == date.Date);
+                        return dataPoint?.Views ?? 0.0;
+                    }).ToList();
+
+                    datasets.Add(new ChartDataset
+                    {
+                        Label = businessName,
+                        Data = dataPoints,
+                        BorderColor = color,
+                        BackgroundColor = color + "20",
+                        Fill = false,
+                        Tension = 0.4
+                    });
+                }
+
+                var totalViews = rawData.Sum(d => d.Views);
+                var averageViewsPerDay = days > 0 ? (double)totalViews / days : 0;
+
+                return new ViewsChartDataResponse
+                {
+                    Labels = labels,
+                    Datasets = datasets,
+                    ChartType = "line",
+                    TimeRange = $"{days} days",
+                    TotalViews = totalViews,
+                    AverageViewsPerDay = averageViewsPerDay
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating views chart data for user {UserId}", userId);
+                return CreateEmptyViewsChartData(days);
+            }
+        }
+
+        /// <summary>
+        /// Get pre-formatted reviews chart data for Chart.js
+        /// </summary>
+        public async Task<ReviewsChartDataResponse> GetReviewsChartDataAsync(string userId, int days = 30)
+        {
+            try
+            {
+                var rawData = await GetReviewsOverTimeAsync(userId, days);
+                
+                if (!rawData.Any())
+                {
+                    return CreateEmptyReviewsChartData(days);
+                }
+
+                // Generate date labels
+                var labels = GenerateDateLabels(days);
+                
+                // Group data by business
+                var businessGroups = rawData
+                    .GroupBy(d => d.BusinessName)
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                // Create datasets for each business
+                var datasets = new List<ChartDataset>();
+                var colors = GetChartColors();
+                var colorIndex = 0;
+
+                foreach (var businessGroup in businessGroups)
+                {
+                    var businessName = businessGroup.Key;
+                    var businessData = businessGroup.Value;
+                    var color = colors[colorIndex % colors.Length];
+                    colorIndex++;
+
+                    // Fill in missing dates with 0 reviews
+                    var dataPoints = labels.Select(label =>
+                    {
+                        var date = ParseDateLabel(label, days);
+                        var dataPoint = businessData.FirstOrDefault(d => d.Date.Date == date.Date);
+                        return dataPoint?.ReviewCount ?? 0.0;
+                    }).ToList();
+
+                    datasets.Add(new ChartDataset
+                    {
+                        Label = businessName,
+                        Data = dataPoints,
+                        BorderColor = color,
+                        BackgroundColor = color + "80",
+                        Fill = false,
+                        BorderWidth = 1
+                    });
+                }
+
+                var totalReviews = rawData.Sum(d => d.ReviewCount);
+                var averageRating = rawData.Where(d => d.AverageRating > 0).Average(d => d.AverageRating);
+                var averageReviewsPerDay = days > 0 ? (double)totalReviews / days : 0;
+
+                return new ReviewsChartDataResponse
+                {
+                    Labels = labels,
+                    Datasets = datasets,
+                    ChartType = "bar",
+                    TimeRange = $"{days} days",
+                    TotalReviews = totalReviews,
+                    AverageRating = averageRating,
+                    AverageReviewsPerDay = averageReviewsPerDay
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating reviews chart data for user {UserId}", userId);
+                return CreateEmptyReviewsChartData(days);
+            }
+        }
+
+        // Helper methods for chart data processing
+        private static List<string> GenerateDateLabels(int days)
+        {
+            var labels = new List<string>();
+            var today = DateTime.UtcNow.Date;
+            
+            for (var i = days - 1; i >= 0; i--)
+            {
+                var date = today.AddDays(-i);
+                
+                if (days <= 7)
+                {
+                    labels.Add(date.ToString("ddd, MMM dd"));
+                }
+                else if (days <= 30)
+                {
+                    labels.Add(date.ToString("MMM dd"));
+                }
+                else
+                {
+                    labels.Add(date.ToString("MMM dd"));
+                }
+            }
+            
+            return labels;
+        }
+
+        private static DateTime ParseDateLabel(string label, int days)
+        {
+            var today = DateTime.UtcNow.Date;
+            
+            // Find the date that corresponds to this label
+            for (var i = days - 1; i >= 0; i--)
+            {
+                var date = today.AddDays(-i);
+                var expectedLabel = days <= 7 ? date.ToString("ddd, MMM dd") : date.ToString("MMM dd");
+                
+                if (label == expectedLabel)
+                {
+                    return date;
+                }
+            }
+            
+            return today; // Fallback
+        }
+
+        private static string[] GetChartColors()
+        {
+            return new[]
+            {
+                "#33658a", // lapis-lazuli
+                "#86bbd8", // carolina-blue
+                "#f6ae2d", // hunyadi-yellow
+                "#f26419", // orange-pantone
+                "#2f4858", // charcoal
+                "#6c757d", // dark-gray
+            };
+        }
+
+        private static ViewsChartDataResponse CreateEmptyViewsChartData(int days)
+        {
+            var labels = GenerateDateLabels(days);
+            return new ViewsChartDataResponse
+            {
+                Labels = labels,
+                Datasets = new List<ChartDataset>
+                {
+                    new()
+                    {
+                        Label = "No Views Data",
+                        Data = new List<double>(new double[labels.Count]),
+                        BorderColor = "#e9ecef",
+                        BackgroundColor = "#e9ecef20",
+                        Fill = false
+                    }
+                },
+                ChartType = "line",
+                TimeRange = $"{days} days",
+                TotalViews = 0,
+                AverageViewsPerDay = 0
+            };
+        }
+
+        private static ReviewsChartDataResponse CreateEmptyReviewsChartData(int days)
+        {
+            var labels = GenerateDateLabels(days);
+            return new ReviewsChartDataResponse
+            {
+                Labels = labels,
+                Datasets = new List<ChartDataset>
+                {
+                    new()
+                    {
+                        Label = "No Reviews Data",
+                        Data = new List<double>(new double[labels.Count]),
+                        BorderColor = "#e9ecef",
+                        BackgroundColor = "#e9ecef80",
+                        Fill = false,
+                        BorderWidth = 1
+                    }
+                },
+                ChartType = "bar",
+                TimeRange = $"{days} days",
+                TotalReviews = 0,
+                AverageRating = 0,
+                AverageReviewsPerDay = 0
+            };
+        }
     }
 }

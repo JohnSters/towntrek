@@ -226,6 +226,62 @@ namespace TownTrek.Controllers.Client
             }
         }
 
+        // ===== CHART DATA API ENDPOINTS (Phase 2.2) =====
+
+        /// <summary>
+        /// Get pre-formatted views chart data for Chart.js
+        /// </summary>
+        public async Task<IActionResult> ViewsChartData(int days = 30, string? platform = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Analytics are not available during the trial period." });
+                }
+
+                var chartData = await _analyticsService.GetViewsChartDataAsync(userId, days, platform);
+                return Json(chartData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading views chart data");
+                return Json(new { error = "Unable to load chart data" });
+            }
+        }
+
+        /// <summary>
+        /// Get pre-formatted reviews chart data for Chart.js
+        /// </summary>
+        public async Task<IActionResult> ReviewsChartData(int days = 30)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Analytics are not available during the trial period." });
+                }
+
+                var chartData = await _analyticsService.GetReviewsChartDataAsync(userId, days);
+                return Json(chartData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading reviews chart data");
+                return Json(new { error = "Unable to load chart data" });
+            }
+        }
+
         // Advanced analytics features - now available to all non-trial authenticated clients with active subscription
         public async Task<IActionResult> Benchmarks(string category)
         {

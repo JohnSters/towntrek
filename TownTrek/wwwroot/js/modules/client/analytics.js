@@ -310,142 +310,55 @@ class ClientAnalyticsManager {
 
     async fetchViewsData(days) {
         try {
-            const response = await fetch(`/Client/Analytics/ViewsOverTimeData?days=${days}`);
-            if (!response.ok) throw new Error('Failed to fetch views data');
+            // Use new pre-formatted chart data endpoint
+            const response = await fetch(`/Client/Analytics/ViewsChartData?days=${days}`);
+            if (!response.ok) throw new Error('Failed to fetch views chart data');
             
-            const rawData = await response.json();
+            const chartData = await response.json();
             
-            // Process data for Chart.js
-            const businessGroups = {};
-            rawData.forEach(item => {
-                if (!businessGroups[item.businessName]) {
-                    businessGroups[item.businessName] = [];
-                }
-                businessGroups[item.businessName].push({
-                    date: new Date(item.date),
-                    views: item.views
-                });
-            });
-
-            // Generate labels (dates)
-            const labels = this.generateDateLabels(days);
-            
-            // Generate datasets for each business
-            const datasets = Object.keys(businessGroups).map((businessName, index) => {
-                const color = this.getChartColor(index);
-                const businessData = businessGroups[businessName];
-                
-                // Fill in missing dates with 0 views
-                const dataPoints = labels.map(label => {
-                    const dataPoint = businessData.find(d => 
-                        d.date.toDateString() === new Date(label).toDateString()
-                    );
-                    return dataPoint ? dataPoint.views : 0;
-                });
-
-                return {
-                    label: businessName,
-                    data: dataPoints,
-                    borderColor: color,
-                    backgroundColor: color + '20',
-                    fill: false,
-                    tension: 0.4
-                };
-            });
-
-            return { labels, datasets };
+            // Return pre-formatted data directly - no processing needed
+            return {
+                labels: chartData.labels || [],
+                datasets: chartData.datasets || []
+            };
         } catch (error) {
-            console.error('Error fetching views data:', error);
+            console.error('Error fetching views chart data:', error);
             return this.getEmptyChartData(days, 'Views');
         }
     }
 
     async fetchReviewsData(days) {
         try {
-            const response = await fetch(`/Client/Analytics/ReviewsOverTimeData?days=${days}`);
-            if (!response.ok) throw new Error('Failed to fetch reviews data');
+            // Use new pre-formatted chart data endpoint
+            const response = await fetch(`/Client/Analytics/ReviewsChartData?days=${days}`);
+            if (!response.ok) throw new Error('Failed to fetch reviews chart data');
             
-            const rawData = await response.json();
+            const chartData = await response.json();
             
-            // Process data for Chart.js
-            const businessGroups = {};
-            rawData.forEach(item => {
-                if (!businessGroups[item.businessName]) {
-                    businessGroups[item.businessName] = [];
-                }
-                businessGroups[item.businessName].push({
-                    date: new Date(item.date),
-                    reviewCount: item.reviewCount,
-                    averageRating: item.averageRating
-                });
-            });
-
-            // Generate labels (dates)
-            const labels = this.generateDateLabels(days);
-            
-            // Generate datasets for each business
-            const datasets = Object.keys(businessGroups).map((businessName, index) => {
-                const color = this.getChartColor(index);
-                const businessData = businessGroups[businessName];
-                
-                // Fill in missing dates with 0 reviews
-                const dataPoints = labels.map(label => {
-                    const dataPoint = businessData.find(d => 
-                        d.date.toDateString() === new Date(label).toDateString()
-                    );
-                    return dataPoint ? dataPoint.reviewCount : 0;
-                });
-
-                return {
-                    label: businessName,
-                    data: dataPoints,
-                    backgroundColor: color + '80',
-                    borderColor: color,
-                    borderWidth: 1
-                };
-            });
-
-            return { labels, datasets };
+            // Return pre-formatted data directly - no processing needed
+            return {
+                labels: chartData.labels || [],
+                datasets: chartData.datasets || []
+            };
         } catch (error) {
-            console.error('Error fetching reviews data:', error);
+            console.error('Error fetching reviews chart data:', error);
             return this.getEmptyChartData(days, 'Reviews');
         }
     }
 
-    generateDateLabels(days) {
+    // Note: generateDateLabels and getChartColor methods removed - now handled by backend
+
+    getEmptyChartData(days, type) {
+        // Generate simple date labels for empty data
         const labels = [];
         const today = new Date();
         
         for (let i = days - 1; i >= 0; i--) {
             const date = new Date(today);
             date.setDate(date.getDate() - i);
-            
-            if (days <= 7) {
-                labels.push(date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }));
-            } else if (days <= 30) {
-                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-            } else {
-                labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
-            }
+            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
         }
         
-        return labels;
-    }
-
-    getChartColor(index) {
-        const colors = [
-            '#33658a', // lapis-lazuli
-            '#86bbd8', // carolina-blue
-            '#f6ae2d', // hunyadi-yellow
-            '#f26419', // orange-pantone
-            '#2f4858', // charcoal
-            '#6c757d', // dark-gray
-        ];
-        return colors[index % colors.length];
-    }
-
-    getEmptyChartData(days, type) {
-        const labels = this.generateDateLabels(days);
         return {
             labels,
             datasets: [{
@@ -611,7 +524,7 @@ class ClientAnalyticsManager {
     // Platform-specific analytics methods
     async fetchViewsDataByPlatform(days = 30, platform = null) {
         try {
-            const url = new URL('/Client/Analytics/ViewsOverTimeByPlatform', window.location.origin);
+            const url = new URL('/Client/Analytics/ViewsChartData', window.location.origin);
             url.searchParams.set('days', days);
             if (platform) {
                 url.searchParams.set('platform', platform);
@@ -629,10 +542,13 @@ class ClientAnalyticsManager {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            const data = await response.json();
-            return this.processViewsDataForCharts(data);
+            const chartData = await response.json();
+            return {
+                labels: chartData.labels || [],
+                datasets: chartData.datasets || []
+            };
         } catch (error) {
-            console.error('Error fetching platform-specific views data:', error);
+            console.error('Error fetching platform-specific views chart data:', error);
             return { labels: [], datasets: [] };
         }
     }

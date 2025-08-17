@@ -18,5 +18,9 @@ namespace TownTrek.Services.Interfaces
         // Platform-specific analytics methods
         Task<List<ViewsOverTimeData>> GetViewsOverTimeByPlatformAsync(string userId, int days = 30, string? platform = null);
         Task<ViewStatistics> GetBusinessViewStatisticsAsync(int businessId, DateTime startDate, DateTime endDate, string? platform = null);
+        
+        // Chart data processing methods (Phase 2.2)
+        Task<ViewsChartDataResponse> GetViewsChartDataAsync(string userId, int days = 30, string? platform = null);
+        Task<ReviewsChartDataResponse> GetReviewsChartDataAsync(string userId, int days = 30);
     }
 }
