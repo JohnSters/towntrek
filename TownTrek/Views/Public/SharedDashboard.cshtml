@@ -1,0 +1,155 @@
+@model dynamic
+
+@{
+    ViewData["Title"] = "Shared Analytics Dashboard";
+    Layout = "_Layout";
+}
+
+<div class="shared-dashboard">
+    <div class="dashboard-header">
+        <div class="header-content">
+            <h1>Analytics Dashboard</h1>
+            <p class="shared-by">Shared by @Model.UserName</p>
+            @if (!string.IsNullOrEmpty(Model.BusinessName))
+            {
+                <p class="business-name">@Model.BusinessName</p>
+            }
+            <div class="dashboard-info">
+                <span class="info-item">Created: @Model.CreatedAt.ToString("MMM dd, yyyy")</span>
+                @if (Model.ExpiresAt != null)
+                {
+                    <span class="info-item">Expires: @Model.ExpiresAt.ToString("MMM dd, yyyy")</span>
+                }
+                <span class="info-item">Views: @Model.AccessCount</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="dashboard-content">
+        @if (Model.DashboardType == "overview")
+        {
+            <div class="overview-dashboard">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">@Model.AnalyticsData.Overview.TotalViews.ToString("N0")</div>
+                        <div class="metric-label">Total Views</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">@Model.AnalyticsData.Overview.TotalReviews.ToString("N0")</div>
+                        <div class="metric-label">Total Reviews</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">@Model.AnalyticsData.Overview.AverageRating.ToString("F1")</div>
+                        <div class="metric-label">Average Rating</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">@Model.AnalyticsData.Businesses.Count</div>
+                        <div class="metric-label">Total Businesses</div>
+                    </div>
+                </div>
+
+                @if (Model.AnalyticsData.BusinessAnalytics != null && Model.AnalyticsData.BusinessAnalytics.Count > 0)
+                {
+                    <div class="business-performance">
+                        <h2>Business Performance</h2>
+                        <div class="business-list">
+                            @foreach (var business in Model.AnalyticsData.BusinessAnalytics.Take(5))
+                            {
+                                <div class="business-item">
+                                    <div class="business-name">@business.BusinessName</div>
+                                    <div class="business-metrics">
+                                        <span class="metric">@business.TotalViews.ToString("N0") views</span>
+                                        <span class="metric">@business.TotalReviews.ToString("N0") reviews</span>
+                                        <span class="metric">@business.AverageRating.ToString("F1") rating</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else if (Model.DashboardType == "business")
+        {
+            <div class="business-dashboard">
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">@Model.AnalyticsData.TotalViews.ToString("N0")</div>
+                        <div class="metric-label">Total Views</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">@Model.AnalyticsData.TotalReviews.ToString("N0")</div>
+                        <div class="metric-label">Total Reviews</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">@Model.AnalyticsData.AverageRating.ToString("F1")</div>
+                        <div class="metric-label">Average Rating</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">@Model.AnalyticsData.TotalFavorites.ToString("N0")</div>
+                        <div class="metric-label">Total Favorites</div>
+                    </div>
+                </div>
+
+                @if (Model.AnalyticsData.PerformanceInsights != null && Model.AnalyticsData.PerformanceInsights.Count > 0)
+                {
+                    <div class="performance-insights">
+                        <h2>Performance Insights</h2>
+                        <div class="insights-list">
+                            @foreach (var insight in Model.AnalyticsData.PerformanceInsights.Take(5))
+                            {
+                                <div class="insight-item">
+                                    <div class="insight-icon">💡</div>
+                                    <div class="insight-text">@insight.Insight</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else if (Model.DashboardType == "competitors")
+        {
+            <div class="competitors-dashboard">
+                <h2>Competitor Insights</h2>
+                @if (Model.AnalyticsData != null && Model.AnalyticsData.Count > 0)
+                {
+                    <div class="competitors-list">
+                        @foreach (var competitor in Model.AnalyticsData.Take(5))
+                        {
+                            <div class="competitor-item">
+                                <div class="competitor-name">@competitor.CompetitorName</div>
+                                <div class="competitor-metrics">
+                                    <span class="metric">@competitor.Views.ToString("N0") views</span>
+                                    <span class="metric">@competitor.Reviews.ToString("N0") reviews</span>
+                                    <span class="metric">@competitor.Rating.ToString("F1") rating</span>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="no-data">No competitor data available</p>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="no-data">
+                <p>This dashboard type is not supported for public viewing.</p>
+            </div>
+        }
+    </div>
+
+    <div class="dashboard-footer">
+        <p class="footer-text">
+            This analytics dashboard was shared via TownTrek. 
+            <a href="/" target="_blank">Learn more about TownTrek</a>
+        </p>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/features/public/shared-dashboard.css" asp-append-version="true" />
+}

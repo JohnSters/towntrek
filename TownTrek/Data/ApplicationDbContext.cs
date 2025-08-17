@@ -66,6 +66,10 @@ namespace TownTrek.Data
         public DbSet<AnalyticsPerformanceLog> AnalyticsPerformanceLogs { get; set; }
         public DbSet<AnalyticsErrorLog> AnalyticsErrorLogs { get; set; }
         public DbSet<AnalyticsUsageLog> AnalyticsUsageLogs { get; set; }
+        
+        // Analytics Export and Sharing
+        public DbSet<AnalyticsShareableLink> AnalyticsShareableLinks { get; set; }
+        public DbSet<AnalyticsEmailReport> AnalyticsEmailReports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -836,6 +840,69 @@ namespace TownTrek.Data
                 entity.HasIndex(e => e.SessionId).HasDatabaseName("IX_AnalyticsUsageLogs_SessionId");
                 entity.HasIndex(e => new { e.UsageType, e.CreatedAt }).HasDatabaseName("IX_AnalyticsUsageLogs_UsageType_CreatedAt");
                 entity.HasIndex(e => new { e.UserId, e.CreatedAt }).HasDatabaseName("IX_AnalyticsUsageLogs_UserId_CreatedAt");
+            });
+
+            // Configure AnalyticsShareableLink
+            builder.Entity<AnalyticsShareableLink>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.LinkToken).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.DashboardType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                // Foreign key relationships
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<Business>()
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes for performance and querying
+                entity.HasIndex(e => e.LinkToken).IsUnique().HasDatabaseName("IX_AnalyticsShareableLinks_LinkToken");
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_AnalyticsShareableLinks_UserId");
+                entity.HasIndex(e => e.DashboardType).HasDatabaseName("IX_AnalyticsShareableLinks_DashboardType");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_AnalyticsShareableLinks_CreatedAt");
+                entity.HasIndex(e => e.ExpiresAt).HasDatabaseName("IX_AnalyticsShareableLinks_ExpiresAt");
+                entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_AnalyticsShareableLinks_IsActive");
+                entity.HasIndex(e => new { e.LinkToken, e.IsActive }).HasDatabaseName("IX_AnalyticsShareableLinks_Token_Active");
+            });
+
+            // Configure AnalyticsEmailReport
+            builder.Entity<AnalyticsEmailReport>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.ReportType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Frequency).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.EmailAddress).HasMaxLength(500);
+                entity.Property(e => e.CustomMessage).HasMaxLength(1000);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                // Foreign key relationships
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<Business>()
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                // Indexes for performance and querying
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_AnalyticsEmailReports_UserId");
+                entity.HasIndex(e => e.ReportType).HasDatabaseName("IX_AnalyticsEmailReports_ReportType");
+                entity.HasIndex(e => e.Frequency).HasDatabaseName("IX_AnalyticsEmailReports_Frequency");
+                entity.HasIndex(e => e.CreatedAt).HasDatabaseName("IX_AnalyticsEmailReports_CreatedAt");
+                entity.HasIndex(e => e.NextScheduledAt).HasDatabaseName("IX_AnalyticsEmailReports_NextScheduled");
+                entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_AnalyticsEmailReports_IsActive");
+                entity.HasIndex(e => new { e.UserId, e.IsActive }).HasDatabaseName("IX_AnalyticsEmailReports_UserId_Active");
             });
         }
     }

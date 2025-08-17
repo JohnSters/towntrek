@@ -16,6 +16,7 @@ namespace TownTrek.Controllers.Client
         ITrialService trialService,
         IBusinessService businessService,
         IAnalyticsAuditService analyticsAuditService,
+        IAnalyticsExportService analyticsExportService,
         ILogger<AnalyticsController> logger) : Controller
     {
         private readonly IAnalyticsService _analyticsService = analyticsService;
@@ -24,6 +25,7 @@ namespace TownTrek.Controllers.Client
         private readonly ITrialService _trialService = trialService;
         private readonly IBusinessService _businessService = businessService;
         private readonly IAnalyticsAuditService _analyticsAuditService = analyticsAuditService;
+        private readonly IAnalyticsExportService _analyticsExportService = analyticsExportService;
         private readonly ILogger<AnalyticsController> _logger = logger;
 
         // Analytics Dashboard - available to all non-trial authenticated clients with active subscription
@@ -610,6 +612,262 @@ namespace TownTrek.Controllers.Client
             };
 
             return Json(debugInfo);
+        }
+
+        // ===== EXPORT AND SHARING ENDPOINTS (Phase 3.1) =====
+
+        /// <summary>
+        /// Export business analytics as PDF
+        /// </summary>
+        [EnableRateLimiting("AnalyticsRateLimit")]
+        public async Task<IActionResult> ExportBusinessPdf(int businessId, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    TempData["ErrorMessage"] = "Export features are not available during the trial period.";
+                    return RedirectToAction("Business", new { id = businessId });
+                }
+
+                // Log export activity
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ExportBusinessPdf", businessId.ToString());
+
+                var pdfData = await _analyticsExportService.GenerateBusinessAnalyticsPdfAsync(businessId, userId, fromDate, toDate);
+                
+                var fileName = $"business-analytics-{businessId}-{DateTime.UtcNow:yyyy-MM-dd}.pdf";
+                return File(pdfData, "application/pdf", fileName);
+            }
+            catch (ArgumentException)
+            {
+                TempData["ErrorMessage"] = "Business not found or access denied.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error exporting business PDF for business {BusinessId}", businessId);
+                TempData["ErrorMessage"] = "Unable to generate PDF. Please try again.";
+                return RedirectToAction("Business", new { id = businessId });
+            }
+        }
+
+        /// <summary>
+        /// Export client analytics overview as PDF
+        /// </summary>
+        [EnableRateLimiting("AnalyticsRateLimit")]
+        public async Task<IActionResult> ExportOverviewPdf(DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    TempData["ErrorMessage"] = "Export features are not available during the trial period.";
+                    return RedirectToAction("Index");
+                }
+
+                // Log export activity
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ExportOverviewPdf");
+
+                var pdfData = await _analyticsExportService.GenerateClientAnalyticsPdfAsync(userId, fromDate, toDate);
+                
+                var fileName = $"analytics-overview-{DateTime.UtcNow:yyyy-MM-dd}.pdf";
+                return File(pdfData, "application/pdf", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error exporting overview PDF for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                TempData["ErrorMessage"] = "Unable to generate PDF. Please try again.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        /// <summary>
+        /// Export analytics data as CSV
+        /// </summary>
+        [EnableRateLimiting("AnalyticsRateLimit")]
+        public async Task<IActionResult> ExportCsv(string dataType, DateTime? fromDate = null, DateTime? toDate = null, int? businessId = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    TempData["ErrorMessage"] = "Export features are not available during the trial period.";
+                    return RedirectToAction("Index");
+                }
+
+                // Validate data type
+                if (!new[] { "views", "reviews", "performance" }.Contains(dataType.ToLower()))
+                {
+                    TempData["ErrorMessage"] = "Invalid data type specified.";
+                    return RedirectToAction("Index");
+                }
+
+                // Log export activity
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ExportCsv", $"{dataType}-{businessId}");
+
+                var csvData = await _analyticsExportService.ExportAnalyticsCsvAsync(userId, dataType, fromDate, toDate, businessId);
+                
+                var fileName = $"analytics-{dataType}-{DateTime.UtcNow:yyyy-MM-dd}.csv";
+                return File(csvData, "text/csv", fileName);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error exporting CSV for user {UserId}, data type {DataType}", User.FindFirstValue(ClaimTypes.NameIdentifier), dataType);
+                TempData["ErrorMessage"] = "Unable to export data. Please try again.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        /// <summary>
+        /// Generate shareable dashboard link
+        /// </summary>
+        [HttpPost]
+        [EnableRateLimiting("AnalyticsRateLimit")]
+        public async Task<IActionResult> GenerateShareableLink(string dashboardType, int? businessId = null, DateTime? expiresAt = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    return Json(new { success = false, message = "Shareable links are not available during the trial period." });
+                }
+
+                // Validate dashboard type
+                if (!new[] { "overview", "business", "benchmarks", "competitors" }.Contains(dashboardType.ToLower()))
+                {
+                    return Json(new { success = false, message = "Invalid dashboard type specified." });
+                }
+
+                // Log activity
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "GenerateShareableLink", $"{dashboardType}-{businessId}");
+
+                var linkToken = await _analyticsExportService.GenerateShareableLinkAsync(userId, dashboardType, businessId, expiresAt);
+                
+                var shareableUrl = Url.Action("SharedDashboard", "Public", new { token = linkToken }, Request.Scheme, Request.Host.Value);
+                
+                return Json(new { 
+                    success = true, 
+                    linkToken = linkToken,
+                    shareableUrl = shareableUrl,
+                    message = "Shareable link generated successfully" 
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating shareable link for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                return Json(new { success = false, message = "Unable to generate shareable link. Please try again." });
+            }
+        }
+
+        /// <summary>
+        /// Schedule email report
+        /// </summary>
+        [HttpPost]
+        [EnableRateLimiting("AnalyticsRateLimit")]
+        public async Task<IActionResult> ScheduleEmailReport(string reportType, string frequency, int? businessId = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    return Json(new { success = false, message = "Email reports are not available during the trial period." });
+                }
+
+                // Validate parameters
+                if (!new[] { "overview", "business" }.Contains(reportType.ToLower()))
+                {
+                    return Json(new { success = false, message = "Invalid report type specified." });
+                }
+
+                if (!new[] { "daily", "weekly", "monthly", "once" }.Contains(frequency.ToLower()))
+                {
+                    return Json(new { success = false, message = "Invalid frequency specified." });
+                }
+
+                // Log activity
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ScheduleEmailReport", $"{reportType}-{frequency}-{businessId}");
+
+                var success = await _analyticsExportService.ScheduleEmailReportAsync(userId, reportType, frequency, businessId);
+                
+                if (success)
+                {
+                    return Json(new { success = true, message = "Email report scheduled successfully" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Unable to schedule email report. Please try again." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error scheduling email report for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                return Json(new { success = false, message = "Unable to schedule email report. Please try again." });
+            }
+        }
+
+        /// <summary>
+        /// Send immediate email report
+        /// </summary>
+        [HttpPost]
+        [EnableRateLimiting("AnalyticsRateLimit")]
+        public async Task<IActionResult> SendEmailReport(string reportType, int? businessId = null, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    return Json(new { success = false, message = "Email reports are not available during the trial period." });
+                }
+
+                // Validate report type
+                if (!new[] { "overview", "business" }.Contains(reportType.ToLower()))
+                {
+                    return Json(new { success = false, message = "Invalid report type specified." });
+                }
+
+                // Log activity
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "SendEmailReport", $"{reportType}-{businessId}");
+
+                var success = await _analyticsExportService.SendEmailReportAsync(userId, reportType, businessId, fromDate, toDate);
+                
+                if (success)
+                {
+                    return Json(new { success = true, message = "Email report sent successfully" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = "Unable to send email report. Please try again." });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending email report for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                return Json(new { success = false, message = "Unable to send email report. Please try again." });
+            }
         }
     }
 }

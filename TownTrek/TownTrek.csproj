@@ -48,6 +48,8 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.8" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="itext7" Version="8.0.5" />
+    <PackageReference Include="CsvHelper" Version="30.0.1" />
   </ItemGroup>
 
 

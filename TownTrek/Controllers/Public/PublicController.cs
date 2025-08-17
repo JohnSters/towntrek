@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
+using TownTrek.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace TownTrek.Controllers.Public
 {
@@ -11,15 +13,21 @@ namespace TownTrek.Controllers.Public
     {
         private readonly IMemberService _memberService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IAnalyticsExportService _analyticsExportService;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<PublicController> _logger;
 
         public PublicController(
             IMemberService memberService,
             UserManager<ApplicationUser> userManager,
+            IAnalyticsExportService analyticsExportService,
+            ApplicationDbContext context,
             ILogger<PublicController> logger)
         {
             _memberService = memberService;
             _userManager = userManager;
+            _analyticsExportService = analyticsExportService;
+            _context = context;
             _logger = logger;
         }
 
@@ -275,6 +283,68 @@ namespace TownTrek.Controllers.Public
                 _logger.LogError(ex, "Error loading categories API");
                 return Json(new { error = "Failed to load categories" });
             }
+        }
+
+        // GET: Public/SharedDashboard
+        public async Task<IActionResult> SharedDashboard(string token)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(token))
+                {
+                    return View("SharedDashboardError", new { message = "Invalid or missing shareable link token." });
+                }
+
+                // Validate the shareable link
+                var isValid = await _analyticsExportService.ValidateShareableLinkAsync(token);
+                if (!isValid)
+                {
+                    return View("SharedDashboardError", new { message = "This shareable link has expired or is no longer valid." });
+                }
+
+                // Get the shareable link details
+                var shareableLink = await _context.AnalyticsShareableLinks
+                    .Include(l => l.User)
+                    .Include(l => l.Business)
+                    .FirstOrDefaultAsync(l => l.LinkToken == token && l.IsActive);
+
+                if (shareableLink == null)
+                {
+                    return View("SharedDashboardError", new { message = "Shareable link not found." });
+                }
+
+                // Get analytics data
+                var analyticsData = await _analyticsExportService.GetShareableLinkDataAsync(token);
+                if (analyticsData == null)
+                {
+                    return View("SharedDashboardError", new { message = "Unable to load analytics data." });
+                }
+
+                var viewModel = new
+                {
+                    ShareableLink = shareableLink,
+                    AnalyticsData = analyticsData,
+                    DashboardType = shareableLink.DashboardType,
+                    BusinessName = shareableLink.Business?.Name,
+                    UserName = shareableLink.User?.UserName,
+                    CreatedAt = shareableLink.CreatedAt,
+                    ExpiresAt = shareableLink.ExpiresAt,
+                    AccessCount = shareableLink.AccessCount
+                };
+
+                return View(viewModel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading shared dashboard for token {Token}", token);
+                return View("SharedDashboardError", new { message = "An error occurred while loading the shared dashboard." });
+            }
+        }
+
+        // GET: Public/SharedDashboardError
+        public IActionResult SharedDashboardError()
+        {
+            return View();
         }
     }
 }

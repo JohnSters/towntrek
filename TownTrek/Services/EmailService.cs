@@ -83,6 +83,52 @@ namespace TownTrek.Services
             await SendAsync(recipient, subject, body);
         }
 
+        public async Task<bool> SendEmailWithAttachmentAsync(string email, string subject, string body, byte[] attachmentData, string fileName, string contentType)
+        {
+            try
+            {
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(_options.FromName, _options.FromAddress));
+                message.To.Add(new MailboxAddress(email, email));
+                message.Subject = subject;
+
+                var bodyBuilder = new BodyBuilder
+                {
+                    TextBody = body
+                };
+
+                // Add attachment
+                bodyBuilder.Attachments.Add(fileName, attachmentData, MimeKit.ContentType.Parse(contentType));
+
+                message.Body = bodyBuilder.ToMessageBody();
+
+                using var smtp = new SmtpClient();
+                if (_options.SkipCertificateValidation)
+                {
+                    smtp.ServerCertificateValidationCallback = (s, c, h, e) => true;
+                }
+
+                var secure = _options.GetSecureSocketOptions();
+                await smtp.ConnectAsync(_options.Host, _options.Port, secure);
+
+                if (!string.IsNullOrEmpty(_options.Username))
+                {
+                    await smtp.AuthenticateAsync(_options.Username, _options.Password);
+                }
+
+                await smtp.SendAsync(message);
+                await smtp.DisconnectAsync(true);
+
+                _logger.LogInformation("Email with attachment sent to {Email} with subject '{Subject}'", email, subject);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send email with attachment to {Email}", email);
+                return false;
+            }
+        }
+
         private async Task SendAsync(string toEmail, string subject, string body, bool isHtml = false)
         {
             var message = new MimeMessage();

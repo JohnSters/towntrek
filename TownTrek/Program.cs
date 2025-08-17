@@ -183,6 +183,9 @@ public class Program
         builder.Services.AddScoped<IAnalyticsErrorTracker, AnalyticsErrorTracker>();
         builder.Services.AddScoped<IAnalyticsUsageTracker, AnalyticsUsageTracker>();
 
+        // Add analytics export and sharing services
+        builder.Services.AddScoped<IAnalyticsExportService, AnalyticsExportService>();
+
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();
 
