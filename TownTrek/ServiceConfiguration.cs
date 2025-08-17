@@ -29,6 +29,10 @@ namespace TownTrek
             
             // Register error logging services
             services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();
+            
+            // Register analytics services
+            services.AddScoped<IAnalyticsService, AnalyticsService>();
+            services.AddScoped<IViewTrackingService, ViewTrackingService>();
         }
     }
 }

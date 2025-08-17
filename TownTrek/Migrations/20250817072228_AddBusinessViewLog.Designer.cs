@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TownTrek.Data;
 
@@ -11,9 +12,11 @@ using TownTrek.Data;
 namespace TownTrek.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250817072228_AddBusinessViewLog")]
+    partial class AddBusinessViewLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -394,7 +397,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 1,
                             ColorClass = "danger",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4990),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1977),
                             Description = "Billing problems, payment failures, subscription issues",
                             IconClass = "fas fa-credit-card",
                             IsActive = true,
@@ -407,7 +410,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 2,
                             ColorClass = "danger",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4992),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1979),
                             Description = "Site bugs, login issues, functionality not working",
                             IconClass = "fas fa-bug",
                             IsActive = true,
@@ -420,7 +423,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 3,
                             ColorClass = "warning",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4994),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1981),
                             Description = "Password resets, account lockouts, permission issues",
                             IconClass = "fas fa-user-lock",
                             IsActive = true,
@@ -433,7 +436,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 4,
                             ColorClass = "info",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4996),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1983),
                             Description = "New functionality suggestions, improvements",
                             IconClass = "fas fa-lightbulb",
                             IsActive = true,
@@ -446,7 +449,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 5,
                             ColorClass = "info",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4997),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1984),
                             Description = "Problems with business information, images, approval delays",
                             IconClass = "fas fa-store",
                             IsActive = true,
@@ -459,7 +462,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 6,
                             ColorClass = "info",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4999),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1986),
                             Description = "Upgrade/downgrade requests, plan modifications",
                             IconClass = "fas fa-exchange-alt",
                             IsActive = true,
@@ -472,7 +475,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 7,
                             ColorClass = "warning",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(5001),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1988),
                             Description = "Incorrect town information, business details",
                             IconClass = "fas fa-edit",
                             IsActive = true,
@@ -485,7 +488,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 8,
                             ColorClass = "secondary",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(5002),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1990),
                             Description = "How-to questions, usage guidance",
                             IconClass = "fas fa-question-circle",
                             IsActive = true,
@@ -498,7 +501,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 9,
                             ColorClass = "secondary",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(5004),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1991),
                             Description = "General feedback about the platform",
                             IconClass = "fas fa-comment",
                             IsActive = true,
@@ -511,7 +514,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 10,
                             ColorClass = "secondary",
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(5006),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1993),
                             Description = "Business partnerships, collaboration requests",
                             IconClass = "fas fa-handshake",
                             IsActive = true,
@@ -1443,11 +1446,6 @@ namespace TownTrek.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("nvarchar(45)");
 
-                    b.Property<string>("Platform")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("Referrer")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -2194,7 +2192,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4571),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1534),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -2205,7 +2203,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4573),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1536),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -2216,7 +2214,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4575),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 22, 27, 857, DateTimeKind.Utc).AddTicks(1538),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,

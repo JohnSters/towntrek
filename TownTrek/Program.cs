@@ -113,6 +113,7 @@ public class Program
         builder.Services.AddScoped<IClientService, ClientService>();
         builder.Services.AddScoped<IMemberService, MemberService>();
         builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+        builder.Services.AddScoped<IViewTrackingService, ViewTrackingService>();
         builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
         builder.Services.AddScoped<IApplicationLogger, ApplicationLogger>();
         builder.Services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();
@@ -171,6 +172,9 @@ public class Program
         
         // Add trial validation middleware
         app.UseMiddleware<TownTrek.Middleware.TrialValidationMiddleware>();
+        
+        // Add view tracking middleware
+        app.UseViewTracking();
 
         app.MapControllers();
 

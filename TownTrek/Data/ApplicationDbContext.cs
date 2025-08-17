@@ -45,6 +45,9 @@ namespace TownTrek.Data
         public DbSet<BusinessReviewResponse> BusinessReviewResponses { get; set; }
         public DbSet<FavoriteBusiness> FavoriteBusinesses { get; set; }
         
+        // Analytics
+        public DbSet<BusinessViewLog> BusinessViewLogs { get; set; }
+        
         // Trial Security
         public DbSet<TrialAuditLog> TrialAuditLogs { get; set; }
         

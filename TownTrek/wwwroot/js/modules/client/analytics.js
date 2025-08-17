@@ -562,6 +562,87 @@ class ClientAnalyticsManager {
         });
     }
 
+    // Platform-specific analytics methods
+    async fetchViewsDataByPlatform(days = 30, platform = null) {
+        try {
+            const url = new URL('/Client/Analytics/ViewsOverTimeByPlatform', window.location.origin);
+            url.searchParams.set('days', days);
+            if (platform) {
+                url.searchParams.set('platform', platform);
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return this.processViewsDataForCharts(data);
+        } catch (error) {
+            console.error('Error fetching platform-specific views data:', error);
+            return { labels: [], datasets: [] };
+        }
+    }
+
+    async fetchBusinessViewStatistics(businessId, startDate, endDate, platform = null) {
+        try {
+            const url = new URL('/Client/Analytics/BusinessViewStatistics', window.location.origin);
+            url.searchParams.set('businessId', businessId);
+            url.searchParams.set('startDate', startDate.toISOString().split('T')[0]);
+            url.searchParams.set('endDate', endDate.toISOString().split('T')[0]);
+            if (platform) {
+                url.searchParams.set('platform', platform);
+            }
+
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching business view statistics:', error);
+            return null;
+        }
+    }
+
+    updateViewsChartByPlatform(days = 30, platform = null) {
+        this.fetchViewsDataByPlatform(days, platform).then(data => {
+            if (this.viewsChart) {
+                this.viewsChart.data = data;
+                this.viewsChart.update('active');
+            }
+        });
+    }
+
+    // Mobile app integration helper
+    getPlatformBreakdown() {
+        const platformCards = document.querySelectorAll('.platform-breakdown-card');
+        const breakdown = {};
+
+        platformCards.forEach(card => {
+            const platform = card.dataset.platform;
+            const count = parseInt(card.querySelector('.platform-count').textContent) || 0;
+            breakdown[platform] = count;
+        });
+
+        return breakdown;
+    }
+
     destroy() {
         if (this.viewsChart) {
             this.viewsChart.destroy();

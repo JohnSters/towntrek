@@ -168,6 +168,64 @@ namespace TownTrek.Controllers.Client
             }
         }
 
+        // API endpoint for platform-specific views over time data (for mobile app integration)
+        public async Task<IActionResult> ViewsOverTimeByPlatform(int days = 30, string? platform = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Analytics are not available during the trial period." });
+                }
+
+                var data = await _analyticsService.GetViewsOverTimeByPlatformAsync(userId, days, platform);
+                return Json(data);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading platform-specific views over time data");
+                return Json(new { error = "Unable to load data" });
+            }
+        }
+
+        // API endpoint for business view statistics (for mobile app integration)
+        public async Task<IActionResult> BusinessViewStatistics(int businessId, DateTime startDate, DateTime endDate, string? platform = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Analytics are not available during the trial period." });
+                }
+
+                // Verify user owns this business
+                var business = await _businessService.GetBusinessAsync(businessId);
+                if (business == null || business.UserId != userId)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Access denied" });
+                }
+
+                var statistics = await _analyticsService.GetBusinessViewStatisticsAsync(businessId, startDate, endDate, platform);
+                return Json(statistics);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading business view statistics");
+                return Json(new { error = "Unable to load data" });
+            }
+        }
+
         // Advanced analytics features - now available to all non-trial authenticated clients with active subscription
         public async Task<IActionResult> Benchmarks(string category)
         {
