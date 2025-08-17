@@ -22,5 +22,11 @@ namespace TownTrek.Services.Interfaces
         // Chart data processing methods (Phase 2.2)
         Task<ViewsChartDataResponse> GetViewsChartDataAsync(string userId, int days = 30, string? platform = null);
         Task<ReviewsChartDataResponse> GetReviewsChartDataAsync(string userId, int days = 30);
+        
+        // Comparative analysis methods (Phase 4.2)
+        Task<ComparativeAnalysisResponse> GetComparativeAnalysisAsync(string userId, ComparativeAnalysisRequest request);
+        Task<ComparativeAnalysisResponse> GetPeriodOverPeriodComparisonAsync(string userId, int? businessId = null, string comparisonType = "MonthOverMonth", string? platform = null);
+        Task<ComparativeAnalysisResponse> GetYearOverYearComparisonAsync(string userId, int? businessId = null, string? platform = null);
+        Task<ComparativeAnalysisResponse> GetCustomRangeComparisonAsync(string userId, DateTime currentStart, DateTime currentEnd, DateTime previousStart, DateTime previousEnd, int? businessId = null, string? platform = null);
     }
 }

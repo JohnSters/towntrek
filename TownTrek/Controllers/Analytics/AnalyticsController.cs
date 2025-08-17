@@ -4,6 +4,7 @@ using System.Security.Claims;
 using TownTrek.Attributes;
 using TownTrek.Services.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
+using TownTrek.Models.ViewModels;
 
 namespace TownTrek.Controllers.Client
 {
@@ -867,6 +868,258 @@ namespace TownTrek.Controllers.Client
             {
                 _logger.LogError(ex, "Error sending email report for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 return Json(new { success = false, message = "Unable to send email report. Please try again." });
+            }
+        }
+
+        // ===== COMPARATIVE ANALYSIS ENDPOINTS (Phase 4.2) =====
+
+        /// <summary>
+        /// Get comparative analysis dashboard
+        /// </summary>
+        [EnableRateLimiting("AnalyticsRateLimit")]
+        public async Task<IActionResult> ComparativeAnalysis(int? businessId = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    TempData["ErrorMessage"] = "Comparative analysis is not available during the trial period. Please upgrade to access analytics.";
+                    return RedirectToAction("Index", "Subscription");
+                }
+
+                // Validate business ownership if specified
+                if (businessId.HasValue)
+                {
+                    var business = await _businessService.GetBusinessByIdAsync(businessId.Value);
+                    if (business == null || business.UserId != userId)
+                    {
+                        TempData["ErrorMessage"] = "Business not found or access denied.";
+                        return RedirectToAction("Index");
+                    }
+                }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ComparativeAnalysis", businessId?.ToString());
+
+                // Get default comparison (month-over-month)
+                var defaultComparison = await _analyticsService.GetPeriodOverPeriodComparisonAsync(userId, businessId, "MonthOverMonth");
+
+                ViewBag.BusinessId = businessId;
+                ViewBag.ComparisonTypes = new[] { "WeekOverWeek", "MonthOverMonth", "QuarterOverQuarter", "YearOverYear" };
+                ViewBag.Platforms = new[] { "All", "Web", "Mobile", "API" };
+
+                return View(defaultComparison);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading comparative analysis for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                TempData["ErrorMessage"] = "Unable to load comparative analysis. Please try again.";
+                return RedirectToAction("Index");
+            }
+        }
+
+        /// <summary>
+        /// API endpoint for comparative analysis data
+        /// </summary>
+        [EnableRateLimiting("ChartDataRateLimit")]
+        public async Task<IActionResult> ComparativeAnalysisData(string comparisonType = "MonthOverMonth", int? businessId = null, string? platform = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Input validation
+                if (!new[] { "WeekOverWeek", "MonthOverMonth", "QuarterOverQuarter", "YearOverYear" }.Contains(comparisonType))
+                {
+                    _logger.LogWarning("Invalid comparison type: {ComparisonType} for user {UserId}", comparisonType, userId);
+                    await _analyticsAuditService.LogSuspiciousActivityAsync(userId, "InvalidParameter", $"Invalid comparison type: {comparisonType}", Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    return BadRequest(new { error = "Invalid comparison type" });
+                }
+
+                if (!string.IsNullOrEmpty(platform) && !new[] { "All", "Web", "Mobile", "API" }.Contains(platform))
+                {
+                    _logger.LogWarning("Invalid platform parameter: {Platform} for user {UserId}", platform, userId);
+                    await _analyticsAuditService.LogSuspiciousActivityAsync(userId, "InvalidParameter", $"Invalid platform parameter: {platform}", Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown");
+                    return BadRequest(new { error = "Invalid platform parameter" });
+                }
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Comparative analysis is not available during the trial period." });
+                }
+
+                // Validate business ownership if specified
+                if (businessId.HasValue)
+                {
+                    var business = await _businessService.GetBusinessByIdAsync(businessId.Value);
+                    if (business == null || business.UserId != userId)
+                    {
+                        Response.StatusCode = 403;
+                        return Json(new { error = "Access denied" });
+                    }
+                }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ComparativeAnalysisData", businessId?.ToString(), platform ?? "All");
+
+                // Normalize platform parameter
+                var normalizedPlatform = platform == "All" ? null : platform;
+
+                var comparisonData = await _analyticsService.GetPeriodOverPeriodComparisonAsync(userId, businessId, comparisonType, normalizedPlatform);
+                return Json(comparisonData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading comparative analysis data");
+                return Json(new { error = "Unable to load comparison data" });
+            }
+        }
+
+        /// <summary>
+        /// API endpoint for year-over-year comparison
+        /// </summary>
+        [EnableRateLimiting("ChartDataRateLimit")]
+        public async Task<IActionResult> YearOverYearComparison(int? businessId = null, string? platform = null)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Comparative analysis is not available during the trial period." });
+                }
+
+                // Validate business ownership if specified
+                if (businessId.HasValue)
+                {
+                    var business = await _businessService.GetBusinessByIdAsync(businessId.Value);
+                    if (business == null || business.UserId != userId)
+                    {
+                        Response.StatusCode = 403;
+                        return Json(new { error = "Access denied" });
+                    }
+                }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "YearOverYearComparison", businessId?.ToString(), platform ?? "All");
+
+                // Normalize platform parameter
+                var normalizedPlatform = platform == "All" ? null : platform;
+
+                var comparisonData = await _analyticsService.GetYearOverYearComparisonAsync(userId, businessId, normalizedPlatform);
+                return Json(comparisonData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading year-over-year comparison data");
+                return Json(new { error = "Unable to load comparison data" });
+            }
+        }
+
+        /// <summary>
+        /// API endpoint for custom range comparison
+        /// </summary>
+        [HttpPost]
+        [EnableRateLimiting("ChartDataRateLimit")]
+        public async Task<IActionResult> CustomRangeComparison([FromBody] ComparativeAnalysisRequest request)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Input validation
+                if (request.CurrentPeriodStart >= request.CurrentPeriodEnd)
+                {
+                    return BadRequest(new { error = "Current period start must be before end" });
+                }
+
+                if (request.PreviousPeriodStart >= request.PreviousPeriodEnd)
+                {
+                    return BadRequest(new { error = "Previous period start must be before end" });
+                }
+
+                if ((request.CurrentPeriodEnd - request.CurrentPeriodStart).Days > 365)
+                {
+                    return BadRequest(new { error = "Period cannot exceed 365 days" });
+                }
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Comparative analysis is not available during the trial period." });
+                }
+
+                // Validate business ownership if specified
+                if (request.BusinessId.HasValue)
+                {
+                    var business = await _businessService.GetBusinessByIdAsync(request.BusinessId.Value);
+                    if (business == null || business.UserId != userId)
+                    {
+                        Response.StatusCode = 403;
+                        return Json(new { error = "Access denied" });
+                    }
+                }
+
+                // Log analytics access
+                await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "CustomRangeComparison", request.BusinessId?.ToString(), request.Platform ?? "All");
+
+                // Normalize platform parameter
+                request.Platform = request.Platform == "All" ? null : request.Platform;
+
+                var comparisonData = await _analyticsService.GetComparativeAnalysisAsync(userId, request);
+                return Json(comparisonData);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading custom range comparison data");
+                return Json(new { error = "Unable to load comparison data" });
+            }
+        }
+
+        /// <summary>
+        /// Get user businesses for filter dropdown
+        /// </summary>
+        [EnableRateLimiting("AnalyticsRateLimit")]
+        public async Task<IActionResult> GetUserBusinesses()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
+                // Block trial users
+                var trialStatus = await _trialService.GetTrialStatusAsync(userId);
+                if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
+                {
+                    Response.StatusCode = 403;
+                    return Json(new { error = "Analytics are not available during the trial period." });
+                }
+
+                var businesses = await _businessService.GetUserBusinessesAsync(userId);
+                var businessList = businesses?.Select(b => new { id = b.Id, name = b.Name }).ToList();
+                if (businessList == null)
+                {
+                    return Json(new List<object>());
+                }
+
+                return Json(businessList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading user businesses");
+                return Json(new List<object>());
             }
         }
     }

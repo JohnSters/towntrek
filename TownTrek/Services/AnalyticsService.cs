@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TownTrek.Constants;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
@@ -30,7 +31,7 @@ namespace TownTrek.Services
             var hasAdvancedAnalytics = true;
 
             var businesses = await _context.Businesses
-                .Where(b => b.UserId == userId && b.Status != "Deleted")
+                .Where(b => b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
                 .Include(b => b.Town)
                 .ToListAsync();
 
@@ -39,8 +40,8 @@ namespace TownTrek.Services
             var businessAnalytics = await GetBusinessAnalyticsBatchAsync(businessIds, userId);
 
             var overview = await GetAnalyticsOverviewAsync(userId, businessAnalytics);
-            var viewsOverTime = await GetViewsOverTimeAsync(userId, 30);
-            var reviewsOverTime = await GetReviewsOverTimeAsync(userId, 30);
+            var viewsOverTime = await GetViewsOverTimeAsync(userId, AnalyticsConstants.DefaultAnalyticsDays);
+            var reviewsOverTime = await GetReviewsOverTimeAsync(userId, AnalyticsConstants.DefaultAnalyticsDays);
             var performanceInsights = await GetPerformanceInsightsAsync(userId);
 
             var model = new ClientAnalyticsViewModel
@@ -100,7 +101,7 @@ namespace TownTrek.Services
                 .ToListAsync();
 
             // OPTIMIZED: Batch growth rate calculations
-            var growthRatesTasks = businessIds.Select(id => _analyticsSnapshotService.CalculateGrowthRatesAsync(id, 30, 30));
+            var growthRatesTasks = businessIds.Select(id => _analyticsSnapshotService.CalculateGrowthRatesAsync(id, AnalyticsConstants.DefaultGrowthRateDays, AnalyticsConstants.DefaultGrowthRateDays));
             var growthRatesResults = await Task.WhenAll(growthRatesTasks);
             var growthRatesDict = businessIds.Zip(growthRatesResults, (id, rates) => new { Id = id, Rates = rates })
                 .ToDictionary(x => x.Id, x => x.Rates);
@@ -149,7 +150,7 @@ namespace TownTrek.Services
         /// <summary>
         /// Optimized batch method to get views over time for multiple businesses
         /// </summary>
-        private async Task<List<ViewsOverTimeData>> GetViewsOverTimeBatchAsync(List<int> businessIds, int days = 30)
+        private async Task<List<ViewsOverTimeData>> GetViewsOverTimeBatchAsync(List<int> businessIds, int days = AnalyticsConstants.DefaultAnalyticsDays)
         {
             if (!businessIds.Any()) return new List<ViewsOverTimeData>();
 
@@ -208,7 +209,7 @@ namespace TownTrek.Services
 
             // OPTIMIZED: Single query for all businesses with towns
             var businesses = await _context.Businesses
-                .Where(b => businessIds.Contains(b.Id) && b.UserId == userId && b.Status != "Deleted")
+                .Where(b => businessIds.Contains(b.Id) && b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
                 .Include(b => b.Town)
                 .ToListAsync();
 
@@ -243,7 +244,7 @@ namespace TownTrek.Services
                         Priority = 4
                     });
                 }
-                else if (businessReviews.Average(r => r.Rating) < 3.0)
+                else if (businessReviews.Average(r => r.Rating) < AnalyticsConstants.LowRatingThreshold)
                 {
                     insights.Add(new BusinessPerformanceInsight
                     {
@@ -253,10 +254,10 @@ namespace TownTrek.Services
                         Title = "Low Rating",
                         Description = $"{business.Name} has an average rating of {businessReviews.Average(r => r.Rating):F1} stars.",
                         ActionRecommendation = "Review recent feedback and address customer concerns to improve ratings.",
-                        Priority = 5
+                        Priority = AnalyticsConstants.MinFavoritesThreshold
                     });
                 }
-                else if (businessReviews.Average(r => r.Rating) >= 4.5)
+                else if (businessReviews.Average(r => r.Rating) >= AnalyticsConstants.ExcellentRatingThreshold)
                 {
                     insights.Add(new BusinessPerformanceInsight
                     {
@@ -270,7 +271,7 @@ namespace TownTrek.Services
                     });
                 }
 
-                if (business.ViewCount < 50)
+                if (business.ViewCount < AnalyticsConstants.LowVisibilityThreshold)
                 {
                     insights.Add(new BusinessPerformanceInsight
                     {
@@ -317,7 +318,7 @@ namespace TownTrek.Services
             var favoritesThisMonth = favorites.Count(f => f.CreatedAt >= thisMonthStart);
 
             // Calculate growth rates using historical data
-            var growthRates = await _analyticsSnapshotService.CalculateGrowthRatesAsync(businessId, 30, 30);
+            var growthRates = await _analyticsSnapshotService.CalculateGrowthRatesAsync(businessId, AnalyticsConstants.DefaultGrowthRateDays, AnalyticsConstants.DefaultGrowthRateDays);
             var engagementScore = CalculateEngagementScore(business.ViewCount, reviews.Count, favorites.Count);
 
             var analytics = new BusinessAnalyticsData
@@ -344,21 +345,21 @@ namespace TownTrek.Services
             return analytics;
         }
 
-        public async Task<List<ViewsOverTimeData>> GetViewsOverTimeAsync(string userId, int days = 30)
+        public async Task<List<ViewsOverTimeData>> GetViewsOverTimeAsync(string userId, int days = AnalyticsConstants.DefaultAnalyticsDays)
         {
             // OPTIMIZED: Get businesses and use batch query
             var businesses = await _context.Businesses
-                .Where(b => b.UserId == userId && b.Status != "Deleted")
+                .Where(b => b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
                 .ToListAsync();
 
             var businessIds = businesses.Select(b => b.Id).ToList();
             return await GetViewsOverTimeBatchAsync(businessIds, days);
         }
 
-        public async Task<List<ReviewsOverTimeData>> GetReviewsOverTimeAsync(string userId, int days = 30)
+        public async Task<List<ReviewsOverTimeData>> GetReviewsOverTimeAsync(string userId, int days = AnalyticsConstants.DefaultAnalyticsDays)
         {
             var businesses = await _context.Businesses
-                .Where(b => b.UserId == userId && b.Status != "Deleted")
+                .Where(b => b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
                 .ToListAsync();
 
             var businessIds = businesses.Select(b => b.Id).ToList();
@@ -389,7 +390,7 @@ namespace TownTrek.Services
         {
             // OPTIMIZED: Get businesses and use batch query
             var businesses = await _context.Businesses
-                .Where(b => b.UserId == userId && b.Status != "Deleted")
+                .Where(b => b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
                 .ToListAsync();
 
             var businessIds = businesses.Select(b => b.Id).ToList();
@@ -399,16 +400,16 @@ namespace TownTrek.Services
         public async Task<CategoryBenchmarkData?> GetCategoryBenchmarksAsync(string userId, string category)
         {
             var userBusinesses = await _context.Businesses
-                .Where(b => b.UserId == userId && b.Category == category && b.Status != "Deleted")
+                .Where(b => b.UserId == userId && b.Category == category && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
                 .ToListAsync();
 
             if (!userBusinesses.Any()) return null;
 
             var categoryBusinesses = await _context.Businesses
-                .Where(b => b.Category == category && b.Status == "Active")
+                .Where(b => b.Category == category && b.Status == AnalyticsConstants.BusinessStatus.Active)
                 .ToListAsync();
 
-            if (categoryBusinesses.Count < 5) return null; // Need enough data for meaningful benchmarks
+            if (categoryBusinesses.Count < AnalyticsConstants.MinCategoryBusinessesForBenchmark) return null; // Need enough data for meaningful benchmarks
 
             var categoryReviews = await _context.BusinessReviews
                 .Where(r => categoryBusinesses.Select(b => b.Id).Contains(r.BusinessId) && r.IsActive)
@@ -558,11 +559,11 @@ namespace TownTrek.Services
         }
 
         // Platform-specific analytics methods
-        public async Task<List<ViewsOverTimeData>> GetViewsOverTimeByPlatformAsync(string userId, int days = 30, string? platform = null)
+        public async Task<List<ViewsOverTimeData>> GetViewsOverTimeByPlatformAsync(string userId, int days = AnalyticsConstants.DefaultAnalyticsDays, string? platform = null)
         {
             // OPTIMIZED: Get businesses and use batch query with platform filter
             var businesses = await _context.Businesses
-                .Where(b => b.UserId == userId && b.Status != "Deleted")
+                .Where(b => b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
                 .ToListAsync();
 
             var businessIds = businesses.Select(b => b.Id).ToList();
@@ -664,21 +665,21 @@ namespace TownTrek.Services
 
         private static double CalculateGrowthRate(int current, int previous)
         {
-            if (previous == 0) return current > 0 ? 100 : 0;
-            return ((double)(current - previous) / previous) * 100;
+            if (previous == 0) return current > 0 ? AnalyticsConstants.PercentageMultiplier : 0;
+            return ((double)(current - previous) / previous) * AnalyticsConstants.PercentageMultiplier;
         }
 
         private static double CalculateEngagementScore(int views, int reviews, int favorites)
         {
             if (views == 0) return 0;
-            return ((double)(reviews * 2 + favorites) / views) * 100;
+            return ((double)(reviews * AnalyticsConstants.EngagementScoreMultiplier + favorites) / views) * AnalyticsConstants.PercentageMultiplier;
         }
 
         private static string DeterminePerformanceTrend(double viewsGrowth, int reviewsThisMonth, int reviewsLastMonth)
         {
-            if (viewsGrowth > 10 || reviewsThisMonth > reviewsLastMonth) return "up";
-            if (viewsGrowth < -10 || reviewsThisMonth < reviewsLastMonth) return "down";
-            return "stable";
+            if (viewsGrowth > AnalyticsConstants.SignificantViewsChangeThreshold || reviewsThisMonth > reviewsLastMonth) return AnalyticsConstants.PerformanceTrends.Up;
+            if (viewsGrowth < -AnalyticsConstants.SignificantViewsChangeThreshold || reviewsThisMonth < reviewsLastMonth) return AnalyticsConstants.PerformanceTrends.Down;
+            return AnalyticsConstants.PerformanceTrends.Stable;
         }
 
         private static List<string> GenerateRecommendations(Business business, List<BusinessReview> reviews, List<FavoriteBusiness> favorites)
@@ -688,13 +689,13 @@ namespace TownTrek.Services
             if (reviews.Count == 0)
                 recommendations.Add("Encourage customers to leave reviews");
             
-            if (business.ViewCount < 100)
+            if (business.ViewCount < AnalyticsConstants.GoodVisibilityThreshold)
                 recommendations.Add("Add more photos and improve business description");
             
-            if (reviews.Any() && reviews.Average(r => r.Rating) < 4.0)
+            if (reviews.Any() && reviews.Average(r => r.Rating) < AnalyticsConstants.GoodRatingThreshold)
                 recommendations.Add("Address customer feedback to improve ratings");
             
-            if (favorites.Count < 5)
+            if (favorites.Count < AnalyticsConstants.MinFavoritesThreshold)
                 recommendations.Add("Engage with customers to increase favorites");
 
             return recommendations;
@@ -707,10 +708,10 @@ namespace TownTrek.Services
             if (analytics.Any(a => a.PerformanceTrend == "up"))
                 insights.Add("Some businesses are showing positive growth trends");
             
-            if (analytics.Any(a => a.AverageRating >= 4.5))
+            if (analytics.Any(a => a.AverageRating >= AnalyticsConstants.ExcellentRatingThreshold))
                 insights.Add("You have businesses with excellent customer ratings");
             
-            if (analytics.Sum(a => a.TotalReviews) > 50)
+            if (analytics.Sum(a => a.TotalReviews) > AnalyticsConstants.StrongEngagementThreshold)
                 insights.Add("Strong customer engagement across your businesses");
 
             return insights;
@@ -723,10 +724,10 @@ namespace TownTrek.Services
             if (analytics.Any(a => a.TotalReviews == 0))
                 recommendations.Add("Focus on getting first reviews for businesses without any");
             
-            if (analytics.Any(a => a.AverageRating < 3.5))
+            if (analytics.Any(a => a.AverageRating < AnalyticsConstants.PoorRatingThreshold))
                 recommendations.Add("Address quality issues for low-rated businesses");
             
-            if (analytics.Average(a => a.TotalViews) < 100)
+            if (analytics.Average(a => a.TotalViews) < AnalyticsConstants.GoodVisibilityThreshold)
                 recommendations.Add("Improve business visibility with better photos and descriptions");
 
             return recommendations;
@@ -749,43 +750,43 @@ namespace TownTrek.Services
 
             return overallRatio switch
             {
-                > 1.2 => "above",
-                < 0.8 => "below",
-                _ => "average"
+                > AnalyticsConstants.GoodPerformanceRatio => AnalyticsConstants.OverallPerformance.Above,
+                < AnalyticsConstants.AveragePerformanceRatio => AnalyticsConstants.OverallPerformance.Below,
+                _ => AnalyticsConstants.OverallPerformance.Average
             };
         }
 
         private static double CalculatePercentile(double value, IEnumerable<double> dataset)
         {
             var sortedData = dataset.OrderBy(x => x).ToList();
-            if (!sortedData.Any()) return 50;
+            if (!sortedData.Any()) return AnalyticsConstants.DefaultPercentile;
 
             var rank = sortedData.Count(x => x <= value);
-            return (double)rank / sortedData.Count * 100;
+            return (double)rank / sortedData.Count * AnalyticsConstants.PercentageMultiplier;
         }
 
         private static string DetermineMetricPerformance(double userValue, double avgValue)
         {
-            if (avgValue == 0) return "average";
+            if (avgValue == 0) return AnalyticsConstants.MetricPerformance.Average;
             
             var ratio = userValue / avgValue;
             return ratio switch
             {
-                > 1.5 => "excellent",
-                > 1.2 => "good",
-                > 0.8 => "average",
-                > 0.5 => "below_average",
-                _ => "poor"
+                > AnalyticsConstants.ExcellentPerformanceRatio => AnalyticsConstants.MetricPerformance.Excellent,
+                > AnalyticsConstants.GoodPerformanceRatio => AnalyticsConstants.MetricPerformance.Good,
+                > AnalyticsConstants.AveragePerformanceRatio => AnalyticsConstants.MetricPerformance.Average,
+                > AnalyticsConstants.BelowAveragePerformanceRatio => AnalyticsConstants.MetricPerformance.BelowAverage,
+                _ => AnalyticsConstants.MetricPerformance.Poor
             };
         }
 
         private static string DetermineMarketPosition(double userRating, double competitorRating, int competitorCount)
         {
-            if (competitorCount == 0) return "leader";
-            if (userRating > competitorRating + 0.5) return "leader";
-            if (userRating > competitorRating) return "competitive";
-            if (userRating > competitorRating - 0.5) return "challenger";
-            return "niche";
+            if (competitorCount == 0) return AnalyticsConstants.MarketPosition.Leader;
+            if (userRating > competitorRating + AnalyticsConstants.LeaderRatingDifference) return AnalyticsConstants.MarketPosition.Leader;
+            if (userRating > competitorRating) return AnalyticsConstants.MarketPosition.Competitive;
+            if (userRating > competitorRating - AnalyticsConstants.ChallengerRatingDifference) return AnalyticsConstants.MarketPosition.Challenger;
+            return AnalyticsConstants.MarketPosition.Niche;
         }
 
         private static List<string> GenerateOpportunityAreas(string category, double userRating, double competitorRating)
@@ -806,7 +807,7 @@ namespace TownTrek.Services
         /// <summary>
         /// Get pre-formatted views chart data for Chart.js
         /// </summary>
-        public async Task<ViewsChartDataResponse> GetViewsChartDataAsync(string userId, int days = 30, string? platform = null)
+        public async Task<ViewsChartDataResponse> GetViewsChartDataAsync(string userId, int days = AnalyticsConstants.DefaultAnalyticsDays, string? platform = null)
         {
             try
             {
@@ -850,7 +851,7 @@ namespace TownTrek.Services
                         Label = businessName,
                         Data = dataPoints,
                         BorderColor = color,
-                        BackgroundColor = color + "20",
+                        BackgroundColor = color + AnalyticsConstants.ChartOpacity.Light,
                         Fill = false,
                         Tension = 0.4
                     });
@@ -879,7 +880,7 @@ namespace TownTrek.Services
         /// <summary>
         /// Get pre-formatted reviews chart data for Chart.js
         /// </summary>
-        public async Task<ReviewsChartDataResponse> GetReviewsChartDataAsync(string userId, int days = 30)
+        public async Task<ReviewsChartDataResponse> GetReviewsChartDataAsync(string userId, int days = AnalyticsConstants.DefaultAnalyticsDays)
         {
             try
             {
@@ -923,7 +924,7 @@ namespace TownTrek.Services
                         Label = businessName,
                         Data = dataPoints,
                         BorderColor = color,
-                        BackgroundColor = color + "80",
+                        BackgroundColor = color + AnalyticsConstants.ChartOpacity.Heavy,
                         Fill = false,
                         BorderWidth = 1
                     });
@@ -963,15 +964,15 @@ namespace TownTrek.Services
                 
                 if (days <= 7)
                 {
-                    labels.Add(date.ToString("ddd, MMM dd"));
+                    labels.Add(date.ToString(AnalyticsConstants.DateFormats.LongDate));
                 }
-                else if (days <= 30)
+                else if (days <= AnalyticsConstants.DefaultAnalyticsDays)
                 {
-                    labels.Add(date.ToString("MMM dd"));
+                    labels.Add(date.ToString(AnalyticsConstants.DateFormats.ShortDate));
                 }
                 else
                 {
-                    labels.Add(date.ToString("MMM dd"));
+                    labels.Add(date.ToString(AnalyticsConstants.DateFormats.ShortDate));
                 }
             }
             
@@ -1001,12 +1002,12 @@ namespace TownTrek.Services
         {
             return new[]
             {
-                "#33658a", // lapis-lazuli
-                "#86bbd8", // carolina-blue
-                "#f6ae2d", // hunyadi-yellow
-                "#f26419", // orange-pantone
-                "#2f4858", // charcoal
-                "#6c757d", // dark-gray
+                AnalyticsConstants.ChartColors.LapisLazuli,
+                AnalyticsConstants.ChartColors.CarolinaBlue,
+                AnalyticsConstants.ChartColors.HunyadiYellow,
+                AnalyticsConstants.ChartColors.OrangePantone,
+                AnalyticsConstants.ChartColors.Charcoal,
+                AnalyticsConstants.ChartColors.DarkGray,
             };
         }
 
@@ -1022,8 +1023,8 @@ namespace TownTrek.Services
                     {
                         Label = "No Views Data",
                         Data = new List<double>(new double[labels.Count]),
-                        BorderColor = "#e9ecef",
-                        BackgroundColor = "#e9ecef20",
+                        BorderColor = AnalyticsConstants.ChartColors.LightGray,
+                        BackgroundColor = AnalyticsConstants.ChartColors.LightGray + AnalyticsConstants.ChartOpacity.Light,
                         Fill = false
                     }
                 },
@@ -1046,8 +1047,8 @@ namespace TownTrek.Services
                     {
                         Label = "No Reviews Data",
                         Data = new List<double>(new double[labels.Count]),
-                        BorderColor = "#e9ecef",
-                        BackgroundColor = "#e9ecef80",
+                        BorderColor = AnalyticsConstants.ChartColors.LightGray,
+                        BackgroundColor = AnalyticsConstants.ChartColors.LightGray + AnalyticsConstants.ChartOpacity.Heavy,
                         Fill = false,
                         BorderWidth = 1
                     }
@@ -1058,6 +1059,601 @@ namespace TownTrek.Services
                 AverageRating = 0,
                 AverageReviewsPerDay = 0
             };
+        }
+
+        // ===== COMPARATIVE ANALYSIS METHODS (Phase 4.2) =====
+
+        /// <summary>
+        /// Main comparative analysis method that handles all comparison types
+        /// </summary>
+        public async Task<ComparativeAnalysisResponse> GetComparativeAnalysisAsync(string userId, ComparativeAnalysisRequest request)
+        {
+            try
+            {
+                // Validate user owns the business if specified
+                if (request.BusinessId.HasValue)
+                {
+                    var business = await _context.Businesses
+                        .FirstOrDefaultAsync(b => b.Id == request.BusinessId.Value && b.UserId == userId);
+                    if (business == null)
+                    {
+                        throw new ArgumentException("Business not found or access denied");
+                    }
+                }
+
+                // Calculate periods based on comparison type
+                var (currentStart, currentEnd, previousStart, previousEnd) = CalculateComparisonPeriods(request);
+
+                // Get data for both periods
+                var currentPeriodData = await GetPeriodDataAsync(userId, currentStart, currentEnd, request.BusinessId, request.Platform);
+                var previousPeriodData = await GetPeriodDataAsync(userId, previousStart, previousEnd, request.BusinessId, request.Platform);
+
+                // Calculate comparison metrics
+                var comparisonMetrics = CalculateComparisonMetrics(currentPeriodData, previousPeriodData);
+
+                // Generate chart data
+                var chartData = await GenerateComparativeChartDataAsync(userId, currentStart, currentEnd, previousStart, previousEnd, request.BusinessId, request.Platform);
+
+                // Generate insights
+                var insights = GenerateComparativeInsights(currentPeriodData, previousPeriodData, comparisonMetrics);
+
+                // Get business-specific data if applicable
+                BusinessComparisonData? businessData = null;
+                if (request.BusinessId.HasValue)
+                {
+                    businessData = await GetBusinessComparisonDataAsync(userId, request.BusinessId.Value, currentPeriodData, previousPeriodData);
+                }
+
+                return new ComparativeAnalysisResponse
+                {
+                    ComparisonType = request.ComparisonType,
+                    CurrentPeriod = currentPeriodData,
+                    PreviousPeriod = previousPeriodData,
+                    ComparisonMetrics = comparisonMetrics,
+                    ChartData = chartData,
+                    Insights = insights,
+                    BusinessData = businessData
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error performing comparative analysis for user {UserId}", userId);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Get period-over-period comparison (week-over-week, month-over-month, etc.)
+        /// </summary>
+        public async Task<ComparativeAnalysisResponse> GetPeriodOverPeriodComparisonAsync(string userId, int? businessId = null, string comparisonType = "MonthOverMonth", string? platform = null)
+        {
+            var request = new ComparativeAnalysisRequest
+            {
+                ComparisonType = comparisonType,
+                BusinessId = businessId,
+                Platform = platform
+            };
+
+            return await GetComparativeAnalysisAsync(userId, request);
+        }
+
+        /// <summary>
+        /// Get year-over-year comparison
+        /// </summary>
+        public async Task<ComparativeAnalysisResponse> GetYearOverYearComparisonAsync(string userId, int? businessId = null, string? platform = null)
+        {
+            var request = new ComparativeAnalysisRequest
+            {
+                ComparisonType = "YearOverYear",
+                BusinessId = businessId,
+                Platform = platform
+            };
+
+            return await GetComparativeAnalysisAsync(userId, request);
+        }
+
+        /// <summary>
+        /// Get custom range comparison
+        /// </summary>
+        public async Task<ComparativeAnalysisResponse> GetCustomRangeComparisonAsync(string userId, DateTime currentStart, DateTime currentEnd, DateTime previousStart, DateTime previousEnd, int? businessId = null, string? platform = null)
+        {
+            var request = new ComparativeAnalysisRequest
+            {
+                ComparisonType = "CustomRange",
+                BusinessId = businessId,
+                CurrentPeriodStart = currentStart,
+                CurrentPeriodEnd = currentEnd,
+                PreviousPeriodStart = previousStart,
+                PreviousPeriodEnd = previousEnd,
+                Platform = platform
+            };
+
+            return await GetComparativeAnalysisAsync(userId, request);
+        }
+
+        /// <summary>
+        /// Calculate comparison periods based on request type
+        /// </summary>
+        private (DateTime currentStart, DateTime currentEnd, DateTime previousStart, DateTime previousEnd) CalculateComparisonPeriods(ComparativeAnalysisRequest request)
+        {
+            var now = DateTime.UtcNow.Date;
+
+            switch (request.ComparisonType)
+            {
+                case "CustomRange":
+                    return (
+                        request.CurrentPeriodStart.Date,
+                        request.CurrentPeriodEnd.Date,
+                        request.PreviousPeriodStart!.Value.Date,
+                        request.PreviousPeriodEnd!.Value.Date
+                    );
+
+                case "WeekOverWeek":
+                    var weekStart = GetWeekStart(now);
+                    return (
+                        weekStart.AddDays(-7),
+                        weekStart.AddDays(-1),
+                        weekStart.AddDays(-14),
+                        weekStart.AddDays(-8)
+                    );
+
+                case "MonthOverMonth":
+                    var monthStart = new DateTime(now.Year, now.Month, 1);
+                    return (
+                        monthStart.AddMonths(-1),
+                        monthStart.AddDays(-1),
+                        monthStart.AddMonths(-2),
+                        monthStart.AddMonths(-1).AddDays(-1)
+                    );
+
+                case "QuarterOverQuarter":
+                    var quarterStart = GetQuarterStart(now);
+                    return (
+                        quarterStart.AddMonths(-3),
+                        quarterStart.AddDays(-1),
+                        quarterStart.AddMonths(-6),
+                        quarterStart.AddMonths(-3).AddDays(-1)
+                    );
+
+                case "YearOverYear":
+                    var yearStart = new DateTime(now.Year, 1, 1);
+                    return (
+                        yearStart.AddYears(-1),
+                        now.AddDays(-1),
+                        yearStart.AddYears(-2),
+                        yearStart.AddYears(-1).AddDays(-1)
+                    );
+
+                default:
+                    // Default to month-over-month
+                    var defaultMonthStart = new DateTime(now.Year, now.Month, 1);
+                    return (
+                        defaultMonthStart.AddMonths(-1),
+                        defaultMonthStart.AddDays(-1),
+                        defaultMonthStart.AddMonths(-2),
+                        defaultMonthStart.AddMonths(-1).AddDays(-1)
+                    );
+            }
+        }
+
+        /// <summary>
+        /// Get data for a specific time period
+        /// </summary>
+        private async Task<PeriodData> GetPeriodDataAsync(string userId, DateTime startDate, DateTime endDate, int? businessId, string? platform)
+        {
+            var businessIds = businessId.HasValue 
+                ? new List<int> { businessId.Value }
+                : await _context.Businesses
+                    .Where(b => b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
+                    .Select(b => b.Id)
+                    .ToListAsync();
+
+            if (!businessIds.Any())
+            {
+                return CreateEmptyPeriodData(startDate, endDate);
+            }
+
+            // Get views data
+            var viewsQuery = _context.BusinessViewLogs
+                .Where(v => businessIds.Contains(v.BusinessId) && v.ViewedAt.Date >= startDate && v.ViewedAt.Date <= endDate);
+
+            if (!string.IsNullOrEmpty(platform))
+            {
+                viewsQuery = viewsQuery.Where(v => v.Platform == platform);
+            }
+
+            var viewsData = await viewsQuery
+                .GroupBy(v => v.ViewedAt.Date)
+                .Select(g => new { Date = g.Key, Views = g.Count() })
+                .ToListAsync();
+
+            // Get reviews data
+            var reviewsQuery = _context.BusinessReviews
+                .Where(r => businessIds.Contains(r.BusinessId) && r.CreatedAt.Date >= startDate && r.CreatedAt.Date <= endDate && r.IsActive);
+
+            var reviewsData = await reviewsQuery
+                .GroupBy(r => r.CreatedAt.Date)
+                .Select(g => new { Date = g.Key, Reviews = g.Count(), Rating = g.Average(r => r.Rating) })
+                .ToListAsync();
+
+            // Get favorites data
+            var favoritesQuery = _context.FavoriteBusinesses
+                .Where(f => businessIds.Contains(f.BusinessId) && f.CreatedAt.Date >= startDate && f.CreatedAt.Date <= endDate);
+
+            var favoritesData = await favoritesQuery
+                .GroupBy(f => f.CreatedAt.Date)
+                .Select(g => new { Date = g.Key, Favorites = g.Count() })
+                .ToListAsync();
+
+            // Calculate totals and averages
+            var totalViews = viewsData.Sum(v => v.Views);
+            var totalReviews = reviewsData.Sum(r => r.Reviews);
+            var totalFavorites = favoritesData.Sum(f => f.Favorites);
+            var averageRating = reviewsData.Any() ? reviewsData.Average(r => r.Rating) : 0;
+            var daysInPeriod = (endDate - startDate).Days + 1;
+
+            // Find peak and low days
+            var peakDay = viewsData.OrderByDescending(v => v.Views).FirstOrDefault();
+            var lowDay = viewsData.OrderBy(v => v.Views).FirstOrDefault();
+
+            return new PeriodData
+            {
+                StartDate = startDate,
+                EndDate = endDate,
+                TotalViews = totalViews,
+                TotalReviews = totalReviews,
+                TotalFavorites = totalFavorites,
+                AverageRating = averageRating,
+                EngagementScore = CalculateEngagementScore(totalViews, totalReviews, totalFavorites),
+                AverageViewsPerDay = daysInPeriod > 0 ? (double)totalViews / daysInPeriod : 0,
+                AverageReviewsPerDay = daysInPeriod > 0 ? (double)totalReviews / daysInPeriod : 0,
+                AverageFavoritesPerDay = daysInPeriod > 0 ? (double)totalFavorites / daysInPeriod : 0,
+                PeakDayViews = peakDay?.Views ?? 0,
+                PeakDayDate = peakDay?.Date,
+                LowDayViews = lowDay?.Views ?? 0,
+                LowDayDate = lowDay?.Date
+            };
+        }
+
+        /// <summary>
+        /// Calculate comparison metrics between two periods
+        /// </summary>
+        private static ComparisonMetrics CalculateComparisonMetrics(PeriodData current, PeriodData previous)
+        {
+            var viewsChange = CalculatePercentageChange(current.TotalViews, previous.TotalViews);
+            var reviewsChange = CalculatePercentageChange(current.TotalReviews, previous.TotalReviews);
+            var favoritesChange = CalculatePercentageChange(current.TotalFavorites, previous.TotalFavorites);
+            var ratingChange = CalculatePercentageChange(current.AverageRating, previous.AverageRating);
+            var engagementChange = CalculatePercentageChange(current.EngagementScore, previous.EngagementScore);
+            var avgViewsChange = CalculatePercentageChange(current.AverageViewsPerDay, previous.AverageViewsPerDay);
+            var avgReviewsChange = CalculatePercentageChange(current.AverageReviewsPerDay, previous.AverageReviewsPerDay);
+            var avgFavoritesChange = CalculatePercentageChange(current.AverageFavoritesPerDay, previous.AverageFavoritesPerDay);
+
+            // Determine overall trend
+            var positiveChanges = new[] { viewsChange, reviewsChange, favoritesChange, ratingChange, engagementChange }
+                .Count(c => c > 0);
+            var negativeChanges = new[] { viewsChange, reviewsChange, favoritesChange, ratingChange, engagementChange }
+                .Count(c => c < 0);
+
+            var overallTrend = positiveChanges > negativeChanges ? AnalyticsConstants.OverallTrend.Improving :
+                              negativeChanges > positiveChanges ? AnalyticsConstants.OverallTrend.Declining : AnalyticsConstants.OverallTrend.Stable;
+
+            // Determine performance rating
+            var avgChange = (viewsChange + reviewsChange + favoritesChange + ratingChange + engagementChange) / AnalyticsConstants.MetricsCountForAveraging;
+            var performanceRating = avgChange >= AnalyticsConstants.ExcellentChangeThreshold ? AnalyticsConstants.PerformanceRating.Excellent :
+                                   avgChange >= AnalyticsConstants.GoodChangeThreshold ? AnalyticsConstants.PerformanceRating.Good :
+                                   avgChange >= AnalyticsConstants.FairChangeThreshold ? AnalyticsConstants.PerformanceRating.Fair : AnalyticsConstants.PerformanceRating.Poor;
+
+            // Generate key changes
+            var keyChanges = new List<string>();
+            if (Math.Abs(viewsChange) >= AnalyticsConstants.SignificantViewsChangeThreshold) keyChanges.Add($"Views: {(viewsChange > 0 ? "+" : "")}{viewsChange:F1}%");
+            if (Math.Abs(reviewsChange) >= AnalyticsConstants.SignificantViewsChangeThreshold) keyChanges.Add($"Reviews: {(reviewsChange > 0 ? "+" : "")}{reviewsChange:F1}%");
+            if (Math.Abs(favoritesChange) >= AnalyticsConstants.SignificantViewsChangeThreshold) keyChanges.Add($"Favorites: {(favoritesChange > 0 ? "+" : "")}{favoritesChange:F1}%");
+            if (Math.Abs(ratingChange) >= AnalyticsConstants.SignificantRatingChangeThresholdForKeyChanges) keyChanges.Add($"Rating: {(ratingChange > 0 ? "+" : "")}{ratingChange:F1}%");
+
+            return new ComparisonMetrics
+            {
+                ViewsChangePercent = viewsChange,
+                ReviewsChangePercent = reviewsChange,
+                FavoritesChangePercent = favoritesChange,
+                RatingChangePercent = ratingChange,
+                EngagementChangePercent = engagementChange,
+                AverageViewsPerDayChangePercent = avgViewsChange,
+                AverageReviewsPerDayChangePercent = avgReviewsChange,
+                AverageFavoritesPerDayChangePercent = avgFavoritesChange,
+                OverallTrend = overallTrend,
+                PerformanceRating = performanceRating,
+                KeyChanges = keyChanges
+            };
+        }
+
+        /// <summary>
+        /// Generate comparative chart data
+        /// </summary>
+        private async Task<ComparativeChartData> GenerateComparativeChartDataAsync(string userId, DateTime currentStart, DateTime currentEnd, DateTime previousStart, DateTime previousEnd, int? businessId, string? platform)
+        {
+            var businessIds = businessId.HasValue 
+                ? new List<int> { businessId.Value }
+                : await _context.Businesses
+                    .Where(b => b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
+                    .Select(b => b.Id)
+                    .ToListAsync();
+
+            if (!businessIds.Any())
+            {
+                return CreateEmptyComparativeChartData();
+            }
+
+            // Get daily data for both periods
+            var currentData = await GetDailyDataForPeriodAsync(businessIds, currentStart, currentEnd, platform);
+            var previousData = await GetDailyDataForPeriodAsync(businessIds, previousStart, previousEnd, platform);
+
+            // Generate labels (use current period dates)
+            var labels = GenerateDateLabelsForPeriod(currentStart, currentEnd);
+
+            // Create datasets
+            var datasets = new List<ComparativeChartDataset>
+            {
+                new()
+                {
+                    Label = "Current Period",
+                    Data = currentData.Select(d => (double)d.Views).ToList(),
+                    BorderColor = AnalyticsConstants.ChartColors.LapisLazuli,
+                    BackgroundColor = AnalyticsConstants.ChartColors.LapisLazuli + AnalyticsConstants.ChartOpacity.Medium,
+                    Fill = false,
+                    BorderWidth = 2
+                },
+                new()
+                {
+                    Label = "Previous Period",
+                    Data = previousData.Select(d => (double)d.Views).ToList(),
+                    BorderColor = AnalyticsConstants.ChartColors.CarolinaBlue,
+                    BackgroundColor = AnalyticsConstants.ChartColors.CarolinaBlue + AnalyticsConstants.ChartOpacity.Medium,
+                    Fill = false,
+                    BorderWidth = 2
+                }
+            };
+
+            return new ComparativeChartData
+            {
+                Labels = labels,
+                Datasets = datasets,
+                ChartType = "line",
+                TimeRange = $"{(currentEnd - currentStart).Days + 1} days"
+            };
+        }
+
+        /// <summary>
+        /// Get daily data for a specific period
+        /// </summary>
+        private async Task<List<DailyDataPoint>> GetDailyDataForPeriodAsync(List<int> businessIds, DateTime startDate, DateTime endDate, string? platform)
+        {
+            var viewsQuery = _context.BusinessViewLogs
+                .Where(v => businessIds.Contains(v.BusinessId) && v.ViewedAt.Date >= startDate && v.ViewedAt.Date <= endDate);
+
+            if (!string.IsNullOrEmpty(platform))
+            {
+                viewsQuery = viewsQuery.Where(v => v.Platform == platform);
+            }
+
+            var data = await viewsQuery
+                .GroupBy(v => v.ViewedAt.Date)
+                .Select(g => new DailyDataPoint { Date = g.Key, Views = g.Count() })
+                .OrderBy(d => d.Date)
+                .ToListAsync();
+
+            // Fill in missing dates with 0 views
+            var allDates = Enumerable.Range(0, (endDate - startDate).Days + 1)
+                .Select(i => startDate.AddDays(i))
+                .ToList();
+
+            var result = new List<DailyDataPoint>();
+            foreach (var date in allDates)
+            {
+                var existingData = data.FirstOrDefault(d => d.Date == date);
+                result.Add(existingData ?? new DailyDataPoint { Date = date, Views = 0 });
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Generate business comparison data
+        /// </summary>
+        private async Task<BusinessComparisonData> GetBusinessComparisonDataAsync(string userId, int businessId, PeriodData currentPeriod, PeriodData previousPeriod)
+        {
+            var business = await _context.Businesses
+                .FirstOrDefaultAsync(b => b.Id == businessId && b.UserId == userId);
+
+            if (business == null)
+            {
+                throw new ArgumentException("Business not found");
+            }
+
+            // Get category comparison data
+            var categoryComparison = await GetCategoryComparisonAsync(business.Category, currentPeriod);
+
+            // Get portfolio comparison data
+            var portfolioComparison = await GetPortfolioComparisonAsync(userId, businessId, currentPeriod);
+
+            return new BusinessComparisonData
+            {
+                BusinessId = businessId,
+                BusinessName = business.Name,
+                Category = business.Category,
+                CategoryComparison = categoryComparison,
+                PortfolioComparison = portfolioComparison
+            };
+        }
+
+        /// <summary>
+        /// Get category comparison data
+        /// </summary>
+        private async Task<CategoryComparison> GetCategoryComparisonAsync(string category, PeriodData businessData)
+        {
+            // Get average data for the category (simplified - in real implementation, you'd have category benchmarks)
+            var categoryBusinesses = await _context.Businesses
+                .Where(b => b.Category == category && b.Status == "Active")
+                .Select(b => b.Id)
+                .ToListAsync();
+
+            if (!categoryBusinesses.Any())
+            {
+                return new CategoryComparison();
+            }
+
+            // Calculate category averages (simplified - you'd use actual historical data)
+            var categoryAverageViews = businessData.TotalViews * AnalyticsConstants.PlaceholderMultipliers.CategoryViewsMultiplier; // Placeholder
+            var categoryAverageReviews = businessData.TotalReviews * AnalyticsConstants.PlaceholderMultipliers.CategoryReviewsMultiplier; // Placeholder
+            var categoryAverageRating = businessData.AverageRating * AnalyticsConstants.PlaceholderMultipliers.CategoryRatingMultiplier; // Placeholder
+
+            return new CategoryComparison
+            {
+                CategoryAverageViews = categoryAverageViews,
+                CategoryAverageReviews = categoryAverageReviews,
+                CategoryAverageRating = categoryAverageRating,
+                ViewsVsCategory = CalculatePercentageDifference(businessData.TotalViews, categoryAverageViews),
+                ReviewsVsCategory = CalculatePercentageDifference(businessData.TotalReviews, categoryAverageReviews),
+                RatingVsCategory = CalculatePercentageDifference(businessData.AverageRating, categoryAverageRating),
+                CategoryPerformance = businessData.TotalViews > categoryAverageViews ? AnalyticsConstants.CategoryPerformance.AboveAverage : AnalyticsConstants.CategoryPerformance.BelowAverage
+            };
+        }
+
+        /// <summary>
+        /// Get portfolio comparison data
+        /// </summary>
+        private async Task<PortfolioComparison> GetPortfolioComparisonAsync(string userId, int businessId, PeriodData businessData)
+        {
+            var userBusinesses = await _context.Businesses
+                .Where(b => b.UserId == userId && b.Status != AnalyticsConstants.BusinessStatus.Deleted)
+                .ToListAsync();
+
+            if (userBusinesses.Count <= 1)
+            {
+                return new PortfolioComparison
+                {
+                    TotalPortfolioBusinesses = userBusinesses.Count
+                };
+            }
+
+            // Calculate portfolio averages (simplified - you'd use actual historical data)
+            var portfolioAverageViews = businessData.TotalViews * AnalyticsConstants.PlaceholderMultipliers.PortfolioViewsMultiplier; // Placeholder
+            var portfolioAverageReviews = businessData.TotalReviews * AnalyticsConstants.PlaceholderMultipliers.PortfolioReviewsMultiplier; // Placeholder
+            var portfolioAverageRating = businessData.AverageRating * AnalyticsConstants.PlaceholderMultipliers.PortfolioRatingMultiplier; // Placeholder
+
+            // Calculate rank (simplified)
+            var portfolioRank = 1; // Placeholder
+
+            return new PortfolioComparison
+            {
+                PortfolioAverageViews = portfolioAverageViews,
+                PortfolioAverageReviews = portfolioAverageReviews,
+                PortfolioAverageRating = portfolioAverageRating,
+                ViewsVsPortfolio = CalculatePercentageDifference(businessData.TotalViews, portfolioAverageViews),
+                ReviewsVsPortfolio = CalculatePercentageDifference(businessData.TotalReviews, portfolioAverageReviews),
+                RatingVsPortfolio = CalculatePercentageDifference(businessData.AverageRating, portfolioAverageRating),
+                PortfolioRank = portfolioRank,
+                TotalPortfolioBusinesses = userBusinesses.Count
+            };
+        }
+
+        /// <summary>
+        /// Generate insights based on comparison
+        /// </summary>
+        private static List<string> GenerateComparativeInsights(PeriodData current, PeriodData previous, ComparisonMetrics metrics)
+        {
+            var insights = new List<string>();
+
+            if (metrics.ViewsChangePercent > AnalyticsConstants.SignificantViewsChangeThreshold)
+                insights.Add($"Strong growth in views: +{metrics.ViewsChangePercent:F1}% increase");
+            else if (metrics.ViewsChangePercent < -AnalyticsConstants.SignificantViewsChangeThreshold)
+                insights.Add($"Significant decline in views: {metrics.ViewsChangePercent:F1}% decrease");
+
+            if (metrics.ReviewsChangePercent > AnalyticsConstants.SignificantReviewsChangeThreshold)
+                insights.Add($"Excellent review growth: +{metrics.ReviewsChangePercent:F1}% increase");
+            else if (metrics.ReviewsChangePercent < -AnalyticsConstants.SignificantReviewsChangeThreshold)
+                insights.Add($"Review activity declining: {metrics.ReviewsChangePercent:F1}% decrease");
+
+            if (metrics.RatingChangePercent > AnalyticsConstants.SignificantRatingChangeThreshold)
+                insights.Add($"Improved customer satisfaction: +{metrics.RatingChangePercent:F1}% rating increase");
+            else if (metrics.RatingChangePercent < -AnalyticsConstants.SignificantRatingChangeThreshold)
+                insights.Add($"Customer satisfaction declining: {metrics.RatingChangePercent:F1}% rating decrease");
+
+            if (metrics.OverallTrend == AnalyticsConstants.OverallTrend.Improving)
+                insights.Add("Overall performance is trending upward");
+            else if (metrics.OverallTrend == AnalyticsConstants.OverallTrend.Declining)
+                insights.Add("Performance is declining - consider reviewing strategies");
+
+            if (current.PeakDayViews > previous.PeakDayViews)
+                insights.Add($"Peak day performance improved: {current.PeakDayViews} vs {previous.PeakDayViews} views");
+
+            return insights;
+        }
+
+        // Helper methods
+        private static double CalculatePercentageChange(double current, double previous)
+        {
+            if (previous == 0) return current > 0 ? AnalyticsConstants.PercentageMultiplier : 0;
+            return ((current - previous) / previous) * AnalyticsConstants.PercentageMultiplier;
+        }
+
+        private static double CalculatePercentageDifference(double value, double average)
+        {
+            if (average == 0) return 0;
+            return ((value - average) / average) * AnalyticsConstants.PercentageMultiplier;
+        }
+
+        private static DateTime GetQuarterStart(DateTime date)
+        {
+            var quarter = (date.Month - 1) / 3;
+            return new DateTime(date.Year, quarter * 3 + 1, 1);
+        }
+
+        private static DateTime GetWeekStart(DateTime date)
+        {
+            var daysSinceMonday = (int)date.DayOfWeek - (int)DayOfWeek.Monday;
+            if (daysSinceMonday < 0) daysSinceMonday += 7; // Handle Sunday
+            return date.AddDays(-daysSinceMonday).Date;
+        }
+
+        private static PeriodData CreateEmptyPeriodData(DateTime startDate, DateTime endDate)
+        {
+            return new PeriodData
+            {
+                StartDate = startDate,
+                EndDate = endDate
+            };
+        }
+
+        private static ComparativeChartData CreateEmptyComparativeChartData()
+        {
+            return new ComparativeChartData
+            {
+                Labels = new List<string>(),
+                Datasets = new List<ComparativeChartDataset>(),
+                ChartType = "line",
+                TimeRange = "No data"
+            };
+        }
+
+        private static List<string> GenerateDateLabelsForPeriod(DateTime startDate, DateTime endDate)
+        {
+            var labels = new List<string>();
+            var current = startDate;
+            
+            while (current <= endDate)
+            {
+                labels.Add(current.ToString(AnalyticsConstants.DateFormats.ShortDate));
+                current = current.AddDays(1);
+            }
+            
+            return labels;
+        }
+
+        private class DailyDataPoint
+        {
+            public DateTime Date { get; set; }
+            public int Views { get; set; }
         }
     }
 }
