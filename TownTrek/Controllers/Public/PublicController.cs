@@ -176,6 +176,38 @@ namespace TownTrek.Controllers.Public
             }
         }
 
+        // POST: /Public/AddReviewResponse (business owners only)
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddReviewResponse(AddReviewResponseViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Json(new { success = false, message = "Invalid response data." });
+            }
+
+            try
+            {
+                var userId = _userManager.GetUserId(User);
+                var result = await _memberService.SubmitReviewResponseAsync(model, userId!);
+
+                if (result.IsSuccess)
+                {
+                    return Json(new { success = true, message = "Response posted successfully!" });
+                }
+                else
+                {
+                    return Json(new { success = false, message = result.ErrorMessage });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding review response for review {ReviewId}", model.ReviewId);
+                return Json(new { success = false, message = "An error occurred while posting your response." });
+            }
+        }
+
         // POST: /Public/ToggleFavorite (members only)
         [HttpPost]
         [Authorize]

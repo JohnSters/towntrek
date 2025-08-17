@@ -4,6 +4,13 @@
 .nav-link { color: var(--charcoal) !important; font-weight: var(--font-medium); padding: var(--space-sm) var(--space-md) !important; border-radius: var(--radius-md); transition: all var(--transition-normal); }
 .nav-link:hover { background-color: var(--carolina-blue); color: var(--charcoal) !important; }
 .nav-link.active { background-color: var(--lapis-lazuli); color: var(--white) !important; }
+.nav-link.disabled {
+  color: var(--dark-gray) !important;
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: transparent;
+}
 .navbar-toggler { border: none; padding: var(--space-xs); }
 .navbar-toggler:focus { box-shadow: none; outline: 2px solid var(--lapis-lazuli); outline-offset: 2px; }
 
@@ -144,6 +151,14 @@
     background-color: var(--light-gray);
     color: var(--charcoal);
     text-decoration: none;
+}
+
+.dropdown-item.disabled {
+  color: var(--dark-gray) !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+  background: transparent;
 }
 
 .dropdown-item svg {

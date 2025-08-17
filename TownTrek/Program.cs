@@ -4,6 +4,9 @@ using TownTrek.Data;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
 using TownTrek.Models;
+using TownTrek.Options;
+using TownTrek.Middleware;
+using Serilog;
 
 namespace TownTrek;
 
@@ -12,7 +15,12 @@ public class Program
     public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
-        builder.AddServiceDefaults();
+        
+        // Configure Serilog
+        builder.Host.UseSerilog((context, configuration) =>
+            configuration.ReadFrom.Configuration(context.Configuration));
+        
+
         
         // Add Entity Framework
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -30,6 +38,8 @@ public class Program
             
             // User settings
             options.User.RequireUniqueEmail = true;
+            // Require confirmed email before sign-in
+            options.SignIn.RequireConfirmedEmail = true;
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
@@ -82,12 +92,17 @@ public class Program
                 policy.RequireRole(TownTrek.Constants.AppRoles.Admin));
         });
 
+        // Configure options
+        builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
+        builder.Services.Configure<PayFastOptions>(builder.Configuration.GetSection("PayFast"));
+
         // Add these service registrations
         builder.Services.AddScoped<ISubscriptionTierService, SubscriptionTierService>();
         builder.Services.AddScoped<ISubscriptionAuthService, SubscriptionAuthService>();
         builder.Services.AddScoped<IRegistrationService, RegistrationService>();
         builder.Services.AddScoped<ITrialService, SecureTrialService>();
         builder.Services.AddScoped<IEmailService, EmailService>();
+        builder.Services.AddSingleton<IEmailTemplateRenderer, EmailTemplateRenderer>();
         builder.Services.AddScoped<INotificationService, NotificationService>();
         builder.Services.AddScoped<IPaymentService, PaymentService>();
         builder.Services.AddScoped<IRoleInitializationService, RoleInitializationService>();
@@ -98,7 +113,11 @@ public class Program
         builder.Services.AddScoped<IClientService, ClientService>();
         builder.Services.AddScoped<IMemberService, MemberService>();
         builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+        builder.Services.AddScoped<IViewTrackingService, ViewTrackingService>();
         builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
+        builder.Services.AddScoped<IApplicationLogger, ApplicationLogger>();
+        builder.Services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();
+        builder.Services.AddScoped<IAdminMessageService, AdminMessageService>();
 
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();
@@ -113,11 +132,14 @@ public class Program
 
         var app = builder.Build();
 
-        app.MapDefaultEndpoints();
 
-        // Seed the database and initialize roles
+
+        // Apply migrations and seed the database
         using (var scope = app.Services.CreateScope())
         {
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            await context.Database.MigrateAsync();
+            
             await DbSeeder.SeedAsync(scope.ServiceProvider);
             
             // Initialize roles
@@ -128,10 +150,14 @@ public class Program
         // Configure the HTTP request pipeline.
         if (!app.Environment.IsDevelopment())
         {
-            app.UseExceptionHandler("/Home/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
+
+        // Add global exception handling middleware
+        app.UseMiddleware<GlobalExceptionMiddleware>();
+        
+        // Configure status code pages for common HTTP errors
+        app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
@@ -146,6 +172,11 @@ public class Program
         
         // Add trial validation middleware
         app.UseMiddleware<TownTrek.Middleware.TrialValidationMiddleware>();
+        
+        // Add view tracking middleware
+        app.UseViewTracking();
+
+        app.MapControllers();
 
         app.MapControllerRoute(
             name: "default",

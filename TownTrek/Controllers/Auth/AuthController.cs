@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using TownTrek.Constants;
 using TownTrek.Models;
@@ -14,17 +15,20 @@ namespace TownTrek.Controllers.Auth
         private readonly IRegistrationService _registrationService;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IEmailService _emailService;
 
         public AuthController(
             ILogger<AuthController> logger,
             IRegistrationService registrationService,
             SignInManager<ApplicationUser> signInManager,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IEmailService emailService)
         {
             _logger = logger;
             _registrationService = registrationService;
             _signInManager = signInManager;
             _userManager = userManager;
+            _emailService = emailService;
         }
 
         [HttpGet]
@@ -35,6 +39,46 @@ namespace TownTrek.Controllers.Auth
             
             var model = new RegisterViewModel();
             return View(model);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
+            {
+                TempData["ErrorMessage"] = "Invalid email confirmation link.";
+                return RedirectToAction("Login");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "User not found.";
+                return RedirectToAction("Login");
+            }
+
+            // Confirm email
+            var decodedToken = Uri.UnescapeDataString(token);
+            var result = await _userManager.ConfirmEmailAsync(user, decodedToken);
+            if (result.Succeeded)
+            {
+                // Ensure user flags are correct
+                user.IsActive = true;
+                await _userManager.UpdateAsync(user);
+
+                // Note: Subscription state remains unchanged here.
+                // - Members/Trial: no paid subscription; welcome access as per roles
+                // - Business Owners: subscription remains Pending until payment completes
+
+                TempData["SuccessMessage"] = "Your email has been confirmed. You can now sign in.";
+                return RedirectToAction("Login");
+            }
+
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            _logger.LogWarning("Email confirmation failed for {UserId}: {Errors}", userId, errors);
+            TempData["ErrorMessage"] = "Email confirmation failed. Please request a new link.";
+            return RedirectToAction("Login");
         }
 
         [HttpPost]
@@ -113,12 +157,14 @@ namespace TownTrek.Controllers.Auth
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             return View();
         }
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(string email, string password, bool rememberMe = false)
         {
@@ -138,6 +184,13 @@ namespace TownTrek.Controllers.Auth
                 }
 
                 // If RememberMe is checked, extend session to 7 days, otherwise use default 8 hours
+                // Enforce confirmed email before sign-in
+                if (!await _userManager.IsEmailConfirmedAsync(user))
+                {
+                    ModelState.AddModelError("", "Please confirm your email address before signing in.");
+                    return View();
+                }
+
                 var result = await _signInManager.PasswordSignInAsync(user, password, rememberMe, lockoutOnFailure: false);
                 
                 if (result.Succeeded)
@@ -261,6 +314,7 @@ namespace TownTrek.Controllers.Auth
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult ForgotPassword()
         {
             return View();
@@ -268,11 +322,39 @@ namespace TownTrek.Controllers.Auth
 
         // TODO: Implement forgot password functionality
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public IActionResult ForgotPassword(string email)
         {
             // Implementation for password reset
             return View();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResendConfirmation(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                TempData["ErrorMessage"] = "Email is required.";
+                return RedirectToAction("Login");
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "User not found.";
+                return RedirectToAction("Login");
+            }
+
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var encodedToken = Uri.EscapeDataString(token);
+            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var confirmationUrl = $"{baseUrl}/Auth/ConfirmEmail?userId={user.Id}&token={encodedToken}";
+
+            await _emailService.SendEmailConfirmationAsync(user.Email!, user.FirstName, confirmationUrl);
+            TempData["SuccessMessage"] = "Confirmation email sent.";
+            return RedirectToAction("Login");
         }
     }
 }

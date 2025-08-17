@@ -5,7 +5,7 @@ Centralized list of non-blocking tasks and production hardening items to tackle 
 ## Subscription & Access Control
 - Add app setting to disable legacy subscription flag fallback in production (gate in `SubscriptionAuthService`).
 - Normalize and clean stale roles on login: map `CurrentSubscriptionTier` to `AppRoles` and remove mismatched `Client-*` or `Client-Trial` when not applicable.
-- Restrict or remove `TestAnalyticsController` diagnostics in production; behind admin-only or `EnableDiagnostics` flag.
+- ✅ Removed `TestAnalyticsController` diagnostics.
 
 ## Analytics & Charts
 - Implement real per-day view tracking:

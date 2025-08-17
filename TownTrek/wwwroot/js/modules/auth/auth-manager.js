@@ -101,13 +101,15 @@ class AuthManager {
       });
     }
 
-    // Phone formatting (register)
+    // Phone formatting (register) – format on blur/change to avoid caret reflow issues while typing
     if (this.elements.phoneInput) {
-      this.elements.phoneInput.addEventListener('input', (e) => {
-        const caretPos = e.target.selectionStart;
-        const formatted = Utils.formatPhoneNumber(e.target.value);
-        e.target.value = formatted;
-        try { e.target.setSelectionRange(caretPos, caretPos); } catch {}
+      const applyFormat = (e) => {
+        e.target.value = Utils.formatPhoneNumber(e.target.value);
+      };
+      this.elements.phoneInput.addEventListener('blur', applyFormat);
+      this.elements.phoneInput.addEventListener('change', applyFormat);
+      this.elements.phoneInput.addEventListener('paste', (e) => {
+        setTimeout(() => applyFormat(e), 0);
       });
     }
   }

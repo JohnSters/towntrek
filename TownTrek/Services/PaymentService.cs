@@ -12,17 +12,20 @@ namespace TownTrek.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IRegistrationService _registrationService;
         private readonly ILogger<PaymentService> _logger;
+        private readonly IEmailService _emailService;
 
         public PaymentService(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             IRegistrationService registrationService,
-            ILogger<PaymentService> logger)
+            ILogger<PaymentService> logger,
+            IEmailService emailService)
         {
             _context = context;
             _userManager = userManager;
             _registrationService = registrationService;
             _logger = logger;
+            _emailService = emailService;
         }
 
         public async Task<PaymentResult> ProcessPaymentNotificationAsync(string paymentId, string paymentStatus, string token)
@@ -47,11 +50,21 @@ namespace TownTrek.Services
                 if (paymentStatus == "COMPLETE")
                 {
                     await ActivateSubscriptionAsync(subscription, token);
+                    try { await _emailService.SendPaymentSuccessEmailAsync(subscription); }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to send payment success email for subscription {SubscriptionId}", subscription.Id);
+                    }
                     return PaymentResult.Success(subscription.User);
                 }
                 else
                 {
                     await HandleFailedPaymentAsync(subscription);
+                    try { await _emailService.SendPaymentFailedEmailAsync(subscription); }
+                    catch (Exception ex)
+                    {
+                        _logger.LogWarning(ex, "Failed to send payment failed email for subscription {SubscriptionId}", subscription.Id);
+                    }
                     return PaymentResult.Error("Payment failed");
                 }
             }

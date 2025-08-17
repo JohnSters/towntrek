@@ -16,6 +16,7 @@ class PublicManager {
   init() {
     this.bindEventListeners();
     this.initializeCurrentPage();
+    this.initializeReviewResponses();
   }
 
   bindEventListeners() {
@@ -661,6 +662,136 @@ class PublicManager {
         button.classList.remove('is-favorite');
       }
     });
+  }
+
+  // Review Response Functionality
+  initializeReviewResponses() {
+    // Bind event listeners for review response functionality
+    document.addEventListener('click', (e) => {
+      if (e.target.matches('.respond-to-review')) {
+        this.showResponseForm(e.target);
+      } else if (e.target.matches('.cancel-response')) {
+        this.hideResponseForm(e.target);
+      } else if (e.target.matches('.submit-response')) {
+        this.submitResponse(e.target);
+      }
+    });
+
+    // Bind textarea events for character counting
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('.response-textarea')) {
+        this.updateCharacterCount(e.target);
+      }
+    });
+  }
+
+  showResponseForm(button) {
+    const reviewId = button.dataset.reviewId;
+    const formContainer = document.querySelector(`[data-review-id="${reviewId}"]`);
+    
+    if (formContainer) {
+      formContainer.style.display = 'block';
+      formContainer.classList.add('show');
+      button.style.display = 'none';
+      
+      // Focus on textarea
+      const textarea = formContainer.querySelector('.response-textarea');
+      if (textarea) {
+        textarea.focus();
+      }
+    }
+  }
+
+  hideResponseForm(button) {
+    const formContainer = button.closest('.response-form-container');
+    const reviewId = formContainer.dataset.reviewId;
+    const respondButton = document.querySelector(`.respond-to-review[data-review-id="${reviewId}"]`);
+    
+    if (formContainer && respondButton) {
+      formContainer.classList.remove('show');
+      setTimeout(() => {
+        formContainer.style.display = 'none';
+      }, 300);
+      respondButton.style.display = 'inline-flex';
+      
+      // Clear textarea
+      const textarea = formContainer.querySelector('.response-textarea');
+      if (textarea) {
+        textarea.value = '';
+        this.updateCharacterCount(textarea);
+      }
+    }
+  }
+
+  async submitResponse(button) {
+    const reviewId = button.dataset.reviewId;
+    const formContainer = button.closest('.response-form-container');
+    const textarea = formContainer.querySelector('.response-textarea');
+    const responseText = textarea.value.trim();
+
+    if (!responseText) {
+      this.notifications.show('Please enter a response', 'error');
+      return;
+    }
+
+    if (responseText.length > 1000) {
+      this.notifications.show('Response cannot exceed 1000 characters', 'error');
+      return;
+    }
+
+    // Show loading state
+    const form = button.closest('.response-form');
+    form.classList.add('loading');
+    button.disabled = true;
+
+    try {
+      const response = await this.apiClient.post('/Public/AddReviewResponse', {
+        ReviewId: parseInt(reviewId),
+        Response: responseText
+      });
+
+      if (response.success) {
+        this.notifications.show('Response posted successfully!', 'success');
+        
+        // Reload page to show new response
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        this.notifications.show(response.message || 'Error posting response', 'error');
+        form.classList.remove('loading');
+        button.disabled = false;
+      }
+    } catch (error) {
+      console.error('Error submitting response:', error);
+      this.notifications.show('Error posting response', 'error');
+      form.classList.remove('loading');
+      button.disabled = false;
+    }
+  }
+
+  updateCharacterCount(textarea) {
+    const maxLength = 1000;
+    const currentLength = textarea.value.length;
+    const remaining = maxLength - currentLength;
+    
+    let counterElement = textarea.parentNode.querySelector('.character-counter');
+    if (!counterElement) {
+      counterElement = document.createElement('div');
+      counterElement.className = 'character-counter';
+      textarea.parentNode.appendChild(counterElement);
+    }
+    
+    counterElement.textContent = `${remaining} characters remaining`;
+    
+    // Update styling based on remaining characters
+    counterElement.classList.remove('warning', 'error');
+    if (remaining < 100) {
+      counterElement.classList.add('warning');
+    }
+    if (remaining < 0) {
+      counterElement.classList.add('error');
+    }
   }
 }
 

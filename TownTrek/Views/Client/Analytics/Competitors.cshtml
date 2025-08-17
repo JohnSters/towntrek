@@ -1,0 +1,90 @@
+@model List<TownTrek.Models.ViewModels.CompetitorInsight>
+@{
+    ViewData["Title"] = "Competitor Analysis";
+    Layout = "_ClientLayout";
+}
+
+<div class="analytics-page">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <nav class="breadcrumb">
+                <a asp-controller="Analytics" asp-action="Index">Analytics</a>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Competitor Analysis</span>
+            </nav>
+            <h1 class="page-title">Competitor Analysis</h1>
+            <p class="page-subtitle">Market position analysis for your business categories</p>
+        </div>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon" aria-hidden="true">
+                <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+            </div>
+            <h2>No competitor data available</h2>
+            <p>We need more data to provide competitor insights. Check back later as more businesses join your categories.</p>
+            <a asp-controller="Analytics" asp-action="Index" class="btn btn-primary">Back to Analytics</a>
+        </div>
+    }
+    else
+    {
+        <div class="competitors-grid">
+            @foreach (var insight in Model)
+            {
+                <div class="competitor-card">
+                    <div class="competitor-header">
+                        <h3>@insight.Category</h3>
+                        <span class="market-position @insight.MarketPosition.ToLower()">
+                            @insight.MarketPosition
+                        </span>
+                    </div>
+                    
+                    <div class="competitor-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Your Rank</span>
+                            <span class="metric-value">#@insight.YourRank</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Total Competitors</span>
+                            <span class="metric-value">@insight.TotalCompetitors</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Market Share</span>
+                            <span class="metric-value">@insight.MarketSharePercentage.ToString("F1")%</span>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(insight.KeyInsight))
+                    {
+                        <div class="competitor-insight">
+                            <h4>Key Insight</h4>
+                            <p>@insight.KeyInsight</p>
+                        </div>
+                    }
+
+                    @if (insight.Recommendations.Any())
+                    {
+                        <div class="competitor-recommendations">
+                            <h4>Recommendations</h4>
+                            <ul>
+                                @foreach (var recommendation in insight.Recommendations.Take(3))
+                                {
+                                    <li>@recommendation</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/features/client/analytics.css" asp-append-version="true" />
+}

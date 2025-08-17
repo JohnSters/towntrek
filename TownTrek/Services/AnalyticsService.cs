@@ -9,10 +9,12 @@ namespace TownTrek.Services
     public class AnalyticsService(
         ApplicationDbContext context,
         ISubscriptionAuthService subscriptionAuthService,
+        IViewTrackingService viewTrackingService,
         ILogger<AnalyticsService> logger) : IAnalyticsService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
+        private readonly IViewTrackingService _viewTrackingService = viewTrackingService;
         private readonly ILogger<AnalyticsService> _logger = logger;
 
         public async Task<ClientAnalyticsViewModel> GetClientAnalyticsAsync(string userId)
@@ -20,10 +22,10 @@ namespace TownTrek.Services
             var user = await _context.Users.FindAsync(userId);
             if (user == null) throw new ArgumentException("User not found", nameof(userId));
 
+            // All non-trial users get the same analytics experience.
             var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-            var hasBasicAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
-            // Standardize to Basic/Advanced only
-            var hasAdvancedAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
+            var hasBasicAnalytics = true;
+            var hasAdvancedAnalytics = true;
 
             var businesses = await _context.Businesses
                 .Where(b => b.UserId == userId && b.Status != "Deleted")
@@ -38,9 +40,9 @@ namespace TownTrek.Services
             }
 
             var overview = await GetAnalyticsOverviewAsync(userId, businessAnalytics);
-            var viewsOverTime = hasBasicAnalytics ? await GetViewsOverTimeAsync(userId, 30) : new List<ViewsOverTimeData>();
-            var reviewsOverTime = hasBasicAnalytics ? await GetReviewsOverTimeAsync(userId, 30) : new List<ReviewsOverTimeData>();
-            var performanceInsights = hasBasicAnalytics ? await GetPerformanceInsightsAsync(userId) : new List<BusinessPerformanceInsight>();
+            var viewsOverTime = await GetViewsOverTimeAsync(userId, 30);
+            var reviewsOverTime = await GetReviewsOverTimeAsync(userId, 30);
+            var performanceInsights = await GetPerformanceInsightsAsync(userId);
 
             var model = new ClientAnalyticsViewModel
             {
@@ -63,7 +65,7 @@ namespace TownTrek.Services
                 var primaryCategory = businesses.GroupBy(b => b.Category)
                     .OrderByDescending(g => g.Count())
                     .First().Key;
-                
+
                 model.CategoryBenchmarks = await GetCategoryBenchmarksAsync(userId, primaryCategory);
                 model.CompetitorInsights = await GetCompetitorInsightsAsync(userId);
             }
@@ -129,27 +131,23 @@ namespace TownTrek.Services
 
         public async Task<List<ViewsOverTimeData>> GetViewsOverTimeAsync(string userId, int days = 30)
         {
-            // For now, return simulated data since we don't have view tracking table
-            // In a real implementation, you'd have a BusinessViewLog table
             var businesses = await _context.Businesses
                 .Where(b => b.UserId == userId && b.Status != "Deleted")
                 .ToListAsync();
 
             var data = new List<ViewsOverTimeData>();
-            var startDate = DateTime.UtcNow.AddDays(-days);
 
             foreach (var business in businesses)
             {
-                for (int i = 0; i < days; i++)
+                // Get real view data from ViewTrackingService
+                var dailyViews = await _viewTrackingService.GetViewsOverTimeAsync(business.Id, days);
+                
+                foreach (var dailyView in dailyViews)
                 {
-                    var date = startDate.AddDays(i);
-                    // Simulate view data - in real implementation, query from BusinessViewLog
-                    var views = Random.Shared.Next(0, Math.Max(1, business.ViewCount / 30));
-                    
                     data.Add(new ViewsOverTimeData
                     {
-                        Date = date,
-                        Views = views,
+                        Date = dailyView.Date,
+                        Views = dailyView.TotalViews,
                         BusinessId = business.Id,
                         BusinessName = business.Name
                     });
@@ -371,6 +369,53 @@ namespace TownTrek.Services
             return insights;
         }
 
+        public async Task<CategoryBenchmarks?> GetDetailedCategoryBenchmarksAsync(string userId, string category)
+        {
+            var basicBenchmarks = await GetCategoryBenchmarksAsync(userId, category);
+            if (basicBenchmarks == null) return null;
+
+            var userBusinesses = await _context.Businesses
+                .Where(b => b.UserId == userId && b.Category == category && b.Status != "Deleted")
+                .ToListAsync();
+
+            var userReviews = await _context.BusinessReviews
+                .Where(r => userBusinesses.Select(b => b.Id).Contains(r.BusinessId) && r.IsActive)
+                .ToListAsync();
+
+            var insights = new List<string>();
+            
+            // Generate insights based on performance
+            if (basicBenchmarks.YourPerformanceVsAverage == "above")
+            {
+                insights.Add("Your businesses are performing above category average - great work!");
+                insights.Add("Consider sharing your success strategies with other businesses in your network.");
+            }
+            else if (basicBenchmarks.YourPerformanceVsAverage == "below")
+            {
+                insights.Add("There's room for improvement compared to category averages.");
+                insights.Add("Focus on improving customer engagement and service quality.");
+                insights.Add("Consider updating your business information and photos regularly.");
+            }
+            else
+            {
+                insights.Add("Your performance is on par with category averages.");
+                insights.Add("Small improvements in customer service could help you stand out.");
+            }
+
+            return new CategoryBenchmarks
+            {
+                Category = category,
+                YourPerformanceVsAverage = basicBenchmarks.YourPerformanceVsAverage,
+                YourAverageViews = (int)userBusinesses.Average(b => b.ViewCount),
+                YourAverageReviews = (int)userBusinesses.Average(b => userReviews.Count(r => r.BusinessId == b.Id)),
+                YourAverageRating = userReviews.Any() ? userReviews.Average(r => r.Rating) : 0,
+                CategoryAverageViews = (int)basicBenchmarks.AverageViewsInCategory,
+                CategoryAverageReviews = (int)basicBenchmarks.AverageReviewsInCategory,
+                CategoryAverageRating = basicBenchmarks.AverageRatingInCategory,
+                Insights = insights
+            };
+        }
+
         public async Task RecordBusinessViewAsync(int businessId)
         {
             var business = await _context.Businesses.FindAsync(businessId);
@@ -379,6 +424,40 @@ namespace TownTrek.Services
                 business.ViewCount++;
                 await _context.SaveChangesAsync();
             }
+        }
+
+        // Platform-specific analytics methods
+        public async Task<List<ViewsOverTimeData>> GetViewsOverTimeByPlatformAsync(string userId, int days = 30, string? platform = null)
+        {
+            var businesses = await _context.Businesses
+                .Where(b => b.UserId == userId && b.Status != "Deleted")
+                .ToListAsync();
+
+            var data = new List<ViewsOverTimeData>();
+
+            foreach (var business in businesses)
+            {
+                // Get platform-specific view data from ViewTrackingService
+                var dailyViews = await _viewTrackingService.GetViewsOverTimeAsync(business.Id, days, platform);
+                
+                foreach (var dailyView in dailyViews)
+                {
+                    data.Add(new ViewsOverTimeData
+                    {
+                        Date = dailyView.Date,
+                        Views = dailyView.TotalViews,
+                        BusinessId = business.Id,
+                        BusinessName = business.Name
+                    });
+                }
+            }
+
+            return data.OrderBy(d => d.Date).ToList();
+        }
+
+        public async Task<ViewStatistics> GetBusinessViewStatisticsAsync(int businessId, DateTime startDate, DateTime endDate, string? platform = null)
+        {
+            return await _viewTrackingService.GetViewStatisticsAsync(businessId, startDate, endDate, platform);
         }
 
         // Helper methods

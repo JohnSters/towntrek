@@ -37,7 +37,7 @@ class TownTrekApp {
       console.log('🚀 TownTrek application initialized successfully');
     } catch (error) {
       console.error('❌ Failed to initialize TownTrek application:', error);
-      ErrorHandler.handle(error, 'Application initialization');
+      ClientErrorHandler.showError('Failed to initialize application. Please refresh the page.');
     }
   }
 
@@ -46,10 +46,12 @@ class TownTrekApp {
    * @private
    */
   setupGlobalErrorHandling() {
-    // This is handled in error-handler.js, but we ensure it's called
-    if (window.ErrorHandler && typeof ErrorHandler.setupGlobalHandlers === 'function') {
-      ErrorHandler.setupGlobalHandlers();
-    }
+    // Simple global error handling for unhandled promise rejections
+    window.addEventListener('unhandledrejection', (event) => {
+      console.error('Unhandled promise rejection:', event.reason);
+      // Don't show user notification for every unhandled promise
+      // Let the server-side error handling deal with it
+    });
   }
 
   /**
@@ -222,7 +224,7 @@ class TownTrekApp {
       }
     } catch (error) {
       console.error(`❌ Failed to initialize module ${moduleName}:`, error);
-      ErrorHandler.handle(error, `Module initialization: ${moduleName}`);
+      ClientErrorHandler.showError(`Failed to initialize ${moduleName}. Some features may not work properly.`);
     }
   }
 
@@ -254,7 +256,7 @@ class TownTrekApp {
       }
     } catch (error) {
       console.error(`❌ Failed to initialize component ${componentName}:`, error);
-      ErrorHandler.handle(error, `Component initialization: ${componentName}`);
+      ClientErrorHandler.showError(`Failed to initialize ${componentName}. Some features may not work properly.`);
     }
   }
 
@@ -378,18 +380,43 @@ class TownTrekApp {
   handleGlobalFormSubmit(event) {
     const form = event.target;
 
+    // If another handler prevented the submission (e.g., custom validation),
+    // don't force a loading state on the buttons.
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    // Skip when HTML5 validity fails or custom validation has marked errors
+    const hasClientErrors = form.querySelector('.field-error, .invalid-feedback');
+    if ((typeof form.checkValidity === 'function' && !form.checkValidity()) || hasClientErrors) {
+      return;
+    }
+
+    // Allow opting out per form if needed
+    if (form.hasAttribute('data-skip-global-submit')) {
+      return;
+    }
+
     // Add loading state to submit buttons
     const submitButtons = form.querySelectorAll('button[type="submit"], input[type="submit"]');
     submitButtons.forEach(button => {
       if (!button.disabled) {
         button.dataset.originalText = button.textContent || button.value;
-        button.textContent = 'Processing...';
+        if (button.tagName === 'BUTTON') {
+          button.textContent = 'Processing...';
+        } else {
+          button.value = 'Processing...';
+        }
         button.disabled = true;
 
         // Re-enable after a timeout as fallback
         setTimeout(() => {
           if (button.disabled) {
-            button.textContent = button.dataset.originalText;
+            if (button.tagName === 'BUTTON') {
+              button.textContent = button.dataset.originalText;
+            } else {
+              button.value = button.dataset.originalText;
+            }
             button.disabled = false;
           }
         }, 30000);

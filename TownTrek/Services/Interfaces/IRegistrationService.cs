@@ -11,6 +11,8 @@ namespace TownTrek.Services.Interfaces
         Task<RegistrationResult> RegisterBusinessOwnerAsync(RegisterViewModel model);
         Task<RegistrationResult> RegisterTrialUserAsync(RegisterViewModel model);
         Task<string> GeneratePayFastPaymentDataAsync(SubscriptionTier tier, ApplicationUser user);
+        Task<Dictionary<string, string>> BuildPayFastFormFieldsAsync(SubscriptionTier tier, ApplicationUser user, int paymentId);
+        Task<Dictionary<string, string>?> BuildPayFastFormFieldsForUserAsync(string userId);
     }
 
     public class RegistrationResult

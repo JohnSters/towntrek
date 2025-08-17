@@ -135,12 +135,25 @@ namespace TownTrek.Services
                 Business = MapToBusinessCardViewModel(business)
             };
 
-            // Get reviews
-            viewModel.Reviews = await _context.Set<BusinessReview>()
+            // Get reviews with responses
+            var reviews = await _context.Set<BusinessReview>()
                 .Where(r => r.BusinessId == businessId && r.IsActive && r.IsApproved)
                 .Include(r => r.User)
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
+
+            var reviewResponses = await _context.Set<BusinessReviewResponse>()
+                .Where(rr => reviews.Select(r => r.Id).Contains(rr.BusinessReviewId) && rr.IsActive)
+                .Include(rr => rr.User)
+                .ToListAsync();
+
+            viewModel.Reviews = reviews.Select(review => new ReviewWithResponseViewModel
+            {
+                Review = review,
+                Response = reviewResponses.FirstOrDefault(rr => rr.BusinessReviewId == review.Id),
+                CanUserRespond = !string.IsNullOrEmpty(userId) && business.UserId == userId && 
+                                !reviewResponses.Any(rr => rr.BusinessReviewId == review.Id)
+            }).ToList();
 
             // Check if user can review and get existing review
             if (!string.IsNullOrEmpty(userId))
@@ -490,6 +503,79 @@ namespace TownTrek.Services
             }
 
             return MapToBusinessCardViewModel(business, isUserFavorite);
+        }
+
+        public async Task<ReviewResponseSubmissionResult> SubmitReviewResponseAsync(AddReviewResponseViewModel model, string userId)
+        {
+            try
+            {
+                // Get the review and verify the user owns the business
+                var review = await _context.Set<BusinessReview>()
+                    .Include(r => r.Business)
+                    .FirstOrDefaultAsync(r => r.Id == model.ReviewId);
+
+                if (review == null)
+                {
+                    return new ReviewResponseSubmissionResult
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = "Review not found."
+                    };
+                }
+
+                if (review.Business.UserId != userId)
+                {
+                    return new ReviewResponseSubmissionResult
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = "You can only respond to reviews for your own business."
+                    };
+                }
+
+                // Check if response already exists
+                var existingResponse = await _context.Set<BusinessReviewResponse>()
+                    .FirstOrDefaultAsync(rr => rr.BusinessReviewId == model.ReviewId);
+
+                if (existingResponse != null)
+                {
+                    return new ReviewResponseSubmissionResult
+                    {
+                        IsSuccess = false,
+                        ErrorMessage = "You have already responded to this review."
+                    };
+                }
+
+                var response = new BusinessReviewResponse
+                {
+                    BusinessReviewId = model.ReviewId,
+                    UserId = userId,
+                    Response = model.Response.Trim(),
+                    CreatedAt = DateTime.UtcNow,
+                    IsActive = true
+                };
+
+                _context.Set<BusinessReviewResponse>().Add(response);
+                await _context.SaveChangesAsync();
+
+                // Load the response with user data for return
+                response = await _context.Set<BusinessReviewResponse>()
+                    .Include(rr => rr.User)
+                    .FirstOrDefaultAsync(rr => rr.Id == response.Id);
+
+                return new ReviewResponseSubmissionResult
+                {
+                    IsSuccess = true,
+                    Response = response
+                };
+            }
+            catch (Exception)
+            {
+                return new ReviewResponseSubmissionResult
+                {
+                    IsSuccess = false,
+                    ErrorMessage = "An error occurred while submitting your response. Please try again."
+                };
+            }
         }
     }
 }

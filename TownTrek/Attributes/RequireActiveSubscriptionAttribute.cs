@@ -23,6 +23,8 @@ namespace TownTrek.Attributes
         {
             var subscriptionAuthService = context.HttpContext.RequestServices
                 .GetRequiredService<ISubscriptionAuthService>();
+            var trialService = context.HttpContext.RequestServices
+                .GetRequiredService<ITrialService>();
 
             var userId = context.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -33,6 +35,7 @@ namespace TownTrek.Attributes
             }
 
             var authResult = await subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
+            var trialStatus = await trialService.GetTrialStatusAsync(userId);
 
             // If user is not authenticated, redirect to login
             if (!authResult.IsAuthenticated)
@@ -87,6 +90,7 @@ namespace TownTrek.Attributes
             if (context.Controller is Controller controllerInstance)
             {
                 controllerInstance.ViewData["UserLimits"] = authResult.Limits;
+                controllerInstance.ViewData["IsTrialUser"] = trialStatus.IsTrialUser && !trialStatus.IsExpired;
                 // User name and tier are now resolved in TopUserMenu view component
             }
 

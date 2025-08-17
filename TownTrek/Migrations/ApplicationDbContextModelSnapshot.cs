@@ -251,6 +251,277 @@ namespace TownTrek.Migrations
                     b.ToTable("AccommodationDetails");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.AdminMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdminResponse")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ResolvedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("ResponseAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ResponseBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("TopicId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Priority");
+
+                    b.HasIndex("ResolvedBy");
+
+                    b.HasIndex("ResponseBy");
+
+                    b.HasIndex("Status");
+
+                    b.HasIndex("TopicId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Status", "Priority");
+
+                    b.ToTable("AdminMessages");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.AdminMessageTopic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ColorClass")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("IconClass")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.HasIndex("SortOrder");
+
+                    b.ToTable("AdminMessageTopics");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ColorClass = "danger",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4990),
+                            Description = "Billing problems, payment failures, subscription issues",
+                            IconClass = "fas fa-credit-card",
+                            IsActive = true,
+                            Key = "payment-issues",
+                            Name = "Payment Issues",
+                            Priority = "High",
+                            SortOrder = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ColorClass = "danger",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4992),
+                            Description = "Site bugs, login issues, functionality not working",
+                            IconClass = "fas fa-bug",
+                            IsActive = true,
+                            Key = "technical-problems",
+                            Name = "Technical Problems",
+                            Priority = "High",
+                            SortOrder = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ColorClass = "warning",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4994),
+                            Description = "Password resets, account lockouts, permission issues",
+                            IconClass = "fas fa-user-lock",
+                            IsActive = true,
+                            Key = "account-access",
+                            Name = "Account Access",
+                            Priority = "High",
+                            SortOrder = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ColorClass = "info",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4996),
+                            Description = "New functionality suggestions, improvements",
+                            IconClass = "fas fa-lightbulb",
+                            IsActive = true,
+                            Key = "feature-requests",
+                            Name = "Feature Requests",
+                            Priority = "Medium",
+                            SortOrder = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ColorClass = "info",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4997),
+                            Description = "Problems with business information, images, approval delays",
+                            IconClass = "fas fa-store",
+                            IsActive = true,
+                            Key = "business-listing",
+                            Name = "Business Listing Issues",
+                            Priority = "Medium",
+                            SortOrder = 5
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ColorClass = "info",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4999),
+                            Description = "Upgrade/downgrade requests, plan modifications",
+                            IconClass = "fas fa-exchange-alt",
+                            IsActive = true,
+                            Key = "subscription-changes",
+                            Name = "Subscription Changes",
+                            Priority = "Medium",
+                            SortOrder = 6
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ColorClass = "warning",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(5001),
+                            Description = "Incorrect town information, business details",
+                            IconClass = "fas fa-edit",
+                            IsActive = true,
+                            Key = "data-corrections",
+                            Name = "Data Corrections",
+                            Priority = "Medium",
+                            SortOrder = 7
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ColorClass = "secondary",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(5002),
+                            Description = "How-to questions, usage guidance",
+                            IconClass = "fas fa-question-circle",
+                            IsActive = true,
+                            Key = "general-support",
+                            Name = "General Support",
+                            Priority = "Low",
+                            SortOrder = 8
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ColorClass = "secondary",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(5004),
+                            Description = "General feedback about the platform",
+                            IconClass = "fas fa-comment",
+                            IsActive = true,
+                            Key = "feedback",
+                            Name = "Feedback & Suggestions",
+                            Priority = "Low",
+                            SortOrder = 9
+                        },
+                        new
+                        {
+                            Id = 10,
+                            ColorClass = "secondary",
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(5006),
+                            Description = "Business partnerships, collaboration requests",
+                            IconClass = "fas fa-handshake",
+                            IsActive = true,
+                            Key = "partnership-inquiries",
+                            Name = "Partnership Inquiries",
+                            Priority = "Low",
+                            SortOrder = 10
+                        });
+                });
+
             modelBuilder.Entity("TownTrek.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -858,6 +1129,47 @@ namespace TownTrek.Migrations
                     b.ToTable("BusinessReviews");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.BusinessReviewResponse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessReviewId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Response")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessReviewId")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BusinessReviewResponses");
+                });
+
             modelBuilder.Entity("TownTrek.Models.BusinessService", b =>
                 {
                     b.Property<int>("Id")
@@ -1114,6 +1426,137 @@ namespace TownTrek.Migrations
                             Key = "camping",
                             Name = "Camping & Caravan"
                         });
+                });
+
+            modelBuilder.Entity("TownTrek.Models.BusinessViewLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Referrer")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("SessionId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("ViewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BusinessId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BusinessViewLogs");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.ErrorLogEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("ErrorType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<bool>("IsResolved")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestPath")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("ResolvedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ResolvedBy")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Severity")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("StackTrace")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ErrorType")
+                        .HasDatabaseName("IX_ErrorLogs_ErrorType");
+
+                    b.HasIndex("IsResolved")
+                        .HasDatabaseName("IX_ErrorLogs_IsResolved");
+
+                    b.HasIndex("ResolvedBy");
+
+                    b.HasIndex("Severity")
+                        .HasDatabaseName("IX_ErrorLogs_Severity");
+
+                    b.HasIndex("Timestamp")
+                        .HasDatabaseName("IX_ErrorLogs_Timestamp");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_ErrorLogs_UserId");
+
+                    b.HasIndex("Timestamp", "Severity")
+                        .HasDatabaseName("IX_ErrorLogs_Timestamp_Severity");
+
+                    b.ToTable("ErrorLogs");
                 });
 
             modelBuilder.Entity("TownTrek.Models.EventDetails", b =>
@@ -1751,7 +2194,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2597),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4571),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -1762,7 +2205,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2599),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4573),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -1773,7 +2216,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 13, 6, 18, 7, 427, DateTimeKind.Utc).AddTicks(2600),
+                            CreatedAt = new DateTime(2025, 8, 17, 7, 33, 0, 731, DateTimeKind.Utc).AddTicks(4575),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,
@@ -2274,6 +2717,39 @@ namespace TownTrek.Migrations
                     b.Navigation("Business");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.AdminMessage", b =>
+                {
+                    b.HasOne("TownTrek.Models.ApplicationUser", "ResolvedByUser")
+                        .WithMany()
+                        .HasForeignKey("ResolvedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "ResponseByUser")
+                        .WithMany()
+                        .HasForeignKey("ResponseBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TownTrek.Models.AdminMessageTopic", "Topic")
+                        .WithMany("Messages")
+                        .HasForeignKey("TopicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ResolvedByUser");
+
+                    b.Navigation("ResponseByUser");
+
+                    b.Navigation("Topic");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TownTrek.Models.Business", b =>
                 {
                     b.HasOne("TownTrek.Models.ApplicationUser", "ApprovedByUser")
@@ -2368,6 +2844,25 @@ namespace TownTrek.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("TownTrek.Models.BusinessReviewResponse", b =>
+                {
+                    b.HasOne("TownTrek.Models.BusinessReview", "BusinessReview")
+                        .WithMany()
+                        .HasForeignKey("BusinessReviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("BusinessReview");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TownTrek.Models.BusinessService", b =>
                 {
                     b.HasOne("TownTrek.Models.Business", "Business")
@@ -2388,6 +2883,40 @@ namespace TownTrek.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.BusinessViewLog", b =>
+                {
+                    b.HasOne("TownTrek.Models.Business", "Business")
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Business");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.ErrorLogEntry", b =>
+                {
+                    b.HasOne("TownTrek.Models.ApplicationUser", "ResolvedByUser")
+                        .WithMany()
+                        .HasForeignKey("ResolvedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.Navigation("ResolvedByUser");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TownTrek.Models.EventDetails", b =>
@@ -2553,6 +3082,11 @@ namespace TownTrek.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TownTrek.Models.AdminMessageTopic", b =>
+                {
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("TownTrek.Models.ApplicationUser", b =>

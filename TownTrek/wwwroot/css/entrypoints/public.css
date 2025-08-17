@@ -11,6 +11,7 @@
 @import url('../components/alerts.css');
 @import url('../components/modal.css');
 @import url('../components/notifications.css');
+@import url('../components/review-responses.css');
 
 /* Feature: landing */
 @import url('../features/landing/landing.css');

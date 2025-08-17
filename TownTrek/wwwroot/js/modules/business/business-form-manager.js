@@ -63,7 +63,7 @@ class BusinessFormManager {
     this.elements = {
       form: document.querySelector(this.options.formSelector),
       // Use actual CTA button class from views: .auth-btn-cta
-      submitBtn: document.querySelector('.auth-btn-cta'),
+      submitBtn: document.querySelector(`${this.options.formSelector} button.auth-btn-cta, ${this.options.formSelector} button[type="submit"]`),
       categorySelect: document.getElementById('businessCategory'),
       subCategoryContainer: document.getElementById('subCategoryContainer'),
       subCategorySelect: document.getElementById('subCategory'),
@@ -215,6 +215,16 @@ class BusinessFormManager {
           option.textContent = subCat.text;
           this.elements.subCategorySelect.appendChild(option);
         });
+
+        // Preselect existing value in edit mode if present
+        const currentValue = this.elements.subCategorySelect.dataset.currentValue || '';
+        if (currentValue) {
+          const options = Array.from(this.elements.subCategorySelect.options);
+          const match = options.find(opt => opt.value === currentValue);
+          if (match) {
+            this.elements.subCategorySelect.value = currentValue;
+          }
+        }
 
         // Show subcategory container if there are options
         if (response.length > 0 && this.elements.subCategoryContainer) {
@@ -554,6 +564,8 @@ class BusinessFormManager {
       );
 
       if (!validation.isValid) {
+        // Let the browser and global handler know we blocked submit
+        event.stopPropagation();
         return false;
       }
 
@@ -574,7 +586,10 @@ class BusinessFormManager {
         userMessage: 'Failed to save business. Please try again.'
       });
     } finally {
-      this.setLoadingState(this.elements.submitBtn, false);
+      // Only clear the loading state if we didn't actually submit
+      if (this.elements.form && !this.elements.form.matches(':has(.submitting)')) {
+        this.setLoadingState(this.elements.submitBtn, false);
+      }
     }
   }
 

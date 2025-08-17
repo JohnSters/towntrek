@@ -144,5 +144,30 @@ namespace TownTrek.Models.ViewModels
         public double AverageCompetitorRating { get; set; }
         public string MarketPosition { get; set; } = string.Empty; // "leader", "competitive", "challenger", "niche"
         public List<string> OpportunityAreas { get; set; } = new();
+        public int YourRank { get; set; }
+        public int TotalCompetitors { get; set; }
+        public double MarketSharePercentage { get; set; }
+        public string KeyInsight { get; set; } = string.Empty;
+        public List<string> Recommendations { get; set; } = new();
+    }
+
+    // Extended model for detailed benchmarks view
+    public class CategoryBenchmarks
+    {
+        public string Category { get; set; } = string.Empty;
+        public string YourPerformanceVsAverage { get; set; } = string.Empty; // "above", "below", "average"
+        
+        // Your metrics
+        public int YourAverageViews { get; set; }
+        public int YourAverageReviews { get; set; }
+        public double YourAverageRating { get; set; }
+        
+        // Category averages
+        public int CategoryAverageViews { get; set; }
+        public int CategoryAverageReviews { get; set; }
+        public double CategoryAverageRating { get; set; }
+        
+        // Insights and recommendations
+        public List<string> Insights { get; set; } = new();
     }
 }

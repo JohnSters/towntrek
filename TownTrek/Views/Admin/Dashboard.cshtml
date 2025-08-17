@@ -13,8 +13,8 @@
             <p class="page-description">Manage towns, businesses, users, and system settings for TownTrek.</p>
         </div>
         <div class="page-actions">
-            <a href="@Url.Action("AddTown", "Admin")" class="auth-btn auth-btn-cta">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="@Url.Action("Create", "AdminTowns")" class="auth-btn auth-btn-cta">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
                 Add New Town
@@ -24,10 +24,10 @@
 </div>
 
 <!-- Stats Overview -->
-<div class="stats-grid" style="grid-template-columns: repeat(5, 1fr);">
+<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
     <div class="stat-card">
         <div class="stat-icon primary">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
@@ -39,7 +39,7 @@
 
     <div class="stat-card">
         <div class="stat-icon success">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
             </svg>
         </div>
@@ -50,7 +50,7 @@
 
     <div class="stat-card">
         <div class="stat-icon warning">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
         </div>
@@ -59,28 +59,67 @@
         <div class="stat-change">Require review</div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon info">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+    <div class="stat-card @(Model.CriticalErrorsLast24Hours > 10 ? "stat-card-danger" : "")">
+        <div class="stat-icon @(Model.CriticalErrorsLast24Hours > 0 ? "danger" : "success")">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
             </svg>
         </div>
-        <div class="stat-value">@Model.TotalPopulation.ToString("N0")</div>
-        <div class="stat-label">Total Population</div>
-        <div class="stat-change">Across all towns</div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon secondary">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-            </svg>
-        </div>
-        <div class="stat-value">@Model.TownsWithLandmarks</div>
-        <div class="stat-label">Towns with Landmarks</div>
-        <div class="stat-change">@($"{(double)Model.TownsWithLandmarks / Math.Max(Model.TotalTowns, 1) * 100:F0}% coverage")</div>
+        <div class="stat-value">@Model.CriticalErrorsLast24Hours</div>
+        <div class="stat-label">Critical Errors (24h)</div>
+        <div class="stat-change @(Model.UnresolvedErrorsTotal > 0 ? "negative" : "")">@Model.UnresolvedErrorsTotal unresolved</div>
     </div>
 </div>
+
+<!-- Client Messages Stats -->
+@if (Model.MessageStats != null)
+{
+    <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+        <div class="stat-card">
+            <div class="stat-icon info">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+            </div>
+            <div class="stat-value">@Model.MessageStats.TotalMessages</div>
+            <div class="stat-label">Client Messages</div>
+            <div class="stat-change">@Model.MessageStats.MessagesToday today</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon @(Model.MessageStats.OpenMessages > 0 ? "warning" : "success")">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+            </div>
+            <div class="stat-value">@Model.MessageStats.OpenMessages</div>
+            <div class="stat-label">Open Messages</div>
+            <div class="stat-change">Need attention</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon primary">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <div class="stat-value">@Model.MessageStats.InProgressMessages</div>
+            <div class="stat-label">In Progress</div>
+            <div class="stat-change">Being handled</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon @(Model.MessageStats.CriticalMessages > 0 ? "danger" : "success")">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <div class="stat-value">@Model.MessageStats.CriticalMessages</div>
+            <div class="stat-label">Critical Priority</div>
+            <div class="stat-change">@Model.MessageStats.HighPriorityMessages high priority</div>
+        </div>
+    </div>
+}
 
 <!-- Quick Actions -->
 <div class="admin-card">
@@ -89,9 +128,9 @@
     </div>
     
     <div class="quick-actions-grid">
-        <a href="@Url.Action("AddTown", "Admin")" class="quick-action-card">
+        <a href="@Url.Action("Create", "AdminTowns")" class="quick-action-card">
             <div class="quick-action-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
             </div>
@@ -101,7 +140,7 @@
 
         <a href="@Url.Action("Index", "AdminTowns")" class="quick-action-card">
             <div class="quick-action-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
@@ -112,7 +151,7 @@
 
         <a href="@Url.Action("Index", "AdminBusinesses")" class="quick-action-card">
             <div class="quick-action-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                 </svg>
             </div>
@@ -122,7 +161,7 @@
 
         <a href="@Url.Action("Index", "AdminUsers")" class="quick-action-card">
             <div class="quick-action-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                 </svg>
             </div>
@@ -132,7 +171,7 @@
 
         <a href="@Url.Action("Index", "AdminCategories")" class="quick-action-card">
             <div class="quick-action-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7h18M3 12h18M3 17h18"></path>
                 </svg>
             </div>
@@ -142,7 +181,7 @@
 
         <a href="@Url.Action("Index", "AdminServices")" class="quick-action-card">
             <div class="quick-action-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
             </div>
@@ -152,15 +191,75 @@
 
         <a href="@Url.Action("Index", "AdminSubscription")" class="quick-action-card">
             <div class="quick-action-icon">
-                <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
                 </svg>
             </div>
             <div class="quick-action-title">Subscription Tiers</div>
             <div class="quick-action-description">Manage pricing and tier limits</div>
         </a>
+
+        <a href="@Url.Action("Index", "Errors")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <div class="quick-action-title">System Errors</div>
+            <div class="quick-action-description">Monitor and resolve system errors</div>
+        </a>
 </div>
 </div>
+
+<!-- Recent Client Messages -->
+@if (Model.RecentMessages?.Any() == true)
+{
+    <div class="admin-card" style="margin-bottom: 2rem;">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">Recent Client Messages</h3>
+            <div class="admin-card-actions">
+                <a href="@Url.Action("Index", "AdminMessages")" class="header-btn" title="View All Messages">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        
+        <div class="activity-list">
+            @foreach (var message in Model.RecentMessages.Take(5))
+            {
+                <div class="activity-item">
+                    <div class="activity-icon @GetMessageIconClass(message.Priority)">
+                        <i class="@message.Topic.IconClass"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">
+                            @message.Subject
+                            <span class="badge badge-@GetMessageStatusClass(message.Status)">@message.Status</span>
+                        </div>
+                        <div class="activity-description">
+                            <strong>From:</strong> @message.User.Email - @message.Topic.Name
+                        </div>
+                        <div class="activity-time">
+                            @((DateTime.UtcNow - message.CreatedAt).TotalHours < 1 ? 
+                                $"{(int)(DateTime.UtcNow - message.CreatedAt).TotalMinutes} minutes ago" : 
+                                $"{(int)(DateTime.UtcNow - message.CreatedAt).TotalHours} hours ago")
+                        </div>
+                    </div>
+                    <div class="activity-actions">
+                        <a href="@Url.Action("Details", "AdminMessages", new { id = message.Id })" class="table-action-btn" title="View Details">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
 
 <!-- Recent Activity -->
 <div class="admin-card">
@@ -168,7 +267,7 @@
         <h3 class="admin-card-title">Recent System Activity</h3>
         <div class="admin-card-actions">
             <button class="header-btn" title="Refresh">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                 </svg>
             </button>
@@ -176,44 +275,66 @@
     </div>
     
     <div class="activity-list">
-        <div class="activity-item">
-            <div class="activity-icon success">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
+        @if (Model.RecentErrors?.Any() == true)
+        {
+            @foreach (var error in Model.RecentErrors.Take(3))
+            {
+                <div class="activity-item">
+                    <div class="activity-icon @(error.Severity == "Critical" ? "danger" : error.Severity == "Error" ? "warning" : "info")">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">@error.Severity @error.ErrorType Error</div>
+                        <div class="activity-description">@error.Message</div>
+                        <div class="activity-time">@((DateTime.UtcNow - error.Timestamp).TotalHours < 1 ? 
+                            $"{(int)(DateTime.UtcNow - error.Timestamp).TotalMinutes} minutes ago" : 
+                            $"{(int)(DateTime.UtcNow - error.Timestamp).TotalHours} hours ago")</div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="activity-item">
+                <div class="activity-icon success">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title">System Running Smoothly</div>
+                    <div class="activity-description">No recent critical errors detected</div>
+                    <div class="activity-time">Last 24 hours</div>
+                </div>
             </div>
-            <div class="activity-content">
-                <div class="activity-title">New business approved</div>
-                <div class="activity-description">"Stellenbosch Coffee Co" has been approved and is now live</div>
-                <div class="activity-time">2 hours ago</div>
-            </div>
-        </div>
-
-        <div class="activity-item">
-            <div class="activity-icon primary">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-            </div>
-            <div class="activity-content">
-                <div class="activity-title">New town added</div>
-                <div class="activity-description">Hermanus, Western Cape has been added to the system</div>
-                <div class="activity-time">4 hours ago</div>
-            </div>
-        </div>
-
-        <div class="activity-item">
-            <div class="activity-icon warning">
-                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <div class="activity-content">
-                <div class="activity-title">Business pending approval</div>
-                <div class="activity-description">"Mountain View Restaurant" is waiting for admin approval</div>
-                <div class="activity-time">6 hours ago</div>
-            </div>
-        </div>
+        }
     </div>
 </div>
+
+@functions {
+    private string GetMessageIconClass(string priority)
+    {
+        return priority.ToLower() switch
+        {
+            "critical" => "danger",
+            "high" => "danger",
+            "medium" => "warning",
+            "low" => "info",
+            _ => "info"
+        };
+    }
+    
+    private string GetMessageStatusClass(string status)
+    {
+        return status.ToLower() switch
+        {
+            "open" => "info",
+            "inprogress" => "warning",
+            "resolved" => "success",
+            "closed" => "secondary",
+            _ => "secondary"
+        };
+    }
+}

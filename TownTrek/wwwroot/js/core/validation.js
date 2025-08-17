@@ -109,12 +109,15 @@ class ValidationManager {
     // File type validator (supports mime and extension checks)
     this.addValidator('fileType', (files, rule) => {
       const normalized = this.normalizeFilesValue(files);
+      // If there are no actual File objects (e.g., empty string from browser), treat as valid
       if (normalized.length === 0) return true;
 
       const { allowedMimeTypes, allowedExtensions } = this.normalizeAllowedTypes(rule.value);
 
       for (const file of normalized) {
-        if (!file) return false;
+        // Ignore nullish or placeholder entries and browser-empty File placeholders
+        if (!file || (typeof file === 'string' && file.trim() === '')) continue;
+        if (typeof file.size === 'number' && file.size === 0 && !file.name) continue;
         const mime = String(file.type || '').toLowerCase();
         const ext = `.${(file.name || '').split('.').pop()?.toLowerCase() || ''}`;
 
@@ -305,8 +308,19 @@ class ValidationManager {
    */
   validateForm(form, rules, options = {}) {
     const config = { ...this.options, ...options };
+
+    // Build values from FormData
     const formData = new FormData(form);
-    const result = this.validate(formData, rules);
+    const values = this.formDataToObject(formData);
+
+    // Ensure file inputs are represented by their FileList (not empty strings)
+    const fileInputs = Array.from(form.querySelectorAll('input[type="file"][name]'));
+    fileInputs.forEach((input) => {
+      if (!input.name) return;
+      values[input.name] = input.files; // FileList, possibly empty
+    });
+
+    const result = this.validate(values, rules);
 
     if (config.showErrorsOnSubmit && !result.isValid) {
       this.displayErrors(form, result.errors);

@@ -5,6 +5,9 @@ using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
+using TownTrek.Constants;
+using TownTrek.Options;
+using Microsoft.Extensions.Options;
 
 namespace TownTrek.Services
 {
@@ -16,6 +19,9 @@ namespace TownTrek.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ITrialService _trialService;
+        private readonly IEmailService _emailService;
+        private readonly PayFastOptions _payFastOptions;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public RegistrationService(
             ApplicationDbContext context,
@@ -23,7 +29,10 @@ namespace TownTrek.Services
             ILogger<RegistrationService> logger,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
-            ITrialService trialService)
+            ITrialService trialService,
+            IEmailService emailService,
+            IHttpContextAccessor httpContextAccessor,
+            IOptions<PayFastOptions> payFastOptions)
         {
             _context = context;
             _configuration = configuration;
@@ -31,6 +40,9 @@ namespace TownTrek.Services
             _userManager = userManager;
             _roleManager = roleManager;
             _trialService = trialService;
+            _emailService = emailService;
+            _httpContextAccessor = httpContextAccessor;
+            _payFastOptions = payFastOptions.Value;
         }
 
         public async Task<List<SubscriptionTier>> GetAvailableSubscriptionTiersAsync()
@@ -84,7 +96,32 @@ namespace TownTrek.Services
                 }
 
                 // Add to Member role
-                await _userManager.AddToRoleAsync(user, "Member");
+                await _userManager.AddToRoleAsync(user, AppRoles.Member);
+
+                // Send email confirmation
+                try
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var encodedToken = Uri.EscapeDataString(token);
+                    var baseUrl = _configuration["BaseUrl"] ?? "";
+                    var confirmationUrl = string.IsNullOrWhiteSpace(baseUrl)
+                        ? $"/Auth/ConfirmEmail?userId={user.Id}&token={encodedToken}"
+                        : $"{baseUrl}/Auth/ConfirmEmail?userId={user.Id}&token={encodedToken}";
+                    await _emailService.SendEmailConfirmationAsync(user.Email!, user.FirstName, confirmationUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send confirmation email to {Email}", model.Email);
+                }
+
+                try
+                {
+                    await _emailService.SendWelcomeEmailAsync(user.Email!, user.FirstName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send welcome email to {Email}", model.Email);
+                }
 
                 _logger.LogInformation("Member user created successfully: {Email}", model.Email);
                 return RegistrationResult.Success(user);
@@ -104,6 +141,47 @@ namespace TownTrek.Services
                 var existingUser = await _userManager.FindByEmailAsync(model.Email);
                 if (existingUser != null)
                 {
+                    // If the user exists but has no active subscription, try to generate a payment link to complete purchase
+                    if (!existingUser.HasActiveSubscription)
+                    {
+                        var pendingSub = await _context.Subscriptions
+                            .Include(s => s.SubscriptionTier)
+                            .Where(s => s.UserId == existingUser.Id && (s.PaymentStatus == "Pending" || s.PaymentStatus == "Failed"))
+                            .OrderByDescending(s => s.StartDate)
+                            .FirstOrDefaultAsync();
+
+                        // If user selected a specific plan, ensure the subscription matches or create a fresh pending one
+                        SubscriptionTier? tierForPayment = null;
+                        if (model.SelectedPlan.HasValue)
+                        {
+                            tierForPayment = await GetSubscriptionTierByIdAsync(model.SelectedPlan.Value);
+                        }
+
+                        if (pendingSub == null && tierForPayment != null)
+                        {
+                            var newSub = new Subscription
+                            {
+                                UserId = existingUser.Id,
+                                SubscriptionTierId = tierForPayment.Id,
+                                MonthlyPrice = tierForPayment.MonthlyPrice,
+                                StartDate = DateTime.UtcNow,
+                                IsActive = false,
+                                PaymentStatus = "Pending"
+                            };
+                            await _context.Subscriptions.AddAsync(newSub);
+                            await _context.SaveChangesAsync();
+                            pendingSub = newSub;
+                        }
+
+                        var tier = pendingSub?.SubscriptionTier ?? tierForPayment;
+                        if (tier != null)
+                        {
+                            var paymentUrlExisting = await GeneratePayFastPaymentDataAsync(tier, existingUser);
+                            _logger.LogInformation("Existing user without active subscription; providing payment URL. {Email}", model.Email);
+                            return RegistrationResult.SuccessWithPayment(existingUser, paymentUrlExisting);
+                        }
+                    }
+
                     return RegistrationResult.Error("A user with this email address already exists.");
                 }
 
@@ -158,6 +236,31 @@ namespace TownTrek.Services
                 // Generate PayFast payment URL
                 var paymentData = await GeneratePayFastPaymentDataAsync(subscriptionTier, user);
 
+                // Send email confirmation
+                try
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var encodedToken = Uri.EscapeDataString(token);
+                    var baseUrl = _configuration["BaseUrl"] ?? "";
+                    var confirmationUrl = string.IsNullOrWhiteSpace(baseUrl)
+                        ? $"/Auth/ConfirmEmail?userId={user.Id}&token={encodedToken}"
+                        : $"{baseUrl}/Auth/ConfirmEmail?userId={user.Id}&token={encodedToken}";
+                    await _emailService.SendEmailConfirmationAsync(user.Email!, user.FirstName, confirmationUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send confirmation email to {Email}", model.Email);
+                }
+
+                try
+                {
+                    await _emailService.SendWelcomeEmailAsync(user.Email!, user.FirstName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send welcome email to {Email}", model.Email);
+                }
+
                 _logger.LogInformation("Business owner user created successfully: {Email}, Tier: {Tier}", 
                     model.Email, subscriptionTier.Name);
 
@@ -180,11 +283,22 @@ namespace TownTrek.Services
             var paymentId = subscription?.Id.ToString() ?? Guid.NewGuid().ToString();
 
             // PayFast configuration - get from appsettings or use sandbox defaults
-            var merchantId = _configuration["PayFast:MerchantId"] ?? "10040964";
-            var merchantKey = _configuration["PayFast:MerchantKey"] ?? "mieu9ydfgtqo4";
-            var passPhrase = _configuration["PayFast:PassPhrase"] ?? "MyTestPassPhrase123";
-            var baseUrl = _configuration["BaseUrl"] ?? "https://localhost:7154";
-            var payFastUrl = _configuration["PayFast:PaymentUrl"] ?? "https://sandbox.payfast.co.za/eng/process";
+            var merchantId = _payFastOptions.MerchantId;
+            var merchantKey = _payFastOptions.MerchantKey;
+            var passPhrase = _payFastOptions.PassPhrase ?? "";
+            var baseUrl = _configuration["BaseUrl"];
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                // Derive from current request if not configured
+                var req = _httpContextAccessor.HttpContext?.Request;
+                if (req != null)
+                {
+                    baseUrl = $"{req.Scheme}://{req.Host}";
+                }
+            }
+            var payFastUrl = string.IsNullOrWhiteSpace(_payFastOptions.PaymentUrl)
+                ? "https://sandbox.payfast.co.za/eng/process"
+                : _payFastOptions.PaymentUrl;
 
             var testAmount = Math.Max(tier.MonthlyPrice, 5.00m);
 
@@ -196,9 +310,12 @@ namespace TownTrek.Services
                 ["amount"] = testAmount.ToString("0.00", CultureInfo.InvariantCulture),
                 ["item_name"] = "TownTrek-Subscription", // No spaces, no special chars
                 ["m_payment_id"] = paymentId,
-                
-                // Add ONLY essential fields with simple values
-                ["email_address"] = "test@test.com" // Simple email that worked before
+                // Add essential URLs for redirect and IPN
+                ["return_url"] = $"{baseUrl}/Api/Payment/Success?paymentId={paymentId}",
+                ["cancel_url"] = $"{baseUrl}/Api/Payment/Cancel",
+                ["notify_url"] = $"{baseUrl}/Api/Payment/Notify",
+                // Recipient email for PayFast records
+                ["email_address"] = user.Email ?? "test@test.com"
             };
 
             _logger.LogInformation("Generating PayFast payment for user {UserId}, tier {TierName}, amount R{Amount}", 
@@ -212,8 +329,16 @@ namespace TownTrek.Services
             var signature = GeneratePayFastSignatureSimple(paymentData, passPhrase);
             paymentData["signature"] = signature;
 
-            // Build PayFast URL
-            var queryString = string.Join("&", paymentData.Select(kvp => $"{kvp.Key}={Uri.EscapeDataString(kvp.Value)}"));
+            // Build PayFast URL: URL-encode values for the request itself
+            string EncodeValue(string value)
+            {
+                return Uri.EscapeDataString(value).Replace("%20", "+");
+            }
+
+            var orderedForQuery = paymentData
+                .Where(kvp => !string.IsNullOrEmpty(kvp.Value))
+                .OrderBy(k => k.Key, StringComparer.Ordinal);
+            var queryString = string.Join("&", orderedForQuery.Select(kvp => $"{kvp.Key}={EncodeValue(kvp.Value)}"));
             var paymentUrl = $"{payFastUrl}?{queryString}";
 
             _logger.LogInformation("PayFast payment URL generated for user {UserId}", user.Id);
@@ -221,40 +346,105 @@ namespace TownTrek.Services
             return paymentUrl;
         }
 
+        public async Task<Dictionary<string, string>> BuildPayFastFormFieldsAsync(SubscriptionTier tier, ApplicationUser user, int paymentNumericId)
+        {
+            await Task.CompletedTask;
+
+            var merchantId = _payFastOptions.MerchantId;
+            var merchantKey = _payFastOptions.MerchantKey;
+            var passPhrase = _payFastOptions.PassPhrase ?? "";
+            var baseUrl = _configuration["BaseUrl"];
+            if (string.IsNullOrWhiteSpace(baseUrl))
+            {
+                var req = _httpContextAccessor.HttpContext?.Request;
+                if (req != null)
+                {
+                    baseUrl = $"{req.Scheme}://{req.Host}";
+                }
+            }
+            var payFastUrl = string.IsNullOrWhiteSpace(_payFastOptions.PaymentUrl)
+                ? "https://sandbox.payfast.co.za/eng/process"
+                : _payFastOptions.PaymentUrl;
+
+            var amount = Math.Max(tier.MonthlyPrice, 5.00m)
+                .ToString("0.00", CultureInfo.InvariantCulture);
+            var paymentId = paymentNumericId.ToString();
+
+            var fields = new Dictionary<string, string>
+            {
+                ["merchant_id"] = merchantId,
+                ["merchant_key"] = merchantKey,
+                ["amount"] = amount,
+                ["item_name"] = "TownTrek-Subscription",
+                ["m_payment_id"] = paymentId,
+                ["return_url"] = $"{baseUrl}/Api/Payment/Success?paymentId={paymentId}",
+                ["cancel_url"] = $"{baseUrl}/Api/Payment/Cancel",
+                ["notify_url"] = $"{baseUrl}/Api/Payment/Notify",
+                ["email_address"] = user.Email ?? "test@test.com"
+            };
+
+            var signature = GeneratePayFastSignatureSimple(fields, passPhrase);
+            fields["signature"] = signature;
+            return fields;
+        }
+
+        public async Task<Dictionary<string, string>?> BuildPayFastFormFieldsForUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return null;
+
+            var sub = await _context.Subscriptions
+                .Include(s => s.SubscriptionTier)
+                .Where(s => s.UserId == userId && s.PaymentStatus == "Pending")
+                .OrderByDescending(s => s.StartDate)
+                .FirstOrDefaultAsync();
+
+            if (sub?.SubscriptionTier == null) return null;
+            return await BuildPayFastFormFieldsAsync(sub.SubscriptionTier, user, sub.Id);
+        }
+
         private string GeneratePayFastSignatureSimple(Dictionary<string, string> data, string? passPhrase = null)
         {
-            // Exactly match the Node.js implementation
-            // Sort all keys alphabetically
-            var orderedData = data
-                .Where(kvp => kvp.Key != "signature" && !string.IsNullOrEmpty(kvp.Value))
-                .OrderBy(kvp => kvp.Key)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            // PayFast signature rules
+            // - Exclude 'signature' key and empty values
+            // - Sort keys alphabetically (Ordinal)
+            // - Build key=value pairs joined by '&'
+            // - Some accounts require RAW values; some require URL-encoded values. Toggle via PayFastOptions.UseEncodedSignature.
+            // - Append '&passphrase=...' LAST (RAW, not encoded) if configured
+            // - MD5 and lowercase
 
-            // Create the get string exactly like Node.js
-            var getString = "";
-            foreach (var kvp in orderedData)
+            var ordered = data
+                .Where(kvp => kvp.Key != "signature" && !string.IsNullOrEmpty(kvp.Value))
+                .OrderBy(kvp => kvp.Key, StringComparer.Ordinal);
+
+            var sb = new System.Text.StringBuilder();
+            foreach (var kvp in ordered)
             {
-                // encodeURIComponent equivalent, then replace %20 with +
-                var encodedValue = Uri.EscapeDataString(kvp.Value).Replace("%20", "+");
-                getString += $"{kvp.Key}={encodedValue}&";
+                if (sb.Length > 0) sb.Append('&');
+                sb.Append(kvp.Key);
+                sb.Append('=');
+                if (_payFastOptions.UseEncodedSignature)
+                {
+                    // encodeURIComponent and replace %20 with +
+                    var encoded = Uri.EscapeDataString(kvp.Value).Replace("%20", "+");
+                    sb.Append(encoded);
+                }
+                else
+                {
+                    sb.Append(kvp.Value);
+                }
             }
 
-            // Remove the last '&'
-            getString = getString.TrimEnd('&');
-
-            // Add passphrase if provided
             if (!string.IsNullOrEmpty(passPhrase))
             {
-                var encodedPassPhrase = Uri.EscapeDataString(passPhrase.Trim()).Replace("%20", "+");
-                getString += $"&passphrase={encodedPassPhrase}";
+                // IMPORTANT: PayFast expects the passphrase appended LAST and NOT URL-encoded
+                sb.Append("&passphrase=");
+                sb.Append(passPhrase.Trim());
             }
 
-            // Generate MD5 hash
-            var hash = System.Security.Cryptography.MD5.HashData(System.Text.Encoding.UTF8.GetBytes(getString));
+            var raw = sb.ToString();
+            var hash = System.Security.Cryptography.MD5.HashData(System.Text.Encoding.UTF8.GetBytes(raw));
             var signature = Convert.ToHexString(hash).ToLower();
-
-            _logger.LogInformation("PayFast signature generated successfully");
-
             return signature;
         }
 
@@ -297,6 +487,31 @@ namespace TownTrek.Services
                 {
                     await _userManager.DeleteAsync(user);
                     return RegistrationResult.Error("Failed to start trial period. Please try again.");
+                }
+
+                // Send email confirmation
+                try
+                {
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(trialUser);
+                    var encodedToken = Uri.EscapeDataString(token);
+                    var baseUrl = _configuration["BaseUrl"] ?? "";
+                    var confirmationUrl = string.IsNullOrWhiteSpace(baseUrl)
+                        ? $"/Auth/ConfirmEmail?userId={trialUser.Id}&token={encodedToken}"
+                        : $"{baseUrl}/Auth/ConfirmEmail?userId={trialUser.Id}&token={encodedToken}";
+                    await _emailService.SendEmailConfirmationAsync(trialUser.Email!, trialUser.FirstName, confirmationUrl);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send confirmation email to {Email}", model.Email);
+                }
+
+                try
+                {
+                    await _emailService.SendWelcomeEmailAsync(user.Email!, user.FirstName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to send welcome email to {Email}", model.Email);
                 }
 
                 _logger.LogInformation("Trial user created successfully: {Email}, Trial expires: {ExpiryDate}", 
