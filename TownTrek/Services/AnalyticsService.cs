@@ -10,11 +10,13 @@ namespace TownTrek.Services
         ApplicationDbContext context,
         ISubscriptionAuthService subscriptionAuthService,
         IViewTrackingService viewTrackingService,
+        IAnalyticsSnapshotService analyticsSnapshotService,
         ILogger<AnalyticsService> logger) : IAnalyticsService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly IViewTrackingService _viewTrackingService = viewTrackingService;
+        private readonly IAnalyticsSnapshotService _analyticsSnapshotService = analyticsSnapshotService;
         private readonly ILogger<AnalyticsService> _logger = logger;
 
         public async Task<ClientAnalyticsViewModel> GetClientAnalyticsAsync(string userId)
@@ -101,8 +103,8 @@ namespace TownTrek.Services
 
             var favoritesThisMonth = favorites.Count(f => f.CreatedAt >= thisMonthStart);
 
-            // Calculate growth rates
-            var viewsGrowthRate = CalculateGrowthRate(business.ViewCount, 0); // We don't have historical view data yet
+            // Calculate growth rates using historical data
+            var growthRates = await _analyticsSnapshotService.CalculateGrowthRatesAsync(businessId, 30, 30);
             var engagementScore = CalculateEngagementScore(business.ViewCount, reviews.Count, favorites.Count);
 
             var analytics = new BusinessAnalyticsData
@@ -112,9 +114,9 @@ namespace TownTrek.Services
                 Category = business.Category,
                 Status = business.Status,
                 TotalViews = business.ViewCount,
-                ViewsThisMonth = 0, // Would need view tracking table for accurate data
-                ViewsLastMonth = 0,
-                ViewsGrowthRate = viewsGrowthRate,
+                ViewsThisMonth = growthRates.CurrentPeriodViews,
+                ViewsLastMonth = growthRates.PreviousPeriodViews,
+                ViewsGrowthRate = (double)growthRates.ViewsGrowthRate,
                 TotalReviews = reviews.Count,
                 AverageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0,
                 ReviewsThisMonth = reviewsThisMonth,
@@ -122,7 +124,7 @@ namespace TownTrek.Services
                 TotalFavorites = favorites.Count,
                 FavoritesThisMonth = favoritesThisMonth,
                 EngagementScore = engagementScore,
-                PerformanceTrend = DeterminePerformanceTrend(viewsGrowthRate, reviewsThisMonth, reviewsLastMonth),
+                PerformanceTrend = DeterminePerformanceTrend((double)growthRates.ViewsGrowthRate, reviewsThisMonth, reviewsLastMonth),
                 Recommendations = GenerateRecommendations(business, reviews, favorites)
             };
 

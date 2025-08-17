@@ -209,7 +209,7 @@ namespace TownTrek.Controllers.Client
                 }
 
                 // Verify user owns this business
-                var business = await _businessService.GetBusinessAsync(businessId);
+                var business = await _businessService.GetBusinessByIdAsync(businessId);
                 if (business == null || business.UserId != userId)
                 {
                     Response.StatusCode = 403;
@@ -286,6 +286,38 @@ namespace TownTrek.Controllers.Client
         }
 
 
+
+        // Test endpoint for creating analytics snapshots (remove in production)
+        [HttpPost]
+        public async Task<IActionResult> CreateTestSnapshot()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+                
+                // Only allow admin users or for testing
+                if (!User.IsInRole("Admin"))
+                {
+                    return Json(new { error = "Access denied" });
+                }
+
+                var snapshotService = HttpContext.RequestServices.GetRequiredService<IAnalyticsSnapshotService>();
+                
+                // Create snapshots for yesterday
+                var snapshotsCreated = await snapshotService.CreateDailySnapshotsAsync(DateTime.UtcNow.Date.AddDays(-1));
+                
+                return Json(new { 
+                    success = true, 
+                    message = $"Created {snapshotsCreated} snapshots for yesterday",
+                    snapshotsCreated = snapshotsCreated
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating test snapshots");
+                return Json(new { error = "Unable to create snapshots" });
+            }
+        }
 
         // Debug action to check subscription status (remove in production)
         public async Task<IActionResult> Debug()

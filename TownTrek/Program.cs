@@ -114,6 +114,8 @@ public class Program
         builder.Services.AddScoped<IMemberService, MemberService>();
         builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
         builder.Services.AddScoped<IViewTrackingService, ViewTrackingService>();
+        builder.Services.AddScoped<IAnalyticsSnapshotService, AnalyticsSnapshotService>();
+        builder.Services.AddHostedService<AnalyticsSnapshotBackgroundService>();
         builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
         builder.Services.AddScoped<IApplicationLogger, ApplicationLogger>();
         builder.Services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();

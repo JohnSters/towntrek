@@ -47,6 +47,7 @@ namespace TownTrek.Data
         
         // Analytics
         public DbSet<BusinessViewLog> BusinessViewLogs { get; set; }
+        public DbSet<AnalyticsSnapshot> AnalyticsSnapshots { get; set; }
         
         // Trial Security
         public DbSet<TrialAuditLog> TrialAuditLogs { get; set; }
@@ -585,6 +586,32 @@ namespace TownTrek.Data
                 entity.HasIndex(e => e.IsResolved).HasDatabaseName("IX_ErrorLogs_IsResolved");
                 entity.HasIndex(e => e.UserId).HasDatabaseName("IX_ErrorLogs_UserId");
                 entity.HasIndex(e => new { e.Timestamp, e.Severity }).HasDatabaseName("IX_ErrorLogs_Timestamp_Severity");
+            });
+
+            // Configure AnalyticsSnapshot
+            builder.Entity<AnalyticsSnapshot>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.SnapshotDate).HasColumnType("date");
+                entity.Property(e => e.TotalViews).HasDefaultValue(0);
+                entity.Property(e => e.TotalReviews).HasDefaultValue(0);
+                entity.Property(e => e.TotalFavorites).HasDefaultValue(0);
+                entity.Property(e => e.AverageRating).HasColumnType("decimal(3,2)");
+                entity.Property(e => e.EngagementScore).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+
+                // Foreign key relationship
+                entity.HasOne(e => e.Business)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                // Unique constraint to prevent duplicate snapshots for the same business and date
+                entity.HasIndex(e => new { e.BusinessId, e.SnapshotDate }).IsUnique();
+                
+                // Indexes for performance
+                entity.HasIndex(e => e.SnapshotDate).HasDatabaseName("IX_AnalyticsSnapshots_SnapshotDate");
+                entity.HasIndex(e => e.BusinessId).HasDatabaseName("IX_AnalyticsSnapshots_BusinessId");
             });
         }
 
