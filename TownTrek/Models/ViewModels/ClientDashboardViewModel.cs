@@ -16,6 +16,7 @@ namespace TownTrek.Models.ViewModels
         public string? PaymentStatus { get; set; }
         public bool CanAddBusiness { get; set; }
         public bool HasAnalyticsAccess { get; set; }
+        public bool HasAdvancedAnalyticsAccess { get; set; }
         public bool HasPrioritySupport { get; set; }
         public bool HasDedicatedSupport { get; set; }
         

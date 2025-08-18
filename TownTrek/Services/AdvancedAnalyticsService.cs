@@ -24,7 +24,7 @@ namespace TownTrek.Services
 
         #region Predictive Analytics
 
-        public async Task<PredictiveAnalyticsResponse> GetPredictiveAnalyticsAsync(string userId, int forecastDays = 30)
+        public Task<PredictiveAnalyticsResponse> GetPredictiveAnalyticsAsync(string userId, int forecastDays = 30)
         {
             try
             {
@@ -38,7 +38,7 @@ namespace TownTrek.Services
                     ConfidenceLevel = 0.85
                 };
 
-                return response;
+                return Task.FromResult(response);
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<PredictiveAnalyticsResponse> GetBusinessPredictiveAnalyticsAsync(int businessId, string userId, int forecastDays = 30)
+        public Task<PredictiveAnalyticsResponse> GetBusinessPredictiveAnalyticsAsync(int businessId, string userId, int forecastDays = 30)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace TownTrek.Services
                     ConfidenceLevel = 0.85
                 };
 
-                return response;
+                return Task.FromResult(response);
             }
             catch (Exception ex)
             {
@@ -70,18 +70,20 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<SeasonalPatternDto> AnalyzeSeasonalPatternsAsync(string userId, string metricType = "Views", int analysisDays = 365)
+        public Task<SeasonalPatternDto> AnalyzeSeasonalPatternsAsync(string userId, string metricType = "Views", int analysisDays = 365)
         {
             try
             {
                 _logger.LogInformation("Analyzing seasonal patterns for user {UserId} and metric {MetricType}", userId, metricType);
 
                 // Basic implementation - will expand in next edit
-                return new SeasonalPatternDto
+                var result = new SeasonalPatternDto
                 {
                     SeasonalityStrength = 0.5,
                     PrimarySeason = "Summer"
                 };
+
+                return Task.FromResult(result);
             }
             catch (Exception ex)
             {
@@ -90,14 +92,14 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<GrowthPrediction> GenerateGrowthPredictionAsync(string userId, string metricType = "Views")
+        public Task<GrowthPrediction> GenerateGrowthPredictionAsync(string userId, string metricType = "Views")
         {
             try
             {
                 _logger.LogInformation("Generating growth prediction for user {UserId} and metric {MetricType}", userId, metricType);
 
                 // Basic implementation - will expand in next edit
-                return new GrowthPrediction
+                var result = new GrowthPrediction
                 {
                     ShortTermGrowthRate = 5.0,
                     MediumTermGrowthRate = 10.0,
@@ -105,6 +107,8 @@ namespace TownTrek.Services
                     PredictedPeakDate = DateTime.UtcNow.AddDays(30),
                     PredictedPeakValue = 1000
                 };
+
+                return Task.FromResult(result);
             }
             catch (Exception ex)
             {
@@ -117,18 +121,20 @@ namespace TownTrek.Services
 
         #region Anomaly Detection
 
-        public async Task<AnomalyDetectionResponse> DetectAnomaliesAsync(string userId, int analysisDays = 30)
+        public Task<AnomalyDetectionResponse> DetectAnomaliesAsync(string userId, int analysisDays = 30)
         {
             try
             {
                 _logger.LogInformation("Detecting anomalies for user {UserId} with {AnalysisDays} days", userId, analysisDays);
 
                 // Basic implementation - will expand in next edit
-                return new AnomalyDetectionResponse
+                var result = new AnomalyDetectionResponse
                 {
                     AnalysisDays = analysisDays,
                     AnalysisDate = DateTime.UtcNow
                 };
+
+                return Task.FromResult(result);
             }
             catch (Exception ex)
             {
@@ -137,18 +143,20 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<AnomalyDetectionResponse> DetectBusinessAnomaliesAsync(int businessId, string userId, int analysisDays = 30)
+        public Task<AnomalyDetectionResponse> DetectBusinessAnomaliesAsync(int businessId, string userId, int analysisDays = 30)
         {
             try
             {
                 _logger.LogInformation("Detecting anomalies for business {BusinessId} and user {UserId}", businessId, userId);
 
                 // Basic implementation - will expand in next edit
-                return new AnomalyDetectionResponse
+                var result = new AnomalyDetectionResponse
                 {
                     AnalysisDays = analysisDays,
                     AnalysisDate = DateTime.UtcNow
                 };
+
+                return Task.FromResult(result);
             }
             catch (Exception ex)
             {
@@ -157,35 +165,35 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<bool> AcknowledgeAnomalyAsync(int anomalyId, string userId)
+        public Task<bool> AcknowledgeAnomalyAsync(int anomalyId, string userId)
         {
             try
             {
                 _logger.LogInformation("Acknowledging anomaly {AnomalyId} for user {UserId}", anomalyId, userId);
 
                 // Basic implementation - will expand in next edit
-                return true;
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error acknowledging anomaly {AnomalyId} for user {UserId}", anomalyId, userId);
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<List<AnomalyData>> GetUnacknowledgedAnomaliesAsync(string userId)
+        public Task<List<AnomalyData>> GetUnacknowledgedAnomaliesAsync(string userId)
         {
             try
             {
                 _logger.LogInformation("Getting unacknowledged anomalies for user {UserId}", userId);
 
                 // Basic implementation - will expand in next edit
-                return new List<AnomalyData>();
+                return Task.FromResult(new List<AnomalyData>());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting unacknowledged anomalies for user {UserId}", userId);
-                return new List<AnomalyData>();
+                return Task.FromResult(new List<AnomalyData>());
             }
         }
 
@@ -193,14 +201,14 @@ namespace TownTrek.Services
 
         #region Custom Metrics
 
-        public async Task<CustomMetricsResponse> GetCustomMetricsAsync(string userId)
+        public Task<CustomMetricsResponse> GetCustomMetricsAsync(string userId)
         {
             try
             {
                 _logger.LogInformation("Getting custom metrics for user {UserId}", userId);
 
                 // Basic implementation - will expand in next edit
-                return new CustomMetricsResponse();
+                return Task.FromResult(new CustomMetricsResponse());
             }
             catch (Exception ex)
             {
@@ -209,14 +217,14 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<CustomMetricDto> CreateCustomMetricAsync(CreateCustomMetricRequest request, string userId)
+        public Task<CustomMetricDto> CreateCustomMetricAsync(CreateCustomMetricRequest request, string userId)
         {
             try
             {
                 _logger.LogInformation("Creating custom metric for user {UserId}", userId);
 
                 // Basic implementation - will expand in next edit
-                return new CustomMetricDto
+                var result = new CustomMetricDto
                 {
                     Id = 1,
                     Name = request.Name,
@@ -227,6 +235,8 @@ namespace TownTrek.Services
                     IsUserDefined = true,
                     CreatedAt = DateTime.UtcNow
                 };
+
+                return Task.FromResult(result);
             }
             catch (Exception ex)
             {
@@ -235,14 +245,14 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<CustomMetricDto> UpdateCustomMetricAsync(int metricId, CreateCustomMetricRequest request, string userId)
+        public Task<CustomMetricDto> UpdateCustomMetricAsync(int metricId, CreateCustomMetricRequest request, string userId)
         {
             try
             {
                 _logger.LogInformation("Updating custom metric {MetricId} for user {UserId}", metricId, userId);
 
                 // Basic implementation - will expand in next edit
-                return new CustomMetricDto
+                var result = new CustomMetricDto
                 {
                     Id = metricId,
                     Name = request.Name,
@@ -253,6 +263,8 @@ namespace TownTrek.Services
                     IsUserDefined = true,
                     CreatedAt = DateTime.UtcNow
                 };
+
+                return Task.FromResult(result);
             }
             catch (Exception ex)
             {
@@ -261,46 +273,46 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<bool> DeleteCustomMetricAsync(int metricId, string userId)
+        public Task<bool> DeleteCustomMetricAsync(int metricId, string userId)
         {
             try
             {
                 _logger.LogInformation("Deleting custom metric {MetricId} for user {UserId}", metricId, userId);
 
                 // Basic implementation - will expand in next edit
-                return true;
+                return Task.FromResult(true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deleting custom metric {MetricId} for user {UserId}", metricId, userId);
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<double> CalculateCustomMetricAsync(int metricId, string userId)
+        public Task<double> CalculateCustomMetricAsync(int metricId, string userId)
         {
             try
             {
                 _logger.LogInformation("Calculating custom metric {MetricId} for user {UserId}", metricId, userId);
 
                 // Basic implementation - will expand in next edit
-                return 0.0;
+                return Task.FromResult(0.0);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error calculating custom metric {MetricId} for user {UserId}", metricId, userId);
-                return 0.0;
+                return Task.FromResult(0.0);
             }
         }
 
-        public async Task<GoalTracking> SetGoalAsync(SetGoalRequest request, string userId)
+        public Task<GoalTracking> SetGoalAsync(SetGoalRequest request, string userId)
         {
             try
             {
                 _logger.LogInformation("Setting goal for metric {MetricId} and user {UserId}", request.MetricId, userId);
 
                 // Basic implementation - will expand in next edit
-                return new GoalTracking
+                var result = new GoalTracking
                 {
                     MetricId = request.MetricId,
                     TargetValue = request.TargetValue,
@@ -308,6 +320,8 @@ namespace TownTrek.Services
                     Notes = request.Notes,
                     Status = "In Progress"
                 };
+
+                return Task.FromResult(result);
             }
             catch (Exception ex)
             {
@@ -316,33 +330,35 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task UpdateGoalProgressAsync(string userId)
+        public Task UpdateGoalProgressAsync(string userId)
         {
             try
             {
                 _logger.LogInformation("Updating goal progress for user {UserId}", userId);
 
                 // Basic implementation - will expand in next edit
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error updating goal progress for user {UserId}", userId);
+                return Task.CompletedTask;
             }
         }
 
-        public async Task<List<CustomMetricDto>> GetSystemMetricsAsync()
+        public Task<List<CustomMetricDto>> GetSystemMetricsAsync()
         {
             try
             {
                 _logger.LogInformation("Getting system metrics");
 
                 // Basic implementation - will expand in next edit
-                return new List<CustomMetricDto>();
+                return Task.FromResult(new List<CustomMetricDto>());
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting system metrics");
-                return new List<CustomMetricDto>();
+                return Task.FromResult(new List<CustomMetricDto>());
             }
         }
 
@@ -350,47 +366,51 @@ namespace TownTrek.Services
 
         #region Data Management
 
-        public async Task RunDailyAdvancedAnalyticsAsync()
+        public Task RunDailyAdvancedAnalyticsAsync()
         {
             try
             {
                 _logger.LogInformation("Running daily advanced analytics");
 
                 // Basic implementation - will expand in next edit
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error running daily advanced analytics");
+                return Task.CompletedTask;
             }
         }
 
-        public async Task CleanupOldDataAsync(int retentionDays = 730)
+        public Task CleanupOldDataAsync(int retentionDays = 730)
         {
             try
             {
                 _logger.LogInformation("Cleaning up old advanced analytics data with retention of {RetentionDays} days", retentionDays);
 
                 // Basic implementation - will expand in next edit
+                return Task.CompletedTask;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error cleaning up old advanced analytics data");
+                return Task.CompletedTask;
             }
         }
 
-        public async Task<bool> ValidateCustomMetricFormulaAsync(string formula, string userId)
+        public Task<bool> ValidateCustomMetricFormulaAsync(string formula, string userId)
         {
             try
             {
                 _logger.LogInformation("Validating custom metric formula for user {UserId}", userId);
 
                 // Basic implementation - will expand in next edit
-                return !string.IsNullOrWhiteSpace(formula);
+                return Task.FromResult(!string.IsNullOrWhiteSpace(formula));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error validating custom metric formula for user {UserId}", userId);
-                return false;
+                return Task.FromResult(false);
             }
         }
 

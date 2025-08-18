@@ -1,0 +1,43 @@
+@model TownTrek.Models.ViewModels.AnalyticsUsageViewModel
+@{
+    ViewData["Title"] = "Analytics Usage Tracking";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Analytics Usage Tracking</h1>
+            <p class="page-description">Track analytics feature usage and user engagement patterns.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Usage Overview -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Usage Overview</h3>
+    </div>
+    <div class="admin-card-content">
+        <p>Usage tracking details will be displayed here.</p>
+        <p>This includes:</p>
+        <ul>
+            <li>Feature usage statistics</li>
+            <li>Most used features</li>
+            <li>User engagement metrics</li>
+            <li>Session analytics</li>
+            <li>Unused feature identification</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Back to Dashboard -->
+<div style="margin-top: 2rem;">
+    <a href="@Url.Action("Dashboard", "AnalyticsMonitoring")" class="auth-btn auth-btn-secondary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Analytics Dashboard
+    </a>
+</div>

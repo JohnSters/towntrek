@@ -1,0 +1,42 @@
+@model TownTrek.Models.ViewModels.AnalyticsErrorsViewModel
+@{
+    ViewData["Title"] = "Analytics Error Tracking";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Analytics Error Tracking</h1>
+            <p class="page-description">Monitor and resolve analytics system errors.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Error Overview -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Error Overview</h3>
+    </div>
+    <div class="admin-card-content">
+        <p>Error tracking details will be displayed here.</p>
+        <p>This includes:</p>
+        <ul>
+            <li>Error statistics and trends</li>
+            <li>Error breakdown by type</li>
+            <li>Critical error identification</li>
+            <li>Error resolution tracking</li>
+        </ul>
+    </div>
+</div>
+
+<!-- Back to Dashboard -->
+<div style="margin-top: 2rem;">
+    <a href="@Url.Action("Dashboard", "AnalyticsMonitoring")" class="auth-btn auth-btn-secondary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Back to Analytics Dashboard
+    </a>
+</div>

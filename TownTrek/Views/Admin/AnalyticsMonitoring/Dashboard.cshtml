@@ -1,0 +1,181 @@
+@model TownTrek.Models.ViewModels.AnalyticsMonitoringDashboardViewModel
+@{
+    ViewData["Title"] = "Analytics Monitoring Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-content">
+        <div>
+            <h1 class="page-title">Analytics Monitoring Dashboard</h1>
+            <p class="page-description">Monitor analytics system performance, errors, and usage patterns.</p>
+        </div>
+        <div class="page-actions">
+            <a href="@Url.Action("Performance", "AnalyticsMonitoring")" class="auth-btn auth-btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Performance Details
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="stats-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1.5rem;">
+    <div class="stat-card">
+        <div class="stat-icon primary">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.PerformanceStats?.AveragePageLoadTime.ToString("F1") ms</div>
+        <div class="stat-label">Avg Page Load Time</div>
+        <div class="stat-change">Last 24 hours</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon @(Model.ErrorStats?.ErrorRate < 1 ? "success" : "warning")">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.ErrorStats?.ErrorRate.ToString("F2")%</div>
+        <div class="stat-label">Error Rate</div>
+        <div class="stat-change @(Model.ErrorStats != null && Model.ErrorStats.ErrorRate > 1 ? "negative" : "")">@Model.ErrorStats?.TotalErrors errors</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon info">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.UsageStats?.ActiveUsers.ToString("N0")</div>
+        <div class="stat-label">Active Analytics Users</div>
+        <div class="stat-change">Last 24 hours</div>
+    </div>
+
+    <div class="stat-card @(Model.HealthStatus?.Status == Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Healthy ? "" : "stat-card-danger")">
+        <div class="stat-icon @(Model.HealthStatus?.Status == Microsoft.Extensions.Diagnostics.HealthChecks.HealthStatus.Healthy ? "success" : "danger")">
+            <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-value">@Model.HealthStatus?.Status.ToString()</div>
+        <div class="stat-label">System Health</div>
+        <div class="stat-change">@DateTime.UtcNow.ToString("HH:mm")</div>
+    </div>
+</div>
+
+<!-- Recent Errors -->
+@if (Model.RecentErrors?.Any() == true)
+{
+    <div class="admin-card" style="margin-bottom: 2rem;">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">Recent Analytics Errors</h3>
+            <div class="admin-card-actions">
+                <a href="@Url.Action("Errors", "AnalyticsMonitoring")" class="header-btn" title="View All Errors">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        
+        <div class="activity-list">
+            @foreach (var error in Model.RecentErrors.Take(5))
+            {
+                <div class="activity-item">
+                    <div class="activity-icon @(error.Severity == "Critical" ? "danger" : error.Severity == "Error" ? "warning" : "info")">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">@error.Severity @error.ErrorType Error</div>
+                        <div class="activity-description">@error.ErrorMessage</div>
+                        <div class="activity-time">@((DateTime.UtcNow - error.OccurredAt).TotalHours < 1 ? 
+                            $"{(int)(DateTime.UtcNow - error.OccurredAt).TotalMinutes} minutes ago" : 
+                            $"{(int)(DateTime.UtcNow - error.OccurredAt).TotalHours} hours ago")</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Most Used Features -->
+@if (Model.MostUsedFeatures?.Any() == true)
+{
+    <div class="admin-card" style="margin-bottom: 2rem;">
+        <div class="admin-card-header">
+            <h3 class="admin-card-title">Most Used Analytics Features</h3>
+            <div class="admin-card-actions">
+                <a href="@Url.Action("Usage", "AnalyticsMonitoring")" class="header-btn" title="View Usage Details">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+        
+        <div class="activity-list">
+            @foreach (var feature in Model.MostUsedFeatures.Take(5))
+            {
+                <div class="activity-item">
+                    <div class="activity-icon primary">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">@feature.FeatureName</div>
+                        <div class="activity-description">@feature.UsageCount uses in last 24 hours</div>
+                        <div class="activity-time">@feature.AdoptionRate.ToString("F1")% adoption</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- Quick Actions -->
+<div class="admin-card">
+    <div class="admin-card-header">
+        <h3 class="admin-card-title">Quick Actions</h3>
+    </div>
+    
+    <div class="quick-actions-grid">
+        <a href="@Url.Action("Performance", "AnalyticsMonitoring")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <div class="quick-action-title">Performance Details</div>
+            <div class="quick-action-description">View detailed performance metrics</div>
+        </a>
+
+        <a href="@Url.Action("Errors", "AnalyticsMonitoring")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                </svg>
+            </div>
+            <div class="quick-action-title">Error Tracking</div>
+            <div class="quick-action-description">Monitor and resolve errors</div>
+        </a>
+
+        <a href="@Url.Action("Usage", "AnalyticsMonitoring")" class="quick-action-card">
+            <div class="quick-action-icon">
+                <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                </svg>
+            </div>
+            <div class="quick-action-title">Usage Analytics</div>
+            <div class="quick-action-description">Track feature usage patterns</div>
+        </a>
+    </div>
+</div>

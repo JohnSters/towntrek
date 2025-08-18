@@ -50,6 +50,7 @@ namespace TownTrek.Services
                 CanAddBusiness = authResult.Limits?.MaxBusinesses == -1 || (authResult.Limits?.CurrentBusinessCount < authResult.Limits?.MaxBusinesses),
                 // Everyone except active trial users can access analytics
                 HasAnalyticsAccess = !(trialStatus.IsTrialUser && !trialStatus.IsExpired),
+                HasAdvancedAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics"),
                 HasPrioritySupport = authResult.Limits?.HasPrioritySupport ?? false,
                 HasDedicatedSupport = authResult.Limits?.HasDedicatedSupport ?? false,
                 

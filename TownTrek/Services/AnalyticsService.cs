@@ -684,10 +684,10 @@ namespace TownTrek.Services
             return result;
         }
 
-        private async Task<AnalyticsOverview> GetAnalyticsOverviewAsync(string userId, List<BusinessAnalyticsData> businessAnalytics)
+        private Task<AnalyticsOverview> GetAnalyticsOverviewAsync(string userId, List<BusinessAnalyticsData> businessAnalytics)
         {
             // Implementation would calculate overview metrics
-            return new AnalyticsOverview
+            var overview = new AnalyticsOverview
             {
                 TotalBusinesses = businessAnalytics.Count,
                 TotalViews = businessAnalytics.Sum(b => b.TotalViews),
@@ -696,6 +696,7 @@ namespace TownTrek.Services
                 AverageRating = businessAnalytics.Any() ? businessAnalytics.Average(b => b.AverageRating) : 0,
                 AverageEngagementScore = businessAnalytics.Any() ? businessAnalytics.Average(b => b.EngagementScore) : 0
             };
+            return Task.FromResult(overview);
         }
 
         private List<ViewsOverTimeData> ProcessViewsOverTimeData(List<BusinessViewLog> viewLogs, DateTime startDate, DateTime endDate)
