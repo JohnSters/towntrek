@@ -10,6 +10,7 @@ class ClientAnalyticsManager {
         this.reviewsChart = null;
         this.isInitialized = false;
         this.chartJsAvailable = false;
+        this.interactionStartTime = Date.now();
     }
 
     // Static method to check if analytics should be initialized
@@ -27,11 +28,37 @@ class ClientAnalyticsManager {
             this.bindEvents();
             this.initializeCharts();
             this.setupAnimations();
+            this.trackFeatureUsage('AnalyticsDashboard', 'PageLoad');
             this.isInitialized = true;
             
             console.log('ClientAnalyticsManager initialized successfully');
         } catch (error) {
             console.error('Error initializing ClientAnalyticsManager:', error);
+        }
+    }
+
+    // Track feature usage for analytics monitoring
+    async trackFeatureUsage(featureName, interactionType, metadata = {}) {
+        try {
+            const duration = Date.now() - this.interactionStartTime;
+            const trackingData = {
+                featureName: featureName,
+                interactionType: interactionType,
+                duration: duration,
+                metadata: metadata
+            };
+
+            // Send tracking data to server
+            await fetch('/Client/Analytics/TrackUsage', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                },
+                body: JSON.stringify(trackingData)
+            });
+        } catch (error) {
+            console.warn('Failed to track feature usage:', error);
         }
     }
 
@@ -53,17 +80,40 @@ class ClientAnalyticsManager {
         if (viewsTimeRange) {
             viewsTimeRange.addEventListener('change', (e) => {
                 this.updateViewsChart(parseInt(e.target.value));
+                this.trackFeatureUsage('ViewsChart', 'TimeRangeChange', { days: e.target.value });
             });
         }
 
         if (reviewsTimeRange) {
             reviewsTimeRange.addEventListener('change', (e) => {
                 this.updateReviewsChart(parseInt(e.target.value));
+                this.trackFeatureUsage('ReviewsChart', 'TimeRangeChange', { days: e.target.value });
             });
         }
 
+        // Track chart interactions
+        this.setupChartInteractions();
+
         // Card hover effects
         this.setupCardHoverEffects();
+    }
+
+    setupChartInteractions() {
+        // Track chart hover interactions
+        const chartContainers = document.querySelectorAll('.chart-container');
+        chartContainers.forEach(container => {
+            container.addEventListener('mouseenter', () => {
+                this.trackFeatureUsage('ChartInteraction', 'Hover', { chartType: container.dataset.chartType || 'unknown' });
+            });
+        });
+
+        // Track chart click interactions
+        const charts = document.querySelectorAll('canvas');
+        charts.forEach(canvas => {
+            canvas.addEventListener('click', (e) => {
+                this.trackFeatureUsage('ChartInteraction', 'Click', { chartType: canvas.id || 'unknown' });
+            });
+        });
     }
 
     setupCardHoverEffects() {

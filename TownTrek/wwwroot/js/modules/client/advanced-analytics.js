@@ -5,7 +5,7 @@
 
 class AdvancedAnalyticsManager {
     constructor() {
-        this.baseUrl = '/client/advanced-analytics';
+        this.baseUrl = '/Client/AdvancedAnalytics';
         this.currentData = {
             predictive: null,
             anomalies: null,
@@ -48,6 +48,11 @@ class AdvancedAnalyticsManager {
         });
         document.getElementById('saveMetric')?.addEventListener('click', () => {
             this.createCustomMetric();
+        });
+
+        // Test Data Generation
+        document.getElementById('generateTestData')?.addEventListener('click', () => {
+            this.generateTestData();
         });
 
         // Modal events
@@ -331,17 +336,25 @@ class AdvancedAnalyticsManager {
 
     async createCustomMetric() {
         const form = document.getElementById('createMetricForm');
+        if (!form) return;
+
         const formData = new FormData(form);
-        const data = Object.fromEntries(formData.entries());
+        const metricData = {
+            name: formData.get('metricName'),
+            description: formData.get('metricDescription'),
+            type: formData.get('metricType'),
+            target: parseFloat(formData.get('metricTarget')) || 0,
+            unit: formData.get('metricUnit')
+        };
 
         try {
-            const response = await fetch(`${this.baseUrl}/metrics`, {
+            const response = await fetch(`${this.baseUrl}/CreateCustomMetric`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(metricData)
             });
 
             if (!response.ok) {
@@ -352,7 +365,9 @@ class AdvancedAnalyticsManager {
             
             // Close modal and refresh metrics
             const modal = bootstrap.Modal.getInstance(document.getElementById('createMetricModal'));
-            modal.hide();
+            if (modal) {
+                modal.hide();
+            }
             
             this.loadCustomMetrics();
             this.showSuccess('Custom metric created successfully!');
@@ -458,6 +473,51 @@ class AdvancedAnalyticsManager {
     showError(message) {
         // You can implement your preferred notification system here
         alert(message); // Placeholder - replace with proper notification
+    }
+
+    async generateTestData() {
+        try {
+            const button = document.getElementById('generateTestData');
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating...';
+            }
+
+            const response = await fetch(`${this.baseUrl}/GenerateTestData`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.success) {
+                this.showSuccess('Test data generated successfully! Refreshing data...');
+                
+                // Wait a moment then refresh all data
+                setTimeout(() => {
+                    this.loadInitialData();
+                }, 2000);
+            } else {
+                throw new Error(result.error || 'Failed to generate test data');
+            }
+
+        } catch (error) {
+            console.error('Error generating test data:', error);
+            this.showError('Failed to generate test data. Please try again.');
+        } finally {
+            const button = document.getElementById('generateTestData');
+            if (button) {
+                button.disabled = false;
+                button.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path></svg> Generate Test Data';
+            }
+        }
     }
 }
 

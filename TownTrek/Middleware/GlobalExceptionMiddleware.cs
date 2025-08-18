@@ -3,6 +3,7 @@ using System.Text.Json;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Middleware;
 
@@ -45,7 +46,45 @@ public class GlobalExceptionMiddleware
             // Log to database
             await LogErrorToDatabaseAsync(context, ex);
 
+            // Track analytics error if this is an analytics-related request
+            await TrackAnalyticsErrorAsync(context, ex);
+
             await HandleExceptionAsync(context, ex);
+        }
+    }
+
+    private async Task TrackAnalyticsErrorAsync(HttpContext context, Exception ex)
+    {
+        try
+        {
+            // Check if this is an analytics-related request
+            var path = context.Request.Path.Value?.ToLowerInvariant();
+            if (path != null && (path.Contains("analytics") || path.Contains("client/analytics") || path.Contains("admin/analyticsmonitoring")))
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var errorTracker = scope.ServiceProvider.GetService<IAnalyticsErrorTracker>();
+                
+                if (errorTracker != null)
+                {
+                    var userId = context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "anonymous";
+                    await errorTracker.TrackErrorAsync(
+                        userId,
+                        "GlobalException",
+                        ex.Message,
+                        ex.StackTrace,
+                        new Dictionary<string, object>
+                        {
+                            ["RequestPath"] = context.Request.Path.Value ?? "",
+                            ["RequestMethod"] = context.Request.Method,
+                            ["RequestId"] = context.TraceIdentifier
+                        }
+                    );
+                }
+            }
+        }
+        catch (Exception trackingEx)
+        {
+            _logger.LogError(trackingEx, "Failed to track analytics error");
         }
     }
 

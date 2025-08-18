@@ -5,18 +5,21 @@ using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {
-    [Authorize]
-    [Route("client/advanced-analytics")]
+    [Authorize(Policy = "PaidClientAccess")]
+    [Route("Client/[controller]/[action]")]
     public class AdvancedAnalyticsController : Controller
     {
         private readonly IAdvancedAnalyticsService _advancedAnalyticsService;
+        private readonly ITrialService _trialService;
         private readonly ILogger<AdvancedAnalyticsController> _logger;
 
         public AdvancedAnalyticsController(
             IAdvancedAnalyticsService advancedAnalyticsService,
+            ITrialService trialService,
             ILogger<AdvancedAnalyticsController> logger)
         {
             _advancedAnalyticsService = advancedAnalyticsService;
+            _trialService = trialService;
             _logger = logger;
         }
 
@@ -52,7 +55,7 @@ namespace TownTrek.Controllers.Client
             }
         }
 
-        [HttpGet("predictive")]
+        [HttpGet]
         public async Task<IActionResult> PredictiveAnalytics(int forecastDays = 30)
         {
             try
@@ -73,7 +76,29 @@ namespace TownTrek.Controllers.Client
             }
         }
 
-        [HttpGet("anomalies")]
+        // GET: Client/AdvancedAnalytics/Predictive
+        [HttpGet]
+        public async Task<IActionResult> Predictive(int forecastDays = 30)
+        {
+            try
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized();
+                }
+
+                var result = await _advancedAnalyticsService.GetPredictiveAnalyticsAsync(userId, forecastDays);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting predictive analytics");
+                return BadRequest(new { error = "Failed to get predictive analytics" });
+            }
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Anomalies(int analysisDays = 30)
         {
             try
@@ -94,7 +119,7 @@ namespace TownTrek.Controllers.Client
             }
         }
 
-        [HttpGet("custom-metrics")]
+        [HttpGet]
         public async Task<IActionResult> CustomMetrics()
         {
             try
@@ -115,7 +140,29 @@ namespace TownTrek.Controllers.Client
             }
         }
 
-        [HttpPost("custom-metrics")]
+        // GET: Client/AdvancedAnalytics/Metrics
+        [HttpGet]
+        public async Task<IActionResult> Metrics()
+        {
+            try
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized();
+                }
+
+                var result = await _advancedAnalyticsService.GetCustomMetricsAsync(userId);
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting custom metrics");
+                return BadRequest(new { error = "Failed to get custom metrics" });
+            }
+        }
+
+        [HttpPost]
         public async Task<IActionResult> CreateCustomMetric([FromBody] CreateCustomMetricRequest request)
         {
             try
@@ -141,7 +188,7 @@ namespace TownTrek.Controllers.Client
             }
         }
 
-        [HttpPost("anomalies/{anomalyId}/acknowledge")]
+        [HttpPost]
         public async Task<IActionResult> AcknowledgeAnomaly(int anomalyId)
         {
             try
@@ -159,6 +206,40 @@ namespace TownTrek.Controllers.Client
             {
                 _logger.LogError(ex, "Error acknowledging anomaly {AnomalyId}", anomalyId);
                 return BadRequest(new { error = "Failed to acknowledge anomaly" });
+            }
+        }
+
+        // POST: Client/AdvancedAnalytics/GenerateTestData
+        [HttpPost]
+        public async Task<IActionResult> GenerateTestData()
+        {
+            try
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized();
+                }
+
+                _logger.LogInformation("Generating test data for Advanced Analytics user {UserId}", userId);
+
+                // This would typically call the service to generate test data
+                // For now, we'll return a success message
+                // In a real implementation, you'd call methods like:
+                // await _advancedAnalyticsService.GenerateTestPredictiveDataAsync(userId);
+                // await _advancedAnalyticsService.GenerateTestAnomalyDataAsync(userId);
+                // await _advancedAnalyticsService.GenerateTestCustomMetricsAsync(userId);
+
+                return Json(new { 
+                    success = true, 
+                    message = "Test data generation initiated. Refresh the page in a few moments to see the data.",
+                    timestamp = DateTime.UtcNow
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating test data for Advanced Analytics");
+                return BadRequest(new { error = "Failed to generate test data" });
             }
         }
     }

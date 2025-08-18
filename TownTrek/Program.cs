@@ -194,6 +194,10 @@ public class Program
         builder.Services.AddScoped<IRealTimeAnalyticsService, RealTimeAnalyticsService>();
         builder.Services.AddHostedService<RealTimeAnalyticsBackgroundService>();
 
+        // Add missing service registrations
+        builder.Services.AddScoped<IAdvancedAnalyticsService, AdvancedAnalyticsService>();
+        builder.Services.AddScoped<IDashboardCustomizationService, DashboardCustomizationService>();
+
         // Add HTTP context accessor for security services
         builder.Services.AddHttpContextAccessor();
 

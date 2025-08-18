@@ -18,6 +18,15 @@
                 </svg>
                 Performance Details
             </a>
+            <form method="post" action="@Url.Action("GenerateTestData", "AnalyticsMonitoring")" style="display: inline;">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="auth-btn auth-btn-primary" style="margin-left: 0.5rem;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    Generate Test Data
+                </button>
+            </form>
         </div>
     </div>
 </div>

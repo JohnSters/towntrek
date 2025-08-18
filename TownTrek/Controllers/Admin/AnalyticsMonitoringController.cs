@@ -192,6 +192,83 @@ public class AnalyticsMonitoringController : Controller
         }
     }
 
+    // POST: Admin/AnalyticsMonitoring/GenerateTestData
+    [HttpPost]
+    public async Task<IActionResult> GenerateTestData()
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            
+            _logger.LogInformation("Generating test data for user {UserId}", userId);
+            
+            // Generate some test performance data
+            await _performanceMonitor.TrackAnalyticsPageLoadAsync(userId, TimeSpan.FromMilliseconds(1500), true);
+            await _performanceMonitor.TrackAnalyticsPageLoadAsync(userId, TimeSpan.FromMilliseconds(800), true);
+            await _performanceMonitor.TrackAnalyticsPageLoadAsync(userId, TimeSpan.FromMilliseconds(2200), false, "Timeout error");
+            
+            // Generate some test usage data
+            await _usageTracker.TrackFeatureUsageAsync(userId, "AnalyticsDashboard", TimeSpan.FromMilliseconds(5000));
+            await _usageTracker.TrackFeatureUsageAsync(userId, "ViewsChart", TimeSpan.FromMilliseconds(2000));
+            await _usageTracker.TrackFeatureUsageAsync(userId, "ReviewsChart", TimeSpan.FromMilliseconds(1500));
+            
+            // Generate some test error data
+            await _errorTracker.TrackErrorAsync(userId, "Chart", "Chart rendering failed", "Stack trace here");
+            await _errorTracker.TrackErrorAsync(userId, "Database", "Query timeout", "Database error stack trace");
+            
+            _logger.LogInformation("Test data generated successfully for user {UserId}", userId);
+            
+            TempData["SuccessMessage"] = "Test data generated successfully. Refresh the dashboard to see the results.";
+            return RedirectToAction("Dashboard");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error generating test data");
+            TempData["ErrorMessage"] = "Unable to generate test data. Please try again.";
+            return RedirectToAction("Dashboard");
+        }
+    }
+
+    // GET: Admin/AnalyticsMonitoring/TestSystem
+    [HttpGet]
+    public async Task<IActionResult> TestSystem()
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            
+            // Test performance tracking
+            await _performanceMonitor.TrackAnalyticsPageLoadAsync(userId, TimeSpan.FromMilliseconds(1000), true);
+            
+            // Test usage tracking
+            await _usageTracker.TrackFeatureUsageAsync(userId, "TestFeature", TimeSpan.FromMilliseconds(2000));
+            
+            // Test error tracking
+            await _errorTracker.TrackErrorAsync(userId, "Test", "Test error", "Test stack trace");
+            
+            // Get stats immediately
+            var performanceStats = await _performanceMonitor.GetPerformanceStatsAsync();
+            var usageStats = await _usageTracker.GetUsageStatsAsync();
+            var errorStats = await _errorTracker.GetErrorStatsAsync();
+            
+            var result = new
+            {
+                Success = true,
+                PerformanceStats = performanceStats,
+                UsageStats = usageStats,
+                ErrorStats = errorStats,
+                Message = "Test completed successfully"
+            };
+            
+            return Json(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error testing analytics system");
+            return Json(new { Success = false, Error = ex.Message });
+        }
+    }
+
     // GET: Admin/AnalyticsMonitoring/ExportData
     public async Task<IActionResult> ExportData(string dataType, DateTime? fromDate = null, DateTime? toDate = null)
     {

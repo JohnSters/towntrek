@@ -18,6 +18,8 @@ namespace TownTrek.Controllers.Client
         IBusinessService businessService,
         IAnalyticsAuditService analyticsAuditService,
         IAnalyticsExportService analyticsExportService,
+        IAnalyticsPerformanceMonitor performanceMonitor,
+        IAnalyticsUsageTracker usageTracker,
         ILogger<AnalyticsController> logger) : Controller
     {
         private readonly IAnalyticsService _analyticsService = analyticsService;
@@ -27,16 +29,20 @@ namespace TownTrek.Controllers.Client
         private readonly IBusinessService _businessService = businessService;
         private readonly IAnalyticsAuditService _analyticsAuditService = analyticsAuditService;
         private readonly IAnalyticsExportService _analyticsExportService = analyticsExportService;
+        private readonly IAnalyticsPerformanceMonitor _performanceMonitor = performanceMonitor;
+        private readonly IAnalyticsUsageTracker _usageTracker = usageTracker;
         private readonly ILogger<AnalyticsController> _logger = logger;
 
         // Analytics Dashboard - available to all non-trial authenticated clients with active subscription
         [EnableRateLimiting("AnalyticsRateLimit")]
         public async Task<IActionResult> Index()
         {
+            var startTime = DateTime.UtcNow;
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var isSuccess = false;
+
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-
                 // Block trial users from accessing analytics
                 var trialStatus = await _trialService.GetTrialStatusAsync(userId);
                 if (trialStatus.IsTrialUser && !trialStatus.IsExpired)
@@ -48,11 +54,15 @@ namespace TownTrek.Controllers.Client
                 // Log analytics access
                 await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "AnalyticsDashboard");
 
+                // Track feature usage
+                await _usageTracker.TrackFeatureUsageAsync(userId, "AnalyticsDashboard", TimeSpan.FromMilliseconds(100));
+
                 // Fast-path: If user has no businesses, show empty state without invoking full analytics
                 var userBusinesses = await _businessService.GetUserBusinessesAsync(userId);
                 if (userBusinesses == null || userBusinesses.Count == 0)
                 {
                     ViewBag.NoBusinesses = true;
+                    isSuccess = true;
                     return View(new Models.ViewModels.ClientAnalyticsViewModel
                     {
                         Businesses = new List<Models.Business>(),
@@ -71,6 +81,7 @@ namespace TownTrek.Controllers.Client
                 }
                 
                 var analyticsModel = await _analyticsCacheService.GetClientAnalyticsAsync(userId);
+                isSuccess = true;
                 
                 return View(analyticsModel);
             }
@@ -79,11 +90,11 @@ namespace TownTrek.Controllers.Client
                 _logger.LogError(ex, "Error loading analytics dashboard for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
                 try
                 {
-                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
                     var userBusinesses = await _businessService.GetUserBusinessesAsync(userId);
                     if (userBusinesses == null || userBusinesses.Count == 0)
                     {
                         ViewBag.NoBusinesses = true;
+                        isSuccess = true;
                         return View(new Models.ViewModels.ClientAnalyticsViewModel
                         {
                             Businesses = new List<Models.Business>(),
@@ -96,6 +107,12 @@ namespace TownTrek.Controllers.Client
 
                 TempData["ErrorMessage"] = "Unable to load analytics data. Please try again.";
                 return RedirectToAction("Dashboard", "Client");
+            }
+            finally
+            {
+                // Track performance
+                var loadTime = DateTime.UtcNow - startTime;
+                await _performanceMonitor.TrackAnalyticsPageLoadAsync(userId, loadTime, isSuccess);
             }
         }
 
@@ -1120,6 +1137,31 @@ namespace TownTrek.Controllers.Client
             {
                 _logger.LogError(ex, "Error loading user businesses");
                 return Json(new List<object>());
+            }
+        }
+
+        // POST: Client/Analytics/TrackUsage
+        [HttpPost]
+        public async Task<IActionResult> TrackUsage([FromBody] UsageTrackingRequest request)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+                
+                // Track the usage
+                await _usageTracker.TrackFeatureUsageAsync(
+                    userId, 
+                    request.FeatureName, 
+                    TimeSpan.FromMilliseconds(request.Duration),
+                    request.Metadata
+                );
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error tracking usage for user {UserId}", User.FindFirstValue(ClaimTypes.NameIdentifier));
+                return Json(new { success = false, error = "Failed to track usage" });
             }
         }
     }
