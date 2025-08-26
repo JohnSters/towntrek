@@ -1,0 +1,12 @@
+@model TownTrek.Models.ViewModels.CategoryBenchmarks
+
+<!-- Performance Overview -->
+<div class="benchmark-overview">
+    <div class="overview-card">
+        <h3>Overall Performance</h3>
+        <div class="performance-indicator @Model.YourPerformanceVsAverage.ToLower()">
+            <span class="performance-status">@Model.YourPerformanceVsAverage.ToUpper()</span>
+            <span class="performance-description">vs. category average</span>
+        </div>
+    </div>
+</div>

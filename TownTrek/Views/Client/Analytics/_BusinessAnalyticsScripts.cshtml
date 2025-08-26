@@ -1,0 +1,40 @@
+@model TownTrek.Models.ViewModels.BusinessAnalyticsData
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/features/client/analytics-core.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-charts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-realtime.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-export.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/modules/client/analytics-export.js" asp-append-version="true"></script>
+    <script>
+        // Simple page-specific functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate metric values
+            const metricValues = document.querySelectorAll('.metric-value');
+            metricValues.forEach(value => {
+                const text = value.textContent;
+                const number = parseFloat(text.replace(/[^0-9.]/g, ''));
+                if (!isNaN(number) && number > 0) {
+                    let current = 0;
+                    const increment = number / 30;
+                    const timer = setInterval(() => {
+                        current += increment;
+                        if (current >= number) {
+                            value.textContent = text;
+                            clearInterval(timer);
+                        } else {
+                            if (text.includes('.')) {
+                                value.textContent = current.toFixed(1);
+                            } else {
+                                value.textContent = Math.floor(current).toLocaleString();
+                            }
+                        }
+                    }, 50);
+                }
+            });
+        });
+    </script>
+}

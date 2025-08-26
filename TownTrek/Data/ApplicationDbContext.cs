@@ -767,7 +767,7 @@ namespace TownTrek.Data
                 entity.Property(e => e.IsSuccess).HasDefaultValue(true);
                 entity.Property(e => e.ErrorMessage).HasMaxLength(500);
                 entity.Property(e => e.Platform).HasMaxLength(100);
-                entity.Property(e => e.UserAgent).HasMaxLength(100);
+                entity.Property(e => e.UserAgent).HasMaxLength(500);
                 entity.Property(e => e.IpAddress).HasMaxLength(45);
                 entity.Property(e => e.Context).HasColumnType("nvarchar(max)");
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
@@ -801,7 +801,7 @@ namespace TownTrek.Data
                 entity.Property(e => e.IsResolved).HasDefaultValue(false);
                 entity.Property(e => e.ResolvedBy).HasMaxLength(450);
                 entity.Property(e => e.Platform).HasMaxLength(100);
-                entity.Property(e => e.UserAgent).HasMaxLength(100);
+                entity.Property(e => e.UserAgent).HasMaxLength(500);
                 entity.Property(e => e.IpAddress).HasMaxLength(45);
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
 
@@ -837,7 +837,7 @@ namespace TownTrek.Data
                 entity.Property(e => e.InteractionType).HasMaxLength(100);
                 entity.Property(e => e.Metadata).HasColumnType("nvarchar(max)");
                 entity.Property(e => e.Platform).HasMaxLength(100);
-                entity.Property(e => e.UserAgent).HasMaxLength(100);
+                entity.Property(e => e.UserAgent).HasMaxLength(500);
                 entity.Property(e => e.IpAddress).HasMaxLength(45);
                 entity.Property(e => e.SessionId).HasMaxLength(100);
                 entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");

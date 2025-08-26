@@ -1,0 +1,16 @@
+@model TownTrek.Models.ViewModels.BusinessAnalyticsData
+
+<div class="analytics-header">
+    <div class="header-content">
+        <nav class="breadcrumb">
+            <a asp-controller="ClientAnalytics" asp-action="Index">Analytics</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">@Model.BusinessName</span>
+        </nav>
+        <p class="page-subtitle">Detailed performance metrics and insights</p>
+    </div>
+    <div class="business-status">
+        <span class="status-badge @Model.Status.ToLower()">@Model.Status</span>
+        <span class="category-badge">@Model.Category</span>
+    </div>
+</div>

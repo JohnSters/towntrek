@@ -12,9 +12,9 @@ class AnalyticsCore {
         this.eventListeners = new Map();
         this.config = {
             apiEndpoints: {
-                trackUsage: '/Client/Analytics/TrackUsage',
-                viewsData: '/Client/Analytics/GetViewsChartData',
-                reviewsData: '/Client/Analytics/GetReviewsChartData'
+                trackUsage: '/Client/ClientAnalytics/TrackUsage',
+                viewsData: '/Client/ChartData/ViewsChartData',
+                reviewsData: '/Client/ChartData/ReviewsChartData'
             },
             chartDefaults: {
                 responsive: true,

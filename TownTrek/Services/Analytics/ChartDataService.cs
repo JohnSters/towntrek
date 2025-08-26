@@ -1,4 +1,5 @@
 using TownTrek.Constants;
+using TownTrek.Models.Exceptions;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
@@ -7,37 +8,38 @@ namespace TownTrek.Services.Analytics
     /// <summary>
     /// Service for chart data processing and formatting
     /// </summary>
-    public class ChartDataService : IChartDataService
+    public class ChartDataService(
+        IAnalyticsService analyticsService,
+        IAnalyticsValidationService validationService,
+        IAnalyticsEventService eventService,
+        IAnalyticsErrorHandler errorHandler,
+        ILogger<ChartDataService> logger) : IChartDataService
     {
-        private readonly IAnalyticsService _analyticsService;
-        private readonly IAnalyticsValidationService _validationService;
-        private readonly IAnalyticsEventService _eventService;
-        private readonly ILogger<ChartDataService> _logger;
-
-        public ChartDataService(
-            IAnalyticsService analyticsService,
-            IAnalyticsValidationService validationService,
-            IAnalyticsEventService eventService,
-            ILogger<ChartDataService> logger)
-        {
-            _analyticsService = analyticsService;
-            _validationService = validationService;
-            _eventService = eventService;
-            _logger = logger;
-        }
+        private readonly IAnalyticsService _analyticsService = analyticsService;
+        private readonly IAnalyticsValidationService _validationService = validationService;
+        private readonly IAnalyticsEventService _eventService = eventService;
+        private readonly IAnalyticsErrorHandler _errorHandler = errorHandler;
+        private readonly ILogger<ChartDataService> _logger = logger;
 
         /// <summary>
         /// Gets pre-formatted views chart data for Chart.js
         /// </summary>
         public async Task<ViewsChartDataResponse> GetViewsChartDataAsync(string userId, int days = 30, string? platform = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Validate parameters
                 var validation = _validationService.ValidateChartDataRequest(userId, days, platform);
                 if (!validation.IsValid)
                 {
-                    throw new ArgumentException(validation.ErrorMessage);
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        validation.ErrorMessage,
+                        userId,
+                        "ChartDataRequest",
+                        "InvalidRequest",
+                        new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform }
+                    );
+                    throw new AnalyticsValidationException(validation.ErrorMessage, "ChartDataRequest", "InvalidRequest");
                 }
 
                 // Record analytics access event
@@ -60,13 +62,7 @@ namespace TownTrek.Services.Analytics
                         }
                     }
                 };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting views chart data for UserId {UserId}", userId);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetViewsChartData", ex.Message, new { UserId = userId, Days = days, Platform = platform });
-                throw;
-            }
+            }, userId, "GetViewsChartData", new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform });
         }
 
         /// <summary>
@@ -74,13 +70,20 @@ namespace TownTrek.Services.Analytics
         /// </summary>
         public async Task<ReviewsChartDataResponse> GetReviewsChartDataAsync(string userId, int days = 30)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Validate parameters
                 var validation = _validationService.ValidateChartDataRequest(userId, days);
                 if (!validation.IsValid)
                 {
-                    throw new ArgumentException(validation.ErrorMessage);
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        validation.ErrorMessage,
+                        userId,
+                        "ChartDataRequest",
+                        "InvalidRequest",
+                        new Dictionary<string, object> { ["Days"] = days }
+                    );
+                    throw new AnalyticsValidationException(validation.ErrorMessage, "ChartDataRequest", "InvalidRequest");
                 }
 
                 // Record analytics access event
@@ -103,13 +106,7 @@ namespace TownTrek.Services.Analytics
                         }
                     }
                 };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting reviews chart data for UserId {UserId}", userId);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetReviewsChartData", ex.Message, new { UserId = userId, Days = days });
-                throw;
-            }
+            }, userId, "GetReviewsChartData", new Dictionary<string, object> { ["Days"] = days });
         }
     }
 }

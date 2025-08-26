@@ -1,0 +1,110 @@
+@model TownTrek.Models.ViewModels.ComparativeAnalysisResponse
+
+<!-- Comparison Overview -->
+<div class="comparison-overview">
+    <div class="overview-grid">
+        <!-- Overall Trend -->
+        <div class="overview-card trend-card">
+            <div class="card-header">
+                <h3>Overall Trend</h3>
+                <span class="trend-indicator @Model.ComparisonMetrics.OverallTrend.ToLower()">
+                    @Model.ComparisonMetrics.OverallTrend
+                </span>
+            </div>
+            <div class="card-content">
+                <div class="trend-metrics">
+                    <div class="metric">
+                        <span class="label">Performance Rating:</span>
+                        <span class="value @Model.ComparisonMetrics.PerformanceRating.ToLower()">
+                            @Model.ComparisonMetrics.PerformanceRating
+                        </span>
+                    </div>
+                    <div class="key-changes">
+                        @foreach (var change in Model.ComparisonMetrics.KeyChanges.Take(3))
+                        {
+                            <span class="change-badge">@change</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Views Comparison -->
+        <div class="overview-card">
+            <div class="card-header">
+                <h3>Views</h3>
+                <span class="change-percent @(Model.ComparisonMetrics.ViewsChangePercent >= 0 ? "positive" : "negative")">
+                    @(Model.ComparisonMetrics.ViewsChangePercent >= 0 ? "+" : "")@Model.ComparisonMetrics.ViewsChangePercent.ToString("F1")%
+                </span>
+            </div>
+            <div class="card-content">
+                <div class="comparison-stats">
+                    <div class="stat">
+                        <span class="label">Current Period:</span>
+                        <span class="value">@Model.CurrentPeriod.TotalViews.ToString("N0")</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Previous Period:</span>
+                        <span class="value">@Model.PreviousPeriod.TotalViews.ToString("N0")</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Avg/Day:</span>
+                        <span class="value">@Model.CurrentPeriod.AverageViewsPerDay.ToString("F1")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Comparison -->
+        <div class="overview-card">
+            <div class="card-header">
+                <h3>Reviews</h3>
+                <span class="change-percent @(Model.ComparisonMetrics.ReviewsChangePercent >= 0 ? "positive" : "negative")">
+                    @(Model.ComparisonMetrics.ReviewsChangePercent >= 0 ? "+" : "")@Model.ComparisonMetrics.ReviewsChangePercent.ToString("F1")%
+                </span>
+            </div>
+            <div class="card-content">
+                <div class="comparison-stats">
+                    <div class="stat">
+                        <span class="label">Current Period:</span>
+                        <span class="value">@Model.CurrentPeriod.TotalReviews.ToString("N0")</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Previous Period:</span>
+                        <span class="value">@Model.PreviousPeriod.TotalReviews.ToString("N0")</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Avg/Day:</span>
+                        <span class="value">@Model.CurrentPeriod.AverageReviewsPerDay.ToString("F1")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Comparison -->
+        <div class="overview-card">
+            <div class="card-header">
+                <h3>Average Rating</h3>
+                <span class="change-percent @(Model.ComparisonMetrics.RatingChangePercent >= 0 ? "positive" : "negative")">
+                    @(Model.ComparisonMetrics.RatingChangePercent >= 0 ? "+" : "")@Model.ComparisonMetrics.RatingChangePercent.ToString("F1")%
+                </span>
+            </div>
+            <div class="card-content">
+                <div class="comparison-stats">
+                    <div class="stat">
+                        <span class="label">Current Period:</span>
+                        <span class="value">@Model.CurrentPeriod.AverageRating.ToString("F1")</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Previous Period:</span>
+                        <span class="value">@Model.PreviousPeriod.AverageRating.ToString("F1")</span>
+                    </div>
+                    <div class="stat">
+                        <span class="label">Engagement Score:</span>
+                        <span class="value">@Model.CurrentPeriod.EngagementScore.ToString("F1")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

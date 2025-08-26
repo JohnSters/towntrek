@@ -1,5 +1,6 @@
 using TownTrek.Constants;
 using TownTrek.Models;
+using TownTrek.Models.Exceptions;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
@@ -12,22 +13,31 @@ namespace TownTrek.Services.Analytics
         IAnalyticsDataService dataService,
         IAnalyticsValidationService validationService,
         IAnalyticsEventService eventService,
+        IAnalyticsErrorHandler errorHandler,
         ILogger<ComparativeAnalysisService> logger) : IComparativeAnalysisService
     {
         private readonly IAnalyticsDataService _dataService = dataService;
         private readonly IAnalyticsValidationService _validationService = validationService;
         private readonly IAnalyticsEventService _eventService = eventService;
+        private readonly IAnalyticsErrorHandler _errorHandler = errorHandler;
         private readonly ILogger<ComparativeAnalysisService> _logger = logger;
 
         public async Task<ComparativeAnalysisResponse> GetComparativeAnalysisAsync(string userId, ComparativeAnalysisRequest request)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Validate request
                 var validation = _validationService.ValidateComparativeAnalysisRequest(request);
                 if (!validation.IsValid)
                 {
-                    throw new ArgumentException(validation.ErrorMessage);
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        validation.ErrorMessage,
+                        userId,
+                        "ComparativeAnalysisRequest",
+                        "InvalidRequest",
+                        new Dictionary<string, object> { ["Request"] = request }
+                    );
+                    throw new AnalyticsValidationException(validation.ErrorMessage, "ComparativeAnalysisRequest", "InvalidRequest");
                 }
 
                 // Record analytics access event
@@ -46,20 +56,21 @@ namespace TownTrek.Services.Analytics
                             request.PreviousPeriodStart ?? DateTime.MinValue, request.PreviousPeriodEnd ?? DateTime.MinValue, 
                             request.BusinessId, request.Platform);
                     default:
-                        throw new ArgumentException($"Unsupported comparison type: {request.ComparisonType}");
+                        await _errorHandler.HandleValidationExceptionAsync(
+                            $"Unsupported comparison type: {request.ComparisonType}",
+                            userId,
+                            "ComparisonType",
+                            "UnsupportedType",
+                            new Dictionary<string, object> { ["ComparisonType"] = request.ComparisonType }
+                        );
+                        throw new AnalyticsValidationException($"Unsupported comparison type: {request.ComparisonType}", "ComparisonType", "UnsupportedType");
                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting comparative analysis for UserId {UserId}", userId);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetComparativeAnalysis", ex.Message, new { UserId = userId, Request = request });
-                throw;
-            }
+            }, userId, "GetComparativeAnalysis", new Dictionary<string, object> { ["Request"] = request });
         }
 
         public async Task<ComparativeAnalysisResponse> GetPeriodOverPeriodComparisonAsync(string userId, int? businessId = null, string comparisonType = "MonthOverMonth", string? platform = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Record analytics access event
                 await _eventService.RecordAnalyticsAccessEventAsync(userId, "PeriodOverPeriodComparison", new { BusinessId = businessId, ComparisonType = comparisonType, Platform = platform });
@@ -78,18 +89,12 @@ namespace TownTrek.Services.Analytics
                 var previousEnd = currentStart.AddDays(-1);
 
                 return await GetCustomRangeComparisonAsync(userId, currentStart, endDate, previousStart, previousEnd, businessId, platform);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting period over period comparison for UserId {UserId}", userId);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetPeriodOverPeriodComparison", ex.Message, new { UserId = userId, BusinessId = businessId, ComparisonType = comparisonType, Platform = platform });
-                throw;
-            }
+            }, userId, "GetPeriodOverPeriodComparison", new Dictionary<string, object> { ["BusinessId"] = businessId, ["ComparisonType"] = comparisonType, ["Platform"] = platform });
         }
 
         public async Task<ComparativeAnalysisResponse> GetYearOverYearComparisonAsync(string userId, int? businessId = null, string? platform = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Record analytics access event
                 await _eventService.RecordAnalyticsAccessEventAsync(userId, "YearOverYearComparison", new { BusinessId = businessId, Platform = platform });
@@ -100,18 +105,12 @@ namespace TownTrek.Services.Analytics
                 var previousEnd = currentStart.AddDays(-1);
 
                 return await GetCustomRangeComparisonAsync(userId, currentStart, endDate, previousStart, previousEnd, businessId, platform);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting year over year comparison for UserId {UserId}", userId);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetYearOverYearComparison", ex.Message, new { UserId = userId, BusinessId = businessId, Platform = platform });
-                throw;
-            }
+            }, userId, "GetYearOverYearComparison", new Dictionary<string, object> { ["BusinessId"] = businessId, ["Platform"] = platform });
         }
 
         public async Task<ComparativeAnalysisResponse> GetCustomRangeComparisonAsync(string userId, DateTime currentStart, DateTime currentEnd, DateTime previousStart, DateTime previousEnd, int? businessId = null, string? platform = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Record analytics access event
                 await _eventService.RecordAnalyticsAccessEventAsync(userId, "CustomRangeComparison", new { BusinessId = businessId, Platform = platform, CurrentStart = currentStart, CurrentEnd = currentEnd, PreviousStart = previousStart, PreviousEnd = previousEnd });
@@ -175,13 +174,7 @@ namespace TownTrek.Services.Analytics
                     },
                     Insights = GenerateComparativeInsights(comparisonMetrics)
                 };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting custom range comparison for UserId {UserId}", userId);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetCustomRangeComparison", ex.Message, new { UserId = userId, BusinessId = businessId, Platform = platform, CurrentStart = currentStart, CurrentEnd = currentEnd, PreviousStart = previousStart, PreviousEnd = previousEnd });
-                throw;
-            }
+            }, userId, "GetCustomRangeComparison", new Dictionary<string, object> { ["BusinessId"] = businessId, ["Platform"] = platform, ["CurrentStart"] = currentStart, ["CurrentEnd"] = currentEnd, ["PreviousStart"] = previousStart, ["PreviousEnd"] = previousEnd });
         }
 
         // Private helper methods

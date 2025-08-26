@@ -1,0 +1,22 @@
+@model TownTrek.Models.ViewModels.ComparativeAnalysisResponse
+
+<!-- Insights -->
+@if (Model.Insights.Any())
+{
+    <div class="insights-section">
+        <div class="section-header">
+            <h2>Key Insights</h2>
+            <p>Analysis of your performance trends</p>
+        </div>
+        
+        <div class="insights-grid">
+            @foreach (var insight in Model.Insights)
+            {
+                <div class="insight-card">
+                    <i class="fas fa-lightbulb"></i>
+                    <p>@insight</p>
+                </div>
+            }
+        </div>
+    </div>
+}

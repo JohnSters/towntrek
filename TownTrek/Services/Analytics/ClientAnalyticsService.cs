@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Constants;
 using TownTrek.Data;
 using TownTrek.Models;
+using TownTrek.Models.Exceptions;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
@@ -18,6 +19,7 @@ namespace TownTrek.Services.Analytics
         ISubscriptionAuthService subscriptionAuthService,
         IViewTrackingService viewTrackingService,
         IAnalyticsSnapshotService analyticsSnapshotService,
+        IAnalyticsErrorHandler errorHandler,
         ILogger<ClientAnalyticsService> logger) : IClientAnalyticsService
     {
         private readonly IAnalyticsDataService _dataService = dataService;
@@ -26,25 +28,42 @@ namespace TownTrek.Services.Analytics
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly IViewTrackingService _viewTrackingService = viewTrackingService;
         private readonly IAnalyticsSnapshotService _analyticsSnapshotService = analyticsSnapshotService;
+        private readonly IAnalyticsErrorHandler _errorHandler = errorHandler;
         private readonly ILogger<ClientAnalyticsService> _logger = logger;
 
         public async Task<ClientAnalyticsViewModel> GetClientAnalyticsAsync(string userId)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Validate user ID
                 var userValidation = await _validationService.ValidateUserIdAsync(userId);
                 if (!userValidation.IsValid)
                 {
-                    _logger.LogWarning("Analytics access denied: {ErrorMessage} for UserId {UserId}", userValidation.ErrorMessage, userId);
-                    throw new ArgumentException(userValidation.ErrorMessage, nameof(userId));
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        userValidation.ErrorMessage,
+                        userId,
+                        "UserId",
+                        "UserValidation",
+                        new Dictionary<string, object> { ["UserId"] = userId }
+                    );
+                    throw new AnalyticsValidationException(userValidation.ErrorMessage, "UserId", "UserValidation");
                 }
 
                 // Record analytics access event
                 await _eventService.RecordAnalyticsAccessEventAsync(userId, "ClientAnalytics");
 
                 var user = await _dataService.GetUserAsync(userId);
-                if (user == null) throw new ArgumentException("User not found", nameof(userId));
+                if (user == null)
+                {
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        "User not found",
+                        userId,
+                        "UserId",
+                        "UserExists",
+                        new Dictionary<string, object> { ["UserId"] = userId }
+                    );
+                    throw new AnalyticsValidationException("User not found", "UserId", "UserExists");
+                }
 
                 // All non-trial users get the same analytics experience.
                 var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
@@ -89,13 +108,7 @@ namespace TownTrek.Services.Analytics
                 }
 
                 return model;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting client analytics for UserId {UserId}", userId);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetClientAnalytics", ex.Message, new { UserId = userId });
-                throw;
-            }
+            }, userId, "GetClientAnalytics", new Dictionary<string, object> { ["UserId"] = userId });
         }
 
         public async Task<BusinessAnalyticsData> GetBusinessAnalyticsAsync(int businessId, string userId)
@@ -315,7 +328,7 @@ namespace TownTrek.Services.Analytics
                 foreach (var business in businesses)
                 {
                     // Get competitors in the same category and town
-                    var competitors = await _dataService.GetCompetitorBusinessesAsync(business.Category, business.Town?.Name, business.Id);
+                    var competitors = await _dataService.GetCompetitorBusinessesAsync(business.Id, business.Category, business.Town?.Name ?? "Unknown");
                     if (!competitors.Any()) continue;
 
                     var competitorIds = competitors.Select(c => c.Id).ToList();
@@ -335,8 +348,8 @@ namespace TownTrek.Services.Analytics
                         UserViews = businessAnalytics.TotalViews,
                         UserReviews = businessAnalytics.TotalReviews,
                         UserRating = businessAnalytics.AverageRating,
-                        ViewsRank = GetRank(businessAnalytics.TotalViews, competitorAnalytics.Select(a => a.TotalViews)),
-                        ReviewsRank = GetRank(businessAnalytics.TotalReviews, competitorAnalytics.Select(a => a.TotalReviews)),
+                        ViewsRank = GetRank((double)businessAnalytics.TotalViews, competitorAnalytics.Select(a => (double)a.TotalViews)),
+                        ReviewsRank = GetRank((double)businessAnalytics.TotalReviews, competitorAnalytics.Select(a => (double)a.TotalReviews)),
                         RatingRank = GetRank(businessAnalytics.AverageRating, competitorAnalytics.Select(a => a.AverageRating)),
                         Recommendations = GenerateCompetitorRecommendations(businessAnalytics, competitorAnalytics)
                     };
@@ -379,7 +392,7 @@ namespace TownTrek.Services.Analytics
                 TotalFavorites = businessAnalytics.Sum(a => a.TotalFavorites),
                 AverageRating = businessAnalytics.Average(a => a.AverageRating),
                 AverageEngagementScore = businessAnalytics.Average(a => a.EngagementScore),
-                TopPerformingBusiness = businessAnalytics.OrderByDescending(a => a.EngagementScore).First()
+                TopPerformingBusiness = businessAnalytics.OrderByDescending(a => a.EngagementScore).First()?.BusinessName ?? "None"
             };
         }
 
@@ -479,9 +492,21 @@ namespace TownTrek.Services.Analytics
             return recommendations;
         }
 
-        private List<BusinessAnalyticsData> GetTopPerformers(List<BusinessAnalyticsData> analytics, int count)
+        private List<CompetitorInsight> GetTopPerformers(List<BusinessAnalyticsData> analytics, int count)
         {
-            return analytics.OrderByDescending(a => a.EngagementScore).Take(count).ToList();
+            return analytics.OrderByDescending(a => a.EngagementScore)
+                .Take(count)
+                .Select(a => new CompetitorInsight
+                {
+                    BusinessId = a.BusinessId,
+                    BusinessName = a.BusinessName,
+                    Category = a.Category,
+                    Town = a.Town,
+                    AverageCompetitorViews = a.TotalViews,
+                    AverageCompetitorReviews = a.TotalReviews,
+                    AverageCompetitorRating = a.AverageRating
+                })
+                .ToList();
         }
 
         private List<string> GenerateCategoryInsights(List<BusinessAnalyticsData> userAnalytics, List<BusinessAnalyticsData> competitorAnalytics)

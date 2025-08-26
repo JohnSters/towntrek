@@ -1,0 +1,51 @@
+@model List<TownTrek.Models.ViewModels.CompetitorInsight>
+
+<div class="competitors-grid">
+    @foreach (var insight in Model)
+    {
+        <div class="competitor-card">
+            <div class="competitor-header">
+                <h3>@insight.Category</h3>
+                <span class="market-position @insight.MarketPosition.ToLower()">
+                    @insight.MarketPosition
+                </span>
+            </div>
+            
+            <div class="competitor-metrics">
+                <div class="metric">
+                    <span class="metric-label">Your Rank</span>
+                    <span class="metric-value">#@insight.YourRank</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Total Competitors</span>
+                    <span class="metric-value">@insight.TotalCompetitors</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Market Share</span>
+                    <span class="metric-value">@insight.MarketSharePercentage.ToString("F1")%</span>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(insight.KeyInsight))
+            {
+                <div class="competitor-insight">
+                    <h4>Key Insight</h4>
+                    <p>@insight.KeyInsight</p>
+                </div>
+            }
+
+            @if (insight.Recommendations.Any())
+            {
+                <div class="competitor-recommendations">
+                    <h4>Recommendations</h4>
+                    <ul>
+                        @foreach (var recommendation in insight.Recommendations.Take(3))
+                        {
+                            <li>@recommendation</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    }
+</div>

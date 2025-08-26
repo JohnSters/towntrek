@@ -33,7 +33,7 @@ public class AnalyticsPerformanceLog
     [MaxLength(100)]
     public string? Platform { get; set; } // Web, Mobile, API
 
-    [MaxLength(100)]
+    [MaxLength(500)]
     public string? UserAgent { get; set; }
 
     [MaxLength(45)]

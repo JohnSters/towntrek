@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Text;
 using TownTrek.Data;
 using TownTrek.Models;
+using TownTrek.Models.Exceptions;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -22,17 +23,19 @@ namespace TownTrek.Services.Analytics
         IAnalyticsService analyticsService,
         IAnalyticsCacheService analyticsCacheService,
         IEmailService emailService,
+        IAnalyticsErrorHandler errorHandler,
         ILogger<AnalyticsExportService> logger) : IAnalyticsExportService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IAnalyticsService _analyticsService = analyticsService;
         private readonly IAnalyticsCacheService _analyticsCacheService = analyticsCacheService;
         private readonly IEmailService _emailService = emailService;
+        private readonly IAnalyticsErrorHandler _errorHandler = errorHandler;
         private readonly ILogger<AnalyticsExportService> _logger = logger;
 
         public async Task<byte[]> GenerateBusinessAnalyticsPdfAsync(int businessId, string userId, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Verify user owns this business
                 var business = await _context.Businesses
@@ -40,7 +43,16 @@ namespace TownTrek.Services.Analytics
                     .FirstOrDefaultAsync(b => b.Id == businessId && b.UserId == userId);
 
                 if (business == null)
-                    throw new ArgumentException("Business not found or access denied");
+                {
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        "Business not found or access denied",
+                        userId,
+                        "BusinessAccess",
+                        "AccessDenied",
+                        new Dictionary<string, object> { ["BusinessId"] = businessId }
+                    );
+                    throw new AnalyticsValidationException("Business not found or access denied", "BusinessAccess", "AccessDenied");
+                }
 
                 // Get analytics data
                 var analytics = await _analyticsCacheService.GetBusinessAnalyticsAsync(businessId, userId);
@@ -131,17 +143,12 @@ namespace TownTrek.Services.Analytics
                 document.Close();
 
                 return memoryStream.ToArray();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error generating business analytics PDF for business {BusinessId}", businessId);
-                throw;
-            }
+            }, userId, "GenerateBusinessAnalyticsPdf", new Dictionary<string, object> { ["BusinessId"] = businessId, ["FromDate"] = fromDate, ["ToDate"] = toDate });
         }
 
         public async Task<byte[]> GenerateClientAnalyticsPdfAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Get analytics data
                 var analytics = await _analyticsCacheService.GetClientAnalyticsAsync(userId);
@@ -219,17 +226,16 @@ namespace TownTrek.Services.Analytics
                 document.Close();
 
                 return memoryStream.ToArray();
-            }
-            catch (Exception ex)
+            }, userId, "PDFGeneration", new Dictionary<string, object>
             {
-                _logger.LogError(ex, "Error generating client analytics PDF for user {UserId}", userId);
-                throw;
-            }
+                ["FromDate"] = fromDate,
+                ["ToDate"] = toDate
+            });
         }
 
         public async Task<byte[]> ExportAnalyticsCsvAsync(string userId, string dataType, DateTime? fromDate = null, DateTime? toDate = null, int? businessId = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 fromDate ??= DateTime.UtcNow.AddDays(-30);
                 toDate ??= DateTime.UtcNow;
@@ -250,22 +256,30 @@ namespace TownTrek.Services.Analytics
                         await ExportPerformanceDataAsync(csv, userId, fromDate.Value, toDate.Value, businessId);
                         break;
                     default:
-                        throw new ArgumentException($"Unsupported data type: {dataType}");
+                        await _errorHandler.HandleValidationExceptionAsync(
+                            $"Unsupported data type: {dataType}",
+                            userId,
+                            "DataExport",
+                            "UnsupportedDataType",
+                            new Dictionary<string, object> { ["DataType"] = dataType }
+                        );
+                        throw new AnalyticsValidationException($"Unsupported data type: {dataType}", "DataExport", "UnsupportedDataType");
                 }
 
                 writer.Flush();
                 return memoryStream.ToArray();
-            }
-            catch (Exception ex)
+            }, userId, "ExportAnalyticsCsv", new Dictionary<string, object>
             {
-                _logger.LogError(ex, "Error exporting analytics CSV for user {UserId}, data type {DataType}", userId, dataType);
-                throw;
-            }
+                ["DataType"] = dataType,
+                ["FromDate"] = fromDate,
+                ["ToDate"] = toDate,
+                ["BusinessId"] = businessId
+            });
         }
 
         public async Task<string> GenerateShareableLinkAsync(string userId, string dashboardType, int? businessId = null, DateTime? expiresAt = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Verify user owns the business if specified
                 if (businessId.HasValue)
@@ -273,7 +287,16 @@ namespace TownTrek.Services.Analytics
                     var business = await _context.Businesses
                         .FirstOrDefaultAsync(b => b.Id == businessId.Value && b.UserId == userId);
                     if (business == null)
-                        throw new ArgumentException("Business not found or access denied");
+                    {
+                        await _errorHandler.HandleValidationExceptionAsync(
+                            "Business not found or access denied",
+                            userId,
+                            "BusinessAccess",
+                            "AccessDenied",
+                            new Dictionary<string, object> { ["BusinessId"] = businessId.Value }
+                        );
+                        throw new AnalyticsValidationException("Business not found or access denied", "BusinessAccess", "AccessDenied");
+                    }
                 }
 
                 // Generate unique token
@@ -296,18 +319,23 @@ namespace TownTrek.Services.Analytics
                 await _context.SaveChangesAsync();
 
                 return token;
-            }
-            catch (Exception ex)
+            }, userId, "GenerateShareableLink", new Dictionary<string, object>
             {
-                _logger.LogError(ex, "Error generating shareable link for user {UserId}", userId);
-                throw;
-            }
+                ["DashboardType"] = dashboardType,
+                ["BusinessId"] = businessId,
+                ["ExpiresAt"] = expiresAt
+            });
         }
 
         public async Task<bool> ValidateShareableLinkAsync(string linkToken)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
+                if (string.IsNullOrWhiteSpace(linkToken))
+                {
+                    throw new AnalyticsValidationException("Link token cannot be null or empty", "LinkToken", "Required");
+                }
+
                 var link = await _context.AnalyticsShareableLinks
                     .FirstOrDefaultAsync(l => l.LinkToken == linkToken && l.IsActive);
 
@@ -328,18 +356,21 @@ namespace TownTrek.Services.Analytics
                 await _context.SaveChangesAsync();
 
                 return true;
-            }
-            catch (Exception ex)
+            }, null, "ValidateShareableLink", new Dictionary<string, object>
             {
-                _logger.LogError(ex, "Error validating shareable link {LinkToken}", linkToken);
-                return false;
-            }
+                ["LinkToken"] = linkToken
+            });
         }
 
         public async Task<object?> GetShareableLinkDataAsync(string linkToken)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync<object?>(async () =>
             {
+                if (string.IsNullOrWhiteSpace(linkToken))
+                {
+                    throw new AnalyticsValidationException("Link token cannot be null or empty", "LinkToken", "Required");
+                }
+
                 var link = await _context.AnalyticsShareableLinks
                     .Include(l => l.User)
                     .Include(l => l.Business)
@@ -365,25 +396,40 @@ namespace TownTrek.Services.Analytics
                 }
 
                 return null;
-            }
-            catch (Exception ex)
+            }, null, "GetShareableLinkData", new Dictionary<string, object>
             {
-                _logger.LogError(ex, "Error getting shareable link data for {LinkToken}", linkToken);
-                return null;
-            }
+                ["LinkToken"] = linkToken
+            });
         }
 
         public async Task<bool> ScheduleEmailReportAsync(string userId, string reportType, string frequency, int? businessId = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync<bool>(async () =>
             {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    throw new AnalyticsValidationException("User ID cannot be null or empty", "UserId", "Required");
+                }
+
+                if (string.IsNullOrWhiteSpace(reportType))
+                {
+                    throw new AnalyticsValidationException("Report type cannot be null or empty", "ReportType", "Required");
+                }
+
+                if (string.IsNullOrWhiteSpace(frequency))
+                {
+                    throw new AnalyticsValidationException("Frequency cannot be null or empty", "Frequency", "Required");
+                }
+
                 // Verify user owns the business if specified
                 if (businessId.HasValue)
                 {
                     var business = await _context.Businesses
                         .FirstOrDefaultAsync(b => b.Id == businessId.Value && b.UserId == userId);
                     if (business == null)
-                        throw new ArgumentException("Business not found or access denied");
+                    {
+                        throw new AnalyticsValidationException("Business not found or access denied", "BusinessAccess", "AccessDenied");
+                    }
                 }
 
                 // Calculate next scheduled time
@@ -393,7 +439,7 @@ namespace TownTrek.Services.Analytics
                     "weekly" => DateTime.UtcNow.AddDays(7).Date.AddHours(9),
                     "monthly" => DateTime.UtcNow.AddMonths(1).Date.AddHours(9),
                     "once" => DateTime.UtcNow.AddHours(1), // Send in 1 hour
-                    _ => throw new ArgumentException($"Unsupported frequency: {frequency}")
+                                            _ => throw new AnalyticsValidationException($"Unsupported frequency: {frequency}", "Frequency", "Unsupported")
                 };
 
                 var emailReport = new AnalyticsEmailReport
@@ -410,22 +456,34 @@ namespace TownTrek.Services.Analytics
                 await _context.SaveChangesAsync();
 
                 return true;
-            }
-            catch (Exception ex)
+            }, userId, "ScheduleEmailReport", new Dictionary<string, object>
             {
-                _logger.LogError(ex, "Error scheduling email report for user {UserId}", userId);
-                return false;
-            }
+                ["ReportType"] = reportType,
+                ["Frequency"] = frequency,
+                ["BusinessId"] = businessId
+            });
         }
 
         public async Task<bool> SendEmailReportAsync(string userId, string reportType, int? businessId = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync<bool>(async () =>
             {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    throw new AnalyticsValidationException("User ID cannot be null or empty", "UserId", "Required");
+                }
+
+                if (string.IsNullOrWhiteSpace(reportType))
+                {
+                    throw new AnalyticsValidationException("Report type cannot be null or empty", "ReportType", "Required");
+                }
+
                 // Get user email
                 var user = await _context.Users.FindAsync(userId);
                 if (user == null || string.IsNullOrEmpty(user.Email))
-                    return false;
+                {
+                    throw new AnalyticsValidationException("User not found or email not available", "UserEmail", "NotFound");
+                }
 
                 byte[] reportData;
                 string subject;
@@ -435,7 +493,9 @@ namespace TownTrek.Services.Analytics
                 {
                     case "business":
                         if (!businessId.HasValue)
-                            return false;
+                        {
+                            throw new AnalyticsValidationException("Business ID is required for business reports", "BusinessId", "Required");
+                        }
                         reportData = await GenerateBusinessAnalyticsPdfAsync(businessId.Value, userId, fromDate, toDate);
                         subject = "Business Analytics Report";
                         fileName = $"business-analytics-{DateTime.UtcNow:yyyy-MM-dd}.pdf";
@@ -446,7 +506,7 @@ namespace TownTrek.Services.Analytics
                         fileName = $"analytics-overview-{DateTime.UtcNow:yyyy-MM-dd}.pdf";
                         break;
                     default:
-                        return false;
+                        throw new AnalyticsValidationException($"Unsupported report type: {reportType}", "ReportType", "Unsupported");
                 }
 
                 // Send email with PDF attachment
@@ -474,12 +534,13 @@ namespace TownTrek.Services.Analytics
                 }
 
                 return emailSent;
-            }
-            catch (Exception ex)
+            }, userId, "SendEmailReport", new Dictionary<string, object>
             {
-                _logger.LogError(ex, "Error sending email report for user {UserId}", userId);
-                return false;
-            }
+                ["ReportType"] = reportType,
+                ["BusinessId"] = businessId,
+                ["FromDate"] = fromDate,
+                ["ToDate"] = toDate
+            });
         }
 
         private async Task ExportViewsDataAsync(CsvWriter csv, string userId, DateTime fromDate, DateTime toDate, int? businessId)
@@ -572,17 +633,66 @@ namespace TownTrek.Services.Analytics
         // Additional methods needed by controllers (aliases for existing methods)
         public async Task<byte[]> ExportBusinessAnalyticsToPdfAsync(int businessId, string userId, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            return await GenerateBusinessAnalyticsPdfAsync(businessId, userId, fromDate, toDate);
+            return await _errorHandler.ExecuteWithErrorHandlingAsync<byte[]>(async () =>
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    throw new AnalyticsValidationException("User ID cannot be null or empty", "UserId", "Required");
+                }
+
+                if (businessId <= 0)
+                {
+                    throw new AnalyticsValidationException("Business ID must be greater than zero", "BusinessId", "Invalid");
+                }
+
+                return await GenerateBusinessAnalyticsPdfAsync(businessId, userId, fromDate, toDate);
+            }, userId, "ExportBusinessAnalyticsToPdf", new Dictionary<string, object>
+            {
+                ["BusinessId"] = businessId,
+                ["FromDate"] = fromDate,
+                ["ToDate"] = toDate
+            });
         }
 
         public async Task<byte[]> ExportOverviewAnalyticsToPdfAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            return await GenerateClientAnalyticsPdfAsync(userId, fromDate, toDate);
+            return await _errorHandler.ExecuteWithErrorHandlingAsync<byte[]>(async () =>
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    throw new AnalyticsValidationException("User ID cannot be null or empty", "UserId", "Required");
+                }
+
+                return await GenerateClientAnalyticsPdfAsync(userId, fromDate, toDate);
+            }, userId, "ExportOverviewAnalyticsToPdf", new Dictionary<string, object>
+            {
+                ["FromDate"] = fromDate,
+                ["ToDate"] = toDate
+            });
         }
 
         public async Task<byte[]> ExportDataToCsvAsync(string userId, string dataType, DateTime? fromDate = null, DateTime? toDate = null, int? businessId = null)
         {
-            return await ExportAnalyticsCsvAsync(userId, dataType, fromDate, toDate, businessId);
+            return await _errorHandler.ExecuteWithErrorHandlingAsync<byte[]>(async () =>
+            {
+                if (string.IsNullOrWhiteSpace(userId))
+                {
+                    throw new AnalyticsValidationException("User ID cannot be null or empty", "UserId", "Required");
+                }
+
+                if (string.IsNullOrWhiteSpace(dataType))
+                {
+                    throw new AnalyticsValidationException("Data type cannot be null or empty", "DataType", "Required");
+                }
+
+                return await ExportAnalyticsCsvAsync(userId, dataType, fromDate, toDate, businessId);
+            }, userId, "ExportDataToCsv", new Dictionary<string, object>
+            {
+                ["DataType"] = dataType,
+                ["FromDate"] = fromDate,
+                ["ToDate"] = toDate,
+                ["BusinessId"] = businessId
+            });
         }
     }
 }

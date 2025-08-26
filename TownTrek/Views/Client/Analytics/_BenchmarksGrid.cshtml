@@ -1,0 +1,82 @@
+@model TownTrek.Models.ViewModels.CategoryBenchmarks
+
+<!-- Detailed Benchmarks -->
+<div class="benchmarks-grid">
+    <div class="benchmark-card">
+        <div class="benchmark-header">
+            <h4>Views Performance</h4>
+        </div>
+        <div class="benchmark-metrics">
+            <div class="metric-comparison">
+                <div class="your-metric">
+                    <span class="metric-label">Your Average</span>
+                    <span class="metric-value">@Model.YourAverageViews.ToString("N0")</span>
+                </div>
+                <div class="category-metric">
+                    <span class="metric-label">Category Average</span>
+                    <span class="metric-value">@Model.CategoryAverageViews.ToString("N0")</span>
+                </div>
+            </div>
+            <div class="performance-bar">
+                @{
+                    var viewsPerformance = Model.CategoryAverageViews > 0 ? 
+                        (double)Model.YourAverageViews / Model.CategoryAverageViews * 100 : 100;
+                    viewsPerformance = Math.Min(viewsPerformance, 200); // Cap at 200%
+                }
+                <div class="performance-fill" style="width: @(viewsPerformance)%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="benchmark-card">
+        <div class="benchmark-header">
+            <h4>Reviews Performance</h4>
+        </div>
+        <div class="benchmark-metrics">
+            <div class="metric-comparison">
+                <div class="your-metric">
+                    <span class="metric-label">Your Average</span>
+                    <span class="metric-value">@Model.YourAverageReviews.ToString("N0")</span>
+                </div>
+                <div class="category-metric">
+                    <span class="metric-label">Category Average</span>
+                    <span class="metric-value">@Model.CategoryAverageReviews.ToString("N0")</span>
+                </div>
+            </div>
+            <div class="performance-bar">
+                @{
+                    var reviewsPerformance = Model.CategoryAverageReviews > 0 ? 
+                        (double)Model.YourAverageReviews / Model.CategoryAverageReviews * 100 : 100;
+                    reviewsPerformance = Math.Min(reviewsPerformance, 200); // Cap at 200%
+                }
+                <div class="performance-fill" style="width: @(reviewsPerformance)%"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="benchmark-card">
+        <div class="benchmark-header">
+            <h4>Rating Performance</h4>
+        </div>
+        <div class="benchmark-metrics">
+            <div class="metric-comparison">
+                <div class="your-metric">
+                    <span class="metric-label">Your Average</span>
+                    <span class="metric-value">@Model.YourAverageRating.ToString("F1") ⭐</span>
+                </div>
+                <div class="category-metric">
+                    <span class="metric-label">Category Average</span>
+                    <span class="metric-value">@Model.CategoryAverageRating.ToString("F1") ⭐</span>
+                </div>
+            </div>
+            <div class="performance-bar">
+                @{
+                    var ratingPerformance = Model.CategoryAverageRating > 0 ? 
+                        Model.YourAverageRating / Model.CategoryAverageRating * 100 : 100;
+                    ratingPerformance = Math.Min(ratingPerformance, 200); // Cap at 200%
+                }
+                <div class="performance-fill" style="width: @(ratingPerformance)%"></div>
+            </div>
+        </div>
+    </div>
+</div>

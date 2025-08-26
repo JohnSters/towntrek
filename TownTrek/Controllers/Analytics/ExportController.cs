@@ -39,7 +39,7 @@ namespace TownTrek.Controllers.Client
                     return RedirectToAction("Index", "ClientAnalytics");
                 }
 
-                var pdfBytes = await _analyticsExportService.ExportBusinessAnalyticsToPdfAsync(businessId, fromDate, toDate);
+                var pdfBytes = await _analyticsExportService.ExportBusinessAnalyticsToPdfAsync(businessId, userId, fromDate, toDate);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "ExportBusinessPdf", TimeSpan.FromMilliseconds(200));

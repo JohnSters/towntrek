@@ -1,0 +1,24 @@
+@model TownTrek.Models.ViewModels.ComparativeAnalysisResponse
+
+<!-- Comparison Chart -->
+<div class="comparison-chart-section">
+    <div class="section-header">
+        <h2>Performance Comparison</h2>
+        <p>@Model.ChartData.TimeRange comparison chart</p>
+    </div>
+    
+    <div class="chart-container">
+        <canvas id="comparisonChart" width="400" height="200"></canvas>
+    </div>
+    
+    <div class="chart-legend">
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #33658a;"></span>
+            <span class="legend-label">Current Period</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background-color: #86bbd8;"></span>
+            <span class="legend-label">Previous Period</span>
+        </div>
+    </div>
+</div>

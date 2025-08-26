@@ -394,7 +394,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 1,
                             ColorClass = "danger",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(714),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6164),
                             Description = "Billing problems, payment failures, subscription issues",
                             IconClass = "fas fa-credit-card",
                             IsActive = true,
@@ -407,7 +407,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 2,
                             ColorClass = "danger",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(716),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6166),
                             Description = "Site bugs, login issues, functionality not working",
                             IconClass = "fas fa-bug",
                             IsActive = true,
@@ -420,7 +420,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 3,
                             ColorClass = "warning",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(718),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6168),
                             Description = "Password resets, account lockouts, permission issues",
                             IconClass = "fas fa-user-lock",
                             IsActive = true,
@@ -433,7 +433,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 4,
                             ColorClass = "info",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(719),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6169),
                             Description = "New functionality suggestions, improvements",
                             IconClass = "fas fa-lightbulb",
                             IsActive = true,
@@ -446,7 +446,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 5,
                             ColorClass = "info",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(721),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6171),
                             Description = "Problems with business information, images, approval delays",
                             IconClass = "fas fa-store",
                             IsActive = true,
@@ -459,7 +459,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 6,
                             ColorClass = "info",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(723),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6173),
                             Description = "Upgrade/downgrade requests, plan modifications",
                             IconClass = "fas fa-exchange-alt",
                             IsActive = true,
@@ -472,7 +472,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 7,
                             ColorClass = "warning",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(724),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6174),
                             Description = "Incorrect town information, business details",
                             IconClass = "fas fa-edit",
                             IsActive = true,
@@ -485,7 +485,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 8,
                             ColorClass = "secondary",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(726),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6176),
                             Description = "How-to questions, usage guidance",
                             IconClass = "fas fa-question-circle",
                             IsActive = true,
@@ -498,7 +498,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 9,
                             ColorClass = "secondary",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(728),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6178),
                             Description = "General feedback about the platform",
                             IconClass = "fas fa-comment",
                             IsActive = true,
@@ -511,7 +511,7 @@ namespace TownTrek.Migrations
                         {
                             Id = 10,
                             ColorClass = "secondary",
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(729),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(6179),
                             Description = "Business partnerships, collaboration requests",
                             IconClass = "fas fa-handshake",
                             IsActive = true,
@@ -769,8 +769,8 @@ namespace TownTrek.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserAgent")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -823,6 +823,9 @@ namespace TownTrek.Migrations
                     b.Property<int?>("BusinessId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BusinessId1")
+                        .HasColumnType("int");
+
                     b.Property<string>("ErrorMessage")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
@@ -865,11 +868,35 @@ namespace TownTrek.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("BusinessId");
+                    b.HasIndex("BusinessId")
+                        .HasDatabaseName("IX_AnalyticsEvents_BusinessId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("BusinessId1");
+
+                    b.HasIndex("EventType")
+                        .HasDatabaseName("IX_AnalyticsEvents_EventType");
+
+                    b.HasIndex("OccurredAt")
+                        .HasDatabaseName("IX_AnalyticsEvents_OccurredAt");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_AnalyticsEvents_UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.HasIndex("EventType", "OccurredAt")
+                        .HasDatabaseName("IX_AnalyticsEvents_EventType_OccurredAt");
+
+                    b.HasIndex("BusinessId", "EventType", "OccurredAt")
+                        .HasDatabaseName("IX_AnalyticsEvents_BusinessId_EventType_OccurredAt");
+
+                    b.HasIndex("UserId", "EventType", "OccurredAt")
+                        .HasDatabaseName("IX_AnalyticsEvents_UserId_EventType_OccurredAt");
 
                     b.ToTable("AnalyticsEvents");
                 });
@@ -922,8 +949,8 @@ namespace TownTrek.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("UserAgent")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -1148,8 +1175,8 @@ namespace TownTrek.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("UserAgent")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -1202,10 +1229,16 @@ namespace TownTrek.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AcknowledgedByUserId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<double>("ActualValue")
                         .HasColumnType("float");
 
                     b.Property<int?>("BusinessId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BusinessId1")
                         .HasColumnType("int");
 
                     b.Property<string>("Context")
@@ -1213,7 +1246,9 @@ namespace TownTrek.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -1228,7 +1263,9 @@ namespace TownTrek.Migrations
                         .HasColumnType("float");
 
                     b.Property<bool>("IsAcknowledged")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("MetricType")
                         .IsRequired()
@@ -1251,13 +1288,35 @@ namespace TownTrek.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AcknowledgedBy");
 
+                    b.HasIndex("AcknowledgedByUserId");
+
                     b.HasIndex("BusinessId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("BusinessId1");
+
+                    b.HasIndex("Date")
+                        .HasDatabaseName("IX_AnomalyDetections_Date");
+
+                    b.HasIndex("IsAcknowledged")
+                        .HasDatabaseName("IX_AnomalyDetections_IsAcknowledged");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_AnomalyDetections_UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.HasIndex("MetricType", "Severity")
+                        .HasDatabaseName("IX_AnomalyDetections_MetricType_Severity");
+
+                    b.HasIndex("UserId", "Date")
+                        .HasDatabaseName("IX_AnomalyDetections_UserId_Date");
 
                     b.ToTable("AnomalyDetections");
                 });
@@ -2207,6 +2266,7 @@ namespace TownTrek.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("UserId")
+                        .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("ViewedAt")
@@ -2214,9 +2274,26 @@ namespace TownTrek.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BusinessId");
+                    b.HasIndex("BusinessId")
+                        .HasDatabaseName("IX_BusinessViewLogs_BusinessId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Platform")
+                        .HasDatabaseName("IX_BusinessViewLogs_Platform");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_BusinessViewLogs_UserId");
+
+                    b.HasIndex("ViewedAt")
+                        .HasDatabaseName("IX_BusinessViewLogs_ViewedAt");
+
+                    b.HasIndex("Platform", "ViewedAt")
+                        .HasDatabaseName("IX_BusinessViewLogs_Platform_ViewedAt");
+
+                    b.HasIndex("UserId", "ViewedAt")
+                        .HasDatabaseName("IX_BusinessViewLogs_UserId_ViewedAt");
+
+                    b.HasIndex("BusinessId", "ViewedAt", "Platform")
+                        .HasDatabaseName("IX_BusinessViewLogs_BusinessId_ViewedAt_Platform");
 
                     b.ToTable("BusinessViewLogs");
                 });
@@ -2238,7 +2315,9 @@ namespace TownTrek.Migrations
                         .HasColumnType("float");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<double>("CurrentValue")
                         .HasColumnType("float");
@@ -2254,7 +2333,9 @@ namespace TownTrek.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsUserDefined")
                         .HasColumnType("bit");
@@ -2264,8 +2345,8 @@ namespace TownTrek.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<double>("PreviousValue")
                         .HasColumnType("float");
@@ -2280,9 +2361,27 @@ namespace TownTrek.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("Category")
+                        .HasDatabaseName("IX_CustomMetrics_Category");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_CustomMetrics_IsActive");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_CustomMetrics_UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.HasIndex("Category", "IsActive")
+                        .HasDatabaseName("IX_CustomMetrics_Category_IsActive");
+
+                    b.HasIndex("UserId", "IsActive")
+                        .HasDatabaseName("IX_CustomMetrics_UserId_IsActive");
 
                     b.ToTable("CustomMetrics");
                 });
@@ -2299,7 +2398,9 @@ namespace TownTrek.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("CustomMetricId")
                         .HasColumnType("int");
@@ -2312,7 +2413,14 @@ namespace TownTrek.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomMetricId");
+                    b.HasIndex("CustomMetricId")
+                        .HasDatabaseName("IX_CustomMetricDataPoints_CustomMetricId");
+
+                    b.HasIndex("Date")
+                        .HasDatabaseName("IX_CustomMetricDataPoints_Date");
+
+                    b.HasIndex("CustomMetricId", "Date")
+                        .HasDatabaseName("IX_CustomMetricDataPoints_CustomMetricId_Date");
 
                     b.ToTable("CustomMetricDataPoints");
                 });
@@ -2329,7 +2437,9 @@ namespace TownTrek.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("CustomMetricId")
                         .HasColumnType("int");
@@ -2354,7 +2464,14 @@ namespace TownTrek.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CustomMetricId");
+                    b.HasIndex("CustomMetricId")
+                        .HasDatabaseName("IX_CustomMetricGoals_CustomMetricId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_CustomMetricGoals_Status");
+
+                    b.HasIndex("CustomMetricId", "Status")
+                        .HasDatabaseName("IX_CustomMetricGoals_CustomMetricId_Status");
 
                     b.ToTable("CustomMetricGoals");
                 });
@@ -2728,11 +2845,16 @@ namespace TownTrek.Migrations
                     b.Property<int?>("BusinessId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BusinessId1")
+                        .HasColumnType("int");
+
                     b.Property<double>("Confidence")
                         .HasColumnType("float");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<DateTime>("ForecastDate")
                         .HasColumnType("datetime2");
@@ -2756,11 +2878,25 @@ namespace TownTrek.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BusinessId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("BusinessId1");
+
+                    b.HasIndex("ForecastDate")
+                        .HasDatabaseName("IX_PredictiveForecasts_ForecastDate");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_PredictiveForecasts_UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.HasIndex("UserId", "ForecastDate")
+                        .HasDatabaseName("IX_PredictiveForecasts_UserId_ForecastDate");
 
                     b.ToTable("PredictiveForecasts");
                 });
@@ -2981,8 +3117,13 @@ namespace TownTrek.Migrations
                     b.Property<int?>("BusinessId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BusinessId1")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<double>("Deviation")
                         .HasColumnType("float");
@@ -3010,11 +3151,25 @@ namespace TownTrek.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("UserId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BusinessId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("BusinessId1");
+
+                    b.HasIndex("PatternType")
+                        .HasDatabaseName("IX_SeasonalPatterns_PatternType");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_SeasonalPatterns_UserId");
+
+                    b.HasIndex("UserId1");
+
+                    b.HasIndex("UserId", "PatternType")
+                        .HasDatabaseName("IX_SeasonalPatterns_UserId_PatternType");
 
                     b.ToTable("SeasonalPatterns");
                 });
@@ -3301,7 +3456,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(129),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(5566),
                             Description = "Perfect for small businesses getting started",
                             DisplayName = "Basic Plan",
                             IsActive = true,
@@ -3312,7 +3467,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(131),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(5568),
                             Description = "Great for growing businesses with multiple locations",
                             DisplayName = "Standard Plan",
                             IsActive = true,
@@ -3323,7 +3478,7 @@ namespace TownTrek.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 8, 17, 20, 42, 32, 735, DateTimeKind.Utc).AddTicks(133),
+                            CreatedAt = new DateTime(2025, 8, 26, 11, 16, 36, 719, DateTimeKind.Utc).AddTicks(5570),
                             Description = "Full-featured plan for established businesses",
                             DisplayName = "Premium Plan",
                             IsActive = true,
@@ -3928,13 +4083,23 @@ namespace TownTrek.Migrations
 
             modelBuilder.Entity("TownTrek.Models.AnalyticsEvent", b =>
                 {
+                    b.HasOne("TownTrek.Models.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("TownTrek.Models.Business", "Business")
                         .WithMany()
-                        .HasForeignKey("BusinessId");
+                        .HasForeignKey("BusinessId1");
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("TownTrek.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Business");
 
@@ -4012,19 +4177,33 @@ namespace TownTrek.Migrations
 
             modelBuilder.Entity("TownTrek.Models.AnomalyDetection", b =>
                 {
+                    b.HasOne("TownTrek.Models.ApplicationUser", null)
+                        .WithMany()
+                        .HasForeignKey("AcknowledgedBy")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("TownTrek.Models.ApplicationUser", "AcknowledgedByUser")
                         .WithMany()
-                        .HasForeignKey("AcknowledgedBy");
+                        .HasForeignKey("AcknowledgedByUserId");
+
+                    b.HasOne("TownTrek.Models.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("TownTrek.Models.Business", "Business")
                         .WithMany()
-                        .HasForeignKey("BusinessId");
+                        .HasForeignKey("BusinessId1");
 
-                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                    b.HasOne("TownTrek.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("AcknowledgedByUser");
 
@@ -4178,7 +4357,8 @@ namespace TownTrek.Migrations
 
                     b.HasOne("TownTrek.Models.ApplicationUser", "User")
                         .WithMany()
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Business");
 
@@ -4187,11 +4367,15 @@ namespace TownTrek.Migrations
 
             modelBuilder.Entity("TownTrek.Models.CustomMetric", b =>
                 {
-                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                    b.HasOne("TownTrek.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("User");
                 });
@@ -4295,15 +4479,24 @@ namespace TownTrek.Migrations
 
             modelBuilder.Entity("TownTrek.Models.PredictiveForecast", b =>
                 {
+                    b.HasOne("TownTrek.Models.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("TownTrek.Models.Business", "Business")
                         .WithMany()
-                        .HasForeignKey("BusinessId");
+                        .HasForeignKey("BusinessId1");
 
-                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                    b.HasOne("TownTrek.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Business");
 
@@ -4359,15 +4552,24 @@ namespace TownTrek.Migrations
 
             modelBuilder.Entity("TownTrek.Models.SeasonalPattern", b =>
                 {
+                    b.HasOne("TownTrek.Models.Business", null)
+                        .WithMany()
+                        .HasForeignKey("BusinessId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("TownTrek.Models.Business", "Business")
                         .WithMany()
-                        .HasForeignKey("BusinessId");
+                        .HasForeignKey("BusinessId1");
 
-                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                    b.HasOne("TownTrek.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("TownTrek.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1");
 
                     b.Navigation("Business");
 

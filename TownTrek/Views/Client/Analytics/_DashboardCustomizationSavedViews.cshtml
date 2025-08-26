@@ -1,0 +1,57 @@
+@model TownTrek.Services.Interfaces.DashboardCustomizationResponse
+
+<!-- Saved Views -->
+<div class="saved-views-section">
+    <div class="section-header">
+        <h4 class="section-title">Saved Views</h4>
+        <button type="button" id="saveCurrentView" class="btn btn-outline-primary btn-sm">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Save Current View
+        </button>
+    </div>
+
+    @if (Model.SavedViews.Any())
+    {
+        <div class="saved-views-grid">
+            @foreach (var savedView in Model.SavedViews)
+            {
+                <div class="saved-view-card @(savedView.IsDefault ? "default" : "")" data-view-id="@savedView.Id">
+                    <div class="view-header">
+                        <h5 class="view-name">@savedView.Name</h5>
+                        @if (savedView.IsDefault)
+                        {
+                            <span class="default-badge">Default</span>
+                        }
+                    </div>
+                    <p class="view-description">@savedView.Description</p>
+                    <div class="view-meta">
+                        <span class="view-date-range">@savedView.DateRange days</span>
+                        <span class="view-layout">@savedView.LayoutType</span>
+                    </div>
+                    <div class="view-actions">
+                        <button type="button" class="btn btn-sm btn-primary load-view" data-view-id="@savedView.Id">
+                            Load
+                        </button>
+                        @if (!savedView.IsDefault)
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-primary set-default" data-view-id="@savedView.Id">
+                                Set Default
+                            </button>
+                        }
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-view" data-view-id="@savedView.Id">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-saved-views">
+            <p>No saved views yet. Save your current dashboard configuration to get started.</p>
+        </div>
+    }
+</div>

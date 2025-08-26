@@ -1,0 +1,60 @@
+@model TownTrek.Models.ViewModels.ComparativeAnalysisResponse
+
+<!-- Header -->
+<div class="analytics-header">
+    <div class="header-content">
+        <h1 class="analytics-title">Comparative Analysis</h1>
+        <p class="analytics-subtitle">Compare performance across different time periods</p>
+    </div>
+    
+    <!-- Comparison Controls -->
+    <div class="comparison-controls">
+        <div class="control-group">
+            <label for="comparisonType">Comparison Type:</label>
+            <select id="comparisonType" class="form-control">
+                <option value="WeekOverWeek">Week over Week</option>
+                <option value="MonthOverMonth" selected>Month over Month</option>
+                <option value="QuarterOverQuarter">Quarter over Quarter</option>
+                <option value="YearOverYear">Year over Year</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="platformFilter">Platform:</label>
+            <select id="platformFilter" class="form-control">
+                <option value="All">All Platforms</option>
+                <option value="Web">Web Only</option>
+                <option value="Mobile">Mobile Only</option>
+                <option value="API">API Only</option>
+            </select>
+        </div>
+        
+        @if (ViewBag.BusinessId == null)
+        {
+            <div class="control-group">
+                <label for="businessFilter">Business:</label>
+                <select id="businessFilter" class="form-control">
+                    <option value="">All Businesses</option>
+                </select>
+            </div>
+        }
+        
+        <button id="refreshComparison" class="btn btn-primary">
+            <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div id="comparisonLoading" class="loading-overlay" style="display: none;">
+    <div class="loading-spinner">
+        <i class="fas fa-chart-line"></i>
+        <p>Loading comparison data...</p>
+    </div>
+</div>
+
+<!-- Error State -->
+<div id="comparisonError" class="error-message" style="display: none;">
+    <i class="fas fa-exclamation-triangle"></i>
+    <p>Unable to load comparison data. Please try again.</p>
+</div>

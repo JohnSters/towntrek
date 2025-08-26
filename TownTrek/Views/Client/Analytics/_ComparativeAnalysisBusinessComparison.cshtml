@@ -1,0 +1,76 @@
+@model TownTrek.Models.ViewModels.ComparativeAnalysisResponse
+
+<!-- Business Comparison (if applicable) -->
+@if (Model.BusinessData != null)
+{
+    <div class="business-comparison">
+        <div class="section-header">
+            <h2>Business Comparison: @Model.BusinessData.BusinessName</h2>
+            <p>How your business performs against benchmarks</p>
+        </div>
+        
+        <div class="comparison-grid">
+            <!-- Category Comparison -->
+            <div class="comparison-card">
+                <div class="card-header">
+                    <h3>Category Performance</h3>
+                    <span class="performance-indicator @Model.BusinessData.CategoryComparison.CategoryPerformance.ToLower().Replace(" ", "-")">
+                        @Model.BusinessData.CategoryComparison.CategoryPerformance
+                    </span>
+                </div>
+                <div class="card-content">
+                    <div class="benchmark-stats">
+                        <div class="benchmark-item">
+                            <span class="label">Views vs Category:</span>
+                            <span class="value @(Model.BusinessData.CategoryComparison.ViewsVsCategory >= 0 ? "positive" : "negative")">
+                                @(Model.BusinessData.CategoryComparison.ViewsVsCategory >= 0 ? "+" : "")@Model.BusinessData.CategoryComparison.ViewsVsCategory.ToString("F1")%
+                            </span>
+                        </div>
+                        <div class="benchmark-item">
+                            <span class="label">Reviews vs Category:</span>
+                            <span class="value @(Model.BusinessData.CategoryComparison.ReviewsVsCategory >= 0 ? "positive" : "negative")">
+                                @(Model.BusinessData.CategoryComparison.ReviewsVsCategory >= 0 ? "+" : "")@Model.BusinessData.CategoryComparison.ReviewsVsCategory.ToString("F1")%
+                            </span>
+                        </div>
+                        <div class="benchmark-item">
+                            <span class="label">Rating vs Category:</span>
+                            <span class="value @(Model.BusinessData.CategoryComparison.RatingVsCategory >= 0 ? "positive" : "negative")">
+                                @(Model.BusinessData.CategoryComparison.RatingVsCategory >= 0 ? "+" : "")@Model.BusinessData.CategoryComparison.RatingVsCategory.ToString("F1")%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Comparison -->
+            <div class="comparison-card">
+                <div class="card-header">
+                    <h3>Portfolio Performance</h3>
+                    <span class="portfolio-rank">Rank #@Model.BusinessData.PortfolioComparison.PortfolioRank of @Model.BusinessData.PortfolioComparison.TotalPortfolioBusinesses</span>
+                </div>
+                <div class="card-content">
+                    <div class="benchmark-stats">
+                        <div class="benchmark-item">
+                            <span class="label">Views vs Portfolio:</span>
+                            <span class="value @(Model.BusinessData.PortfolioComparison.ViewsVsPortfolio >= 0 ? "positive" : "negative")">
+                                @(Model.BusinessData.PortfolioComparison.ViewsVsPortfolio >= 0 ? "+" : "")@Model.BusinessData.PortfolioComparison.ViewsVsPortfolio.ToString("F1")%
+                            </span>
+                        </div>
+                        <div class="benchmark-item">
+                            <span class="label">Reviews vs Portfolio:</span>
+                            <span class="value @(Model.BusinessData.PortfolioComparison.ReviewsVsPortfolio >= 0 ? "positive" : "negative")">
+                                @(Model.BusinessData.PortfolioComparison.ReviewsVsPortfolio >= 0 ? "+" : "")@Model.BusinessData.PortfolioComparison.ReviewsVsPortfolio.ToString("F1")%
+                            </span>
+                        </div>
+                        <div class="benchmark-item">
+                            <span class="label">Rating vs Portfolio:</span>
+                            <span class="value @(Model.BusinessData.PortfolioComparison.RatingVsPortfolio >= 0 ? "positive" : "negative")">
+                                @(Model.BusinessData.PortfolioComparison.RatingVsPortfolio >= 0 ? "+" : "")@Model.BusinessData.PortfolioComparison.RatingVsPortfolio.ToString("F1")%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

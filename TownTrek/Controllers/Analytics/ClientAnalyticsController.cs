@@ -178,7 +178,7 @@ namespace TownTrek.Controllers.Client
             
             try
             {
-                await _usageTracker.TrackFeatureUsageAsync(userId, request.FeatureName, request.Duration);
+                await _usageTracker.TrackFeatureUsageAsync(userId, request.FeatureName, TimeSpan.FromMilliseconds(request.Duration));
                 return Json(new { success = true });
             }
             catch (Exception ex)

@@ -37,7 +37,7 @@ namespace TownTrek.Controllers.Client
                     return Json(new { success = false, message = "No businesses found." });
                 }
 
-                var viewsData = await _analyticsService.GetViewsOverTimeDataAsync(userBusinesses.Select(b => b.Id).ToList(), days);
+                var viewsData = await _analyticsService.GetViewsOverTimeDataAsync(userId, days);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "ViewsOverTimeChart", TimeSpan.FromMilliseconds(50));
@@ -65,7 +65,7 @@ namespace TownTrek.Controllers.Client
                     return Json(new { success = false, message = "No businesses found." });
                 }
 
-                var reviewsData = await _analyticsService.GetReviewsOverTimeDataAsync(userBusinesses.Select(b => b.Id).ToList(), days);
+                var reviewsData = await _analyticsService.GetReviewsOverTimeDataAsync(userId, days);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "ReviewsOverTimeChart", TimeSpan.FromMilliseconds(50));
@@ -93,7 +93,7 @@ namespace TownTrek.Controllers.Client
                     return Json(new { success = false, message = "No businesses found." });
                 }
 
-                var platformData = await _analyticsService.GetViewsOverTimeByPlatformAsync(userBusinesses.Select(b => b.Id).ToList(), days, platform);
+                var platformData = await _analyticsService.GetViewsOverTimeByPlatformAsync(userId, days, platform);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "PlatformViewsChart", TimeSpan.FromMilliseconds(50));

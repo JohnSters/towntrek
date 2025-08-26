@@ -29,22 +29,46 @@ namespace TownTrek.Services.Analytics
 
             try
             {
-                // Get all active businesses
-                var businesses = await _context.Businesses
-                    .Where(b => b.Status == "Active")
-                    .Select(b => b.Id)
-                    .ToListAsync();
+                _logger.LogInformation("Starting daily snapshot creation for {Date}", date);
 
-                foreach (var businessId in businesses)
+                // Get all active businesses with their current metrics in a single query
+                var businessMetrics = await GetBusinessMetricsForDateAsync(date);
+                
+                // Batch create snapshots for better performance
+                var snapshotsToAdd = new List<AnalyticsSnapshot>();
+                
+                foreach (var metric in businessMetrics)
                 {
-                    var snapshot = await CreateBusinessSnapshotAsync(businessId, date);
-                    if (snapshot != null)
+                    // Check if snapshot already exists
+                    var existingSnapshot = await _context.AnalyticsSnapshots
+                        .FirstOrDefaultAsync(s => s.BusinessId == metric.BusinessId && s.SnapshotDate == date);
+
+                    if (existingSnapshot == null)
                     {
+                        var snapshot = new AnalyticsSnapshot
+                        {
+                            BusinessId = metric.BusinessId,
+                            SnapshotDate = date,
+                            TotalViews = metric.DailyViews,
+                            TotalReviews = metric.DailyReviews,
+                            TotalFavorites = metric.DailyFavorites,
+                            AverageRating = metric.AverageRating,
+                            EngagementScore = CalculateEngagementScore(metric.DailyViews, metric.DailyReviews, metric.DailyFavorites, metric.AverageRating),
+                            CreatedAt = DateTime.UtcNow
+                        };
+
+                        snapshotsToAdd.Add(snapshot);
                         snapshotsCreated++;
                     }
                 }
 
-                await _context.SaveChangesAsync();
+                // Batch insert all snapshots
+                if (snapshotsToAdd.Any())
+                {
+                    _context.AnalyticsSnapshots.AddRange(snapshotsToAdd);
+                    await _context.SaveChangesAsync();
+                }
+
                 _logger.LogInformation("Created {Count} daily snapshots for {Date}", snapshotsCreated, date);
             }
             catch (Exception ex)
@@ -288,6 +312,90 @@ namespace TownTrek.Services.Analytics
             var daysSinceMonday = (int)date.DayOfWeek - (int)DayOfWeek.Monday;
             if (daysSinceMonday < 0) daysSinceMonday += 7;
             return date.AddDays(-daysSinceMonday);
+        }
+
+        /// <summary>
+        /// Optimized method to get all business metrics for a specific date in a single query
+        /// </summary>
+        private async Task<List<BusinessDailyMetrics>> GetBusinessMetricsForDateAsync(DateTime date)
+        {
+            var businessMetrics = new List<BusinessDailyMetrics>();
+
+            try
+            {
+                // Get all active businesses with their daily metrics in optimized queries
+                var activeBusinesses = await _context.Businesses
+                    .Where(b => b.Status == "Active")
+                    .Select(b => b.Id)
+                    .ToListAsync();
+
+                if (!activeBusinesses.Any())
+                    return businessMetrics;
+
+                // Get daily views for all businesses in one query
+                var dailyViews = await _context.BusinessViewLogs
+                    .Where(v => activeBusinesses.Contains(v.BusinessId) && v.ViewedAt.Date == date)
+                    .GroupBy(v => v.BusinessId)
+                    .Select(g => new { BusinessId = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                // Get daily reviews for all businesses in one query
+                var dailyReviews = await _context.BusinessReviews
+                    .Where(r => activeBusinesses.Contains(r.BusinessId) && r.CreatedAt.Date == date && r.IsActive)
+                    .GroupBy(r => r.BusinessId)
+                    .Select(g => new { BusinessId = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                // Get daily favorites for all businesses in one query
+                var dailyFavorites = await _context.FavoriteBusinesses
+                    .Where(r => activeBusinesses.Contains(r.BusinessId) && r.CreatedAt.Date == date)
+                    .GroupBy(r => r.BusinessId)
+                    .Select(g => new { BusinessId = g.Key, Count = g.Count() })
+                    .ToListAsync();
+
+                // Get average ratings for all businesses in one query
+                var averageRatings = await _context.BusinessReviews
+                    .Where(r => activeBusinesses.Contains(r.BusinessId) && r.CreatedAt.Date == date && r.IsActive)
+                    .GroupBy(r => r.BusinessId)
+                    .Select(g => new { BusinessId = g.Key, AverageRating = g.Average(r => r.Rating) })
+                    .ToListAsync();
+
+                // Combine all metrics
+                foreach (var businessId in activeBusinesses)
+                {
+                    var views = dailyViews.FirstOrDefault(v => v.BusinessId == businessId)?.Count ?? 0;
+                    var reviews = dailyReviews.FirstOrDefault(r => r.BusinessId == businessId)?.Count ?? 0;
+                    var favorites = dailyFavorites.FirstOrDefault(f => f.BusinessId == businessId)?.Count ?? 0;
+                    var rating = averageRatings.FirstOrDefault(r => r.BusinessId == businessId)?.AverageRating;
+
+                    businessMetrics.Add(new BusinessDailyMetrics
+                    {
+                        BusinessId = businessId,
+                        DailyViews = views,
+                        DailyReviews = reviews,
+                        DailyFavorites = favorites,
+                        AverageRating = rating.HasValue ? (decimal?)rating.Value : null
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting business metrics for date {Date}", date);
+            }
+
+            return businessMetrics;
+        }
+
+        /// <summary>
+        /// Data transfer object for business daily metrics
+        /// </summary>
+        private class BusinessDailyMetrics
+        {
+            public int BusinessId { get; set; }
+            public int DailyViews { get; set; }
+            public int DailyReviews { get; set; }
+            public int DailyFavorites { get; set; }
+            public decimal? AverageRating { get; set; }
         }
     }
 }

@@ -38,7 +38,7 @@ namespace TownTrek.Controllers.Client
                     return RedirectToAction("Index", "ClientAnalytics");
                 }
 
-                var benchmarks = await _analyticsService.GetCategoryBenchmarksAsync(category, userBusinesses.Select(b => b.Id).ToList());
+                var benchmarks = await _analyticsService.GetCategoryBenchmarksAsync(userId, category);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "CategoryBenchmarks", TimeSpan.FromMilliseconds(100));
@@ -68,7 +68,7 @@ namespace TownTrek.Controllers.Client
                     return RedirectToAction("Index", "ClientAnalytics");
                 }
 
-                var competitorInsights = await _analyticsService.GetCompetitorInsightsAsync(userBusinesses.Select(b => b.Id).ToList());
+                var competitorInsights = await _analyticsService.GetCompetitorInsightsAsync(userId);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "CompetitorAnalysis", TimeSpan.FromMilliseconds(100));
@@ -113,7 +113,7 @@ namespace TownTrek.Controllers.Client
                     }
                 }
 
-                var comparativeData = await _analyticsService.GetComparativeAnalysisDataAsync(businessId.Value);
+                var comparativeData = await _analyticsService.GetComparativeAnalysisDataAsync(userId, "MonthOverMonth");
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "ComparativeAnalysis", TimeSpan.FromMilliseconds(100));
@@ -156,7 +156,7 @@ namespace TownTrek.Controllers.Client
                     }
                 }
 
-                var data = await _analyticsService.GetComparativeAnalysisDataAsync(businessId.Value, comparisonType, platform);
+                var data = await _analyticsService.GetComparativeAnalysisDataAsync(userId, comparisonType);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "ComparativeAnalysisData", TimeSpan.FromMilliseconds(50));

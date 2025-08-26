@@ -1,0 +1,84 @@
+@model TownTrek.Models.ViewModels.ComparativeAnalysisResponse
+
+<!-- Period Details -->
+<div class="period-details">
+    <div class="details-grid">
+        <!-- Current Period Details -->
+        <div class="period-card current-period">
+            <div class="period-header">
+                <h3>Current Period</h3>
+                <span class="period-dates">
+                    @Model.CurrentPeriod.StartDate.ToString("MMM dd") - @Model.CurrentPeriod.EndDate.ToString("MMM dd, yyyy")
+                </span>
+            </div>
+            <div class="period-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Total Views:</span>
+                    <span class="stat-value">@Model.CurrentPeriod.TotalViews.ToString("N0")</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Total Reviews:</span>
+                    <span class="stat-value">@Model.CurrentPeriod.TotalReviews.ToString("N0")</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Total Favorites:</span>
+                    <span class="stat-value">@Model.CurrentPeriod.TotalFavorites.ToString("N0")</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Average Rating:</span>
+                    <span class="stat-value">@Model.CurrentPeriod.AverageRating.ToString("F1")</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Engagement Score:</span>
+                    <span class="stat-value">@Model.CurrentPeriod.EngagementScore.ToString("F1")</span>
+                </div>
+                @if (Model.CurrentPeriod.PeakDayDate.HasValue)
+                {
+                    <div class="stat-row">
+                        <span class="stat-label">Peak Day:</span>
+                        <span class="stat-value">@Model.CurrentPeriod.PeakDayDate.Value.ToString("MMM dd") (@Model.CurrentPeriod.PeakDayViews views)</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Previous Period Details -->
+        <div class="period-card previous-period">
+            <div class="period-header">
+                <h3>Previous Period</h3>
+                <span class="period-dates">
+                    @Model.PreviousPeriod.StartDate.ToString("MMM dd") - @Model.PreviousPeriod.EndDate.ToString("MMM dd, yyyy")
+                </span>
+            </div>
+            <div class="period-stats">
+                <div class="stat-row">
+                    <span class="stat-label">Total Views:</span>
+                    <span class="stat-value">@Model.PreviousPeriod.TotalViews.ToString("N0")</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Total Reviews:</span>
+                    <span class="stat-value">@Model.PreviousPeriod.TotalReviews.ToString("N0")</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Total Favorites:</span>
+                    <span class="stat-value">@Model.PreviousPeriod.TotalFavorites.ToString("N0")</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Average Rating:</span>
+                    <span class="stat-value">@Model.PreviousPeriod.AverageRating.ToString("F1")</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Engagement Score:</span>
+                    <span class="stat-value">@Model.PreviousPeriod.EngagementScore.ToString("F1")</span>
+                </div>
+                @if (Model.PreviousPeriod.PeakDayDate.HasValue)
+                {
+                    <div class="stat-row">
+                        <span class="stat-label">Peak Day:</span>
+                        <span class="stat-value">@Model.PreviousPeriod.PeakDayDate.Value.ToString("MMM dd") (@Model.PreviousPeriod.PeakDayViews views)</span>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

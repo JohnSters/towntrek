@@ -16,13 +16,19 @@ class AnalyticsRealtime {
         this.notificationContainer = null;
         this.analyticsCore = null;
         this.analyticsCharts = null;
+        this.eventListeners = new Map();
+        this.connectionHealthCheck = null;
+        this.lastActivity = Date.now();
         
         this.config = {
             hubUrl: '/analyticsHub',
             reconnectDelays: [0, 2000, 10000, 30000],
             maxReconnectAttempts: 5,
             notificationTimeout: 10000,
-            defaultRefreshInterval: 0
+            defaultRefreshInterval: 0,
+            healthCheckInterval: 30000, // 30 seconds
+            maxInactivityTime: 300000, // 5 minutes
+            connectionTimeout: 10000 // 10 seconds
         };
     }
 
@@ -60,6 +66,17 @@ class AnalyticsRealtime {
                 return;
             }
 
+            // Check if connection already exists and is in a good state
+            if (this.connection && this.connection.state === signalR.HubConnectionState.Connected) {
+                console.log('SignalR connection already established');
+                return;
+            }
+
+            // Clean up existing connection if it exists
+            if (this.connection) {
+                await this.cleanupConnection();
+            }
+
             this.connection = new signalR.HubConnectionBuilder()
                 .withUrl(this.config.hubUrl)
                 .withAutomaticReconnect(this.config.reconnectDelays)
@@ -67,11 +84,22 @@ class AnalyticsRealtime {
                 .build();
 
             this.setupSignalREventHandlers();
-            await this.connection.start();
+            
+            // Set connection timeout
+            const connectionPromise = this.connection.start();
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('Connection timeout')), this.config.connectionTimeout);
+            });
+
+            await Promise.race([connectionPromise, timeoutPromise]);
             
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.reconnectDelay = 1000;
+            this.lastActivity = Date.now();
+
+            // Start health monitoring
+            this.startHealthMonitoring();
 
             console.log('SignalR connection established for analytics');
         } catch (error) {
@@ -87,6 +115,7 @@ class AnalyticsRealtime {
         this.connection.onreconnecting((error) => {
             console.log('SignalR reconnecting...', error);
             this.isConnected = false;
+            this.lastActivity = Date.now();
             this.showConnectionStatus('Reconnecting...', 'warning');
         });
 
@@ -95,6 +124,7 @@ class AnalyticsRealtime {
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.reconnectDelay = 1000;
+            this.lastActivity = Date.now();
             this.showConnectionStatus('Connected', 'success');
         });
 
@@ -104,41 +134,50 @@ class AnalyticsRealtime {
             this.showConnectionStatus('Disconnected', 'error');
         });
 
-        // Analytics update events
-        this.connection.on('ReceiveClientAnalyticsUpdate', (analytics) => {
+        // Analytics update events with activity tracking
+        this.addEventListener('ReceiveClientAnalyticsUpdate', (analytics) => {
+            this.lastActivity = Date.now();
             this.handleClientAnalyticsUpdate(analytics);
         });
 
-        this.connection.on('ReceiveBusinessAnalyticsUpdate', (businessId, analytics) => {
+        this.addEventListener('ReceiveBusinessAnalyticsUpdate', (businessId, analytics) => {
+            this.lastActivity = Date.now();
             this.handleBusinessAnalyticsUpdate(businessId, analytics);
         });
 
-        this.connection.on('ReceiveViewsChartUpdate', (chartData) => {
+        this.addEventListener('ReceiveViewsChartUpdate', (chartData) => {
+            this.lastActivity = Date.now();
             this.handleViewsChartUpdate(chartData);
         });
 
-        this.connection.on('ReceiveReviewsChartUpdate', (chartData) => {
+        this.addEventListener('ReceiveReviewsChartUpdate', (chartData) => {
+            this.lastActivity = Date.now();
             this.handleReviewsChartUpdate(chartData);
         });
 
-        this.connection.on('ReceivePerformanceInsightsUpdate', (insights) => {
+        this.addEventListener('ReceivePerformanceInsightsUpdate', (insights) => {
+            this.lastActivity = Date.now();
             this.handlePerformanceInsightsUpdate(insights);
         });
 
-        this.connection.on('ReceiveCompetitorInsightsUpdate', (insights) => {
+        this.addEventListener('ReceiveCompetitorInsightsUpdate', (insights) => {
+            this.lastActivity = Date.now();
             this.handleCompetitorInsightsUpdate(insights);
         });
 
-        this.connection.on('ReceiveCategoryBenchmarksUpdate', (category, benchmarks) => {
+        this.addEventListener('ReceiveCategoryBenchmarksUpdate', (category, benchmarks) => {
+            this.lastActivity = Date.now();
             this.handleCategoryBenchmarksUpdate(category, benchmarks);
         });
 
         // Notification events
-        this.connection.on('ReceiveAnalyticsNotification', (notification) => {
+        this.addEventListener('ReceiveAnalyticsNotification', (notification) => {
+            this.lastActivity = Date.now();
             this.showNotification(notification);
         });
 
-        this.connection.on('ReceiveBroadcastUpdate', (message, data) => {
+        this.addEventListener('ReceiveBroadcastUpdate', (message, data) => {
+            this.lastActivity = Date.now();
             this.handleBroadcastUpdate(message, data);
         });
     }
@@ -501,12 +540,105 @@ class AnalyticsRealtime {
         }
     }
 
+    // Health monitoring
+    startHealthMonitoring() {
+        if (this.connectionHealthCheck) {
+            clearInterval(this.connectionHealthCheck);
+        }
+
+        this.connectionHealthCheck = setInterval(() => {
+            this.checkConnectionHealth();
+        }, this.config.healthCheckInterval);
+    }
+
+    stopHealthMonitoring() {
+        if (this.connectionHealthCheck) {
+            clearInterval(this.connectionHealthCheck);
+            this.connectionHealthCheck = null;
+        }
+    }
+
+    checkConnectionHealth() {
+        const now = Date.now();
+        const timeSinceLastActivity = now - this.lastActivity;
+
+        // Check for inactivity
+        if (timeSinceLastActivity > this.config.maxInactivityTime) {
+            console.log('Connection inactive for too long, reconnecting...');
+            this.reconnect();
+            return;
+        }
+
+        // Check connection state
+        if (this.connection && this.connection.state !== signalR.HubConnectionState.Connected) {
+            console.log('Connection state is not connected, attempting reconnect...');
+            this.reconnect();
+            return;
+        }
+
+        // Send ping to keep connection alive
+        if (this.connection && this.isConnected) {
+            this.connection.invoke('Ping').catch(error => {
+                console.warn('Ping failed, connection may be stale:', error);
+                this.reconnect();
+            });
+        }
+    }
+
+    async reconnect() {
+        console.log('Attempting to reconnect SignalR...');
+        this.isConnected = false;
+        this.stopHealthMonitoring();
+        
+        try {
+            await this.cleanupConnection();
+            await this.initializeSignalR();
+        } catch (error) {
+            console.error('Reconnection failed:', error);
+            this.handleConnectionError();
+        }
+    }
+
+    async cleanupConnection() {
+        if (this.connection) {
+            try {
+                // Remove all event listeners
+                this.removeAllEventListeners();
+                
+                // Stop the connection
+                await this.connection.stop();
+            } catch (error) {
+                console.warn('Error during connection cleanup:', error);
+            } finally {
+                this.connection = null;
+                this.isConnected = false;
+            }
+        }
+
+        this.stopHealthMonitoring();
+    }
+
+    removeAllEventListeners() {
+        // Remove all registered event listeners
+        this.eventListeners.forEach((listener, event) => {
+            if (this.connection) {
+                this.connection.off(event, listener);
+            }
+        });
+        this.eventListeners.clear();
+    }
+
+    // Enhanced event listener registration
+    addEventListener(event, handler) {
+        if (this.connection) {
+            this.connection.on(event, handler);
+            this.eventListeners.set(event, handler);
+        }
+    }
+
     // Cleanup
     disconnect() {
-        if (this.connection) {
-            this.connection.stop();
-        }
-        this.isConnected = false;
+        this.cleanupConnection();
     }
 }
 

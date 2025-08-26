@@ -1,0 +1,37 @@
+@model TownTrek.Models.ViewModels.ComparativeAnalysisResponse
+
+<!-- Custom Range Comparison -->
+<div class="custom-range-section">
+    <div class="section-header">
+        <h2>Custom Range Comparison</h2>
+        <p>Compare specific date ranges</p>
+    </div>
+    
+    <div class="custom-range-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="currentStart">Current Period Start:</label>
+                <input type="date" id="currentStart" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="currentEnd">Current Period End:</label>
+                <input type="date" id="currentEnd" class="form-control" />
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="previousStart">Previous Period Start:</label>
+                <input type="date" id="previousStart" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="previousEnd">Previous Period End:</label>
+                <input type="date" id="previousEnd" class="form-control" />
+            </div>
+        </div>
+        <div class="form-actions">
+            <button id="runCustomComparison" class="btn btn-primary">
+                <i class="fas fa-chart-line"></i> Run Comparison
+            </button>
+        </div>
+    </div>
+</div>

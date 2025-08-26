@@ -154,6 +154,19 @@ namespace TownTrek.Models.ViewModels
         public double AverageCategoryRating { get; set; }
         public double UserAverageRating { get; set; }
         public double PerformanceRating { get; set; }
+        
+        // Additional properties needed by ClientAnalyticsService
+        public int UserBusinessCount { get; set; }
+        public int TotalBusinessCount { get; set; }
+        public double AverageViews { get; set; }
+        public double AverageReviews { get; set; }
+        public double AverageRating { get; set; }
+        public double UserAverageViews { get; set; }
+        public double UserAverageReviews { get; set; }
+        
+        // Additional properties needed by ClientAnalyticsService
+        public List<CompetitorInsight> TopPerformers { get; set; } = new();
+        public List<string> PerformanceInsights { get; set; } = new();
     }
 
     public class BenchmarkMetric
@@ -183,6 +196,16 @@ namespace TownTrek.Models.ViewModels
         public int BusinessId { get; set; }
         public string BusinessName { get; set; } = string.Empty;
         public int CompetitorsCount { get; set; } // Alias for CompetitorCount
+        
+        // Additional properties needed by ClientAnalyticsService
+        public double AverageCompetitorViews { get; set; }
+        public double AverageCompetitorReviews { get; set; }
+        public int UserViews { get; set; }
+        public int UserReviews { get; set; }
+        public double UserRating { get; set; }
+        public int ViewsRank { get; set; }
+        public int ReviewsRank { get; set; }
+        public int RatingRank { get; set; }
     }
 
     // Extended model for detailed benchmarks view
@@ -220,6 +243,10 @@ namespace TownTrek.Models.ViewModels
         public double AverageRating { get; set; }
         public double UserAverageViews { get; set; }
         public double UserAverageReviews { get; set; }
+        
+        // Additional properties needed by ClientAnalyticsService
+        public List<CompetitorInsight> TopPerformers { get; set; } = new();
+        public List<string> PerformanceInsights { get; set; } = new();
     }
 
 

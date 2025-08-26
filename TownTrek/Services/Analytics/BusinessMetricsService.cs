@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Constants;
 using TownTrek.Data;
 using TownTrek.Models;
+using TownTrek.Models.Exceptions;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
@@ -16,43 +17,54 @@ namespace TownTrek.Services.Analytics
         IAnalyticsValidationService validationService,
         IAnalyticsEventService eventService,
         IViewTrackingService viewTrackingService,
+        IAnalyticsErrorHandler errorHandler,
         ILogger<BusinessMetricsService> logger) : IBusinessMetricsService
     {
         private readonly IAnalyticsDataService _dataService = dataService;
         private readonly IAnalyticsValidationService _validationService = validationService;
         private readonly IAnalyticsEventService _eventService = eventService;
         private readonly IViewTrackingService _viewTrackingService = viewTrackingService;
+        private readonly IAnalyticsErrorHandler _errorHandler = errorHandler;
         private readonly ILogger<BusinessMetricsService> _logger = logger;
 
         public async Task RecordBusinessViewAsync(int businessId)
         {
-            try
+            await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 await _viewTrackingService.LogBusinessViewAsync(businessId, null, "Web", null, null, null, null);
                 await _eventService.RecordBusinessViewEventAsync(businessId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error recording business view for BusinessId {BusinessId}", businessId);
-                // Don't throw - view recording should not break the main functionality
-            }
+            }, null, "RecordBusinessView", new Dictionary<string, object> { ["BusinessId"] = businessId });
         }
 
         public async Task<ViewStatistics> GetBusinessViewStatisticsAsync(int businessId, DateTime startDate, DateTime endDate, string? platform = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Validate parameters
                 var dateRangeValidation = _validationService.ValidateDateRange(startDate, endDate);
                 if (!dateRangeValidation.IsValid)
                 {
-                    throw new ArgumentException(dateRangeValidation.ErrorMessage);
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        dateRangeValidation.ErrorMessage,
+                        null,
+                        "DateRange",
+                        "InvalidRange",
+                        new Dictionary<string, object> { ["BusinessId"] = businessId, ["StartDate"] = startDate, ["EndDate"] = endDate }
+                    );
+                    throw new AnalyticsValidationException(dateRangeValidation.ErrorMessage, "DateRange", "InvalidRange");
                 }
 
                 var platformValidation = _validationService.ValidatePlatform(platform);
                 if (!platformValidation.IsValid)
                 {
-                    throw new ArgumentException(platformValidation.ErrorMessage, nameof(platform));
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        platformValidation.ErrorMessage,
+                        null,
+                        "Platform",
+                        "InvalidPlatform",
+                        new Dictionary<string, object> { ["BusinessId"] = businessId, ["Platform"] = platform }
+                    );
+                    throw new AnalyticsValidationException(platformValidation.ErrorMessage, "Platform", "InvalidPlatform");
                 }
 
                 var viewLogs = await _dataService.GetBusinessViewLogsAsync(new List<int> { businessId }, startDate, endDate, platform);
@@ -66,23 +78,25 @@ namespace TownTrek.Services.Analytics
                     PeakDayDate = viewLogs.GroupBy(v => v.ViewedAt.Date).OrderByDescending(g => g.Count()).FirstOrDefault()?.Key ?? DateTime.UtcNow,
                     PlatformBreakdown = viewLogs.GroupBy(v => v.Platform).ToDictionary(g => g.Key, g => g.Count())
                 };
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting business view statistics for BusinessId {BusinessId}", businessId);
-                throw;
-            }
+            }, null, "GetBusinessViewStatistics", new Dictionary<string, object> { ["BusinessId"] = businessId, ["StartDate"] = startDate, ["EndDate"] = endDate, ["Platform"] = platform });
         }
 
         public async Task<List<ViewsOverTimeData>> GetViewsOverTimeAsync(string userId, int days = 30)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Validate parameters
                 var daysValidation = _validationService.ValidateAnalyticsDays(days);
                 if (!daysValidation.IsValid)
                 {
-                    throw new ArgumentException(daysValidation.ErrorMessage, nameof(days));
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        daysValidation.ErrorMessage,
+                        userId,
+                        "Days",
+                        "InvalidDays",
+                        new Dictionary<string, object> { ["Days"] = days }
+                    );
+                    throw new AnalyticsValidationException(daysValidation.ErrorMessage, "Days", "InvalidDays");
                 }
 
                 // Record analytics access event
@@ -98,30 +112,38 @@ namespace TownTrek.Services.Analytics
                 var viewLogs = await _dataService.GetBusinessViewLogsAsync(businessIds, startDate, endDate);
 
                 return ProcessViewsOverTimeData(viewLogs, startDate, endDate);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting views over time for UserId {UserId}, Days {Days}", userId, days);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetViewsOverTime", ex.Message, new { UserId = userId, Days = days });
-                throw;
-            }
+            }, userId, "GetViewsOverTime", new Dictionary<string, object> { ["Days"] = days });
         }
 
         public async Task<List<ViewsOverTimeData>> GetViewsOverTimeByPlatformAsync(string userId, int days = 30, string? platform = null)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Validate parameters
                 var daysValidation = _validationService.ValidateAnalyticsDays(days);
                 if (!daysValidation.IsValid)
                 {
-                    throw new ArgumentException(daysValidation.ErrorMessage, nameof(days));
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        daysValidation.ErrorMessage,
+                        userId,
+                        "Days",
+                        "InvalidDays",
+                        new Dictionary<string, object> { ["Days"] = days }
+                    );
+                    throw new AnalyticsValidationException(daysValidation.ErrorMessage, "Days", "InvalidDays");
                 }
 
                 var platformValidation = _validationService.ValidatePlatform(platform);
                 if (!platformValidation.IsValid)
                 {
-                    throw new ArgumentException(platformValidation.ErrorMessage, nameof(platform));
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        platformValidation.ErrorMessage,
+                        userId,
+                        "Platform",
+                        "InvalidPlatform",
+                        new Dictionary<string, object> { ["Platform"] = platform }
+                    );
+                    throw new AnalyticsValidationException(platformValidation.ErrorMessage, "Platform", "InvalidPlatform");
                 }
 
                 // Record analytics access event
@@ -137,24 +159,25 @@ namespace TownTrek.Services.Analytics
                 var viewLogs = await _dataService.GetBusinessViewLogsAsync(businessIds, startDate, endDate, platform);
 
                 return ProcessViewsOverTimeData(viewLogs, startDate, endDate);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting views over time by platform for UserId {UserId}, Days {Days}, Platform {Platform}", userId, days, platform);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetViewsOverTimeByPlatform", ex.Message, new { UserId = userId, Days = days, Platform = platform });
-                throw;
-            }
+            }, userId, "GetViewsOverTimeByPlatform", new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform });
         }
 
         public async Task<List<ReviewsOverTimeData>> GetReviewsOverTimeAsync(string userId, int days = 30)
         {
-            try
+            return await _errorHandler.ExecuteWithErrorHandlingAsync(async () =>
             {
                 // Validate parameters
                 var daysValidation = _validationService.ValidateAnalyticsDays(days);
                 if (!daysValidation.IsValid)
                 {
-                    throw new ArgumentException(daysValidation.ErrorMessage, nameof(days));
+                    await _errorHandler.HandleValidationExceptionAsync(
+                        daysValidation.ErrorMessage,
+                        userId,
+                        "Days",
+                        "InvalidDays",
+                        new Dictionary<string, object> { ["Days"] = days }
+                    );
+                    throw new AnalyticsValidationException(daysValidation.ErrorMessage, "Days", "InvalidDays");
                 }
 
                 // Record analytics access event
@@ -170,13 +193,7 @@ namespace TownTrek.Services.Analytics
                 var reviews = await _dataService.GetBusinessReviewsAsync(businessIds, startDate, endDate);
 
                 return ProcessReviewsOverTimeData(reviews, startDate, endDate);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting reviews over time for UserId {UserId}, Days {Days}", userId, days);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetReviewsOverTime", ex.Message, new { UserId = userId, Days = days });
-                throw;
-            }
+            }, userId, "GetReviewsOverTime", new Dictionary<string, object> { ["Days"] = days });
         }
 
         // Private helper methods

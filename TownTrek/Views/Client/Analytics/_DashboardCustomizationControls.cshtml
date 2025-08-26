@@ -1,0 +1,101 @@
+@model TownTrek.Services.Interfaces.DashboardCustomizationResponse
+@{
+    var preferences = Model.Preferences;
+}
+
+<!-- Customization Controls -->
+<div class="customization-controls">
+    <div class="controls-grid">
+        <!-- Widget Visibility -->
+        <div class="control-section">
+            <h4 class="control-title">Widget Visibility</h4>
+            <div class="widget-toggles">
+                <label class="toggle-item">
+                    <input type="checkbox" id="showViewsCard" @(preferences.ShowViewsCard ? "checked" : "")>
+                    <span class="toggle-label">Views Card</span>
+                </label>
+                <label class="toggle-item">
+                    <input type="checkbox" id="showReviewsCard" @(preferences.ShowReviewsCard ? "checked" : "")>
+                    <span class="toggle-label">Reviews Card</span>
+                </label>
+                <label class="toggle-item">
+                    <input type="checkbox" id="showFavoritesCard" @(preferences.ShowFavoritesCard ? "checked" : "")>
+                    <span class="toggle-label">Favorites Card</span>
+                </label>
+                <label class="toggle-item">
+                    <input type="checkbox" id="showEngagementCard" @(preferences.ShowEngagementCard ? "checked" : "")>
+                    <span class="toggle-label">Engagement Card</span>
+                </label>
+                <label class="toggle-item">
+                    <input type="checkbox" id="showPerformanceChart" @(preferences.ShowPerformanceChart ? "checked" : "")>
+                    <span class="toggle-label">Performance Chart</span>
+                </label>
+                <label class="toggle-item">
+                    <input type="checkbox" id="showViewsChart" @(preferences.ShowViewsChart ? "checked" : "")>
+                    <span class="toggle-label">Views Chart</span>
+                </label>
+                <label class="toggle-item">
+                    <input type="checkbox" id="showReviewsChart" @(preferences.ShowReviewsChart ? "checked" : "")>
+                    <span class="toggle-label">Reviews Chart</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Layout Options -->
+        <div class="control-section">
+            <h4 class="control-title">Layout Options</h4>
+            <div class="layout-options">
+                <label class="radio-item">
+                    <input type="radio" name="layoutType" value="default" @(preferences.LayoutType == "default" ? "checked" : "")>
+                    <span class="radio-label">Default Layout</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="layoutType" value="compact" @(preferences.LayoutType == "compact" ? "checked" : "")>
+                    <span class="radio-label">Compact Layout</span>
+                </label>
+                <label class="radio-item">
+                    <input type="radio" name="layoutType" value="detailed" @(preferences.LayoutType == "detailed" ? "checked" : "")>
+                    <span class="radio-label">Detailed Layout</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Date Range -->
+        <div class="control-section">
+            <h4 class="control-title">Default Date Range</h4>
+            <select id="defaultDateRange" class="form-select">
+                <option value="7" selected="@(preferences.DefaultDateRange == "7")">Last 7 days</option>
+                <option value="30" selected="@(preferences.DefaultDateRange == "30")">Last 30 days</option>
+                <option value="90" selected="@(preferences.DefaultDateRange == "90")">Last 90 days</option>
+                <option value="365" selected="@(preferences.DefaultDateRange == "365")">Last year</option>
+            </select>
+        </div>
+
+        <!-- Auto-refresh -->
+        <div class="control-section">
+            <h4 class="control-title">Auto-refresh Interval</h4>
+            <select id="refreshInterval" class="form-select">
+                <option value="0" selected="@(preferences.RefreshInterval == 0)">Disabled</option>
+                <option value="30" selected="@(preferences.RefreshInterval == 30)">30 seconds</option>
+                <option value="60" selected="@(preferences.RefreshInterval == 60)">1 minute</option>
+                <option value="300" selected="@(preferences.RefreshInterval == 300)">5 minutes</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="customization-actions">
+        <button type="button" id="savePreferences" class="btn btn-primary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            Save Preferences
+        </button>
+        <button type="button" id="resetToDefault" class="btn btn-secondary">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Reset to Default
+        </button>
+    </div>
+</div>

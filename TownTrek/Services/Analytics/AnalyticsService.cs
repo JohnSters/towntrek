@@ -361,7 +361,7 @@ namespace TownTrek.Services.Analytics
                 if (!userBusinesses.Any()) return new List<CompetitorInsight>();
 
                 // Batch competitor lookup to avoid N+1 queries
-                var competitorLookups = userBusinesses.Select(b => new
+                var competitorLookups = userBusinesses.Select(b => (object)new
                 {
                     BusinessId = b.Id,
                     Category = b.Category,
@@ -374,7 +374,7 @@ namespace TownTrek.Services.Analytics
                 foreach (var business in userBusinesses)
                 {
                     var businessCompetitors = allCompetitors
-                        .Where(c => c.BusinessId == business.Id)
+                        .Where(c => c.Category == business.Category && c.Town?.Name == business.Town?.Name && c.Id != business.Id)
                         .ToList();
 
                     if (businessCompetitors.Any())
