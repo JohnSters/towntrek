@@ -498,15 +498,15 @@ class AnalyticsExport {
 // Global instance
 window.analyticsExport = null;
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    if (AnalyticsExport.shouldInitialize()) {
-        window.analyticsExport = new AnalyticsExport();
-    }
-});
-
 // Global function for opening the modal (for backward compatibility)
 window.openAnalyticsExportModal = function(businessId = null) {
+    if (window.analyticsExport) {
+        window.analyticsExport.show(businessId);
+    }
+};
+
+// Global function for opening the share modal (for backward compatibility)
+window.openAnalyticsShareModal = function(businessId = null) {
     if (window.analyticsExport) {
         window.analyticsExport.show(businessId);
     }

@@ -252,7 +252,7 @@ public class AnalyticsUsageTracker : IAnalyticsUsageTracker
                     FeatureName = g.Key,
                     UsageCount = g.Count(),
                     UniqueUsers = g.Select(log => log.UserId).Distinct().Count(),
-                    AverageDuration = g.Where(log => log.Duration.HasValue).Average(log => log.Duration.Value),
+                    AverageDuration = g.Where(log => log.Duration.HasValue).Any() ? g.Where(log => log.Duration.HasValue).Average(log => log.Duration.Value) : 0,
                     LastUsed = g.Max(log => log.CreatedAt),
                     AdoptionRate = (double)g.Select(log => log.UserId).Distinct().Count() / 
                                   _context.AnalyticsUsageLogs.Select(log => log.UserId).Distinct().Count() * 100
@@ -432,7 +432,7 @@ public class AnalyticsUsageTracker : IAnalyticsUsageTracker
                 {
                     Timestamp = g.Key.Date.AddHours(g.Key.Hour),
                     SessionCount = g.Select(log => log.SessionId).Distinct().Count(),
-                    AverageDuration = g.Where(log => log.Duration.HasValue).Average(log => log.Duration.Value),
+                    AverageDuration = g.Where(log => log.Duration.HasValue).Any() ? g.Where(log => log.Duration.HasValue).Average(log => log.Duration.Value) : 0,
                     ActiveUsers = g.Select(log => log.UserId).Distinct().Count()
                 })
                 .OrderBy(t => t.Timestamp)

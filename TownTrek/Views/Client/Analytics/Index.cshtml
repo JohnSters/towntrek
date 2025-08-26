@@ -18,6 +18,7 @@
 </div>
 
 @section Styles {
+    <link rel="stylesheet" href="~/css/components/modal.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/features/client/analytics-core.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/features/client/analytics-charts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/features/client/analytics-realtime.css" asp-append-version="true" />
@@ -31,4 +32,32 @@
     <script src="~/js/modules/client/analytics-charts.js" asp-append-version="true"></script>
     <script src="~/js/modules/client/analytics-realtime.js" asp-append-version="true"></script>
     <script src="~/js/modules/client/analytics-export.js" asp-append-version="true"></script>
+    
+    <script>
+        // Initialize analytics modules when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Initialize AnalyticsCore
+                const analyticsCore = new AnalyticsCore();
+                analyticsCore.init();
+                
+                // Initialize AnalyticsCharts
+                const analyticsCharts = new AnalyticsCharts(analyticsCore);
+                analyticsCharts.init();
+                
+                // Initialize AnalyticsRealtime
+                const analyticsRealtime = new AnalyticsRealtime(analyticsCore);
+                analyticsRealtime.init();
+                
+                // Initialize AnalyticsExport and set global instance
+                const analyticsExport = new AnalyticsExport(analyticsCore);
+                analyticsExport.init();
+                window.analyticsExport = analyticsExport; // Set global instance
+                
+                console.log('All analytics modules initialized successfully');
+            } catch (error) {
+                console.error('Error initializing analytics modules:', error);
+            }
+        });
+    </script>
 }

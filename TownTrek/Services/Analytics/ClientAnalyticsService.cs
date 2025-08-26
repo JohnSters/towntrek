@@ -40,13 +40,13 @@ namespace TownTrek.Services.Analytics
                 if (!userValidation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        userValidation.ErrorMessage,
+                        userValidation.ErrorMessage ?? "Invalid user validation",
                         userId,
                         "UserId",
                         "UserValidation",
                         new Dictionary<string, object> { ["UserId"] = userId }
                     );
-                    throw new AnalyticsValidationException(userValidation.ErrorMessage, "UserId", "UserValidation");
+                    throw new AnalyticsValidationException(userValidation.ErrorMessage ?? "Invalid user validation", "UserId", "UserValidation");
                 }
 
                 // Record analytics access event
@@ -83,7 +83,7 @@ namespace TownTrek.Services.Analytics
 
                 var model = new ClientAnalyticsViewModel
                 {
-                    User = user,
+                    User = ConvertToUserInfo(user),
                     SubscriptionTier = authResult.SubscriptionTier?.Name ?? "None",
                     HasBasicAnalytics = hasBasicAnalytics,
                     HasStandardAnalytics = false,
@@ -380,11 +380,11 @@ namespace TownTrek.Services.Analytics
             return analytics;
         }
 
-        private async Task<AnalyticsOverview> GetAnalyticsOverviewAsync(string userId, List<BusinessAnalyticsData> businessAnalytics)
+        private Task<AnalyticsOverview> GetAnalyticsOverviewAsync(string userId, List<BusinessAnalyticsData> businessAnalytics)
         {
-            if (!businessAnalytics.Any()) return new AnalyticsOverview();
+            if (!businessAnalytics.Any()) return Task.FromResult(new AnalyticsOverview());
 
-            return new AnalyticsOverview
+            return Task.FromResult(new AnalyticsOverview
             {
                 TotalBusinesses = businessAnalytics.Count,
                 TotalViews = businessAnalytics.Sum(a => a.TotalViews),
@@ -393,7 +393,7 @@ namespace TownTrek.Services.Analytics
                 AverageRating = businessAnalytics.Average(a => a.AverageRating),
                 AverageEngagementScore = businessAnalytics.Average(a => a.EngagementScore),
                 TopPerformingBusiness = businessAnalytics.OrderByDescending(a => a.EngagementScore).First()?.BusinessName ?? "None"
-            };
+            });
         }
 
         private async Task<List<ViewsOverTimeData>> GetViewsOverTimeAsync(string userId, int days)
@@ -551,6 +551,32 @@ namespace TownTrek.Services.Analytics
                 recommendations.Add("Work on improving customer satisfaction to match competitor ratings");
 
             return recommendations;
+        }
+
+        private UserInfo ConvertToUserInfo(ApplicationUser user)
+        {
+            return new UserInfo
+            {
+                Id = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Location = user.Location,
+                CreatedAt = user.CreatedAt,
+                LastLoginAt = user.LastLoginAt,
+                IsActive = user.IsActive,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                AuthenticationMethod = user.AuthenticationMethod,
+                CurrentSubscriptionTier = user.CurrentSubscriptionTier,
+                HasActiveSubscription = user.HasActiveSubscription,
+                SubscriptionStartDate = user.SubscriptionStartDate,
+                SubscriptionEndDate = user.SubscriptionEndDate,
+                IsTrialUser = user.IsTrialUser,
+                TrialStartDate = user.TrialStartDate,
+                TrialEndDate = user.TrialEndDate,
+                TrialExpired = user.TrialExpired
+            };
         }
     }
 }

@@ -15,6 +15,7 @@ namespace TownTrek.Extensions
             // Only apply to controllers in the Client namespace
             var actionDescriptor = context.ActionContext.ActionDescriptor as ControllerActionDescriptor;
             var controllerNamespace = actionDescriptor?.ControllerTypeInfo?.Namespace ?? string.Empty;
+            var controllerName = actionDescriptor?.ControllerName ?? string.Empty;
             var isClientController = controllerNamespace.Contains(".Controllers.Client", StringComparison.OrdinalIgnoreCase);
 
             if (!isClientController)
@@ -23,13 +24,20 @@ namespace TownTrek.Extensions
             }
 
             // Add additional search locations so controllers can discover views under Views/Client/**
-            var clientLocations = new[]
+            var clientLocations = new List<string>
             {
                 "/Views/Client/{1}/{0}.cshtml",
                 "/Views/Client/{1}s/{0}.cshtml",
                 "/Views/Client/{1}es/{0}.cshtml",
                 "/Views/Client/Shared/{0}.cshtml"
             };
+
+            // Special mapping for analytics controllers to Analytics folder
+            var analyticsControllers = new[] { "ClientAnalytics", "BusinessAnalytics", "ChartData", "Export" };
+            if (analyticsControllers.Contains(controllerName, StringComparer.OrdinalIgnoreCase))
+            {
+                clientLocations.Insert(0, "/Views/Client/Analytics/{0}.cshtml");
+            }
 
             // Prepend our custom locations so they are checked first
             return clientLocations.Concat(viewLocations);

@@ -147,18 +147,18 @@ namespace TownTrek.Services
             }
         }
 
-        private async Task<int> GetPreviousViewsAsync(int businessId)
+        private Task<int> GetPreviousViewsAsync(int businessId)
         {
             // This would typically query a cache or database for previous values
             // For now, return 0 as placeholder
-            return 0;
+            return Task.FromResult(0);
         }
 
-        private async Task<int> GetPreviousReviewsAsync(int businessId)
+        private Task<int> GetPreviousReviewsAsync(int businessId)
         {
             // This would typically query a cache or database for previous values
             // For now, return 0 as placeholder
-            return 0;
+            return Task.FromResult(0);
         }
 
         public void SetUserRefreshInterval(string userId, int intervalSeconds)

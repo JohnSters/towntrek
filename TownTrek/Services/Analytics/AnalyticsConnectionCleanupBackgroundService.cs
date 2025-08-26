@@ -71,7 +71,7 @@ namespace TownTrek.Services.Analytics
             _logger.LogInformation("Analytics Connection Cleanup Service stopped");
         }
 
-        private async Task PerformConnectionCleanupAsync()
+        private Task PerformConnectionCleanupAsync()
         {
             var startTime = DateTime.UtcNow;
             var memoryBefore = GC.GetTotalMemory(false);
@@ -122,6 +122,8 @@ namespace TownTrek.Services.Analytics
                     duration.TotalMilliseconds, memoryUsed / 1024);
                 throw; // Re-throw to trigger retry logic
             }
+
+            return Task.CompletedTask;
         }
         
         /// <summary>

@@ -31,13 +31,13 @@ namespace TownTrek.Services.Analytics
                 if (!validation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        validation.ErrorMessage,
+                        validation.ErrorMessage ?? "Invalid comparative analysis request",
                         userId,
                         "ComparativeAnalysisRequest",
                         "InvalidRequest",
                         new Dictionary<string, object> { ["Request"] = request }
                     );
-                    throw new AnalyticsValidationException(validation.ErrorMessage, "ComparativeAnalysisRequest", "InvalidRequest");
+                    throw new AnalyticsValidationException(validation.ErrorMessage ?? "Invalid comparative analysis request", "ComparativeAnalysisRequest", "InvalidRequest");
                 }
 
                 // Record analytics access event
@@ -89,7 +89,7 @@ namespace TownTrek.Services.Analytics
                 var previousEnd = currentStart.AddDays(-1);
 
                 return await GetCustomRangeComparisonAsync(userId, currentStart, endDate, previousStart, previousEnd, businessId, platform);
-            }, userId, "GetPeriodOverPeriodComparison", new Dictionary<string, object> { ["BusinessId"] = businessId, ["ComparisonType"] = comparisonType, ["Platform"] = platform });
+            }, userId, "GetPeriodOverPeriodComparison", new Dictionary<string, object> { ["BusinessId"] = businessId ?? 0, ["ComparisonType"] = comparisonType, ["Platform"] = platform ?? string.Empty });
         }
 
         public async Task<ComparativeAnalysisResponse> GetYearOverYearComparisonAsync(string userId, int? businessId = null, string? platform = null)
@@ -105,7 +105,7 @@ namespace TownTrek.Services.Analytics
                 var previousEnd = currentStart.AddDays(-1);
 
                 return await GetCustomRangeComparisonAsync(userId, currentStart, endDate, previousStart, previousEnd, businessId, platform);
-            }, userId, "GetYearOverYearComparison", new Dictionary<string, object> { ["BusinessId"] = businessId, ["Platform"] = platform });
+            }, userId, "GetYearOverYearComparison", new Dictionary<string, object> { ["BusinessId"] = businessId ?? 0, ["Platform"] = platform ?? string.Empty });
         }
 
         public async Task<ComparativeAnalysisResponse> GetCustomRangeComparisonAsync(string userId, DateTime currentStart, DateTime currentEnd, DateTime previousStart, DateTime previousEnd, int? businessId = null, string? platform = null)
@@ -174,7 +174,7 @@ namespace TownTrek.Services.Analytics
                     },
                     Insights = GenerateComparativeInsights(comparisonMetrics)
                 };
-            }, userId, "GetCustomRangeComparison", new Dictionary<string, object> { ["BusinessId"] = businessId, ["Platform"] = platform, ["CurrentStart"] = currentStart, ["CurrentEnd"] = currentEnd, ["PreviousStart"] = previousStart, ["PreviousEnd"] = previousEnd });
+            }, userId, "GetCustomRangeComparison", new Dictionary<string, object> { ["BusinessId"] = businessId ?? 0, ["Platform"] = platform ?? string.Empty, ["CurrentStart"] = currentStart, ["CurrentEnd"] = currentEnd, ["PreviousStart"] = previousStart, ["PreviousEnd"] = previousEnd });
         }
 
         // Private helper methods

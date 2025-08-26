@@ -105,11 +105,15 @@ class AnalyticsCharts {
         };
     }
 
-    // Initialize all charts
+    // Initialize charts
     async init() {
         try {
+            // Small delay to ensure DOM is fully loaded
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
             await this.initializeViewsChart();
             await this.initializeReviewsChart();
+            
             this.bindChartEvents();
             console.log('AnalyticsCharts initialized successfully');
         } catch (error) {
@@ -120,15 +124,29 @@ class AnalyticsCharts {
     // Initialize views chart
     async initializeViewsChart() {
         const canvas = document.getElementById('viewsChart');
-        if (!canvas) return;
+        if (!canvas) {
+            console.warn('Views chart canvas not found');
+            return;
+        }
+
+        const parentElement = canvas.closest('.chart-content') || canvas.parentElement;
+        if (!parentElement) {
+            console.warn('Views chart parent element not found');
+            return;
+        }
 
         try {
-            this.showChartLoading(canvas.parentElement);
+            this.showChartLoading(parentElement);
             const data = await this.fetchViewsData(30);
             
             // Clear loading state and recreate canvas
-            canvas.parentElement.innerHTML = '<canvas id="viewsChart" width="400" height="200"></canvas>';
-            const newCanvas = canvas.parentElement.querySelector('#viewsChart');
+            parentElement.innerHTML = '<canvas id="viewsChart" width="400" height="200"></canvas>';
+            const newCanvas = parentElement.querySelector('#viewsChart');
+            
+            if (!newCanvas) {
+                console.warn('Failed to recreate views chart canvas');
+                return;
+            }
             
             const chart = this.createChart(newCanvas, 'views', data);
             this.charts.set('views', chart);
@@ -136,22 +154,36 @@ class AnalyticsCharts {
             this.core.trackFeatureUsage('ViewsChart', 'Initialized');
         } catch (error) {
             console.error('Error initializing views chart:', error);
-            this.showChartError(canvas.parentElement, 'Unable to load views data');
+            this.showChartError(parentElement, 'Unable to load views data');
         }
     }
 
     // Initialize reviews chart
     async initializeReviewsChart() {
         const canvas = document.getElementById('reviewsChart');
-        if (!canvas) return;
+        if (!canvas) {
+            console.warn('Reviews chart canvas not found');
+            return;
+        }
+
+        const parentElement = canvas.closest('.chart-content') || canvas.parentElement;
+        if (!parentElement) {
+            console.warn('Reviews chart parent element not found');
+            return;
+        }
 
         try {
-            this.showChartLoading(canvas.parentElement);
+            this.showChartLoading(parentElement);
             const data = await this.fetchReviewsData(30);
             
             // Clear loading state and recreate canvas
-            canvas.parentElement.innerHTML = '<canvas id="reviewsChart" width="400" height="200"></canvas>';
-            const newCanvas = canvas.parentElement.querySelector('#reviewsChart');
+            parentElement.innerHTML = '<canvas id="reviewsChart" width="400" height="200"></canvas>';
+            const newCanvas = parentElement.querySelector('#reviewsChart');
+            
+            if (!newCanvas) {
+                console.warn('Failed to recreate reviews chart canvas');
+                return;
+            }
             
             const chart = this.createChart(newCanvas, 'reviews', data);
             this.charts.set('reviews', chart);
@@ -159,7 +191,7 @@ class AnalyticsCharts {
             this.core.trackFeatureUsage('ReviewsChart', 'Initialized');
         } catch (error) {
             console.error('Error initializing reviews chart:', error);
-            this.showChartError(canvas.parentElement, 'Unable to load reviews data');
+            this.showChartError(parentElement, 'Unable to load reviews data');
         }
     }
 

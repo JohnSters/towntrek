@@ -64,7 +64,7 @@ namespace TownTrek.Services.Analytics
 
                 var model = new ClientAnalyticsViewModel
                 {
-                    User = user,
+                    User = ConvertToUserInfo(user),
                     SubscriptionTier = authResult.SubscriptionTier?.Name ?? "None",
                     HasBasicAnalytics = hasBasicAnalytics,
                     HasStandardAnalytics = false,
@@ -455,9 +455,42 @@ namespace TownTrek.Services.Analytics
             var result = new List<BusinessAnalyticsData>();
             foreach (var businessId in businessIds)
             {
-                result.Add(await GetBusinessAnalyticsAsync(businessId, userId));
+                // Get business data directly from data service to avoid circular dependency
+                var business = await _dataService.GetBusinessAsync(businessId, userId);
+                if (business == null) continue;
+
+                var viewLogs = await _dataService.GetBusinessViewLogsAsync(new List<int> { businessId });
+                var reviews = await _dataService.GetBusinessReviewsAsync(new List<int> { businessId });
+                var favorites = await _dataService.GetBusinessFavoritesAsync(new List<int> { businessId });
+
+                var businessAnalytics = new BusinessAnalyticsData
+                {
+                    BusinessId = business.Id,
+                    BusinessName = business.Name,
+                    Category = business.Category,
+                    Status = business.Status,
+                    TotalViews = viewLogs.Count,
+                    TotalReviews = reviews.Count,
+                    TotalFavorites = favorites.Count,
+                    AverageRating = reviews.Any() ? reviews.Average(r => r.Rating) : 0,
+                    EngagementScore = CalculateEngagementScore(reviews.Count, favorites.Count, viewLogs.Count),
+                    PerformanceRating = CalculateBusinessPerformanceRating(viewLogs.Count, reviews.Count, favorites.Count, reviews.Any() ? reviews.Average(r => r.Rating) : 0),
+                    PerformanceTrend = "stable", // Placeholder
+                    Recommendations = new List<string> { "Add more photos", "Update business hours" } // Placeholder
+                };
+
+                result.Add(businessAnalytics);
             }
             return result;
+        }
+
+
+
+        private double CalculateBusinessPerformanceRating(int views, int reviews, int favorites, double averageRating)
+        {
+            // Simple performance rating calculation
+            var engagementScore = CalculateEngagementScore(views, reviews, favorites);
+            return (engagementScore * 0.7) + (averageRating * 0.3);
         }
 
         private Task<AnalyticsOverview> GetAnalyticsOverviewAsync(string userId, List<BusinessAnalyticsData> businessAnalytics)
@@ -598,16 +631,42 @@ namespace TownTrek.Services.Analytics
             return await GetReviewsOverTimeAsync(userId, days);
         }
 
-        public async Task<object> GetComparativeAnalysisDataAsync(string userId, string comparisonType, DateTime? fromDate = null, DateTime? toDate = null)
+        public Task<object> GetComparativeAnalysisDataAsync(string userId, string comparisonType, DateTime? fromDate = null, DateTime? toDate = null)
         {
             // This is a placeholder implementation - the actual comparative analysis logic
             // should be implemented based on the specific requirements
-            return new
+            return Task.FromResult<object>(new
             {
                 ComparisonType = comparisonType,
                 FromDate = fromDate,
                 ToDate = toDate,
                 Message = "Comparative analysis data will be implemented based on specific requirements"
+            });
+        }
+
+        private UserInfo ConvertToUserInfo(ApplicationUser user)
+        {
+            return new UserInfo
+            {
+                Id = user.Id,
+                UserName = user.UserName ?? string.Empty,
+                Email = user.Email ?? string.Empty,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Location = user.Location,
+                CreatedAt = user.CreatedAt,
+                LastLoginAt = user.LastLoginAt,
+                IsActive = user.IsActive,
+                ProfilePictureUrl = user.ProfilePictureUrl,
+                AuthenticationMethod = user.AuthenticationMethod,
+                CurrentSubscriptionTier = user.CurrentSubscriptionTier,
+                HasActiveSubscription = user.HasActiveSubscription,
+                SubscriptionStartDate = user.SubscriptionStartDate,
+                SubscriptionEndDate = user.SubscriptionEndDate,
+                IsTrialUser = user.IsTrialUser,
+                TrialStartDate = user.TrialStartDate,
+                TrialEndDate = user.TrialEndDate,
+                TrialExpired = user.TrialExpired
             };
         }
     }

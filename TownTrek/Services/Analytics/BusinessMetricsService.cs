@@ -33,7 +33,7 @@ namespace TownTrek.Services.Analytics
             {
                 await _viewTrackingService.LogBusinessViewAsync(businessId, null, "Web", null, null, null, null);
                 await _eventService.RecordBusinessViewEventAsync(businessId);
-            }, null, "RecordBusinessView", new Dictionary<string, object> { ["BusinessId"] = businessId });
+            }, string.Empty, "RecordBusinessView", new Dictionary<string, object> { ["BusinessId"] = businessId });
         }
 
         public async Task<ViewStatistics> GetBusinessViewStatisticsAsync(int businessId, DateTime startDate, DateTime endDate, string? platform = null)
@@ -45,26 +45,26 @@ namespace TownTrek.Services.Analytics
                 if (!dateRangeValidation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        dateRangeValidation.ErrorMessage,
-                        null,
+                        dateRangeValidation.ErrorMessage ?? "Invalid date range",
+                        string.Empty,
                         "DateRange",
                         "InvalidRange",
                         new Dictionary<string, object> { ["BusinessId"] = businessId, ["StartDate"] = startDate, ["EndDate"] = endDate }
                     );
-                    throw new AnalyticsValidationException(dateRangeValidation.ErrorMessage, "DateRange", "InvalidRange");
+                    throw new AnalyticsValidationException(dateRangeValidation.ErrorMessage ?? "Invalid date range", "DateRange", "InvalidRange");
                 }
 
                 var platformValidation = _validationService.ValidatePlatform(platform);
                 if (!platformValidation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        platformValidation.ErrorMessage,
-                        null,
+                        platformValidation.ErrorMessage ?? "Invalid platform",
+                        string.Empty,
                         "Platform",
                         "InvalidPlatform",
-                        new Dictionary<string, object> { ["BusinessId"] = businessId, ["Platform"] = platform }
+                        new Dictionary<string, object> { ["BusinessId"] = businessId, ["Platform"] = platform ?? string.Empty }
                     );
-                    throw new AnalyticsValidationException(platformValidation.ErrorMessage, "Platform", "InvalidPlatform");
+                    throw new AnalyticsValidationException(platformValidation.ErrorMessage ?? "Invalid platform", "Platform", "InvalidPlatform");
                 }
 
                 var viewLogs = await _dataService.GetBusinessViewLogsAsync(new List<int> { businessId }, startDate, endDate, platform);
@@ -76,9 +76,9 @@ namespace TownTrek.Services.Analytics
                     AverageViewsPerDay = viewLogs.Count / Math.Max(1, (endDate - startDate).Days),
                     PeakDayViews = viewLogs.GroupBy(v => v.ViewedAt.Date).Max(g => g.Count()),
                     PeakDayDate = viewLogs.GroupBy(v => v.ViewedAt.Date).OrderByDescending(g => g.Count()).FirstOrDefault()?.Key ?? DateTime.UtcNow,
-                    PlatformBreakdown = viewLogs.GroupBy(v => v.Platform).ToDictionary(g => g.Key, g => g.Count())
+                    PlatformBreakdown = viewLogs.GroupBy(v => v.Platform).ToDictionary(g => g.Key ?? "Unknown", g => g.Count())
                 };
-            }, null, "GetBusinessViewStatistics", new Dictionary<string, object> { ["BusinessId"] = businessId, ["StartDate"] = startDate, ["EndDate"] = endDate, ["Platform"] = platform });
+            }, string.Empty, "GetBusinessViewStatistics", new Dictionary<string, object> { ["BusinessId"] = businessId, ["StartDate"] = startDate, ["EndDate"] = endDate, ["Platform"] = platform ?? string.Empty });
         }
 
         public async Task<List<ViewsOverTimeData>> GetViewsOverTimeAsync(string userId, int days = 30)
@@ -90,13 +90,13 @@ namespace TownTrek.Services.Analytics
                 if (!daysValidation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        daysValidation.ErrorMessage,
+                        daysValidation.ErrorMessage ?? "Invalid days parameter",
                         userId,
                         "Days",
                         "InvalidDays",
                         new Dictionary<string, object> { ["Days"] = days }
                     );
-                    throw new AnalyticsValidationException(daysValidation.ErrorMessage, "Days", "InvalidDays");
+                    throw new AnalyticsValidationException(daysValidation.ErrorMessage ?? "Invalid days parameter", "Days", "InvalidDays");
                 }
 
                 // Record analytics access event
@@ -124,26 +124,26 @@ namespace TownTrek.Services.Analytics
                 if (!daysValidation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        daysValidation.ErrorMessage,
+                        daysValidation.ErrorMessage ?? "Invalid days parameter",
                         userId,
                         "Days",
                         "InvalidDays",
                         new Dictionary<string, object> { ["Days"] = days }
                     );
-                    throw new AnalyticsValidationException(daysValidation.ErrorMessage, "Days", "InvalidDays");
+                    throw new AnalyticsValidationException(daysValidation.ErrorMessage ?? "Invalid days parameter", "Days", "InvalidDays");
                 }
 
                 var platformValidation = _validationService.ValidatePlatform(platform);
                 if (!platformValidation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        platformValidation.ErrorMessage,
+                        platformValidation.ErrorMessage ?? "Invalid platform",
                         userId,
                         "Platform",
                         "InvalidPlatform",
-                        new Dictionary<string, object> { ["Platform"] = platform }
+                        new Dictionary<string, object> { ["Platform"] = platform ?? string.Empty }
                     );
-                    throw new AnalyticsValidationException(platformValidation.ErrorMessage, "Platform", "InvalidPlatform");
+                    throw new AnalyticsValidationException(platformValidation.ErrorMessage ?? "Invalid platform", "Platform", "InvalidPlatform");
                 }
 
                 // Record analytics access event
@@ -159,7 +159,7 @@ namespace TownTrek.Services.Analytics
                 var viewLogs = await _dataService.GetBusinessViewLogsAsync(businessIds, startDate, endDate, platform);
 
                 return ProcessViewsOverTimeData(viewLogs, startDate, endDate);
-            }, userId, "GetViewsOverTimeByPlatform", new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform });
+            }, userId, "GetViewsOverTimeByPlatform", new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform ?? string.Empty });
         }
 
         public async Task<List<ReviewsOverTimeData>> GetReviewsOverTimeAsync(string userId, int days = 30)
@@ -171,13 +171,13 @@ namespace TownTrek.Services.Analytics
                 if (!daysValidation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        daysValidation.ErrorMessage,
+                        daysValidation.ErrorMessage ?? "Invalid days parameter",
                         userId,
                         "Days",
                         "InvalidDays",
                         new Dictionary<string, object> { ["Days"] = days }
                     );
-                    throw new AnalyticsValidationException(daysValidation.ErrorMessage, "Days", "InvalidDays");
+                    throw new AnalyticsValidationException(daysValidation.ErrorMessage ?? "Invalid days parameter", "Days", "InvalidDays");
                 }
 
                 // Record analytics access event

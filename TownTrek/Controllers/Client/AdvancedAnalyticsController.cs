@@ -211,7 +211,7 @@ namespace TownTrek.Controllers.Client
 
         // POST: Client/AdvancedAnalytics/GenerateTestData
         [HttpPost]
-        public async Task<IActionResult> GenerateTestData()
+        public IActionResult GenerateTestData()
         {
             try
             {

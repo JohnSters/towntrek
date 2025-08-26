@@ -175,7 +175,7 @@ namespace TownTrek.Hubs
         /// <summary>
         /// Ping method for connection health checks
         /// </summary>
-        public async Task Ping()
+        public Task Ping()
         {
             var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
             var connectionId = Context.ConnectionId;
@@ -188,12 +188,14 @@ namespace TownTrek.Hubs
                     connectionInfo.LastActivity = DateTime.UtcNow;
                 }
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>
         /// Update refresh interval for a user with validation
         /// </summary>
-        public async Task UpdateRefreshInterval(int intervalSeconds)
+        public Task UpdateRefreshInterval(int intervalSeconds)
         {
             var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
             var connectionId = Context.ConnectionId;
@@ -201,14 +203,14 @@ namespace TownTrek.Hubs
             if (string.IsNullOrEmpty(userId))
             {
                 _logger.LogWarning("Unauthenticated refresh interval update attempt");
-                return;
+                return Task.CompletedTask;
             }
 
             // Validate interval
             if (intervalSeconds < 0 || intervalSeconds > 3600) // Max 1 hour
             {
                 _logger.LogWarning("Invalid refresh interval {Interval} for user {UserId}", intervalSeconds, userId);
-                return;
+                return Task.CompletedTask;
             }
 
             try
@@ -230,6 +232,8 @@ namespace TownTrek.Hubs
                 _logger.LogError(ex, "Error updating refresh interval for user {UserId}", userId);
                 throw;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

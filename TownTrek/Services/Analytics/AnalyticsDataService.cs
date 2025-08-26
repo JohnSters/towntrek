@@ -134,19 +134,27 @@ namespace TownTrek.Services.Analytics
             if (!categoryTownCombinations.Any()) return new List<Business>();
 
             // Get all businesses for the unique category-town combinations
-            var allCompetitors = await _context.Businesses
-                .Include(b => b.Town)
-                .Where(b => categoryTownCombinations.Any(ct => 
-                    b.Category == ct.Category && 
-                    b.Town.Name == ct.Town && 
-                    b.Status == AnalyticsConstants.BusinessStatus.Active))
-                .ToListAsync();
+            // Use a simpler approach that EF Core can translate
+            var allCompetitors = new List<Business>();
+            
+            foreach (var combination in categoryTownCombinations)
+            {
+                var competitors = await _context.Businesses
+                    .Include(b => b.Town)
+                    .Where(b => b.Category == combination.Category && 
+                               b.Town.Name == combination.Town && 
+                               b.Status == AnalyticsConstants.BusinessStatus.Active)
+                    .ToListAsync();
+                
+                allCompetitors.AddRange(competitors);
+            }
 
             // Filter out the user's own businesses and group by business ID
             var businessIds = competitorLookups.Select(lookup => ((dynamic)lookup).BusinessId as int?).Where(id => id.HasValue).ToList();
             
             return allCompetitors
                 .Where(b => !businessIds.Contains(b.Id))
+                .Distinct()
                 .ToList();
         }
 

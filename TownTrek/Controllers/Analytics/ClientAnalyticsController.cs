@@ -9,7 +9,7 @@ using TownTrek.Models.ViewModels;
 namespace TownTrek.Controllers.Client
 {
     [Authorize(Policy = "PaidClientAccess")] // Only allow paid clients (Basic, Standard, Premium) + Admin
-    [Route("Client/[controller]/[action]")]
+    [Route("Client/Analytics/[action]")]
     public class ClientAnalyticsController(
         IAnalyticsService analyticsService,
         IAnalyticsCacheService analyticsCacheService,

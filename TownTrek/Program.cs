@@ -47,6 +47,14 @@ public class Program
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
 
+        // Add session services for analytics tracking
+        builder.Services.AddSession(options =>
+        {
+            options.IdleTimeout = TimeSpan.FromMinutes(30);
+            options.Cookie.HttpOnly = true;
+            options.Cookie.IsEssential = true;
+        });
+
         // Configure application cookie settings
         builder.Services.ConfigureApplicationCookie(options =>
         {
@@ -277,6 +285,9 @@ public class Program
         app.UseStaticFiles();
 
         app.UseRouting();
+
+        // Add session middleware for analytics tracking
+        app.UseSession();
 
         // Add rate limiting middleware
         app.UseRateLimiter();

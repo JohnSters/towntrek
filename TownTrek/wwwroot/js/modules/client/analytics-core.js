@@ -12,9 +12,21 @@ class AnalyticsCore {
         this.eventListeners = new Map();
         this.config = {
             apiEndpoints: {
-                trackUsage: '/Client/ClientAnalytics/TrackUsage',
-                viewsData: '/Client/ChartData/ViewsChartData',
-                reviewsData: '/Client/ChartData/ReviewsChartData'
+                getClientAnalytics: '/Client/ClientAnalytics/GetClientAnalytics',
+                getBusinessAnalytics: '/Client/ClientAnalytics/GetBusinessAnalytics',
+                getViewsOverTime: '/Client/ChartData/ViewsOverTimeData',
+                getReviewsOverTime: '/Client/ChartData/ReviewsOverTimeData',
+                viewsData: '/Client/ChartData/ViewsOverTimeData',
+                reviewsData: '/Client/ChartData/ReviewsOverTimeData',
+                getCategoryBenchmarks: '/Client/BusinessAnalytics/Benchmarks',
+                getCompetitorInsights: '/Client/BusinessAnalytics/Competitors',
+                trackUsage: '/Client/Analytics/TrackUsage',
+                exportBusinessPdf: '/Client/Export/ExportBusinessPdf',
+                exportOverviewPdf: '/Client/Export/ExportOverviewPdf',
+                exportCsv: '/Client/Export/ExportCsv',
+                generateShareableLink: '/Client/Export/GenerateShareableLink',
+                sendEmailReport: '/Client/Export/SendEmailReport',
+                scheduleEmailReport: '/Client/Export/ScheduleEmailReport'
             },
             chartDefaults: {
                 responsive: true,

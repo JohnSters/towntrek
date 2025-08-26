@@ -20,12 +20,7 @@ public class AnalyticsException : Exception
         Context = context;
     }
 
-    protected AnalyticsException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        ErrorCode = info.GetString(nameof(ErrorCode)) ?? "ANALYTICS_ERROR";
-        ErrorCategory = info.GetString(nameof(ErrorCategory)) ?? "General";
-    }
-
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
@@ -50,12 +45,7 @@ public class AnalyticsDataException : AnalyticsException
         TableName = tableName;
     }
 
-    protected AnalyticsDataException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        QueryName = info.GetString(nameof(QueryName)) ?? "Unknown";
-        TableName = info.GetString(nameof(TableName));
-    }
-
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
@@ -80,12 +70,7 @@ public class AnalyticsValidationException : AnalyticsException
         ValidationRule = validationRule;
     }
 
-    protected AnalyticsValidationException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        ValidationField = info.GetString(nameof(ValidationField)) ?? "Unknown";
-        ValidationRule = info.GetString(nameof(ValidationRule)) ?? "Unknown";
-    }
-
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
@@ -110,12 +95,7 @@ public class AnalyticsCacheException : AnalyticsException
         CacheKey = cacheKey;
     }
 
-    protected AnalyticsCacheException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        CacheOperation = info.GetString(nameof(CacheOperation)) ?? "Unknown";
-        CacheKey = info.GetString(nameof(CacheKey));
-    }
-
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
@@ -140,12 +120,7 @@ public class AnalyticsChartException : AnalyticsException
         ChartId = chartId;
     }
 
-    protected AnalyticsChartException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        ChartType = info.GetString(nameof(ChartType)) ?? "Unknown";
-        ChartId = info.GetString(nameof(ChartId));
-    }
-
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
@@ -170,12 +145,7 @@ public class AnalyticsExportException : AnalyticsException
         ExportFormat = exportFormat;
     }
 
-    protected AnalyticsExportException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        ExportType = info.GetString(nameof(ExportType)) ?? "Unknown";
-        ExportFormat = info.GetString(nameof(ExportFormat));
-    }
-
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);
@@ -200,12 +170,7 @@ public class AnalyticsPermissionException : AnalyticsException
         UserId = userId;
     }
 
-    protected AnalyticsPermissionException(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
-        RequiredPermission = info.GetString(nameof(RequiredPermission)) ?? "Unknown";
-        UserId = info.GetString(nameof(UserId)) ?? "Unknown";
-    }
-
+    [Obsolete("This API supports obsolete formatter-based serialization. It should not be called or extended by application code.")]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
         base.GetObjectData(info, context);

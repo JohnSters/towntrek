@@ -33,13 +33,13 @@ namespace TownTrek.Services.Analytics
                 if (!validation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        validation.ErrorMessage,
+                        validation.ErrorMessage ?? "Invalid chart data request",
                         userId,
                         "ChartDataRequest",
                         "InvalidRequest",
-                        new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform }
+                        new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform ?? string.Empty }
                     );
-                    throw new AnalyticsValidationException(validation.ErrorMessage, "ChartDataRequest", "InvalidRequest");
+                    throw new AnalyticsValidationException(validation.ErrorMessage ?? "Invalid chart data request", "ChartDataRequest", "InvalidRequest");
                 }
 
                 // Record analytics access event
@@ -49,7 +49,7 @@ namespace TownTrek.Services.Analytics
                 
                 return new ViewsChartDataResponse
                 {
-                    Labels = viewsData.Select(d => d.Date.ToString(AnalyticsConstants.DateFormats.ShortDate)).ToList(),
+                    Labels = viewsData.Select(d => d.Date.ToString(AnalyticsConstants.DateFormats.ShortDate ?? "MMM dd")).ToList(),
                     Datasets = new List<ChartDataset>
                     {
                         new ChartDataset
@@ -62,7 +62,7 @@ namespace TownTrek.Services.Analytics
                         }
                     }
                 };
-            }, userId, "GetViewsChartData", new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform });
+            }, userId, "GetViewsChartData", new Dictionary<string, object> { ["Days"] = days, ["Platform"] = platform ?? string.Empty });
         }
 
         /// <summary>
@@ -77,13 +77,13 @@ namespace TownTrek.Services.Analytics
                 if (!validation.IsValid)
                 {
                     await _errorHandler.HandleValidationExceptionAsync(
-                        validation.ErrorMessage,
+                        validation.ErrorMessage ?? "Invalid chart data request",
                         userId,
                         "ChartDataRequest",
                         "InvalidRequest",
                         new Dictionary<string, object> { ["Days"] = days }
                     );
-                    throw new AnalyticsValidationException(validation.ErrorMessage, "ChartDataRequest", "InvalidRequest");
+                    throw new AnalyticsValidationException(validation.ErrorMessage ?? "Invalid chart data request", "ChartDataRequest", "InvalidRequest");
                 }
 
                 // Record analytics access event
@@ -93,7 +93,7 @@ namespace TownTrek.Services.Analytics
                 
                 return new ReviewsChartDataResponse
                 {
-                    Labels = reviewsData.Select(d => d.Date.ToString(AnalyticsConstants.DateFormats.ShortDate)).ToList(),
+                    Labels = reviewsData.Select(d => d.Date.ToString(AnalyticsConstants.DateFormats.ShortDate ?? "MMM dd")).ToList(),
                     Datasets = new List<ChartDataset>
                     {
                         new ChartDataset

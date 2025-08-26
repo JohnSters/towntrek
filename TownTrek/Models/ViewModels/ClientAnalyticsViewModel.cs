@@ -4,8 +4,8 @@ namespace TownTrek.Models.ViewModels
 {
     public class ClientAnalyticsViewModel
     {
-        // User and subscription info
-        public ApplicationUser User { get; set; } = null!;
+        // User and subscription info (simplified to avoid circular references)
+        public UserInfo User { get; set; } = new();
         public string SubscriptionTier { get; set; } = string.Empty;
         public bool HasBasicAnalytics { get; set; }
         // Deprecated in favor of AdvancedAnalytics
@@ -29,6 +29,30 @@ namespace TownTrek.Models.ViewModels
         // Comparison data (Premium only)
         public CategoryBenchmarkData? CategoryBenchmarks { get; set; }
         public List<CompetitorInsight> CompetitorInsights { get; set; } = new();
+    }
+
+    // Simplified user info to avoid circular references
+    public class UserInfo
+    {
+        public string Id { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string? Location { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? LastLoginAt { get; set; }
+        public bool IsActive { get; set; }
+        public string? ProfilePictureUrl { get; set; }
+        public string AuthenticationMethod { get; set; } = string.Empty;
+        public string? CurrentSubscriptionTier { get; set; }
+        public bool HasActiveSubscription { get; set; }
+        public DateTime? SubscriptionStartDate { get; set; }
+        public DateTime? SubscriptionEndDate { get; set; }
+        public bool IsTrialUser { get; set; }
+        public DateTime? TrialStartDate { get; set; }
+        public DateTime? TrialEndDate { get; set; }
+        public bool TrialExpired { get; set; }
     }
 
     public class BusinessAnalyticsData

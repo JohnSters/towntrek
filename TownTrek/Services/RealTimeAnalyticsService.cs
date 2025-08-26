@@ -162,7 +162,7 @@ namespace TownTrek.Services
             }
         }
 
-        public async Task<int> GetActiveConnectionsCountAsync()
+        public Task<int> GetActiveConnectionsCountAsync()
         {
             try
             {
@@ -170,12 +170,12 @@ namespace TownTrek.Services
                 // In a production environment, you might want to track connections more precisely
                 var connections = _hubContext.Clients.All;
                 // This is a placeholder - actual connection counting would require additional infrastructure
-                return 0; // Placeholder return
+                return Task.FromResult(0); // Placeholder return
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting active connections count");
-                return 0;
+                return Task.FromResult(0);
             }
         }
     }
