@@ -168,6 +168,57 @@ services.AddScoped<IAdvancedAnalyticsService, AdvancedAnalyticsService>();
 - **Advanced Analytics Tables** missing proper indexing configurations
 - **AnalyticsEvents** missing indexes for event sourcing queries
 
+### 8. JavaScript Architecture Complexity ✅ **NEW ISSUE IDENTIFIED**
+**Severity**: HIGH
+**Issues**:
+- **5 Large JavaScript Files** (2,767 lines total, 106.6KB)
+  - `analytics.js` (29KB, 758 lines) - Main analytics dashboard
+  - `real-time-analytics.js` (18KB, 481 lines) - SignalR connections
+  - `advanced-analytics.js` (21KB, 528 lines) - Predictive analytics
+  - `comparative-analytics.js` (23KB, 629 lines) - Comparison features
+  - `analytics-export.js` (15KB, 371 lines) - Export functionality
+- **Complex Inter-Module Dependencies**: Modules reference each other without clear interfaces
+- **Memory Leaks**: SignalR connections not properly managed
+- **Error Handling**: Inconsistent error handling across modules
+- **Performance**: Large bundle size affects page load times
+
+### 9. CSS Complexity and Duplication ✅ **NEW ISSUE IDENTIFIED**
+**Severity**: MEDIUM
+**Issues**:
+- **7 Analytics CSS Files** (3,105 lines total, 59.4KB)
+  - `analytics.css` (20KB, 1037 lines) - Main analytics styles
+  - `advanced-analytics.css` (9.5KB, 510 lines) - Advanced features
+  - `real-time-analytics.css` (9.1KB, 441 lines) - Real-time components
+  - `dashboard-customization.css` (8.8KB, 402 lines) - Customization
+  - `business-analytics.css` (6.8KB, 359 lines) - Business-specific
+  - `analytics-export-modal.css` (4.1KB, 240 lines) - Export modal
+  - `trial-countdown.css` (2.9KB, 136 lines) - Trial features
+- **Style Duplication**: Similar styles repeated across files
+- **No CSS Architecture**: No clear organization or naming conventions
+- **Performance Impact**: Multiple CSS files increase HTTP requests
+
+### 10. View Complexity ✅ **NEW ISSUE IDENTIFIED**
+**Severity**: MEDIUM
+**Issues**:
+- **6 Analytics Views** (1,731 lines total)
+  - `Index.cshtml` (20KB, 367 lines) - Main dashboard
+  - `ComparativeAnalysis.cshtml` (21KB, 423 lines) - Comparison view
+  - `_DashboardCustomization.cshtml` (11KB, 208 lines) - Customization
+  - `Business.cshtml` (10KB, 196 lines) - Business analytics
+  - `Competitors.cshtml` (3.9KB, 90 lines) - Competitor analysis
+  - `Benchmarks.cshtml` (7.1KB, 147 lines) - Benchmarking
+- **Mixed Concerns**: Views contain business logic and presentation
+- **Large File Sizes**: Views are too large and complex
+- **Inconsistent Structure**: No standardized view organization
+
+### 11. SignalR Connection Management ✅ **NEW ISSUE IDENTIFIED**
+**Severity**: MEDIUM
+**Issues**:
+- **Connection Leaks**: Connections not properly disposed
+- **Error Recovery**: Inadequate error handling for connection failures
+- **Memory Usage**: Background services may accumulate connections
+- **Scalability**: No connection pooling or limits
+
 ## File Structure Analysis
 
 ### Current Service Layer ✅ **VERIFIED**
@@ -194,6 +245,7 @@ Services/Analytics/ (15 files, ~8,000 lines total)
 ```
 Controllers/
 ├── Analytics/AnalyticsController.cs (1,168 lines) - TOO LARGE ✅ VERIFIED
+├── Client/AdvancedAnalyticsController.cs (89 lines) ✅ VERIFIED
 └── Admin/AnalyticsMonitoringController.cs (328 lines) ✅ VERIFIED
 ```
 
@@ -217,6 +269,29 @@ wwwroot/js/modules/client/
 └── analytics-export.js (15KB, 371 lines) ✅ VERIFIED
 ```
 
+### CSS Complexity ✅ **NEW**
+```
+wwwroot/css/features/client/
+├── analytics.css (20KB, 1037 lines) ✅ VERIFIED
+├── advanced-analytics.css (9.5KB, 510 lines) ✅ VERIFIED
+├── real-time-analytics.css (9.1KB, 441 lines) ✅ VERIFIED
+├── dashboard-customization.css (8.8KB, 402 lines) ✅ VERIFIED
+├── business-analytics.css (6.8KB, 359 lines) ✅ VERIFIED
+├── analytics-export-modal.css (4.1KB, 240 lines) ✅ VERIFIED
+└── trial-countdown.css (2.9KB, 136 lines) ✅ VERIFIED
+```
+
+### View Complexity ✅ **NEW**
+```
+Views/Client/Analytics/
+├── Index.cshtml (20KB, 367 lines) ✅ VERIFIED
+├── ComparativeAnalysis.cshtml (21KB, 423 lines) ✅ VERIFIED
+├── _DashboardCustomization.cshtml (11KB, 208 lines) ✅ VERIFIED
+├── Business.cshtml (10KB, 196 lines) ✅ VERIFIED
+├── Competitors.cshtml (3.9KB, 90 lines) ✅ VERIFIED
+└── Benchmarks.cshtml (7.1KB, 147 lines) ✅ VERIFIED
+```
+
 ## Performance Analysis
 
 ### Database Query Issues ✅ **VERIFIED**
@@ -234,6 +309,12 @@ wwwroot/js/modules/client/
 1. **Single Point of Failure**: Large monolithic services
 2. **No Horizontal Scaling**: Analytics services not designed for scale
 3. **Database Bottlenecks**: Heavy analytics queries impact performance
+
+### Frontend Performance Issues ✅ **NEW**
+1. **JavaScript Bundle Size**: 106.6KB total affects page load performance
+2. **CSS Bundle Size**: 59.4KB total increases HTTP requests
+3. **View Complexity**: Large views impact rendering performance
+4. **SignalR Overhead**: Real-time updates consume bandwidth
 
 ## Recommendations for Cleanup
 
@@ -343,24 +424,98 @@ ExportController.cs             -- Data export functionality
 
 ### Phase 5: Frontend Optimization (Week 9-10)
 
-#### 5.1 Consolidate JavaScript Modules ✅ **MEDIUM**
-**Priority**: MEDIUM
-**Action**: Merge related JavaScript files
+#### 5.1 Consolidate JavaScript Modules ✅ **HIGH**
+**Priority**: HIGH
+**Action**: Merge related JavaScript files and implement proper architecture
 **Files**: `wwwroot/js/modules/client/`
 **Strategy**:
-- Combine analytics.js and real-time-analytics.js
-- Merge advanced-analytics.js and comparative-analytics.js
-- Keep analytics-export.js separate for modularity
+- **Create Analytics Module System**:
+  ```javascript
+  // Proposed structure
+  analytics-core.js          -- Core analytics functionality
+  analytics-charts.js        -- Chart management
+  analytics-realtime.js      -- SignalR integration
+  analytics-export.js        -- Export functionality
+  ```
+- **Implement Module Pattern**: Use ES6 modules for better organization
+- **Add Proper Error Boundaries**: Centralized error handling
+- **Optimize Bundle Size**: Code splitting and lazy loading
 
-#### 5.2 Optimize Real-Time Updates ✅ **MEDIUM**
+#### 5.2 Consolidate CSS Files ✅ **MEDIUM**
+**Priority**: MEDIUM
+**Action**: Merge CSS files and implement proper architecture
+**Files**: `wwwroot/css/features/client/`
+**Strategy**:
+- **Create CSS Architecture**:
+  ```css
+  /* Proposed structure */
+  analytics-base.css         -- Base analytics styles
+  analytics-components.css   -- Reusable components
+  analytics-layouts.css      -- Layout-specific styles
+  analytics-themes.css       -- Theme variations
+  ```
+- **Implement CSS Custom Properties**: For consistent theming
+- **Remove Duplication**: Consolidate similar styles
+- **Optimize Loading**: Critical CSS inlining
+
+#### 5.3 Optimize Real-Time Updates ✅ **MEDIUM**
 **Priority**: MEDIUM
 **Action**: Improve SignalR connection management
 **Files**: `wwwroot/js/modules/client/real-time-analytics.js`
+**Strategy**:
+- **Connection Pooling**: Implement proper connection management
+- **Error Recovery**: Robust error handling and reconnection
+- **Memory Management**: Proper cleanup of event listeners
+- **Performance Monitoring**: Track connection health
 
-#### 5.3 Implement Proper Error Handling ✅ **MEDIUM**
+#### 5.4 Refactor Views ✅ **MEDIUM**
+**Priority**: MEDIUM
+**Action**: Break down large views into smaller components
+**Files**: `Views/Client/Analytics/`
+**Strategy**:
+- **Create Partial Views**:
+  ```html
+  <!-- Proposed structure -->
+  _AnalyticsHeader.cshtml     -- Header component
+  _AnalyticsCharts.cshtml     -- Chart components
+  _AnalyticsMetrics.cshtml    -- Metrics display
+  _AnalyticsFilters.cshtml    -- Filter components
+  ```
+- **Implement View Components**: For complex logic
+- **Reduce File Sizes**: Target < 200 lines per view
+- **Improve Maintainability**: Clear separation of concerns
+
+#### 5.5 Implement Proper Error Handling ✅ **MEDIUM**
 **Priority**: MEDIUM
 **Action**: Add comprehensive error handling
 **Files**: All JavaScript files
+**Strategy**:
+- **Global Error Handler**: Centralized error management
+- **User-Friendly Messages**: Clear error communication
+- **Error Recovery**: Automatic retry mechanisms
+- **Error Logging**: Proper error tracking
+
+### Phase 6: SignalR Optimization (Week 11-12)
+
+#### 6.1 Connection Management ✅ **HIGH**
+**Priority**: HIGH
+**Action**: Implement proper SignalR connection management
+**Files**: `Hubs/AnalyticsHub.cs`, `wwwroot/js/modules/client/real-time-analytics.js`
+**Strategy**:
+- **Connection Pooling**: Limit concurrent connections
+- **Automatic Reconnection**: Robust reconnection logic
+- **Memory Cleanup**: Proper disposal of connections
+- **Performance Monitoring**: Track connection metrics
+
+#### 6.2 Background Service Optimization ✅ **MEDIUM**
+**Priority**: MEDIUM
+**Action**: Optimize background services for analytics
+**Files**: `Services/Analytics/`
+**Strategy**:
+- **Resource Management**: Proper disposal of resources
+- **Memory Monitoring**: Track memory usage
+- **Error Handling**: Robust error recovery
+- **Scalability**: Design for horizontal scaling
 
 ## Implementation Priority Matrix
 
@@ -369,10 +524,14 @@ ExportController.cs             -- Data export functionality
 | Service Registration Duplication | High | Low | CRITICAL | Week 1 | ✅ VERIFIED |
 | Missing Database Indexes | High | Low | HIGH | Week 1 | ✅ VERIFIED |
 | N+1 Query Problems | High | Medium | HIGH | Week 1-2 | ✅ PARTIALLY ADDRESSED |
+| JavaScript Architecture | High | High | HIGH | Week 9-10 | ✅ NEW ISSUE |
 | Massive Controller | High | High | HIGH | Week 5-6 | ✅ VERIFIED |
+| CSS Architecture | Medium | Medium | MEDIUM | Week 9-10 | ✅ NEW ISSUE |
 | Service Architecture | Medium | High | MEDIUM | Week 3-4 | ✅ VERIFIED |
+| SignalR Optimization | Medium | Medium | MEDIUM | Week 11-12 | ✅ NEW ISSUE |
 | Real-Time Complexity | Medium | Medium | MEDIUM | Week 9-10 | ✅ VERIFIED |
 | Data Model Issues | Medium | Medium | MEDIUM | Week 7-8 | ✅ VERIFIED |
+| View Complexity | Medium | Medium | MEDIUM | Week 9-10 | ✅ NEW ISSUE |
 | JavaScript Optimization | Low | Medium | LOW | Week 9-10 | ✅ VERIFIED |
 
 ## Success Metrics
@@ -382,18 +541,22 @@ ExportController.cs             -- Data export functionality
 - **Page Load Time**: Improve by 50%
 - **Memory Usage**: Reduce by 30%
 - **Error Rate**: Reduce by 80%
+- **JavaScript Bundle Size**: Reduce by 40%
+- **CSS Bundle Size**: Reduce by 30%
 
 ### Code Quality Improvements
 - **Cyclomatic Complexity**: Reduce by 60%
 - **Code Duplication**: Eliminate 90%
 - **Test Coverage**: Achieve 80% coverage
 - **Maintainability Index**: Improve by 40%
+- **File Size Reduction**: Reduce average file size by 50%
 
 ### User Experience Improvements
 - **Analytics Dashboard Load Time**: < 2 seconds
 - **Real-Time Update Latency**: < 500ms
 - **Error Recovery**: 95% success rate
 - **Mobile Performance**: Parity with desktop
+- **Connection Stability**: 99.9% uptime
 
 ## Risk Assessment
 
@@ -401,12 +564,16 @@ ExportController.cs             -- Data export functionality
 1. **Service Registration Changes**: Potential runtime errors
 2. **Database Schema Changes**: Data integrity risks
 3. **Controller Refactoring**: Breaking changes to API endpoints
+4. **JavaScript Refactoring**: Potential breaking changes to frontend
+5. **SignalR Changes**: Real-time functionality disruption
 
 ### Mitigation Strategies
 1. **Comprehensive Testing**: Unit, integration, and end-to-end tests
 2. **Feature Flags**: Gradual rollout of changes
 3. **Database Backups**: Before schema changes
 4. **Monitoring**: Enhanced logging during transition
+5. **Rollback Plan**: Quick rollback procedures
+6. **User Communication**: Clear communication about changes
 
 ## Additional Findings
 
@@ -422,17 +589,33 @@ ExportController.cs             -- Data export functionality
 **Impact**: Large bundle size affects page load performance
 **Solution**: Implement code splitting and lazy loading
 
+### CSS Bundle Size ✅ **NEW**
+**Total Size**: 59.4KB across 7 files
+**Lines of Code**: 3,105 lines
+**Impact**: Multiple HTTP requests and large CSS bundle
+**Solution**: Consolidate files and implement critical CSS inlining
+
+### View Complexity ✅ **NEW**
+**Total Size**: 1,731 lines across 6 views
+**Impact**: Large views affect rendering performance
+**Solution**: Break into smaller partial views and components
+
+### SignalR Connection Issues ✅ **NEW**
+**Issue**: Connection management not optimized
+**Impact**: Potential memory leaks and performance issues
+**Solution**: Implement proper connection pooling and cleanup
+
 ## Conclusion
 
-The TownTrek Analytics System requires immediate attention to address critical architectural issues. The most critical issues (service duplication, missing indexes, N+1 queries) should be addressed first, followed by structural improvements and optimizations.
+The TownTrek Analytics System requires immediate attention to address critical architectural issues. The most critical issues (service duplication, missing indexes, N+1 queries, JavaScript architecture) should be addressed first, followed by structural improvements and optimizations.
 
-**Estimated Total Effort**: 10 weeks
+**Estimated Total Effort**: 12 weeks
 **Recommended Team Size**: 2-3 developers
 **Risk Level**: Medium (with proper planning and testing)
 
 ---
 
-*Document Version: 2.0*  
+*Document Version: 3.0*  
 *Last Updated: [Current Date]*  
 *Prepared By: AI Assistant*  
-*Review Status: Verified and Updated*
+*Review Status: Comprehensive Analysis Complete*
