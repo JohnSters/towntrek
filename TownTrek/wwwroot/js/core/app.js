@@ -92,6 +92,27 @@ class TownTrekApp {
    * @private
    */
   autoInitializeModules() {
+    // Wait for all scripts to load before initializing modules
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        // Add a small delay to ensure all scripts are loaded
+        setTimeout(() => {
+          this.initializeModulesBasedOnRoute();
+        }, 100);
+      });
+    } else {
+      // Add a small delay to ensure all scripts are loaded
+      setTimeout(() => {
+        this.initializeModulesBasedOnRoute();
+      }, 100);
+    }
+  }
+
+  /**
+   * Initialize modules based on current route
+   * @private
+   */
+  initializeModulesBasedOnRoute() {
     const currentPath = window.location.pathname.toLowerCase();
 
     // Business-related pages
@@ -219,8 +240,20 @@ class TownTrekApp {
         const instance = new moduleClass({ mode });
         this.modules.set(moduleKey, instance);
         console.log(`✅ Initialized module: ${moduleKey}`);
+        
+        // Special handling for analytics modules
+        if (moduleName === 'client-analytics') {
+          // Wait a bit more for analytics modules to be fully loaded
+          setTimeout(() => {
+            if (instance.init) {
+              instance.init().catch(error => {
+                console.error('Error initializing analytics module:', error);
+              });
+            }
+          }, 200);
+        }
       } else {
-        console.warn(`⚠️ Module class not found: ${moduleName} (${mode})`);
+        console.warn(`⚠️ Module class not found: ${moduleName} (${mode}) - Available classes:`, Object.keys(window).filter(key => key.includes('Manager') || key.includes('Analytics')));
       }
     } catch (error) {
       console.error(`❌ Failed to initialize module ${moduleName}:`, error);
