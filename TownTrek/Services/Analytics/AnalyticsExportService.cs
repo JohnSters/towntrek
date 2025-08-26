@@ -56,6 +56,10 @@ namespace TownTrek.Services.Analytics
 
                 // Get analytics data
                 var analytics = await _analyticsCacheService.GetBusinessAnalyticsAsync(businessId, userId);
+                if (analytics == null)
+                {
+                    throw new AnalyticsValidationException("Analytics data not found", "Analytics", "NotFound");
+                }
                 fromDate ??= DateTime.UtcNow.AddDays(-30);
                 toDate ??= DateTime.UtcNow;
 
@@ -143,7 +147,7 @@ namespace TownTrek.Services.Analytics
                 document.Close();
 
                 return memoryStream.ToArray();
-            }, userId, "GenerateBusinessAnalyticsPdf", new Dictionary<string, object> { ["BusinessId"] = businessId, ["FromDate"] = fromDate, ["ToDate"] = toDate });
+            }, userId, "GenerateBusinessAnalyticsPdf", new Dictionary<string, object> { ["BusinessId"] = businessId, ["FromDate"] = fromDate!, ["ToDate"] = toDate! });
         }
 
         public async Task<byte[]> GenerateClientAnalyticsPdfAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null)
@@ -152,6 +156,10 @@ namespace TownTrek.Services.Analytics
             {
                 // Get analytics data
                 var analytics = await _analyticsCacheService.GetClientAnalyticsAsync(userId);
+                if (analytics == null)
+                {
+                    throw new AnalyticsValidationException("Analytics data not found", "Analytics", "NotFound");
+                }
                 fromDate ??= DateTime.UtcNow.AddDays(-30);
                 toDate ??= DateTime.UtcNow;
 
@@ -228,8 +236,8 @@ namespace TownTrek.Services.Analytics
                 return memoryStream.ToArray();
             }, userId, "PDFGeneration", new Dictionary<string, object>
             {
-                ["FromDate"] = fromDate,
-                ["ToDate"] = toDate
+                ["FromDate"] = fromDate!,
+                ["ToDate"] = toDate!
             });
         }
 
@@ -261,7 +269,7 @@ namespace TownTrek.Services.Analytics
                             userId,
                             "DataExport",
                             "UnsupportedDataType",
-                            new Dictionary<string, object> { ["DataType"] = dataType }
+                            new Dictionary<string, object> { ["DataType"] = dataType! }
                         );
                         throw new AnalyticsValidationException($"Unsupported data type: {dataType}", "DataExport", "UnsupportedDataType");
                 }
@@ -270,10 +278,10 @@ namespace TownTrek.Services.Analytics
                 return memoryStream.ToArray();
             }, userId, "ExportAnalyticsCsv", new Dictionary<string, object>
             {
-                ["DataType"] = dataType,
-                ["FromDate"] = fromDate,
-                ["ToDate"] = toDate,
-                ["BusinessId"] = businessId
+                ["DataType"] = dataType!,
+                ["FromDate"] = fromDate!,
+                ["ToDate"] = toDate!,
+                ["BusinessId"] = businessId!
             });
         }
 
@@ -321,9 +329,9 @@ namespace TownTrek.Services.Analytics
                 return token;
             }, userId, "GenerateShareableLink", new Dictionary<string, object>
             {
-                ["DashboardType"] = dashboardType,
-                ["BusinessId"] = businessId,
-                ["ExpiresAt"] = expiresAt
+                ["DashboardType"] = dashboardType!,
+                ["BusinessId"] = businessId!,
+                ["ExpiresAt"] = expiresAt!
             });
         }
 
@@ -356,9 +364,9 @@ namespace TownTrek.Services.Analytics
                 await _context.SaveChangesAsync();
 
                 return true;
-            }, null, "ValidateShareableLink", new Dictionary<string, object>
+            }, string.Empty, "ValidateShareableLink", new Dictionary<string, object>
             {
-                ["LinkToken"] = linkToken
+                ["LinkToken"] = linkToken!
             });
         }
 
@@ -396,9 +404,9 @@ namespace TownTrek.Services.Analytics
                 }
 
                 return null;
-            }, null, "GetShareableLinkData", new Dictionary<string, object>
+            }, string.Empty, "GetShareableLinkData", new Dictionary<string, object>
             {
-                ["LinkToken"] = linkToken
+                ["LinkToken"] = linkToken!
             });
         }
 
@@ -458,9 +466,9 @@ namespace TownTrek.Services.Analytics
                 return true;
             }, userId, "ScheduleEmailReport", new Dictionary<string, object>
             {
-                ["ReportType"] = reportType,
-                ["Frequency"] = frequency,
-                ["BusinessId"] = businessId
+                ["ReportType"] = reportType!,
+                ["Frequency"] = frequency!,
+                ["BusinessId"] = businessId!
             });
         }
 
@@ -511,7 +519,7 @@ namespace TownTrek.Services.Analytics
 
                 // Send email with PDF attachment
                 var emailSent = await _emailService.SendEmailWithAttachmentAsync(
-                    user.Email,
+                    user.Email!,
                     subject,
                     "Please find your analytics report attached.",
                     reportData,
@@ -536,10 +544,10 @@ namespace TownTrek.Services.Analytics
                 return emailSent;
             }, userId, "SendEmailReport", new Dictionary<string, object>
             {
-                ["ReportType"] = reportType,
-                ["BusinessId"] = businessId,
-                ["FromDate"] = fromDate,
-                ["ToDate"] = toDate
+                ["ReportType"] = reportType!,
+                ["BusinessId"] = businessId!,
+                ["FromDate"] = fromDate!,
+                ["ToDate"] = toDate!
             });
         }
 
@@ -585,7 +593,7 @@ namespace TownTrek.Services.Analytics
                     BusinessName = r.Business.Name,
                     r.Rating,
                     r.Comment,
-                    ReviewerName = r.User.UserName
+                    ReviewerName = r.User.UserName ?? "Unknown"
                 })
                 .ToListAsync();
 
@@ -649,8 +657,8 @@ namespace TownTrek.Services.Analytics
             }, userId, "ExportBusinessAnalyticsToPdf", new Dictionary<string, object>
             {
                 ["BusinessId"] = businessId,
-                ["FromDate"] = fromDate,
-                ["ToDate"] = toDate
+                ["FromDate"] = fromDate!,
+                ["ToDate"] = toDate!
             });
         }
 
@@ -666,8 +674,8 @@ namespace TownTrek.Services.Analytics
                 return await GenerateClientAnalyticsPdfAsync(userId, fromDate, toDate);
             }, userId, "ExportOverviewAnalyticsToPdf", new Dictionary<string, object>
             {
-                ["FromDate"] = fromDate,
-                ["ToDate"] = toDate
+                ["FromDate"] = fromDate!,
+                ["ToDate"] = toDate!
             });
         }
 
@@ -688,10 +696,10 @@ namespace TownTrek.Services.Analytics
                 return await ExportAnalyticsCsvAsync(userId, dataType, fromDate, toDate, businessId);
             }, userId, "ExportDataToCsv", new Dictionary<string, object>
             {
-                ["DataType"] = dataType,
-                ["FromDate"] = fromDate,
-                ["ToDate"] = toDate,
-                ["BusinessId"] = businessId
+                ["DataType"] = dataType!,
+                ["FromDate"] = fromDate!,
+                ["ToDate"] = toDate!,
+                ["BusinessId"] = businessId!
             });
         }
     }

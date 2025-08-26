@@ -71,6 +71,7 @@ class AnalyticsCharts {
                         y: {
                             display: true,
                             beginAtZero: true,
+                            max: 5,
                             grid: {
                                 color: 'rgba(0, 0, 0, 0.1)',
                                 drawBorder: false
@@ -78,24 +79,50 @@ class AnalyticsCharts {
                             ticks: {
                                 font: { size: 11 },
                                 color: '#6c757d',
-                                stepSize: 1
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return value.toFixed(1);
+                                }
                             }
                         }
                     },
                     elements: {
                         bar: {
                             borderRadius: 4,
-                            borderSkipped: false
+                            borderSkipped: false,
+                            backgroundColor: '#86bbd8',
+                            borderColor: '#33658a',
+                            borderWidth: 1
                         }
                     },
                     plugins: {
                         tooltip: {
                             callbacks: {
-                                afterBody: function(context) {
-                                    if (context[0] && context[0].raw > 0) {
-                                        return `Average Rating: ${(Math.random() * 2 + 3).toFixed(1)} ⭐`;
+                                title: function(context) {
+                                    return context[0].label;
+                                },
+                                label: function(context) {
+                                    const rating = context.raw;
+                                    const dataIndex = context.dataIndex;
+                                    const chart = context.chart;
+                                    const dataset = chart.data.datasets[0];
+                                    const reviewCount = dataset.reviewCounts ? dataset.reviewCounts[dataIndex] : 0;
+                                    
+                                    let label = `Rating: ${rating.toFixed(1)} ⭐`;
+                                    if (reviewCount > 0) {
+                                        label += ` (${reviewCount} review${reviewCount > 1 ? 's' : ''})`;
                                     }
-                                    return '';
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            labels: {
+                                usePointStyle: true,
+                                padding: 20,
+                                font: {
+                                    size: 12
                                 }
                             }
                         }
@@ -108,8 +135,12 @@ class AnalyticsCharts {
     // Initialize charts
     async init() {
         try {
+            console.log('AnalyticsCharts: Starting initialization...');
+            
             // Small delay to ensure DOM is fully loaded
             await new Promise(resolve => setTimeout(resolve, 100));
+            
+            console.log('AnalyticsCharts: DOM should be ready, initializing charts...');
             
             await this.initializeViewsChart();
             await this.initializeReviewsChart();
@@ -123,21 +154,27 @@ class AnalyticsCharts {
 
     // Initialize views chart
     async initializeViewsChart() {
+        console.log('AnalyticsCharts: Initializing views chart...');
+        
         const canvas = document.getElementById('viewsChart');
         if (!canvas) {
             console.warn('Views chart canvas not found');
             return;
         }
+        console.log('AnalyticsCharts: Views chart canvas found');
 
         const parentElement = canvas.closest('.chart-content') || canvas.parentElement;
         if (!parentElement) {
             console.warn('Views chart parent element not found');
             return;
         }
+        console.log('AnalyticsCharts: Views chart parent element found');
 
         try {
             this.showChartLoading(parentElement);
+            console.log('AnalyticsCharts: Fetching views data...');
             const data = await this.fetchViewsData(30);
+            console.log('AnalyticsCharts: Views data fetched:', data);
             
             // Clear loading state and recreate canvas
             parentElement.innerHTML = '<canvas id="viewsChart" width="400" height="200"></canvas>';
@@ -148,10 +185,12 @@ class AnalyticsCharts {
                 return;
             }
             
+            console.log('AnalyticsCharts: Creating views chart...');
             const chart = this.createChart(newCanvas, 'views', data);
             this.charts.set('views', chart);
             
             this.core.trackFeatureUsage('ViewsChart', 'Initialized');
+            console.log('AnalyticsCharts: Views chart created successfully');
         } catch (error) {
             console.error('Error initializing views chart:', error);
             this.showChartError(parentElement, 'Unable to load views data');
@@ -262,11 +301,37 @@ class AnalyticsCharts {
     // Fetch views data
     async fetchViewsData(days) {
         try {
-            const data = await this.core.fetchData(this.core.config.apiEndpoints.viewsData, { days });
-            return {
-                labels: data.labels || [],
-                datasets: data.datasets || []
-            };
+            console.log('AnalyticsCharts: Fetching views data for', days, 'days');
+            console.log('AnalyticsCharts: API endpoint:', this.core.config.apiEndpoints.viewsData);
+            
+            const response = await this.core.fetchData(this.core.config.apiEndpoints.viewsData, { days });
+            console.log('AnalyticsCharts: Raw API response:', response);
+            
+            if (!response.success) {
+                throw new Error(response.message || 'Failed to fetch views data');
+            }
+            
+            // Transform the data into Chart.js format
+            const viewsData = response.data || [];
+            console.log('AnalyticsCharts: Views data before transformation:', viewsData);
+            
+            const labels = viewsData.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+            
+            const datasets = [{
+                label: 'Views',
+                data: viewsData.map(item => item.views),
+                borderColor: '#33658a',
+                backgroundColor: '#33658a20',
+                fill: true,
+                tension: 0.4
+            }];
+            
+            const result = { labels, datasets };
+            console.log('AnalyticsCharts: Transformed views data:', result);
+            return result;
         } catch (error) {
             console.error('Error fetching views chart data:', error);
             return this.getEmptyChartData(days, 'Views');
@@ -276,11 +341,44 @@ class AnalyticsCharts {
     // Fetch reviews data
     async fetchReviewsData(days) {
         try {
-            const data = await this.core.fetchData(this.core.config.apiEndpoints.reviewsData, { days });
-            return {
-                labels: data.labels || [],
-                datasets: data.datasets || []
-            };
+            console.log('AnalyticsCharts: Fetching reviews data for', days, 'days');
+            const response = await this.core.fetchData(this.core.config.apiEndpoints.reviewsData, { days });
+            
+            if (!response.success) {
+                throw new Error(response.message || 'Failed to fetch reviews data');
+            }
+            
+            console.log('AnalyticsCharts: Raw reviews API response:', response);
+            
+            // Transform the data into Chart.js format
+            const reviewsData = response.data || [];
+            console.log('AnalyticsCharts: Reviews data before transformation:', reviewsData);
+            
+            const labels = reviewsData.map(item => {
+                const date = new Date(item.date);
+                return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            });
+            
+            // Use average ratings for the chart data (1-5 scale)
+            const ratings = reviewsData.map(item => item.averageRating || 0);
+            const reviewCounts = reviewsData.map(item => item.reviews || item.reviewCount || 0);
+            
+            const datasets = [{
+                label: 'Average Rating',
+                data: ratings,
+                reviewCounts: reviewCounts, // Store review counts for tooltip
+                borderColor: '#33658a',
+                backgroundColor: '#86bbd8',
+                borderWidth: 1,
+                borderRadius: 4,
+                fill: false,
+                tension: 0
+            }];
+            
+            const transformedData = { labels, datasets };
+            console.log('AnalyticsCharts: Transformed reviews data:', transformedData);
+            
+            return transformedData;
         } catch (error) {
             console.error('Error fetching reviews chart data:', error);
             return this.getEmptyChartData(days, 'Reviews');

@@ -522,12 +522,20 @@ namespace TownTrek.Services.Analytics
 
         private List<ReviewsOverTimeData> ProcessReviewsOverTimeData(List<BusinessReview> reviews, DateTime startDate, DateTime endDate)
         {
-            // Implementation would process reviews into time series data
             var result = new List<ReviewsOverTimeData>();
             for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
             {
-                var dayReviews = reviews.Count(r => r.CreatedAt.Date == date);
-                result.Add(new ReviewsOverTimeData { Date = date, Reviews = dayReviews });
+                var dayReviews = reviews.Where(r => r.CreatedAt.Date == date).ToList();
+                var reviewCount = dayReviews.Count;
+                var averageRating = dayReviews.Any() ? dayReviews.Average(r => r.Rating) : 0;
+                
+                result.Add(new ReviewsOverTimeData 
+                { 
+                    Date = date, 
+                    Reviews = reviewCount,
+                    ReviewCount = reviewCount,
+                    AverageRating = averageRating
+                });
             }
             return result;
         }

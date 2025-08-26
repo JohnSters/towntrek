@@ -98,8 +98,8 @@ namespace TownTrek.Services.Analytics
                     {
                         new ChartDataset
                         {
-                            Label = "Reviews",
-                            Data = reviewsData.Select(d => (double)d.Reviews).ToList(),
+                            Label = "Average Rating",
+                            Data = reviewsData.Select(d => d.AverageRating).ToList(),
                             BorderColor = AnalyticsConstants.ChartColors.HunyadiYellow,
                             BackgroundColor = AnalyticsConstants.ChartColors.HunyadiYellow + AnalyticsConstants.ChartOpacity.Light,
                             Tension = 0.4

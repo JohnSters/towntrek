@@ -207,7 +207,7 @@ public class AnalyticsUsageTracker : IAnalyticsUsageTracker
             var sessionDuration = await query
                 .Where(log => log.Duration.HasValue)
                 .GroupBy(log => log.FeatureName)
-                .Select(g => new { Feature = g.Key, AvgDuration = g.Average(log => log.Duration.Value) })
+                .Select(g => new { Feature = g.Key, AvgDuration = g.Average(log => log.Duration!.Value) })
                 .ToDictionaryAsync(x => x.Feature, x => x.AvgDuration);
 
             stats.AverageSessionDuration = sessionDuration;
@@ -221,7 +221,7 @@ public class AnalyticsUsageTracker : IAnalyticsUsageTracker
                     ActiveUsers = g.Select(log => log.UserId).Distinct().Count(),
                     FeatureUsage = g.GroupBy(log => log.FeatureName)
                         .ToDictionary(x => x.Key, x => x.Count()),
-                    AverageSessionDuration = g.Where(log => log.Duration.HasValue).Average(log => log.Duration.Value)
+                    AverageSessionDuration = g.Where(log => log.Duration.HasValue).Average(log => log.Duration!.Value)
                 })
                 .OrderBy(t => t.Timestamp)
                 .ToListAsync();
@@ -252,7 +252,7 @@ public class AnalyticsUsageTracker : IAnalyticsUsageTracker
                     FeatureName = g.Key,
                     UsageCount = g.Count(),
                     UniqueUsers = g.Select(log => log.UserId).Distinct().Count(),
-                    AverageDuration = g.Where(log => log.Duration.HasValue).Any() ? g.Where(log => log.Duration.HasValue).Average(log => log.Duration.Value) : 0,
+                    AverageDuration = g.Where(log => log.Duration.HasValue).Any() ? g.Where(log => log.Duration.HasValue).Average(log => log.Duration!.Value) : 0,
                     LastUsed = g.Max(log => log.CreatedAt),
                     AdoptionRate = (double)g.Select(log => log.UserId).Distinct().Count() / 
                                   _context.AnalyticsUsageLogs.Select(log => log.UserId).Distinct().Count() * 100
@@ -283,7 +283,7 @@ public class AnalyticsUsageTracker : IAnalyticsUsageTracker
             var metrics = new UserEngagementMetrics
             {
                 TotalSessions = await query.Select(log => log.SessionId).Distinct().CountAsync(),
-                AverageSessionDuration = await query.Where(log => log.Duration.HasValue).AverageAsync(log => log.Duration.Value),
+                AverageSessionDuration = await query.Where(log => log.Duration.HasValue).AverageAsync(log => log.Duration!.Value),
                 AveragePagesPerSession = await query.Where(log => log.UsageType == "PageView").CountAsync() / 
                                         (double)await query.Select(log => log.SessionId).Distinct().CountAsync()
             };
@@ -406,7 +406,7 @@ public class AnalyticsUsageTracker : IAnalyticsUsageTracker
             {
                 TotalSessions = await query.Select(log => log.SessionId).Distinct().CountAsync(),
                 ActiveSessions = await query.Select(log => log.SessionId).Distinct().CountAsync(),
-                AverageSessionDuration = await query.Where(log => log.Duration.HasValue).AverageAsync(log => log.Duration.Value)
+                AverageSessionDuration = await query.Where(log => log.Duration.HasValue).AverageAsync(log => log.Duration!.Value)
             };
 
             // Get sessions by hour
@@ -432,7 +432,7 @@ public class AnalyticsUsageTracker : IAnalyticsUsageTracker
                 {
                     Timestamp = g.Key.Date.AddHours(g.Key.Hour),
                     SessionCount = g.Select(log => log.SessionId).Distinct().Count(),
-                    AverageDuration = g.Where(log => log.Duration.HasValue).Any() ? g.Where(log => log.Duration.HasValue).Average(log => log.Duration.Value) : 0,
+                    AverageDuration = g.Where(log => log.Duration.HasValue).Any() ? g.Where(log => log.Duration.HasValue).Average(log => log.Duration!.Value) : 0,
                     ActiveUsers = g.Select(log => log.UserId).Distinct().Count()
                 })
                 .OrderBy(t => t.Timestamp)

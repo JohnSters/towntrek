@@ -283,6 +283,14 @@
     <script src="~/js/components/form-handler.js" asp-append-version="true"></script>
     <script src="~/js/modules/client/client-manager.js" asp-append-version="true"></script>
     <script src="~/js/modules/client/trial-countdown.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/client-analytics-manager.js" asp-append-version="true"></script>
+    
+    <!-- Analytics modules - loaded here so they're available when ClientAnalyticsManager initializes -->
+    <script src="~/js/modules/client/analytics-core.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/analytics-charts.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/analytics-realtime.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/analytics-export.js" asp-append-version="true"></script>
+    
     <script src="~/js/core/app.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)

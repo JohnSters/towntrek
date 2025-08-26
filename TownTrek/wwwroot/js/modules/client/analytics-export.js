@@ -495,6 +495,14 @@ class AnalyticsExport {
     }
 }
 
+// Expose globally
+window.AnalyticsExport = AnalyticsExport;
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = AnalyticsExport;
+}
+
 // Global instance
 window.analyticsExport = null;
 

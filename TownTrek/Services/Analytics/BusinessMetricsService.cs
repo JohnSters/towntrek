@@ -224,11 +224,15 @@ namespace TownTrek.Services.Analytics
             while (currentDate <= endDate.Date)
             {
                 var dayReviews = reviews.Where(r => r.CreatedAt.Date == currentDate).ToList();
+                var reviewCount = dayReviews.Count;
+                var averageRating = dayReviews.Any() ? dayReviews.Average(r => r.Rating) : 0;
+                
                 result.Add(new ReviewsOverTimeData
                 {
                     Date = currentDate,
-                    Reviews = dayReviews.Count,
-                    AverageRating = dayReviews.Any() ? dayReviews.Average(r => r.Rating) : 0
+                    Reviews = reviewCount,
+                    ReviewCount = reviewCount,
+                    AverageRating = averageRating
                 });
                 currentDate = currentDate.AddDays(1);
             }

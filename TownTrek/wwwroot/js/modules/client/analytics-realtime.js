@@ -642,6 +642,14 @@ class AnalyticsRealtime {
     }
 }
 
+// Expose globally
+window.AnalyticsRealtime = AnalyticsRealtime;
+
+// Export for module systems
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = AnalyticsRealtime;
+}
+
 // Global instance
 window.analyticsRealtime = null;
 
