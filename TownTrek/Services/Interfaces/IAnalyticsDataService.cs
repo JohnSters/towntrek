@@ -39,6 +39,11 @@ namespace TownTrek.Services.Interfaces
         Task<List<Business>> GetCompetitorBusinessesAsync(int businessId, string category, string town);
 
         /// <summary>
+        /// Gets competitor businesses for multiple businesses in batch (avoids N+1 queries)
+        /// </summary>
+        Task<List<Business>> GetCompetitorBusinessesBatchAsync(List<object> competitorLookups);
+
+        /// <summary>
         /// Gets analytics snapshots for a business
         /// </summary>
         Task<List<AnalyticsSnapshot>> GetAnalyticsSnapshotsAsync(int businessId, DateTime startDate, DateTime endDate);

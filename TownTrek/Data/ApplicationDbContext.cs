@@ -223,6 +223,7 @@ namespace TownTrek.Data
             ConfigureAdminMessageEntities(builder);
             ConfigureAnalyticsAuditLogEntity(builder);
             ConfigureAnalyticsMonitoringEntities(builder);
+            ConfigureAnalyticsEntities(builder);
             
             // Seed default data
             SeedData(builder);
@@ -918,6 +919,228 @@ namespace TownTrek.Data
                 entity.HasIndex(e => e.NextScheduledAt).HasDatabaseName("IX_AnalyticsEmailReports_NextScheduled");
                 entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_AnalyticsEmailReports_IsActive");
                 entity.HasIndex(e => new { e.UserId, e.IsActive }).HasDatabaseName("IX_AnalyticsEmailReports_UserId_Active");
+            });
+        }
+
+        private void ConfigureAnalyticsEntities(ModelBuilder builder)
+        {
+            // Configure BusinessViewLog entity
+            builder.Entity<BusinessViewLog>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.BusinessId).IsRequired();
+                entity.Property(e => e.Platform).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.ViewedAt).IsRequired();
+                entity.Property(e => e.IpAddress).HasMaxLength(45);
+                entity.Property(e => e.UserAgent).HasMaxLength(500);
+                entity.Property(e => e.Referrer).HasMaxLength(500);
+                entity.Property(e => e.SessionId).HasMaxLength(100);
+                entity.Property(e => e.UserId).HasMaxLength(450);
+                
+                // Foreign key relationships
+                entity.HasOne(e => e.Business)
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne(e => e.User)
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.SetNull);
+                
+                // Indexes for analytics queries
+                entity.HasIndex(e => new { e.BusinessId, e.ViewedAt, e.Platform }).HasDatabaseName("IX_BusinessViewLogs_BusinessId_ViewedAt_Platform");
+                entity.HasIndex(e => new { e.UserId, e.ViewedAt }).HasDatabaseName("IX_BusinessViewLogs_UserId_ViewedAt");
+                entity.HasIndex(e => new { e.Platform, e.ViewedAt }).HasDatabaseName("IX_BusinessViewLogs_Platform_ViewedAt");
+                entity.HasIndex(e => e.ViewedAt).HasDatabaseName("IX_BusinessViewLogs_ViewedAt");
+                entity.HasIndex(e => e.BusinessId).HasDatabaseName("IX_BusinessViewLogs_BusinessId");
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_BusinessViewLogs_UserId");
+                entity.HasIndex(e => e.Platform).HasDatabaseName("IX_BusinessViewLogs_Platform");
+            });
+
+            // Configure AnalyticsEvents entity
+            builder.Entity<AnalyticsEvent>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.EventType).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.OccurredAt).IsRequired();
+                entity.Property(e => e.Metadata).HasColumnType("nvarchar(max)");
+                entity.Property(e => e.UserId).HasMaxLength(450);
+                entity.Property(e => e.BusinessId);
+                entity.Property(e => e.SessionId).HasMaxLength(100);
+                entity.Property(e => e.IpAddress).HasMaxLength(45);
+                entity.Property(e => e.UserAgent).HasMaxLength(500);
+                
+                // Foreign key relationships
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.SetNull);
+                
+                entity.HasOne<Business>()
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.SetNull);
+                
+                // Indexes for event sourcing queries
+                entity.HasIndex(e => new { e.EventType, e.OccurredAt }).HasDatabaseName("IX_AnalyticsEvents_EventType_OccurredAt");
+                entity.HasIndex(e => new { e.UserId, e.EventType, e.OccurredAt }).HasDatabaseName("IX_AnalyticsEvents_UserId_EventType_OccurredAt");
+                entity.HasIndex(e => new { e.BusinessId, e.EventType, e.OccurredAt }).HasDatabaseName("IX_AnalyticsEvents_BusinessId_EventType_OccurredAt");
+                entity.HasIndex(e => e.OccurredAt).HasDatabaseName("IX_AnalyticsEvents_OccurredAt");
+                entity.HasIndex(e => e.EventType).HasDatabaseName("IX_AnalyticsEvents_EventType");
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_AnalyticsEvents_UserId");
+                entity.HasIndex(e => e.BusinessId).HasDatabaseName("IX_AnalyticsEvents_BusinessId");
+            });
+
+            // Configure CustomMetric entity
+            builder.Entity<CustomMetric>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
+                entity.Property(e => e.Category).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.Unit).HasMaxLength(50);
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                entity.Property(e => e.UserId).IsRequired().HasMaxLength(450);
+                entity.Property(e => e.BusinessId);
+                
+                // Foreign key relationships
+                entity.HasOne<ApplicationUser>()
+                      .WithMany()
+                      .HasForeignKey(e => e.UserId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                
+                entity.HasOne<Business>()
+                      .WithMany()
+                      .HasForeignKey(e => e.BusinessId)
+                      .OnDelete(DeleteBehavior.SetNull);
+                
+                // Indexes for custom metrics
+                entity.HasIndex(e => new { e.UserId, e.IsActive }).HasDatabaseName("IX_CustomMetrics_UserId_IsActive");
+                entity.HasIndex(e => new { e.Category, e.IsActive }).HasDatabaseName("IX_CustomMetrics_Category_IsActive");
+                entity.HasIndex(e => e.UserId).HasDatabaseName("IX_CustomMetrics_UserId");
+                entity.HasIndex(e => e.BusinessId).HasDatabaseName("IX_CustomMetrics_BusinessId");
+                entity.HasIndex(e => e.Category).HasDatabaseName("IX_CustomMetrics_Category");
+                entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_CustomMetrics_IsActive");
+            });
+
+            // Configure CustomMetricDataPoint entity
+            builder.Entity<CustomMetricDataPoint>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.MetricId).IsRequired();
+                entity.Property(e => e.Value).IsRequired();
+                entity.Property(e => e.RecordedAt).IsRequired();
+                entity.Property(e => e.Notes).HasMaxLength(500);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                
+                // Foreign key relationships
+                entity.HasOne(e => e.Metric)
+                      .WithMany(m => m.DataPoints)
+                      .HasForeignKey(e => e.MetricId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes for data point queries
+                entity.HasIndex(e => new { e.MetricId, e.RecordedAt }).HasDatabaseName("IX_CustomMetricDataPoints_MetricId_RecordedAt");
+                entity.HasIndex(e => e.RecordedAt).HasDatabaseName("IX_CustomMetricDataPoints_RecordedAt");
+                entity.HasIndex(e => e.MetricId).HasDatabaseName("IX_CustomMetricDataPoints_MetricId");
+            });
+
+            // Configure CustomMetricGoal entity
+            builder.Entity<CustomMetricGoal>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.MetricId).IsRequired();
+                entity.Property(e => e.TargetValue).IsRequired();
+                entity.Property(e => e.StartDate).IsRequired();
+                entity.Property(e => e.EndDate);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.IsActive).HasDefaultValue(true);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                
+                // Foreign key relationships
+                entity.HasOne(e => e.Metric)
+                      .WithMany(m => m.Goals)
+                      .HasForeignKey(e => e.MetricId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes for goal queries
+                entity.HasIndex(e => new { e.MetricId, e.IsActive }).HasDatabaseName("IX_CustomMetricGoals_MetricId_IsActive");
+                entity.HasIndex(e => e.MetricId).HasDatabaseName("IX_CustomMetricGoals_MetricId");
+                entity.HasIndex(e => e.IsActive).HasDatabaseName("IX_CustomMetricGoals_IsActive");
+            });
+
+            // Configure AnomalyDetection entity
+            builder.Entity<AnomalyDetection>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.MetricId).IsRequired();
+                entity.Property(e => e.DetectedAt).IsRequired();
+                entity.Property(e => e.AnomalyType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.Severity).IsRequired().HasMaxLength(20);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.IsResolved).HasDefaultValue(false);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                
+                // Foreign key relationships
+                entity.HasOne(e => e.Metric)
+                      .WithMany()
+                      .HasForeignKey(e => e.MetricId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes for anomaly detection
+                entity.HasIndex(e => new { e.MetricId, e.DetectedAt }).HasDatabaseName("IX_AnomalyDetections_MetricId_DetectedAt");
+                entity.HasIndex(e => new { e.AnomalyType, e.Severity }).HasDatabaseName("IX_AnomalyDetections_AnomalyType_Severity");
+                entity.HasIndex(e => e.IsResolved).HasDatabaseName("IX_AnomalyDetections_IsResolved");
+                entity.HasIndex(e => e.MetricId).HasDatabaseName("IX_AnomalyDetections_MetricId");
+                entity.HasIndex(e => e.DetectedAt).HasDatabaseName("IX_AnomalyDetections_DetectedAt");
+            });
+
+            // Configure PredictiveForecast entity
+            builder.Entity<PredictiveForecast>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.MetricId).IsRequired();
+                entity.Property(e => e.ForecastDate).IsRequired();
+                entity.Property(e => e.PredictedValue).IsRequired();
+                entity.Property(e => e.ConfidenceLevel).HasColumnType("decimal(3,2)");
+                entity.Property(e => e.ModelVersion).HasMaxLength(50);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                
+                // Foreign key relationships
+                entity.HasOne(e => e.Metric)
+                      .WithMany()
+                      .HasForeignKey(e => e.MetricId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes for predictive forecasts
+                entity.HasIndex(e => new { e.MetricId, e.ForecastDate }).HasDatabaseName("IX_PredictiveForecasts_MetricId_ForecastDate");
+                entity.HasIndex(e => e.MetricId).HasDatabaseName("IX_PredictiveForecasts_MetricId");
+                entity.HasIndex(e => e.ForecastDate).HasDatabaseName("IX_PredictiveForecasts_ForecastDate");
+            });
+
+            // Configure SeasonalPattern entity
+            builder.Entity<SeasonalPattern>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.MetricId).IsRequired();
+                entity.Property(e => e.PatternType).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.SeasonalityPeriod).IsRequired();
+                entity.Property(e => e.Strength).HasColumnType("decimal(3,2)");
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.CreatedAt).HasDefaultValueSql("GETUTCDATE()");
+                
+                // Foreign key relationships
+                entity.HasOne(e => e.Metric)
+                      .WithMany()
+                      .HasForeignKey(e => e.MetricId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                
+                // Indexes for seasonal patterns
+                entity.HasIndex(e => new { e.MetricId, e.PatternType }).HasDatabaseName("IX_SeasonalPatterns_MetricId_PatternType");
+                entity.HasIndex(e => e.MetricId).HasDatabaseName("IX_SeasonalPatterns_MetricId");
+                entity.HasIndex(e => e.PatternType).HasDatabaseName("IX_SeasonalPatterns_PatternType");
             });
         }
     }

@@ -167,6 +167,8 @@ public class Program
         builder.Services.AddScoped<IAnalyticsValidationService, AnalyticsValidationService>();
         builder.Services.AddScoped<IAnalyticsEventService, AnalyticsEventService>();
         builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+        builder.Services.AddScoped<IChartDataService, ChartDataService>();
+        builder.Services.AddScoped<IComparativeAnalysisService, ComparativeAnalysisService>();
         builder.Services.AddScoped<IViewTrackingService, ViewTrackingService>();
         builder.Services.AddScoped<IAnalyticsSnapshotService, AnalyticsSnapshotService>();
         builder.Services.AddHostedService<AnalyticsSnapshotBackgroundService>();

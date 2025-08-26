@@ -13,6 +13,7 @@ namespace TownTrek.Services.Analytics
     {
         private readonly ICacheService _cacheService;
         private readonly IAnalyticsService _analyticsService;
+        private readonly IChartDataService _chartDataService;
         private readonly CacheOptions _cacheOptions;
         private readonly ILogger<AnalyticsCacheService> _logger;
         private readonly AnalyticsCacheStatistics _statistics;
@@ -20,11 +21,13 @@ namespace TownTrek.Services.Analytics
         public AnalyticsCacheService(
             ICacheService cacheService,
             IAnalyticsService analyticsService,
+            IChartDataService chartDataService,
             IOptions<CacheOptions> cacheOptions,
             ILogger<AnalyticsCacheService> logger)
         {
             _cacheService = cacheService;
             _analyticsService = analyticsService;
+            _chartDataService = chartDataService;
             _cacheOptions = cacheOptions.Value;
             _logger = logger;
             _statistics = new AnalyticsCacheStatistics();
@@ -62,7 +65,7 @@ namespace TownTrek.Services.Analytics
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
                 _statistics.ChartDataCacheMisses++;
-                return await _analyticsService.GetViewsChartDataAsync(userId, days, platform);
+                return await _chartDataService.GetViewsChartDataAsync(userId, days, platform);
             }, expiration);
         }
 
@@ -74,7 +77,7 @@ namespace TownTrek.Services.Analytics
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
                 _statistics.ChartDataCacheMisses++;
-                return await _analyticsService.GetReviewsChartDataAsync(userId, days);
+                return await _chartDataService.GetReviewsChartDataAsync(userId, days);
             }, expiration);
         }
 

@@ -116,6 +116,40 @@ namespace TownTrek.Services.Analytics
                 .ToListAsync();
         }
 
+        public async Task<List<Business>> GetCompetitorBusinessesBatchAsync(List<object> competitorLookups)
+        {
+            if (!competitorLookups.Any()) return new List<Business>();
+
+            // Extract unique category-town combinations to optimize the query
+            var categoryTownCombinations = competitorLookups
+                .Select(lookup => new
+                {
+                    Category = ((dynamic)lookup).Category as string,
+                    Town = ((dynamic)lookup).Town as string
+                })
+                .Where(ct => !string.IsNullOrEmpty(ct.Category) && !string.IsNullOrEmpty(ct.Town))
+                .Distinct()
+                .ToList();
+
+            if (!categoryTownCombinations.Any()) return new List<Business>();
+
+            // Get all businesses for the unique category-town combinations
+            var allCompetitors = await _context.Businesses
+                .Include(b => b.Town)
+                .Where(b => categoryTownCombinations.Any(ct => 
+                    b.Category == ct.Category && 
+                    b.Town.Name == ct.Town && 
+                    b.Status == AnalyticsConstants.BusinessStatus.Active))
+                .ToListAsync();
+
+            // Filter out the user's own businesses and group by business ID
+            var businessIds = competitorLookups.Select(lookup => ((dynamic)lookup).BusinessId as int?).Where(id => id.HasValue).ToList();
+            
+            return allCompetitors
+                .Where(b => !businessIds.Contains(b.Id))
+                .ToList();
+        }
+
         public async Task<List<AnalyticsSnapshot>> GetAnalyticsSnapshotsAsync(int businessId, DateTime startDate, DateTime endDate)
         {
             return await _context.AnalyticsSnapshots

@@ -20,6 +20,7 @@ namespace TownTrek.Controllers.Client
         IAnalyticsExportService analyticsExportService,
         IAnalyticsPerformanceMonitor performanceMonitor,
         IAnalyticsUsageTracker usageTracker,
+        IComparativeAnalysisService comparativeAnalysisService,
         ILogger<AnalyticsController> logger) : Controller
     {
         private readonly IAnalyticsService _analyticsService = analyticsService;
@@ -31,6 +32,7 @@ namespace TownTrek.Controllers.Client
         private readonly IAnalyticsExportService _analyticsExportService = analyticsExportService;
         private readonly IAnalyticsPerformanceMonitor _performanceMonitor = performanceMonitor;
         private readonly IAnalyticsUsageTracker _usageTracker = usageTracker;
+        private readonly IComparativeAnalysisService _comparativeAnalysisService = comparativeAnalysisService;
         private readonly ILogger<AnalyticsController> _logger = logger;
 
         // Analytics Dashboard - available to all non-trial authenticated clients with active subscription
@@ -923,7 +925,7 @@ namespace TownTrek.Controllers.Client
                 await _analyticsAuditService.LogAnalyticsAccessAsync(userId, "ComparativeAnalysis", businessId?.ToString());
 
                 // Get default comparison (month-over-month)
-                var defaultComparison = await _analyticsService.GetPeriodOverPeriodComparisonAsync(userId, businessId, "MonthOverMonth");
+                var defaultComparison = await _comparativeAnalysisService.GetPeriodOverPeriodComparisonAsync(userId, businessId, "MonthOverMonth");
 
                 ViewBag.BusinessId = businessId;
                 ViewBag.ComparisonTypes = new[] { "WeekOverWeek", "MonthOverMonth", "QuarterOverQuarter", "YearOverYear" };
@@ -989,7 +991,7 @@ namespace TownTrek.Controllers.Client
                 // Normalize platform parameter
                 var normalizedPlatform = platform == "All" ? null : platform;
 
-                var comparisonData = await _analyticsService.GetPeriodOverPeriodComparisonAsync(userId, businessId, comparisonType, normalizedPlatform);
+                var comparisonData = await _comparativeAnalysisService.GetPeriodOverPeriodComparisonAsync(userId, businessId, comparisonType, normalizedPlatform);
                 return Json(comparisonData);
             }
             catch (Exception ex)
@@ -1034,7 +1036,7 @@ namespace TownTrek.Controllers.Client
                 // Normalize platform parameter
                 var normalizedPlatform = platform == "All" ? null : platform;
 
-                var comparisonData = await _analyticsService.GetYearOverYearComparisonAsync(userId, businessId, normalizedPlatform);
+                var comparisonData = await _comparativeAnalysisService.GetYearOverYearComparisonAsync(userId, businessId, normalizedPlatform);
                 return Json(comparisonData);
             }
             catch (Exception ex)
@@ -1096,7 +1098,7 @@ namespace TownTrek.Controllers.Client
                 // Normalize platform parameter
                 request.Platform = request.Platform == "All" ? null : request.Platform;
 
-                var comparisonData = await _analyticsService.GetComparativeAnalysisAsync(userId, request);
+                var comparisonData = await _comparativeAnalysisService.GetComparativeAnalysisAsync(userId, request);
                 return Json(comparisonData);
             }
             catch (Exception ex)
