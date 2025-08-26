@@ -1,0 +1,77 @@
+@model TownTrek.Models.ViewModels.ClientAnalyticsViewModel
+
+<!-- Business Performance Section -->
+<div class="business-performance">
+    <div class="section-header">
+        <h2>Business Performance</h2>
+        <p>Individual performance metrics for each of your businesses</p>
+    </div>
+
+    <div class="performance-grid">
+        @foreach (var business in Model.BusinessAnalytics)
+        {
+            <div class="performance-card">
+                <div class="performance-header">
+                    <h4>@business.BusinessName</h4>
+                    <span class="business-category">@business.Category</span>
+                    <div class="performance-trend @business.PerformanceTrend">
+                        @if (business.PerformanceTrend == "up")
+                        {
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17l9.2-9.2M17 17V7H7"></path>
+                            </svg>
+                        }
+                        else if (business.PerformanceTrend == "down")
+                        {
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 7l-9.2 9.2M7 7v10h10"></path>
+                            </svg>
+                        }
+                        else
+                        {
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 23 23">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"></path>
+                            </svg>
+                        }
+                    </div>
+                </div>
+
+                <div class="performance-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Views</span>
+                        <span class="metric-value">@business.TotalViews</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Reviews</span>
+                        <span class="metric-value">@business.TotalReviews</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Rating</span>
+                        <span class="metric-value">@(business.AverageRating > 0 ? business.AverageRating.ToString("F1") : "N/A")</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Favorites</span>
+                        <span class="metric-value">@business.TotalFavorites</span>
+                    </div>
+                </div>
+
+                @if (business.Recommendations.Any())
+                {
+                    <div class="performance-recommendations">
+                        <h5>Recommendations</h5>
+                        <ul>
+                            @foreach (var recommendation in business.Recommendations.Take(2))
+                            {
+                                <li>@recommendation</li>
+                            }
+                        </ul>
+                    </div>
+                }
+
+                <div class="performance-actions">
+                    <a asp-controller="Analytics" asp-action="Business" asp-route-id="@business.BusinessId" class="btn btn-secondary btn-sm">View Details</a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

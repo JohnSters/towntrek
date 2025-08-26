@@ -586,5 +586,29 @@ namespace TownTrek.Services.Analytics
                 return 3.0; // Fair
             return 2.0; // Poor
         }
+
+        // Additional methods needed by controllers (aliases for existing methods)
+        public async Task<List<ViewsOverTimeData>> GetViewsOverTimeDataAsync(string userId, int days = 30)
+        {
+            return await GetViewsOverTimeAsync(userId, days);
+        }
+
+        public async Task<List<ReviewsOverTimeData>> GetReviewsOverTimeDataAsync(string userId, int days = 30)
+        {
+            return await GetReviewsOverTimeAsync(userId, days);
+        }
+
+        public async Task<object> GetComparativeAnalysisDataAsync(string userId, string comparisonType, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            // This is a placeholder implementation - the actual comparative analysis logic
+            // should be implemented based on the specific requirements
+            return new
+            {
+                ComparisonType = comparisonType,
+                FromDate = fromDate,
+                ToDate = toDate,
+                Message = "Comparative analysis data will be implemented based on specific requirements"
+            };
+        }
     }
 }

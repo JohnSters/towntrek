@@ -57,5 +57,10 @@ namespace TownTrek.Services.Interfaces
         /// Gets business by ID with ownership validation
         /// </summary>
         Task<Business?> GetBusinessAsync(int businessId, string userId);
+
+        /// <summary>
+        /// Gets businesses by category for analytics
+        /// </summary>
+        Task<List<Business>> GetBusinessesByCategoryAsync(string category);
     }
 }

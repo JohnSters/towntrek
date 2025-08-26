@@ -1,0 +1,540 @@
+/* Analytics Export and Modal Styles - Consolidated */
+
+/* ==========================================================================
+   Export Modal
+   ========================================================================== */
+.export-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.export-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.export-modal .modal-dialog {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.export-modal.show .modal-dialog {
+    transform: scale(1);
+}
+
+.export-modal .modal-content {
+    border: none;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.export-modal .modal-header {
+    background: var(--primary-color);
+    color: white;
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.export-modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.export-modal .modal-header .btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.export-modal .modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.export-modal .modal-body {
+    padding: 1.5rem;
+}
+
+.export-modal .modal-footer {
+    background: var(--background-color);
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+/* ==========================================================================
+   Export Options
+   ========================================================================== */
+.export-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.export-option {
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--background-color);
+}
+
+.export-option:hover {
+    border-color: var(--primary-color);
+    background: var(--surface-color);
+}
+
+.export-option.selected {
+    border-color: var(--primary-color);
+    background: rgba(51, 101, 138, 0.1);
+}
+
+.export-option .option-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+
+.export-option .option-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.export-option .option-description {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* ==========================================================================
+   Export Configuration
+   ========================================================================== */
+.export-config {
+    margin-bottom: 1.5rem;
+}
+
+.export-config .config-section {
+    margin-bottom: 1.5rem;
+}
+
+.export-config .config-section:last-child {
+    margin-bottom: 0;
+}
+
+.export-config .section-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+}
+
+.export-config .form-group {
+    margin-bottom: 1rem;
+}
+
+.export-config .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.export-config label {
+    display: block;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.export-config .form-control,
+.export-config .form-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease;
+}
+
+.export-config .form-control:focus,
+.export-config .form-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(51, 101, 138, 0.1);
+}
+
+.export-config .form-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.export-config .form-check-input {
+    margin: 0;
+}
+
+.export-config .form-check-label {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Export Progress
+   ========================================================================== */
+.export-progress {
+    display: none;
+    margin-bottom: 1.5rem;
+}
+
+.export-progress.show {
+    display: block;
+}
+
+.export-progress .progress {
+    height: 8px;
+    background: var(--background-color);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+}
+
+.export-progress .progress-bar {
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.export-progress .progress-text {
+    text-align: center;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* ==========================================================================
+   Share Modal
+   ========================================================================== */
+.share-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.share-modal.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.share-modal .modal-dialog {
+    background: var(--surface-color);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.share-modal.show .modal-dialog {
+    transform: scale(1);
+}
+
+.share-modal .modal-header {
+    background: var(--info-color);
+    color: white;
+    border-bottom: none;
+    padding: 1.5rem;
+}
+
+.share-modal .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* ==========================================================================
+   Share Options
+   ========================================================================== */
+.share-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.share-option {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--background-color);
+}
+
+.share-option:hover {
+    border-color: var(--primary-color);
+    background: var(--surface-color);
+    transform: translateY(-2px);
+}
+
+.share-option .option-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.share-option.email .option-icon { color: #ea4335; }
+.share-option.link .option-icon { color: #4285f4; }
+.share-option.social .option-icon { color: #34a853; }
+
+.share-option .option-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.share-option .option-description {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* ==========================================================================
+   Share Link
+   ========================================================================== */
+.share-link-container {
+    margin-bottom: 1.5rem;
+}
+
+.share-link-container .input-group {
+    display: flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.share-link-container .form-control {
+    flex: 1;
+    border: none;
+    padding: 0.5rem 0.75rem;
+    background: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.share-link-container .btn {
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.share-link-container .btn:hover {
+    background: var(--primary-hover-color);
+}
+
+.share-link-container .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Export Success/Error States
+   ========================================================================== */
+.export-result {
+    display: none;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.export-result.show {
+    display: block;
+}
+
+.export-result.success {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.export-result.error {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.export-result .result-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.export-result.success .result-icon {
+    color: var(--success-color);
+}
+
+.export-result.error .result-icon {
+    color: var(--error-color);
+}
+
+.export-result .result-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.export-result .result-message {
+    font-size: 0.875rem;
+    margin: 0;
+    opacity: 0.8;
+}
+
+/* ==========================================================================
+   Export Actions
+   ========================================================================== */
+.export-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.export-actions .btn {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.export-actions .btn-secondary {
+    background: var(--background-color);
+    color: var(--text-primary);
+}
+
+.export-actions .btn-secondary:hover {
+    background: var(--border-color);
+}
+
+.export-actions .btn-primary {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.export-actions .btn-primary:hover {
+    background: var(--primary-hover-color);
+    border-color: var(--primary-hover-color);
+}
+
+.export-actions .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+@media (max-width: 768px) {
+    .export-modal .modal-dialog,
+    .share-modal .modal-dialog {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .export-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .share-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .export-actions {
+        flex-direction: column;
+    }
+    
+    .export-actions .btn {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .export-modal .modal-header,
+    .share-modal .modal-header {
+        padding: 1rem;
+    }
+    
+    .export-modal .modal-body,
+    .share-modal .modal-body {
+        padding: 1rem;
+    }
+    
+    .export-modal .modal-footer,
+    .share-modal .modal-footer {
+        padding: 1rem;
+    }
+    
+    .export-option,
+    .share-option {
+        padding: 0.75rem;
+    }
+    
+    .export-option .option-icon {
+        font-size: 1.5rem;
+    }
+    
+    .share-option .option-icon {
+        font-size: 1.25rem;
+    }
+}

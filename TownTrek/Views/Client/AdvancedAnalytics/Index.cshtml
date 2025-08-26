@@ -5,7 +5,9 @@
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/features/client/advanced-analytics.css" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-core.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-charts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-realtime.css" asp-append-version="true" />
 }
 
 <div class="advanced-analytics-container">
@@ -182,5 +184,7 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/modules/client/advanced-analytics.js?v=@DateTime.Now.Ticks"></script>
+    <script src="~/js/modules/client/analytics-core.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/analytics-charts.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/analytics-realtime.js" asp-append-version="true"></script>
 }

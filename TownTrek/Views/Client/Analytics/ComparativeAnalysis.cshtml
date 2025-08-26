@@ -414,9 +414,13 @@
 
 @section Scripts {
     <script src="~/lib/chart.js/chart.min.js"></script>
-    <script src="~/js/modules/client/comparative-analytics.js"></script>
+    <script src="~/js/modules/client/analytics-core.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/analytics-charts.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/analytics-realtime.js" asp-append-version="true"></script>
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/modules/client/comparative-analytics.css" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-core.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-charts.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-realtime.css" asp-append-version="true" />
 }

@@ -170,5 +170,13 @@ namespace TownTrek.Services.Analytics
             return await _context.Businesses
                 .FirstOrDefaultAsync(b => b.Id == businessId && b.UserId == userId);
         }
+
+        public async Task<List<Business>> GetBusinessesByCategoryAsync(string category)
+        {
+            return await _context.Businesses
+                .Where(b => b.Category == category && b.Status == AnalyticsConstants.BusinessStatus.Active)
+                .Include(b => b.Town)
+                .ToListAsync();
+        }
     }
 }

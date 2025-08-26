@@ -43,5 +43,21 @@ namespace TownTrek.Services.Interfaces
         /// Send immediate email report
         /// </summary>
         Task<bool> SendEmailReportAsync(string userId, string reportType, int? businessId = null, DateTime? fromDate = null, DateTime? toDate = null);
+
+        // Additional methods needed by controllers
+        /// <summary>
+        /// Export business analytics to PDF (alias for GenerateBusinessAnalyticsPdfAsync)
+        /// </summary>
+        Task<byte[]> ExportBusinessAnalyticsToPdfAsync(int businessId, string userId, DateTime? fromDate = null, DateTime? toDate = null);
+
+        /// <summary>
+        /// Export overview analytics to PDF (alias for GenerateClientAnalyticsPdfAsync)
+        /// </summary>
+        Task<byte[]> ExportOverviewAnalyticsToPdfAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null);
+
+        /// <summary>
+        /// Export data to CSV (alias for ExportAnalyticsCsvAsync)
+        /// </summary>
+        Task<byte[]> ExportDataToCsvAsync(string userId, string dataType, DateTime? fromDate = null, DateTime? toDate = null, int? businessId = null);
     }
 }

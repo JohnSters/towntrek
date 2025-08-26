@@ -568,5 +568,21 @@ namespace TownTrek.Services.Analytics
                 .Replace("=", "")
                 .Substring(0, 32);
         }
+
+        // Additional methods needed by controllers (aliases for existing methods)
+        public async Task<byte[]> ExportBusinessAnalyticsToPdfAsync(int businessId, string userId, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            return await GenerateBusinessAnalyticsPdfAsync(businessId, userId, fromDate, toDate);
+        }
+
+        public async Task<byte[]> ExportOverviewAnalyticsToPdfAsync(string userId, DateTime? fromDate = null, DateTime? toDate = null)
+        {
+            return await GenerateClientAnalyticsPdfAsync(userId, fromDate, toDate);
+        }
+
+        public async Task<byte[]> ExportDataToCsvAsync(string userId, string dataType, DateTime? fromDate = null, DateTime? toDate = null, int? businessId = null)
+        {
+            return await ExportAnalyticsCsvAsync(userId, dataType, fromDate, toDate, businessId);
+        }
     }
 }

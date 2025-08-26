@@ -127,6 +127,15 @@ namespace TownTrek.Models.ViewModels
         public string Insight { get; set; } = string.Empty; // Alias for Description
         public double PerformanceRating { get; set; }
         public string Trend { get; set; } = string.Empty; // "up", "down", "stable"
+        
+        // Additional properties needed by ClientAnalyticsService
+        public string Category { get; set; } = string.Empty;
+        public double EngagementScore { get; set; }
+        public double ViewsGrowthRate { get; set; }
+        public double ReviewsGrowthRate { get; set; }
+        public double FavoritesGrowthRate { get; set; }
+        public double RatingGrowthRate { get; set; }
+        public List<string> Recommendations { get; set; } = new();
     }
 
     // Premium-only features
@@ -202,6 +211,15 @@ namespace TownTrek.Models.ViewModels
         public double UserAverageRating { get; set; }
         public double PerformanceRating { get; set; }
         public List<BenchmarkMetric> DetailedMetrics { get; set; } = new();
+        
+        // Additional properties needed by ClientAnalyticsService
+        public int UserBusinessCount { get; set; }
+        public int TotalBusinessCount { get; set; }
+        public double AverageViews { get; set; }
+        public double AverageReviews { get; set; }
+        public double AverageRating { get; set; }
+        public double UserAverageViews { get; set; }
+        public double UserAverageReviews { get; set; }
     }
 
 
