@@ -5,7 +5,7 @@ using TownTrek.Models;
 using TownTrek.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 
-namespace TownTrek.Services;
+namespace TownTrek.Services.Analytics;
 
 public class AnalyticsErrorTracker : IAnalyticsErrorTracker
 {

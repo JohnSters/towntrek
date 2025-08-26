@@ -15,7 +15,7 @@ using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.Analytics
 {
     public class AnalyticsExportService(
         ApplicationDbContext context,
@@ -345,7 +345,7 @@ namespace TownTrek.Services
                     .Include(l => l.Business)
                     .FirstOrDefaultAsync(l => l.LinkToken == linkToken && l.IsActive);
 
-                if (link == null || (link.ExpiresAt.HasValue && link.ExpiresAt.Value < DateTime.UtcNow))
+                if (link == null || link.ExpiresAt.HasValue && link.ExpiresAt.Value < DateTime.UtcNow)
                     return null;
 
                 // Get analytics data based on dashboard type
@@ -495,11 +495,11 @@ namespace TownTrek.Services
                 .OrderBy(v => v.ViewedAt)
                 .Select(v => new
                 {
-                    Date = v.ViewedAt.Date,
+                    v.ViewedAt.Date,
                     BusinessName = v.Business.Name,
-                    Platform = v.Platform,
-                    UserAgent = v.UserAgent,
-                    IpAddress = v.IpAddress
+                    v.Platform,
+                    v.UserAgent,
+                    v.IpAddress
                 })
                 .ToListAsync();
 
@@ -520,10 +520,10 @@ namespace TownTrek.Services
                 .OrderBy(r => r.CreatedAt)
                 .Select(r => new
                 {
-                    Date = r.CreatedAt.Date,
+                    r.CreatedAt.Date,
                     BusinessName = r.Business.Name,
-                    Rating = r.Rating,
-                    Comment = r.Comment,
+                    r.Rating,
+                    r.Comment,
                     ReviewerName = r.User.UserName
                 })
                 .ToListAsync();
@@ -546,11 +546,11 @@ namespace TownTrek.Services
                 {
                     Date = s.SnapshotDate,
                     BusinessName = s.Business.Name,
-                    TotalViews = s.TotalViews,
-                    TotalReviews = s.TotalReviews,
-                    TotalFavorites = s.TotalFavorites,
-                    AverageRating = s.AverageRating,
-                    EngagementScore = s.EngagementScore
+                    s.TotalViews,
+                    s.TotalReviews,
+                    s.TotalFavorites,
+                    s.AverageRating,
+                    s.EngagementScore
                 })
                 .ToListAsync();
 

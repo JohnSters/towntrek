@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+
 using TownTrek.Constants;
 using TownTrek.Data;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.Analytics
 {
     /// <summary>
     /// Service responsible for validating analytics parameters and requests

@@ -1,9 +1,10 @@
 using Microsoft.Extensions.Options;
+
 using TownTrek.Models.ViewModels;
 using TownTrek.Options;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.Analytics
 {
     /// <summary>
     /// Analytics cache service implementation with specialized caching strategies

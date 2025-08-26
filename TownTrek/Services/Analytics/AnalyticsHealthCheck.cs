@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services;
+namespace TownTrek.Services.Analytics;
 
 public class AnalyticsHealthCheck : IHealthCheck
 {
@@ -170,11 +170,11 @@ public class AnalyticsHealthCheck : IHealthCheck
             
             var data = new
             {
-                AveragePageLoadTime = performanceStats.AveragePageLoadTime,
-                AverageQueryTime = performanceStats.AverageQueryTime,
-                AverageChartRenderTime = performanceStats.AverageChartRenderTime,
-                SuccessRate = performanceStats.SuccessRate,
-                TotalRequests = performanceStats.TotalRequests
+                performanceStats.AveragePageLoadTime,
+                performanceStats.AverageQueryTime,
+                performanceStats.AverageChartRenderTime,
+                performanceStats.SuccessRate,
+                performanceStats.TotalRequests
             };
 
             var issues = new List<string>();
@@ -215,11 +215,11 @@ public class AnalyticsHealthCheck : IHealthCheck
             
             var data = new
             {
-                ErrorRate = errorStats.ErrorRate,
-                TotalErrors = errorStats.TotalErrors,
-                DatabaseErrors = errorStats.DatabaseErrors,
-                ChartErrors = errorStats.ChartErrors,
-                CacheErrors = errorStats.CacheErrors
+                errorStats.ErrorRate,
+                errorStats.TotalErrors,
+                errorStats.DatabaseErrors,
+                errorStats.ChartErrors,
+                errorStats.CacheErrors
             };
 
             if (isErrorRateHigh)

@@ -1,6 +1,7 @@
 // Add this to your Program.cs or create a separate configuration file
 
 using TownTrek.Services;
+using TownTrek.Services.Analytics;
 using TownTrek.Services.Interfaces;
 
 namespace TownTrek

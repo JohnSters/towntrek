@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.Analytics
 {
     /// <summary>
     /// Service for managing analytics snapshots and historical data
@@ -279,7 +280,7 @@ namespace TownTrek.Services
                 return current > 0 ? 100 : 0; // 100% growth if going from 0 to something, 0% if staying at 0
             }
 
-            return ((current - previous) / previous) * 100;
+            return (current - previous) / previous * 100;
         }
 
         private static DateTime GetWeekStart(DateTime date)

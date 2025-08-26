@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+
 using TownTrek.Constants;
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.Analytics
 {
     /// <summary>
     /// Main analytics service with reduced coupling and improved architecture
@@ -782,7 +783,7 @@ namespace TownTrek.Services
         private double CalculateEngagementScore(int reviews, int favorites, int views)
         {
             if (views == 0) return 0;
-            return ((reviews + favorites) * AnalyticsConstants.EngagementScoreMultiplier) / views * AnalyticsConstants.PercentageMultiplier;
+            return (reviews + favorites) * AnalyticsConstants.EngagementScoreMultiplier / views * AnalyticsConstants.PercentageMultiplier;
         }
 
         private string CalculatePerformanceRating(int reviews, int favorites, int views, double rating)
@@ -853,7 +854,7 @@ namespace TownTrek.Services
         private double CalculatePercentageChange(double current, double previous)
         {
             if (previous == 0) return current > 0 ? AnalyticsConstants.PercentageMultiplier : 0;
-            return ((current - previous) / previous) * AnalyticsConstants.PercentageMultiplier;
+            return (current - previous) / previous * AnalyticsConstants.PercentageMultiplier;
         }
 
         private string GetTrend(double current, double previous)

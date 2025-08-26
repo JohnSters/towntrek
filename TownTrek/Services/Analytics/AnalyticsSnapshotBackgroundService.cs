@@ -1,6 +1,6 @@
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.Analytics
 {
     /// <summary>
     /// Background service for creating daily analytics snapshots

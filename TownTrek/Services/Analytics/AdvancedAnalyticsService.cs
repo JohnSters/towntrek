@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+
 using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.Analytics
 {
     /// <summary>
     /// Service for advanced analytics features including predictive analytics, anomaly detection, and custom metrics
