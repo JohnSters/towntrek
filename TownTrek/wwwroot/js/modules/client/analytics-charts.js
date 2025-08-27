@@ -8,6 +8,7 @@ class AnalyticsCharts {
     constructor(analyticsCore) {
         this.core = analyticsCore;
         this.charts = new Map();
+        this.isInitialized = false;
         this.chartConfigs = {
             views: {
                 type: 'line',
@@ -134,6 +135,11 @@ class AnalyticsCharts {
 
     // Initialize charts
     async init() {
+        if (this.isInitialized) {
+            console.warn('AnalyticsCharts already initialized, skipping...');
+            return;
+        }
+        
         try {
             console.log('AnalyticsCharts: Starting initialization...');
             
@@ -146,6 +152,7 @@ class AnalyticsCharts {
             await this.initializeReviewsChart();
             
             this.bindChartEvents();
+            this.isInitialized = true;
             console.log('AnalyticsCharts initialized successfully');
         } catch (error) {
             console.error('Error initializing AnalyticsCharts:', error);
@@ -155,6 +162,12 @@ class AnalyticsCharts {
     // Initialize views chart
     async initializeViewsChart() {
         console.log('AnalyticsCharts: Initializing views chart...');
+        
+        // Check if chart already exists
+        if (this.charts.has('views')) {
+            console.warn('Views chart already exists, skipping initialization');
+            return;
+        }
         
         const canvas = document.getElementById('viewsChart');
         if (!canvas) {
@@ -199,6 +212,12 @@ class AnalyticsCharts {
 
     // Initialize reviews chart
     async initializeReviewsChart() {
+        // Check if chart already exists
+        if (this.charts.has('reviews')) {
+            console.warn('Reviews chart already exists, skipping initialization');
+            return;
+        }
+        
         const canvas = document.getElementById('reviewsChart');
         if (!canvas) {
             console.warn('Reviews chart canvas not found');
@@ -506,6 +525,7 @@ class AnalyticsCharts {
             }
         });
         this.charts.clear();
+        this.isInitialized = false;
         console.log('AnalyticsCharts destroyed');
     }
 }

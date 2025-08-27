@@ -52,16 +52,6 @@ class ClientAnalyticsManager {
                 this.modules.charts = new AnalyticsCharts(this.modules.core);
                 await this.modules.charts.init();
                 console.log('✅ AnalyticsCharts initialized');
-                
-                // Force refresh charts to ensure they load
-                setTimeout(async () => {
-                    try {
-                        await this.modules.charts.refreshAllCharts();
-                        console.log('✅ Charts refreshed after initialization');
-                    } catch (error) {
-                        console.error('Error refreshing charts:', error);
-                    }
-                }, 500);
             }
 
             // Initialize AnalyticsRealtime
