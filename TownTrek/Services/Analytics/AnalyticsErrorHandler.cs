@@ -241,7 +241,7 @@ public class AnalyticsErrorHandler : IAnalyticsErrorHandler
         );
     }
 
-    private LogLevel GetLogLevelForException(AnalyticsException exception)
+    private static LogLevel GetLogLevelForException(AnalyticsException exception)
     {
         return exception.ErrorCategory switch
         {

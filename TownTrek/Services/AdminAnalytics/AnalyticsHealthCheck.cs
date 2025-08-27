@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics;
+namespace TownTrek.Services.AdminAnalytics;
 
 public class AnalyticsHealthCheck : IHealthCheck
 {

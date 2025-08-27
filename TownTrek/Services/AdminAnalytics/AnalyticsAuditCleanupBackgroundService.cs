@@ -1,6 +1,6 @@
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.AdminAnalytics
 {
     /// <summary>
     /// Background service to automatically clean up old analytics audit logs

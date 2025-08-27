@@ -20,14 +20,14 @@ namespace TownTrek.Services.Analytics
 {
     public class AnalyticsExportService(
         ApplicationDbContext context,
-        IAnalyticsService analyticsService,
+        IClientAnalyticsService analyticsService,
         IAnalyticsCacheService analyticsCacheService,
         IEmailService emailService,
         IAnalyticsErrorHandler errorHandler,
         ILogger<AnalyticsExportService> logger) : IAnalyticsExportService
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly IAnalyticsService _analyticsService = analyticsService;
+        private readonly IClientAnalyticsService _analyticsService = analyticsService;
         private readonly IAnalyticsCacheService _analyticsCacheService = analyticsCacheService;
         private readonly IEmailService _emailService = emailService;
         private readonly IAnalyticsErrorHandler _errorHandler = errorHandler;

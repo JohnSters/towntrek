@@ -11,6 +11,7 @@ using System.Threading.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using TownTrek.Services.Analytics;
 using TownTrek.Services.ClientAnalytics;
+using TownTrek.Services.AdminAnalytics;
 
 namespace TownTrek;
 
@@ -175,7 +176,7 @@ public class Program
         builder.Services.AddScoped<IAnalyticsDataService, AnalyticsDataService>();
         builder.Services.AddScoped<IAnalyticsValidationService, AnalyticsValidationService>();
         builder.Services.AddScoped<IAnalyticsEventService, AnalyticsEventService>();
-        builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+        builder.Services.AddScoped<IClientAnalyticsService, ClientAnalyticsService>();
         builder.Services.AddScoped<IClientAnalyticsService, ClientAnalyticsService>();
         builder.Services.AddScoped<IBusinessMetricsService, BusinessMetricsService>();
         builder.Services.AddScoped<IChartDataService, ChartDataService>();

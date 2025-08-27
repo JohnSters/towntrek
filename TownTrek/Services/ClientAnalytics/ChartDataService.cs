@@ -9,13 +9,13 @@ namespace TownTrek.Services.Analytics
     /// Service for chart data processing and formatting
     /// </summary>
     public class ChartDataService(
-        IAnalyticsService analyticsService,
+        IClientAnalyticsService analyticsService,
         IAnalyticsValidationService validationService,
         IAnalyticsEventService eventService,
         IAnalyticsErrorHandler errorHandler,
         ILogger<ChartDataService> logger) : IChartDataService
     {
-        private readonly IAnalyticsService _analyticsService = analyticsService;
+        private readonly IClientAnalyticsService _analyticsService = analyticsService;
         private readonly IAnalyticsValidationService _validationService = validationService;
         private readonly IAnalyticsEventService _eventService = eventService;
         private readonly IAnalyticsErrorHandler _errorHandler = errorHandler;

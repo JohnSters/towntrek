@@ -1,15 +1,16 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
 using TownTrek.Hubs;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.AdminAnalytics
 {
     /// <summary>
     /// Background service to clean up stale SignalR connections
     /// </summary>
-    public class AnalyticsConnectionCleanupBackgroundService : BackgroundService
+    public class AnalyticsConnectionCleanupBackgroundService(ILogger<AnalyticsConnectionCleanupBackgroundService> logger) : BackgroundService
     {
-        private readonly ILogger<AnalyticsConnectionCleanupBackgroundService> _logger;
+        private readonly ILogger<AnalyticsConnectionCleanupBackgroundService> _logger = logger;
         private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(5); // Clean up every 5 minutes
         
         // Performance monitoring
@@ -19,11 +20,6 @@ namespace TownTrek.Services.Analytics
         private readonly TimeSpan _baseRetryDelay = TimeSpan.FromMinutes(2);
         private long _totalConnectionsCleaned = 0;
         private long _totalCleanupRuns = 0;
-
-        public AnalyticsConnectionCleanupBackgroundService(ILogger<AnalyticsConnectionCleanupBackgroundService> logger)
-        {
-            _logger = logger;
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

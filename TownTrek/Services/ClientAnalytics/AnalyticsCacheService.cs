@@ -12,7 +12,7 @@ namespace TownTrek.Services.Analytics
     public class AnalyticsCacheService : IAnalyticsCacheService
     {
         private readonly ICacheService _cacheService;
-        private readonly IAnalyticsService _analyticsService;
+        private readonly IClientAnalyticsService _analyticsService;
         private readonly IChartDataService _chartDataService;
         private readonly CacheOptions _cacheOptions;
         private readonly ILogger<AnalyticsCacheService> _logger;
@@ -20,7 +20,7 @@ namespace TownTrek.Services.Analytics
 
         public AnalyticsCacheService(
             ICacheService cacheService,
-            IAnalyticsService analyticsService,
+            IClientAnalyticsService analyticsService,
             IChartDataService chartDataService,
             IOptions<CacheOptions> cacheOptions,
             ILogger<AnalyticsCacheService> logger)

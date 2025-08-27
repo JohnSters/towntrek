@@ -1,40 +1,27 @@
 using TownTrek.Models.ViewModels;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Services.Interfaces
 {
-    /// <summary>
-    /// Service for client-specific analytics functionality
-    /// </summary>
     public interface IClientAnalyticsService
     {
-        /// <summary>
-        /// Gets comprehensive analytics data for a client user
-        /// </summary>
         Task<ClientAnalyticsViewModel> GetClientAnalyticsAsync(string userId);
-        
-        /// <summary>
-        /// Gets analytics data for a specific business
-        /// </summary>
         Task<BusinessAnalyticsData> GetBusinessAnalyticsAsync(int businessId, string userId);
-        
-        /// <summary>
-        /// Gets performance insights for user's businesses
-        /// </summary>
+        Task<List<ViewsOverTimeData>> GetViewsOverTimeAsync(string userId, int days = 30);
+        Task<List<ReviewsOverTimeData>> GetReviewsOverTimeAsync(string userId, int days = 30);
         Task<List<BusinessPerformanceInsight>> GetPerformanceInsightsAsync(string userId);
-        
-        /// <summary>
-        /// Gets category benchmarks for a specific category
-        /// </summary>
         Task<CategoryBenchmarkData?> GetCategoryBenchmarksAsync(string userId, string category);
-        
-        /// <summary>
-        /// Gets detailed category benchmarks
-        /// </summary>
         Task<CategoryBenchmarks?> GetDetailedCategoryBenchmarksAsync(string userId, string category);
-        
-        /// <summary>
-        /// Gets competitor insights for user's businesses
-        /// </summary>
         Task<List<CompetitorInsight>> GetCompetitorInsightsAsync(string userId);
+        Task RecordBusinessViewAsync(int businessId);
+        
+        // Platform-specific analytics methods
+        Task<List<ViewsOverTimeData>> GetViewsOverTimeByPlatformAsync(string userId, int days = 30, string? platform = null);
+        Task<ViewStatistics> GetBusinessViewStatisticsAsync(int businessId, DateTime startDate, DateTime endDate, string? platform = null);
+        
+        // Additional methods needed by controllers
+        Task<List<ViewsOverTimeData>> GetViewsOverTimeDataAsync(string userId, int days = 30);
+        Task<List<ReviewsOverTimeData>> GetReviewsOverTimeDataAsync(string userId, int days = 30);
+        Task<ComparativeAnalysisResponse> GetComparativeAnalysisDataAsync(string userId, string comparisonType, DateTime? fromDate = null, DateTime? toDate = null);
     }
 }

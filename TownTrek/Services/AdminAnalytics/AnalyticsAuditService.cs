@@ -4,7 +4,7 @@ using TownTrek.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using TownTrek.Models;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.AdminAnalytics
 {
     public class AnalyticsAuditService(
         ApplicationDbContext context,

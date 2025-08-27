@@ -11,13 +11,13 @@ namespace TownTrek.Controllers.Client
     [Authorize(Policy = "PaidClientAccess")] // Only allow paid clients (Basic, Standard, Premium) + Admin
     [Route("Client/[controller]/[action]")]
     public class ExportController(
-        IAnalyticsService analyticsService,
+        IClientAnalyticsService analyticsService,
         IAnalyticsExportService analyticsExportService,
         IBusinessService businessService,
         IAnalyticsUsageTracker usageTracker,
         ILogger<ExportController> logger) : Controller
     {
-        private readonly IAnalyticsService _analyticsService = analyticsService;
+        private readonly IClientAnalyticsService _analyticsService = analyticsService;
         private readonly IAnalyticsExportService _analyticsExportService = analyticsExportService;
         private readonly IBusinessService _businessService = businessService;
         private readonly IAnalyticsUsageTracker _usageTracker = usageTracker;

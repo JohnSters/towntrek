@@ -50,7 +50,7 @@ namespace TownTrek.Services
         {
             using var scope = _serviceProvider.CreateScope();
             var realTimeService = scope.ServiceProvider.GetRequiredService<IRealTimeAnalyticsService>();
-            var analyticsService = scope.ServiceProvider.GetRequiredService<IAnalyticsService>();
+            var analyticsService = scope.ServiceProvider.GetRequiredService<IClientAnalyticsService>();
 
             // Get users with active refresh intervals
             var activeUsers = _userRefreshIntervals.Keys.ToList();
@@ -77,7 +77,7 @@ namespace TownTrek.Services
             }
         }
 
-        private async Task SendAnalyticsUpdateAsync(string userId, IRealTimeAnalyticsService realTimeService, IAnalyticsService analyticsService)
+        private async Task SendAnalyticsUpdateAsync(string userId, IRealTimeAnalyticsService realTimeService, IClientAnalyticsService analyticsService)
         {
             try
             {
@@ -96,7 +96,7 @@ namespace TownTrek.Services
             }
         }
 
-        private async Task CheckForSignificantChangesAsync(string userId, ClientAnalyticsViewModel analytics, IRealTimeAnalyticsService realTimeService, IAnalyticsService analyticsService)
+        private async Task CheckForSignificantChangesAsync(string userId, ClientAnalyticsViewModel analytics, IRealTimeAnalyticsService realTimeService, IClientAnalyticsService analyticsService)
         {
             try
             {
