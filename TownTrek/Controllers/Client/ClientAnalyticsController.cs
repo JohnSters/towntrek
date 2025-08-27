@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using TownTrek.Attributes;
-using TownTrek.Services.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
+
+using System.Security.Claims;
+
 using TownTrek.Models.ViewModels;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {

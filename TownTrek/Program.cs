@@ -10,6 +10,7 @@ using Serilog;
 using System.Threading.RateLimiting;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using TownTrek.Services.Analytics;
+using TownTrek.Services.ClientAnalytics;
 
 namespace TownTrek;
 

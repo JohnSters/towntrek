@@ -7,7 +7,7 @@ using TownTrek.Models.Exceptions;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.ClientAnalytics
 {
     /// <summary>
     /// Service for client-specific analytics functionality
@@ -348,8 +348,8 @@ namespace TownTrek.Services.Analytics
                         UserViews = businessAnalytics.TotalViews,
                         UserReviews = businessAnalytics.TotalReviews,
                         UserRating = businessAnalytics.AverageRating,
-                        ViewsRank = GetRank((double)businessAnalytics.TotalViews, competitorAnalytics.Select(a => (double)a.TotalViews)),
-                        ReviewsRank = GetRank((double)businessAnalytics.TotalReviews, competitorAnalytics.Select(a => (double)a.TotalReviews)),
+                        ViewsRank = GetRank(businessAnalytics.TotalViews, competitorAnalytics.Select(a => (double)a.TotalViews)),
+                        ReviewsRank = GetRank(businessAnalytics.TotalReviews, competitorAnalytics.Select(a => (double)a.TotalReviews)),
                         RatingRank = GetRank(businessAnalytics.AverageRating, competitorAnalytics.Select(a => a.AverageRating)),
                         Recommendations = GenerateCompetitorRecommendations(businessAnalytics, competitorAnalytics)
                     };
@@ -474,7 +474,7 @@ namespace TownTrek.Services.Analytics
         private double CalculateNumericPerformanceRating(int reviews, int favorites, int views, double rating)
         {
             var engagementScore = CalculateEngagementScore(reviews, favorites, views);
-            return (engagementScore * 0.6) + (rating * 8); // Weighted score
+            return engagementScore * 0.6 + rating * 8; // Weighted score
         }
 
         private List<string> GeneratePerformanceRecommendations(BusinessAnalyticsData analytics)

@@ -6,7 +6,7 @@ using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.ClientAnalytics
 {
     /// <summary>
     /// Main analytics service with reduced coupling and improved architecture
@@ -368,7 +368,7 @@ namespace TownTrek.Services.Analytics
                 var competitorLookups = userBusinesses.Select(b => (object)new
                 {
                     BusinessId = b.Id,
-                    Category = b.Category,
+                    b.Category,
                     Town = b.Town?.Name ?? ""
                 }).ToList();
 
@@ -494,7 +494,7 @@ namespace TownTrek.Services.Analytics
         {
             // Simple performance rating calculation
             var engagementScore = CalculateEngagementScore(views, reviews, favorites);
-            return (engagementScore * 0.7) + (averageRating * 0.3);
+            return engagementScore * 0.7 + averageRating * 0.3;
         }
 
         private Task<AnalyticsOverview> GetAnalyticsOverviewAsync(string userId, List<BusinessAnalyticsData> businessAnalytics)
@@ -773,15 +773,15 @@ namespace TownTrek.Services.Analytics
         private ComparisonMetrics CalculateComparisonMetrics(PeriodData currentPeriod, PeriodData previousPeriod)
         {
             var viewsGrowthPercentage = previousPeriod.TotalViews > 0 
-                ? ((currentPeriod.TotalViews - previousPeriod.TotalViews) / (double)previousPeriod.TotalViews) * 100 
+                ? (currentPeriod.TotalViews - previousPeriod.TotalViews) / (double)previousPeriod.TotalViews * 100 
                 : 0;
 
             var reviewsGrowthPercentage = previousPeriod.TotalReviews > 0 
-                ? ((currentPeriod.TotalReviews - previousPeriod.TotalReviews) / (double)previousPeriod.TotalReviews) * 100 
+                ? (currentPeriod.TotalReviews - previousPeriod.TotalReviews) / (double)previousPeriod.TotalReviews * 100 
                 : 0;
 
             var ratingGrowthPercentage = previousPeriod.AverageRating > 0 
-                ? ((currentPeriod.AverageRating - previousPeriod.AverageRating) / previousPeriod.AverageRating) * 100 
+                ? (currentPeriod.AverageRating - previousPeriod.AverageRating) / previousPeriod.AverageRating * 100 
                 : 0;
 
             return new ComparisonMetrics
@@ -790,7 +790,7 @@ namespace TownTrek.Services.Analytics
                 ReviewsGrowthPercentage = reviewsGrowthPercentage,
                 RatingGrowthPercentage = ratingGrowthPercentage,
                 EngagementGrowthPercentage = previousPeriod.EngagementScore > 0 
-                    ? ((currentPeriod.EngagementScore - previousPeriod.EngagementScore) / previousPeriod.EngagementScore) * 100 
+                    ? (currentPeriod.EngagementScore - previousPeriod.EngagementScore) / previousPeriod.EngagementScore * 100 
                     : 0,
                 OverallPerformanceChange = CalculateOverallPerformanceChange(currentPeriod, previousPeriod),
                 // Set the legacy properties for backward compatibility
@@ -798,7 +798,7 @@ namespace TownTrek.Services.Analytics
                 ReviewsChangePercent = reviewsGrowthPercentage,
                 RatingChangePercent = ratingGrowthPercentage,
                 EngagementChangePercent = previousPeriod.EngagementScore > 0 
-                    ? ((currentPeriod.EngagementScore - previousPeriod.EngagementScore) / previousPeriod.EngagementScore) * 100 
+                    ? (currentPeriod.EngagementScore - previousPeriod.EngagementScore) / previousPeriod.EngagementScore * 100 
                     : 0
             };
         }
