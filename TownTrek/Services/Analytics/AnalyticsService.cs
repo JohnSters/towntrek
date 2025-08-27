@@ -18,6 +18,8 @@ namespace TownTrek.Services.Analytics
         ISubscriptionAuthService subscriptionAuthService,
         IViewTrackingService viewTrackingService,
         IAnalyticsSnapshotService analyticsSnapshotService,
+        IBusinessService businessService,
+        ApplicationDbContext context,
         ILogger<AnalyticsService> logger) : IAnalyticsService
     {
         private readonly IAnalyticsDataService _dataService = dataService;
@@ -26,6 +28,8 @@ namespace TownTrek.Services.Analytics
         private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly IViewTrackingService _viewTrackingService = viewTrackingService;
         private readonly IAnalyticsSnapshotService _analyticsSnapshotService = analyticsSnapshotService;
+        private readonly IBusinessService _businessService = businessService;
+        private readonly ApplicationDbContext _context = context;
         private readonly ILogger<AnalyticsService> _logger = logger;
 
         public async Task<ClientAnalyticsViewModel> GetClientAnalyticsAsync(string userId)
@@ -639,17 +643,231 @@ namespace TownTrek.Services.Analytics
             return await GetReviewsOverTimeAsync(userId, days);
         }
 
-        public Task<object> GetComparativeAnalysisDataAsync(string userId, string comparisonType, DateTime? fromDate = null, DateTime? toDate = null)
+        public async Task<ComparativeAnalysisResponse> GetComparativeAnalysisDataAsync(string userId, string comparisonType, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            // This is a placeholder implementation - the actual comparative analysis logic
-            // should be implemented based on the specific requirements
-            return Task.FromResult<object>(new
+            try
             {
-                ComparisonType = comparisonType,
-                FromDate = fromDate,
-                ToDate = toDate,
-                Message = "Comparative analysis data will be implemented based on specific requirements"
-            });
+                var endDate = toDate ?? DateTime.UtcNow;
+                var startDate = fromDate ?? endDate.AddDays(-30);
+
+                var userBusinesses = await _businessService.GetUserBusinessesAsync(userId);
+                if (!userBusinesses.Any())
+                {
+                    return new ComparativeAnalysisResponse
+                    {
+                        ComparisonType = comparisonType,
+                        Insights = new List<string> { "No businesses found for analysis." }
+                    };
+                }
+
+                // Calculate period data based on comparison type
+                var (currentPeriod, previousPeriod) = await CalculatePeriodDataAsync(userId, userBusinesses, comparisonType, startDate, endDate);
+
+                // Calculate comparison metrics
+                var comparisonMetrics = CalculateComparisonMetrics(currentPeriod, previousPeriod);
+
+                // Generate insights
+                var insights = GenerateComparativeInsights(currentPeriod, previousPeriod, comparisonMetrics);
+
+                return new ComparativeAnalysisResponse
+                {
+                    ComparisonType = comparisonType,
+                    CurrentPeriod = currentPeriod,
+                    PreviousPeriod = previousPeriod,
+                    ComparisonMetrics = comparisonMetrics,
+                    ChartData = GenerateChartData(currentPeriod, previousPeriod, comparisonType),
+                    Insights = insights,
+                    BusinessData = userBusinesses.Count == 1 ? new BusinessComparisonData
+                    {
+                        BusinessId = userBusinesses.First().Id,
+                        BusinessName = userBusinesses.First().Name,
+                        CurrentPeriodViews = currentPeriod.TotalViews,
+                        CurrentPeriodReviews = currentPeriod.TotalReviews,
+                        PreviousPeriodViews = previousPeriod.TotalViews,
+                        PreviousPeriodReviews = previousPeriod.TotalReviews
+                    } : null
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting comparative analysis data for user {UserId}", userId);
+                return new ComparativeAnalysisResponse
+                {
+                    ComparisonType = comparisonType,
+                    Insights = new List<string> { "Unable to load comparative analysis data." }
+                };
+            }
+        }
+
+        private async Task<(PeriodData currentPeriod, PeriodData previousPeriod)> CalculatePeriodDataAsync(string userId, List<Business> businesses, string comparisonType, DateTime startDate, DateTime endDate)
+        {
+            var businessIds = businesses.Select(b => b.Id).ToList();
+            var periodDays = comparisonType switch
+            {
+                "WeekOverWeek" => 7,
+                "MonthOverMonth" => 30,
+                "QuarterOverQuarter" => 90,
+                "YearOverYear" => 365,
+                _ => 30
+            };
+
+            var currentPeriodStart = endDate.AddDays(-periodDays);
+            var previousPeriodStart = currentPeriodStart.AddDays(-periodDays);
+            var previousPeriodEnd = currentPeriodStart.AddDays(-1);
+
+            // Get current period data
+            var currentViews = await _context.BusinessViewLogs
+                .Where(v => businessIds.Contains(v.BusinessId) && v.ViewedAt >= currentPeriodStart && v.ViewedAt <= endDate)
+                .CountAsync();
+
+            var currentReviews = await _context.BusinessReviews
+                .Where(r => businessIds.Contains(r.BusinessId) && r.CreatedAt >= currentPeriodStart && r.CreatedAt <= endDate)
+                .CountAsync();
+
+            var currentRating = await _context.BusinessReviews
+                .Where(r => businessIds.Contains(r.BusinessId) && r.CreatedAt >= currentPeriodStart && r.CreatedAt <= endDate)
+                .AverageAsync(r => (double)r.Rating);
+
+            // Get previous period data
+            var previousViews = await _context.BusinessViewLogs
+                .Where(v => businessIds.Contains(v.BusinessId) && v.ViewedAt >= previousPeriodStart && v.ViewedAt <= previousPeriodEnd)
+                .CountAsync();
+
+            var previousReviews = await _context.BusinessReviews
+                .Where(r => businessIds.Contains(r.BusinessId) && r.CreatedAt >= previousPeriodStart && r.CreatedAt <= previousPeriodEnd)
+                .CountAsync();
+
+            var previousRating = await _context.BusinessReviews
+                .Where(r => businessIds.Contains(r.BusinessId) && r.CreatedAt >= previousPeriodStart && r.CreatedAt <= previousPeriodEnd)
+                .AverageAsync(r => (double)r.Rating);
+
+            var currentPeriod = new PeriodData
+            {
+                StartDate = currentPeriodStart,
+                EndDate = endDate,
+                TotalViews = currentViews,
+                TotalReviews = currentReviews,
+                TotalFavorites = 0, // Would need to implement favorites logic
+                AverageRating = double.IsNaN(currentRating) ? 0 : currentRating,
+                EngagementScore = CalculateEngagementScore(currentReviews, 0, currentViews),
+                AverageViewsPerDay = periodDays > 0 ? (double)currentViews / periodDays : 0,
+                AverageReviewsPerDay = periodDays > 0 ? (double)currentReviews / periodDays : 0
+            };
+
+            var previousPeriod = new PeriodData
+            {
+                StartDate = previousPeriodStart,
+                EndDate = previousPeriodEnd,
+                TotalViews = previousViews,
+                TotalReviews = previousReviews,
+                TotalFavorites = 0, // Would need to implement favorites logic
+                AverageRating = double.IsNaN(previousRating) ? 0 : previousRating,
+                EngagementScore = CalculateEngagementScore(previousReviews, 0, previousViews),
+                AverageViewsPerDay = periodDays > 0 ? (double)previousViews / periodDays : 0,
+                AverageReviewsPerDay = periodDays > 0 ? (double)previousReviews / periodDays : 0
+            };
+
+            return (currentPeriod, previousPeriod);
+        }
+
+        private ComparisonMetrics CalculateComparisonMetrics(PeriodData currentPeriod, PeriodData previousPeriod)
+        {
+            var viewsGrowthPercentage = previousPeriod.TotalViews > 0 
+                ? ((currentPeriod.TotalViews - previousPeriod.TotalViews) / (double)previousPeriod.TotalViews) * 100 
+                : 0;
+
+            var reviewsGrowthPercentage = previousPeriod.TotalReviews > 0 
+                ? ((currentPeriod.TotalReviews - previousPeriod.TotalReviews) / (double)previousPeriod.TotalReviews) * 100 
+                : 0;
+
+            var ratingGrowthPercentage = previousPeriod.AverageRating > 0 
+                ? ((currentPeriod.AverageRating - previousPeriod.AverageRating) / previousPeriod.AverageRating) * 100 
+                : 0;
+
+            return new ComparisonMetrics
+            {
+                ViewsGrowthPercentage = viewsGrowthPercentage,
+                ReviewsGrowthPercentage = reviewsGrowthPercentage,
+                RatingGrowthPercentage = ratingGrowthPercentage,
+                EngagementGrowthPercentage = previousPeriod.EngagementScore > 0 
+                    ? ((currentPeriod.EngagementScore - previousPeriod.EngagementScore) / previousPeriod.EngagementScore) * 100 
+                    : 0,
+                OverallPerformanceChange = CalculateOverallPerformanceChange(currentPeriod, previousPeriod),
+                // Set the legacy properties for backward compatibility
+                ViewsChangePercent = viewsGrowthPercentage,
+                ReviewsChangePercent = reviewsGrowthPercentage,
+                RatingChangePercent = ratingGrowthPercentage,
+                EngagementChangePercent = previousPeriod.EngagementScore > 0 
+                    ? ((currentPeriod.EngagementScore - previousPeriod.EngagementScore) / previousPeriod.EngagementScore) * 100 
+                    : 0
+            };
+        }
+
+        private string CalculateOverallPerformanceChange(PeriodData currentPeriod, PeriodData previousPeriod)
+        {
+            var viewsChange = currentPeriod.TotalViews - previousPeriod.TotalViews;
+            var reviewsChange = currentPeriod.TotalReviews - previousPeriod.TotalReviews;
+            var ratingChange = currentPeriod.AverageRating - previousPeriod.AverageRating;
+
+            if (viewsChange > 0 && reviewsChange > 0 && ratingChange > 0)
+                return "Significantly Improved";
+            if (viewsChange > 0 || reviewsChange > 0 || ratingChange > 0)
+                return "Improved";
+            if (viewsChange < 0 && reviewsChange < 0 && ratingChange < 0)
+                return "Declined";
+            return "Stable";
+        }
+
+        private List<string> GenerateComparativeInsights(PeriodData currentPeriod, PeriodData previousPeriod, ComparisonMetrics metrics)
+        {
+            var insights = new List<string>();
+
+            if (metrics.ViewsGrowthPercentage > 10)
+                insights.Add($"Views increased by {metrics.ViewsGrowthPercentage:F1}% compared to the previous period.");
+            else if (metrics.ViewsGrowthPercentage < -10)
+                insights.Add($"Views decreased by {Math.Abs(metrics.ViewsGrowthPercentage):F1}% compared to the previous period.");
+
+            if (metrics.ReviewsGrowthPercentage > 10)
+                insights.Add($"Reviews increased by {metrics.ReviewsGrowthPercentage:F1}% compared to the previous period.");
+            else if (metrics.ReviewsGrowthPercentage < -10)
+                insights.Add($"Reviews decreased by {Math.Abs(metrics.ReviewsGrowthPercentage):F1}% compared to the previous period.");
+
+            if (metrics.RatingGrowthPercentage > 5)
+                insights.Add($"Average rating improved by {metrics.RatingGrowthPercentage:F1}% compared to the previous period.");
+            else if (metrics.RatingGrowthPercentage < -5)
+                insights.Add($"Average rating decreased by {Math.Abs(metrics.RatingGrowthPercentage):F1}% compared to the previous period.");
+
+            if (insights.Count == 0)
+                insights.Add("Performance remained stable compared to the previous period.");
+
+            return insights;
+        }
+
+        private ComparativeChartData GenerateChartData(PeriodData currentPeriod, PeriodData previousPeriod, string comparisonType)
+        {
+            return new ComparativeChartData
+            {
+                Labels = new List<string> { "Current Period", "Previous Period" },
+                Datasets = new List<ComparativeChartDataset>
+                {
+                    new ComparativeChartDataset
+                    {
+                        Label = "Views",
+                        Data = new List<double> { currentPeriod.TotalViews, previousPeriod.TotalViews },
+                        BackgroundColor = "#33658a",
+                        BorderColor = "#33658a",
+                        BorderWidth = 1
+                    },
+                    new ComparativeChartDataset
+                    {
+                        Label = "Reviews",
+                        Data = new List<double> { currentPeriod.TotalReviews, previousPeriod.TotalReviews },
+                        BackgroundColor = "#f6ae2d",
+                        BorderColor = "#f6ae2d",
+                        BorderWidth = 1
+                    }
+                }
+            };
         }
 
         private UserInfo ConvertToUserInfo(ApplicationUser user)

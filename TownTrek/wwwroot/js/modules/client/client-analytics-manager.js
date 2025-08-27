@@ -12,7 +12,8 @@ class ClientAnalyticsManager {
             core: null,
             charts: null,
             realtime: null,
-            export: null
+            export: null,
+            comparative: null
         };
         this.config = {
             autoInitialize: true,
@@ -76,6 +77,15 @@ class ClientAnalyticsManager {
                 this.modules.export.init(this.modules.core);
                 window.analyticsExport = this.modules.export; // Set global instance
                 console.log('✅ AnalyticsExport initialized');
+            }
+
+            // Initialize AnalyticsComparative (optional - only on comparative analysis pages)
+            if (window.AnalyticsComparative && AnalyticsComparative.shouldInitialize()) {
+                this.modules.comparative = new AnalyticsComparative(this.modules.core);
+                this.modules.comparative.init();
+                console.log('✅ AnalyticsComparative initialized');
+            } else {
+                console.log('ℹ️ AnalyticsComparative not available or not needed on this page');
             }
 
             this.isInitialized = true;
@@ -168,6 +178,9 @@ class ClientAnalyticsManager {
             console.log('Destroying ClientAnalyticsManager...');
 
             // Destroy modules in reverse order
+            if (this.modules.comparative) {
+                this.modules.comparative.destroy();
+            }
             if (this.modules.export) {
                 this.modules.export.destroy();
             }
@@ -186,7 +199,8 @@ class ClientAnalyticsManager {
                 core: null,
                 charts: null,
                 realtime: null,
-                export: null
+                export: null,
+                comparative: null
             };
 
             this.isInitialized = false;
@@ -208,7 +222,8 @@ class ClientAnalyticsManager {
                 core: this.modules.core ? 'initialized' : 'not_found',
                 charts: this.modules.charts ? 'initialized' : 'not_found',
                 realtime: this.modules.realtime ? 'initialized' : 'not_found',
-                export: this.modules.export ? 'initialized' : 'not_found'
+                export: this.modules.export ? 'initialized' : 'not_found',
+                comparative: this.modules.comparative ? 'initialized' : 'not_found'
             },
             timestamp: new Date().toISOString()
         };

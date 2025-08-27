@@ -22,6 +22,6 @@ namespace TownTrek.Services.Interfaces
         // Additional methods needed by controllers
         Task<List<ViewsOverTimeData>> GetViewsOverTimeDataAsync(string userId, int days = 30);
         Task<List<ReviewsOverTimeData>> GetReviewsOverTimeDataAsync(string userId, int days = 30);
-        Task<object> GetComparativeAnalysisDataAsync(string userId, string comparisonType, DateTime? fromDate = null, DateTime? toDate = null);
+        Task<ComparativeAnalysisResponse> GetComparativeAnalysisDataAsync(string userId, string comparisonType, DateTime? fromDate = null, DateTime? toDate = null);
     }
 }

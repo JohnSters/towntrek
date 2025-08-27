@@ -10,36 +10,43 @@ namespace TownTrek.Models.ViewModels
         /// <summary>
         /// Type of comparison to perform
         /// </summary>
+        [JsonPropertyName("comparisonType")]
         public string ComparisonType { get; set; } = "PeriodOverPeriod"; // PeriodOverPeriod, YearOverYear, CustomRange
         
         /// <summary>
         /// Business ID for business-specific analysis (null for overview)
         /// </summary>
+        [JsonPropertyName("businessId")]
         public int? BusinessId { get; set; }
         
         /// <summary>
         /// Current period start date
         /// </summary>
+        [JsonPropertyName("currentPeriodStart")]
         public DateTime CurrentPeriodStart { get; set; }
         
         /// <summary>
         /// Current period end date
         /// </summary>
+        [JsonPropertyName("currentPeriodEnd")]
         public DateTime CurrentPeriodEnd { get; set; }
         
         /// <summary>
         /// Previous period start date (auto-calculated for standard comparisons)
         /// </summary>
+        [JsonPropertyName("previousPeriodStart")]
         public DateTime? PreviousPeriodStart { get; set; }
         
         /// <summary>
         /// Previous period end date (auto-calculated for standard comparisons)
         /// </summary>
+        [JsonPropertyName("previousPeriodEnd")]
         public DateTime? PreviousPeriodEnd { get; set; }
         
         /// <summary>
         /// Platform filter (Web, Mobile, API, null for all)
         /// </summary>
+        [JsonPropertyName("platform")]
         public string? Platform { get; set; }
     }
 
@@ -119,6 +126,13 @@ namespace TownTrek.Models.ViewModels
         public double AverageReviewsPerDayChangePercent { get; set; }
         public double AverageFavoritesPerDayChangePercent { get; set; }
         
+        // Additional properties needed by AnalyticsService
+        public double ViewsGrowthPercentage { get; set; }
+        public double ReviewsGrowthPercentage { get; set; }
+        public double RatingGrowthPercentage { get; set; }
+        public double EngagementGrowthPercentage { get; set; }
+        public string OverallPerformanceChange { get; set; } = string.Empty;
+        
         /// <summary>
         /// Trend indicators: "Improving", "Declining", "Stable"
         /// </summary>
@@ -178,6 +192,12 @@ namespace TownTrek.Models.ViewModels
         public int BusinessId { get; set; }
         public string BusinessName { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
+        
+        // Additional properties needed by AnalyticsService
+        public int CurrentPeriodViews { get; set; }
+        public int PreviousPeriodViews { get; set; }
+        public int CurrentPeriodReviews { get; set; }
+        public int PreviousPeriodReviews { get; set; }
         
         /// <summary>
         /// Comparison against category average

@@ -19,10 +19,25 @@
     <script src="~/js/modules/client/analytics-core.js" asp-append-version="true"></script>
     <script src="~/js/modules/client/analytics-charts.js" asp-append-version="true"></script>
     <script src="~/js/modules/client/analytics-realtime.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/analytics-comparative.js" asp-append-version="true"></script>
+    <script src="~/js/modules/client/client-analytics-manager.js" asp-append-version="true"></script>
+    
+    <script>
+        // Initialize comparative analysis when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.ClientAnalyticsManager) {
+                const manager = new ClientAnalyticsManager();
+                manager.init().catch(error => {
+                    console.error('Error initializing analytics manager:', error);
+                });
+            }
+        });
+    </script>
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/features/client/analytics-core.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/features/client/analytics-charts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/features/client/analytics-realtime.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/features/client/analytics-comparative.css" asp-append-version="true" />
 }

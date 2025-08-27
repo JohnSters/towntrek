@@ -113,7 +113,7 @@ namespace TownTrek.Controllers.Client
                     }
                 }
 
-                var comparativeData = await _analyticsService.GetComparativeAnalysisDataAsync(userId, "MonthOverMonth");
+                var comparativeData = await _comparativeAnalysisService.GetPeriodOverPeriodComparisonAsync(userId, businessId, "MonthOverMonth");
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "ComparativeAnalysis", TimeSpan.FromMilliseconds(100));
@@ -156,7 +156,7 @@ namespace TownTrek.Controllers.Client
                     }
                 }
 
-                var data = await _analyticsService.GetComparativeAnalysisDataAsync(userId, comparisonType);
+                var data = await _comparativeAnalysisService.GetPeriodOverPeriodComparisonAsync(userId, businessId, comparisonType, platform);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "ComparativeAnalysisData", TimeSpan.FromMilliseconds(50));
@@ -198,7 +198,7 @@ namespace TownTrek.Controllers.Client
                     }
                 }
 
-                var comparisonData = await _comparativeAnalysisService.GetYearOverYearComparisonAsync(userId, businessId.Value, platform);
+                var comparisonData = await _comparativeAnalysisService.GetYearOverYearComparisonAsync(userId, businessId, platform);
                 
                 // Track usage
                 await _usageTracker.TrackFeatureUsageAsync(userId, "YearOverYearComparison", TimeSpan.FromMilliseconds(50));
@@ -235,11 +235,11 @@ namespace TownTrek.Controllers.Client
 
                 var comparisonData = await _comparativeAnalysisService.GetCustomRangeComparisonAsync(
                     userId,
-                    request.CurrentPeriodStart, 
-                    request.CurrentPeriodEnd, 
-                    request.PreviousPeriodStart ?? DateTime.MinValue, 
-                    request.PreviousPeriodEnd ?? DateTime.MinValue, 
-                    request.BusinessId, 
+                    request.CurrentPeriodStart,
+                    request.CurrentPeriodEnd,
+                    request.PreviousPeriodStart ?? DateTime.MinValue,
+                    request.PreviousPeriodEnd ?? DateTime.MinValue,
+                    request.BusinessId,
                     request.Platform);
                 
                 // Track usage
