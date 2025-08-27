@@ -49,8 +49,6 @@ class AnalyticsExport {
         this.analyticsCore = analyticsCore;
         this.createModal();
         this.bindEvents();
-        
-        console.log('AnalyticsExport initialized');
     }
 
     createModal() {

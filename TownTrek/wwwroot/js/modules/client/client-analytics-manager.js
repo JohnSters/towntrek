@@ -33,7 +33,7 @@ class ClientAnalyticsManager {
         }
 
         try {
-            console.log('Initializing ClientAnalyticsManager...');
+            console.log('Loading analytics dashboard...');
 
             // Wait for all required modules to be available
             await this.waitForModules();
@@ -42,7 +42,6 @@ class ClientAnalyticsManager {
             if (window.AnalyticsCore) {
                 this.modules.core = new AnalyticsCore();
                 this.modules.core.init();
-                console.log('✅ AnalyticsCore initialized');
             } else {
                 throw new Error('AnalyticsCore not found');
             }
@@ -51,14 +50,12 @@ class ClientAnalyticsManager {
             if (this.config.enableCharts && window.AnalyticsCharts) {
                 this.modules.charts = new AnalyticsCharts(this.modules.core);
                 await this.modules.charts.init();
-                console.log('✅ AnalyticsCharts initialized');
             }
 
             // Initialize AnalyticsRealtime
             if (this.config.enableRealTime && window.AnalyticsRealtime) {
                 this.modules.realtime = new AnalyticsRealtime();
                 this.modules.realtime.init(this.modules.core, this.modules.charts);
-                console.log('✅ AnalyticsRealtime initialized');
             }
 
             // Initialize AnalyticsExport
@@ -66,20 +63,16 @@ class ClientAnalyticsManager {
                 this.modules.export = new AnalyticsExport();
                 this.modules.export.init(this.modules.core);
                 window.analyticsExport = this.modules.export; // Set global instance
-                console.log('✅ AnalyticsExport initialized');
             }
 
             // Initialize AnalyticsComparative (optional - only on comparative analysis pages)
             if (window.AnalyticsComparative && AnalyticsComparative.shouldInitialize()) {
                 this.modules.comparative = new AnalyticsComparative(this.modules.core);
                 this.modules.comparative.init();
-                console.log('✅ AnalyticsComparative initialized');
-            } else {
-                console.log('ℹ️ AnalyticsComparative not available or not needed on this page');
             }
 
             this.isInitialized = true;
-            console.log('🎉 ClientAnalyticsManager initialized successfully');
+            console.log('✅ Analytics dashboard loaded successfully');
 
             // Track initialization for analytics
             if (this.modules.core) {
@@ -109,11 +102,9 @@ class ClientAnalyticsManager {
             const missingModules = requiredModules.filter(module => !window[module]);
             
             if (missingModules.length === 0) {
-                console.log('All required modules are available');
                 return;
             }
 
-            console.log(`Waiting for modules: ${missingModules.join(', ')}`);
             await new Promise(resolve => setTimeout(resolve, checkInterval));
             elapsedTime += checkInterval;
         }
@@ -141,8 +132,6 @@ class ClientAnalyticsManager {
         }
 
         try {
-            console.log('Refreshing analytics data...');
-
             if (this.modules.charts) {
                 await this.modules.charts.refreshAllCharts();
             }
@@ -150,10 +139,8 @@ class ClientAnalyticsManager {
             if (this.modules.core) {
                 await this.modules.core.trackFeatureUsage('analytics_dashboard', 'refreshed');
             }
-
-            console.log('✅ Analytics data refreshed successfully');
         } catch (error) {
-            console.error('❌ Error refreshing analytics data:', error);
+            console.error('Error refreshing analytics data:', error);
             throw error;
         }
     }
@@ -165,8 +152,6 @@ class ClientAnalyticsManager {
         if (!this.isInitialized) return;
 
         try {
-            console.log('Destroying ClientAnalyticsManager...');
-
             // Destroy modules in reverse order
             if (this.modules.comparative) {
                 this.modules.comparative.destroy();
@@ -194,9 +179,8 @@ class ClientAnalyticsManager {
             };
 
             this.isInitialized = false;
-            console.log('✅ ClientAnalyticsManager destroyed successfully');
         } catch (error) {
-            console.error('❌ Error destroying ClientAnalyticsManager:', error);
+            console.error('Error destroying ClientAnalyticsManager:', error);
         }
     }
 

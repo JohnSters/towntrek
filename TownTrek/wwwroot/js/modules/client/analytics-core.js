@@ -68,8 +68,6 @@ class AnalyticsCore {
             this.checkChartJsAvailability();
             this.bindCoreEvents();
             this.isInitialized = true;
-            
-            console.log('AnalyticsCore initialized successfully');
         } catch (error) {
             console.error('Error initializing AnalyticsCore:', error);
         }
@@ -102,7 +100,6 @@ class AnalyticsCore {
     checkChartJsAvailability() {
         if (typeof Chart !== 'undefined' && Chart) {
             this.chartJsAvailable = true;
-            console.log('Chart.js is available');
         } else {
             this.chartJsAvailable = false;
             console.warn('Chart.js is not available - charts will be disabled');
@@ -241,7 +238,6 @@ class AnalyticsCore {
     destroy() {
         this.eventListeners.clear();
         this.isInitialized = false;
-        console.log('AnalyticsCore destroyed');
     }
 }
 

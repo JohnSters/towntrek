@@ -136,24 +136,18 @@ class AnalyticsCharts {
     // Initialize charts
     async init() {
         if (this.isInitialized) {
-            console.warn('AnalyticsCharts already initialized, skipping...');
             return;
         }
         
         try {
-            console.log('AnalyticsCharts: Starting initialization...');
-            
             // Small delay to ensure DOM is fully loaded
             await new Promise(resolve => setTimeout(resolve, 100));
-            
-            console.log('AnalyticsCharts: DOM should be ready, initializing charts...');
             
             await this.initializeViewsChart();
             await this.initializeReviewsChart();
             
             this.bindChartEvents();
             this.isInitialized = true;
-            console.log('AnalyticsCharts initialized successfully');
         } catch (error) {
             console.error('Error initializing AnalyticsCharts:', error);
         }
@@ -161,49 +155,37 @@ class AnalyticsCharts {
 
     // Initialize views chart
     async initializeViewsChart() {
-        console.log('AnalyticsCharts: Initializing views chart...');
-        
         // Check if chart already exists
         if (this.charts.has('views')) {
-            console.warn('Views chart already exists, skipping initialization');
             return;
         }
         
         const canvas = document.getElementById('viewsChart');
         if (!canvas) {
-            console.warn('Views chart canvas not found');
             return;
         }
-        console.log('AnalyticsCharts: Views chart canvas found');
 
         const parentElement = canvas.closest('.chart-content') || canvas.parentElement;
         if (!parentElement) {
-            console.warn('Views chart parent element not found');
             return;
         }
-        console.log('AnalyticsCharts: Views chart parent element found');
 
         try {
             this.showChartLoading(parentElement);
-            console.log('AnalyticsCharts: Fetching views data...');
             const data = await this.fetchViewsData(30);
-            console.log('AnalyticsCharts: Views data fetched:', data);
             
             // Clear loading state and recreate canvas
             parentElement.innerHTML = '<canvas id="viewsChart" width="400" height="200"></canvas>';
             const newCanvas = parentElement.querySelector('#viewsChart');
             
             if (!newCanvas) {
-                console.warn('Failed to recreate views chart canvas');
                 return;
             }
             
-            console.log('AnalyticsCharts: Creating views chart...');
             const chart = this.createChart(newCanvas, 'views', data);
             this.charts.set('views', chart);
             
             this.core.trackFeatureUsage('ViewsChart', 'Initialized');
-            console.log('AnalyticsCharts: Views chart created successfully');
         } catch (error) {
             console.error('Error initializing views chart:', error);
             this.showChartError(parentElement, 'Unable to load views data');
@@ -214,19 +196,16 @@ class AnalyticsCharts {
     async initializeReviewsChart() {
         // Check if chart already exists
         if (this.charts.has('reviews')) {
-            console.warn('Reviews chart already exists, skipping initialization');
             return;
         }
         
         const canvas = document.getElementById('reviewsChart');
         if (!canvas) {
-            console.warn('Reviews chart canvas not found');
             return;
         }
 
         const parentElement = canvas.closest('.chart-content') || canvas.parentElement;
         if (!parentElement) {
-            console.warn('Reviews chart parent element not found');
             return;
         }
 
@@ -239,7 +218,6 @@ class AnalyticsCharts {
             const newCanvas = parentElement.querySelector('#reviewsChart');
             
             if (!newCanvas) {
-                console.warn('Failed to recreate reviews chart canvas');
                 return;
             }
             
@@ -320,11 +298,7 @@ class AnalyticsCharts {
     // Fetch views data
     async fetchViewsData(days) {
         try {
-            console.log('AnalyticsCharts: Fetching views data for', days, 'days');
-            console.log('AnalyticsCharts: API endpoint:', this.core.config.apiEndpoints.viewsData);
-            
             const response = await this.core.fetchData(this.core.config.apiEndpoints.viewsData, { days });
-            console.log('AnalyticsCharts: Raw API response:', response);
             
             if (!response.success) {
                 throw new Error(response.message || 'Failed to fetch views data');
@@ -332,7 +306,6 @@ class AnalyticsCharts {
             
             // Transform the data into Chart.js format
             const viewsData = response.data || [];
-            console.log('AnalyticsCharts: Views data before transformation:', viewsData);
             
             const labels = viewsData.map(item => {
                 const date = new Date(item.date);
@@ -348,9 +321,7 @@ class AnalyticsCharts {
                 tension: 0.4
             }];
             
-            const result = { labels, datasets };
-            console.log('AnalyticsCharts: Transformed views data:', result);
-            return result;
+            return { labels, datasets };
         } catch (error) {
             console.error('Error fetching views chart data:', error);
             return this.getEmptyChartData(days, 'Views');
@@ -360,18 +331,14 @@ class AnalyticsCharts {
     // Fetch reviews data
     async fetchReviewsData(days) {
         try {
-            console.log('AnalyticsCharts: Fetching reviews data for', days, 'days');
             const response = await this.core.fetchData(this.core.config.apiEndpoints.reviewsData, { days });
             
             if (!response.success) {
                 throw new Error(response.message || 'Failed to fetch reviews data');
             }
             
-            console.log('AnalyticsCharts: Raw reviews API response:', response);
-            
             // Transform the data into Chart.js format
             const reviewsData = response.data || [];
-            console.log('AnalyticsCharts: Reviews data before transformation:', reviewsData);
             
             const labels = reviewsData.map(item => {
                 const date = new Date(item.date);
@@ -394,10 +361,7 @@ class AnalyticsCharts {
                 tension: 0
             }];
             
-            const transformedData = { labels, datasets };
-            console.log('AnalyticsCharts: Transformed reviews data:', transformedData);
-            
-            return transformedData;
+            return { labels, datasets };
         } catch (error) {
             console.error('Error fetching reviews chart data:', error);
             return this.getEmptyChartData(days, 'Reviews');
@@ -506,7 +470,6 @@ class AnalyticsCharts {
                 this.updateChart('views', 30),
                 this.updateChart('reviews', 30)
             ]);
-            console.log('All charts refreshed');
         } catch (error) {
             console.error('Error refreshing charts:', error);
         }
@@ -526,7 +489,6 @@ class AnalyticsCharts {
         });
         this.charts.clear();
         this.isInitialized = false;
-        console.log('AnalyticsCharts destroyed');
     }
 }
 

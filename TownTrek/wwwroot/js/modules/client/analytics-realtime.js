@@ -44,8 +44,6 @@ class AnalyticsRealtime {
         this.createNotificationContainer();
         this.initializeSignalR();
         this.bindEvents();
-        
-        console.log('AnalyticsRealtime initialized');
     }
 
     createNotificationContainer() {
@@ -68,7 +66,6 @@ class AnalyticsRealtime {
 
             // Check if connection already exists and is in a good state
             if (this.connection && this.connection.state === signalR.HubConnectionState.Connected) {
-                console.log('SignalR connection already established');
                 return;
             }
 
@@ -100,8 +97,6 @@ class AnalyticsRealtime {
 
             // Start health monitoring
             this.startHealthMonitoring();
-
-            console.log('SignalR connection established for analytics');
         } catch (error) {
             console.error('Error establishing SignalR connection:', error);
             this.handleConnectionError();
@@ -113,14 +108,12 @@ class AnalyticsRealtime {
 
         // Connection lifecycle events
         this.connection.onreconnecting((error) => {
-            console.log('SignalR reconnecting...', error);
             this.isConnected = false;
             this.lastActivity = Date.now();
             this.showConnectionStatus('Reconnecting...', 'warning');
         });
 
         this.connection.onreconnected((connectionId) => {
-            console.log('SignalR reconnected with connection ID:', connectionId);
             this.isConnected = true;
             this.reconnectAttempts = 0;
             this.reconnectDelay = 1000;
@@ -129,7 +122,6 @@ class AnalyticsRealtime {
         });
 
         this.connection.onclose((error) => {
-            console.log('SignalR connection closed:', error);
             this.isConnected = false;
             this.showConnectionStatus('Disconnected', 'error');
         });
