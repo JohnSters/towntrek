@@ -9,14 +9,14 @@ namespace TownTrek.Services.Analytics
     /// <summary>
     /// Service for managing analytics snapshots and historical data
     /// </summary>
-    public class AnalyticsSnapshotService : IAnalyticsSnapshotService
+    public class ClientAnalyticsSnapshotService : IAnalyticsSnapshotService
     {
         private readonly ApplicationDbContext _context;
-        private readonly ILogger<AnalyticsSnapshotService> _logger;
+        private readonly ILogger<ClientAnalyticsSnapshotService> _logger;
 
-        public AnalyticsSnapshotService(
+        public ClientAnalyticsSnapshotService(
             ApplicationDbContext context,
-            ILogger<AnalyticsSnapshotService> logger)
+            ILogger<ClientAnalyticsSnapshotService> logger)
         {
             _context = context;
             _logger = logger;

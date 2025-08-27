@@ -1,7 +1,7 @@
 using TownTrek.Models.Exceptions;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics;
+namespace TownTrek.Services.SharedAnalytics;
 
 /// <summary>
 /// Standardized error handling service for all analytics operations

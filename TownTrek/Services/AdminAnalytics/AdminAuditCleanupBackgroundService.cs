@@ -5,10 +5,10 @@ namespace TownTrek.Services.AdminAnalytics
     /// <summary>
     /// Background service to automatically clean up old analytics audit logs
     /// </summary>
-    public class AnalyticsAuditCleanupBackgroundService : BackgroundService
+    public class AdminAuditCleanupBackgroundService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<AnalyticsAuditCleanupBackgroundService> _logger;
+        private readonly ILogger<AdminAuditCleanupBackgroundService> _logger;
         private readonly TimeSpan _cleanupInterval = TimeSpan.FromDays(7); // Run weekly
         private readonly int _retentionDays = 365; // Keep logs for 1 year
         
@@ -18,9 +18,9 @@ namespace TownTrek.Services.AdminAnalytics
         private readonly int _maxConsecutiveFailures = 3;
         private readonly TimeSpan _baseRetryDelay = TimeSpan.FromHours(1);
 
-        public AnalyticsAuditCleanupBackgroundService(
+        public AdminAuditCleanupBackgroundService(
             IServiceProvider serviceProvider,
-            ILogger<AnalyticsAuditCleanupBackgroundService> logger)
+            ILogger<AdminAuditCleanupBackgroundService> logger)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;

@@ -7,16 +7,16 @@ using Microsoft.AspNetCore.Http;
 
 namespace TownTrek.Services.AdminAnalytics;
 
-public class AnalyticsErrorTracker : IAnalyticsErrorTracker
+public class AdminErrorTrackerService : IAnalyticsErrorTracker
 {
     private readonly ApplicationDbContext _context;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ILogger<AnalyticsErrorTracker> _logger;
+    private readonly ILogger<AdminErrorTrackerService> _logger;
 
-    public AnalyticsErrorTracker(
+    public AdminErrorTrackerService(
         ApplicationDbContext context,
         IHttpContextAccessor httpContextAccessor,
-        ILogger<AnalyticsErrorTracker> logger)
+        ILogger<AdminErrorTrackerService> logger)
     {
         _context = context;
         _httpContextAccessor = httpContextAccessor;

@@ -1,21 +1,22 @@
 using Microsoft.AspNetCore.SignalR;
+
 using TownTrek.Hubs;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.ClientAnalytics.RealTime
 {
     /// <summary>
     /// Service for managing real-time analytics updates via SignalR
     /// </summary>
-    public class RealTimeAnalyticsService : IRealTimeAnalyticsService
+    public class ClientRealTimeAnalyticsService : IRealTimeAnalyticsService
     {
         private readonly IHubContext<AnalyticsHub> _hubContext;
-        private readonly ILogger<RealTimeAnalyticsService> _logger;
+        private readonly ILogger<ClientRealTimeAnalyticsService> _logger;
 
-        public RealTimeAnalyticsService(
+        public ClientRealTimeAnalyticsService(
             IHubContext<AnalyticsHub> hubContext,
-            ILogger<RealTimeAnalyticsService> logger)
+            ILogger<ClientRealTimeAnalyticsService> logger)
         {
             _hubContext = hubContext;
             _logger = logger;

@@ -1,25 +1,19 @@
 using TownTrek.Services.Interfaces;
 using TownTrek.Models.ViewModels;
 
-namespace TownTrek.Services
+namespace TownTrek.Services.ClientAnalytics.RealTime
 {
     /// <summary>
     /// Background service for periodic real-time analytics updates
     /// </summary>
-    public class RealTimeAnalyticsBackgroundService : BackgroundService
+    public class ClientRealTimeBackgroundService(
+        IServiceProvider serviceProvider,
+        ILogger<ClientRealTimeBackgroundService> logger) : BackgroundService
     {
-        private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<RealTimeAnalyticsBackgroundService> _logger;
-        private readonly Dictionary<string, int> _userRefreshIntervals = new();
-        private readonly Dictionary<string, DateTime> _lastUpdateTimes = new();
-
-        public RealTimeAnalyticsBackgroundService(
-            IServiceProvider serviceProvider,
-            ILogger<RealTimeAnalyticsBackgroundService> logger)
-        {
-            _serviceProvider = serviceProvider;
-            _logger = logger;
-        }
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
+        private readonly ILogger<ClientRealTimeBackgroundService> _logger = logger;
+        private readonly Dictionary<string, int> _userRefreshIntervals = [];
+        private readonly Dictionary<string, DateTime> _lastUpdateTimes = [];
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {

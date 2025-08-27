@@ -18,20 +18,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TownTrek.Services.Analytics
 {
-    public class AnalyticsExportService(
+    public class ClientAnalyticsExportService(
         ApplicationDbContext context,
         IClientAnalyticsService analyticsService,
         IAnalyticsCacheService analyticsCacheService,
         IEmailService emailService,
         IAnalyticsErrorHandler errorHandler,
-        ILogger<AnalyticsExportService> logger) : IAnalyticsExportService
+        ILogger<ClientAnalyticsExportService> logger) : IAnalyticsExportService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IClientAnalyticsService _analyticsService = analyticsService;
         private readonly IAnalyticsCacheService _analyticsCacheService = analyticsCacheService;
         private readonly IEmailService _emailService = emailService;
         private readonly IAnalyticsErrorHandler _errorHandler = errorHandler;
-        private readonly ILogger<AnalyticsExportService> _logger = logger;
+        private readonly ILogger<ClientAnalyticsExportService> _logger = logger;
 
         public async Task<byte[]> GenerateBusinessAnalyticsPdfAsync(int businessId, string userId, DateTime? fromDate = null, DateTime? toDate = null)
         {

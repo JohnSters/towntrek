@@ -10,12 +10,12 @@ namespace TownTrek.Services.Analytics
     /// <summary>
     /// Service responsible for validating analytics parameters and requests
     /// </summary>
-    public class AnalyticsValidationService(
+    public class ClientAnalyticsValidationService(
         ApplicationDbContext context,
-        ILogger<AnalyticsValidationService> logger) : IAnalyticsValidationService
+        ILogger<ClientAnalyticsValidationService> logger) : IAnalyticsValidationService
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly ILogger<AnalyticsValidationService> _logger = logger;
+        private readonly ILogger<ClientAnalyticsValidationService> _logger = logger;
 
         public async Task<(bool IsValid, string? ErrorMessage)> ValidateUserIdAsync(string userId)
         {

@@ -8,9 +8,9 @@ namespace TownTrek.Services.AdminAnalytics
     /// <summary>
     /// Background service to clean up stale SignalR connections
     /// </summary>
-    public class AnalyticsConnectionCleanupBackgroundService(ILogger<AnalyticsConnectionCleanupBackgroundService> logger) : BackgroundService
+    public class AdminConnectionCleanupBackgroundService(ILogger<AdminConnectionCleanupBackgroundService> logger) : BackgroundService
     {
-        private readonly ILogger<AnalyticsConnectionCleanupBackgroundService> _logger = logger;
+        private readonly ILogger<AdminConnectionCleanupBackgroundService> _logger = logger;
         private readonly TimeSpan _cleanupInterval = TimeSpan.FromMinutes(5); // Clean up every 5 minutes
         
         // Performance monitoring

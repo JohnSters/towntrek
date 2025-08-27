@@ -5,20 +5,20 @@ using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Services.AdminAnalytics;
 
-public class AnalyticsHealthCheck : IHealthCheck
+public class AdminAnalyticsHealthCheckService : IHealthCheck
 {
     private readonly ApplicationDbContext _context;
     private readonly ICacheService _cacheService;
     private readonly IAnalyticsPerformanceMonitor _performanceMonitor;
     private readonly IAnalyticsErrorTracker _errorTracker;
-    private readonly ILogger<AnalyticsHealthCheck> _logger;
+    private readonly ILogger<AdminAnalyticsHealthCheckService> _logger;
 
-    public AnalyticsHealthCheck(
+    public AdminAnalyticsHealthCheckService(
         ApplicationDbContext context,
         ICacheService cacheService,
         IAnalyticsPerformanceMonitor performanceMonitor,
         IAnalyticsErrorTracker errorTracker,
-        ILogger<AnalyticsHealthCheck> logger)
+        ILogger<AdminAnalyticsHealthCheckService> logger)
     {
         _context = context;
         _cacheService = cacheService;

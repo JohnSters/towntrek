@@ -12,6 +12,8 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using TownTrek.Services.Analytics;
 using TownTrek.Services.ClientAnalytics;
 using TownTrek.Services.AdminAnalytics;
+using TownTrek.Services.SharedAnalytics;
+using TownTrek.Services.ClientAnalytics.RealTime;
 
 namespace TownTrek;
 
@@ -173,8 +175,8 @@ public class Program
         builder.Services.AddScoped<IClientService, ClientService>();
         builder.Services.AddScoped<IMemberService, MemberService>();
         // Add analytics architecture services
-        builder.Services.AddScoped<IAnalyticsDataService, AnalyticsDataService>();
-        builder.Services.AddScoped<IAnalyticsValidationService, AnalyticsValidationService>();
+        builder.Services.AddScoped<IAnalyticsDataService, ClientAnalyticsDataService>();
+        builder.Services.AddScoped<IAnalyticsValidationService, ClientAnalyticsValidationService>();
         builder.Services.AddScoped<IAnalyticsEventService, AnalyticsEventService>();
         builder.Services.AddScoped<IClientAnalyticsService, ClientAnalyticsService>();
         builder.Services.AddScoped<IClientAnalyticsService, ClientAnalyticsService>();
@@ -182,36 +184,36 @@ public class Program
         builder.Services.AddScoped<IChartDataService, ChartDataService>();
         builder.Services.AddScoped<IComparativeAnalysisService, ComparativeAnalysisService>();
         builder.Services.AddScoped<IViewTrackingService, ViewTrackingService>();
-        builder.Services.AddScoped<IAnalyticsSnapshotService, AnalyticsSnapshotService>();
+        builder.Services.AddScoped<IAnalyticsSnapshotService, ClientAnalyticsSnapshotService>();
         builder.Services.AddHostedService<AnalyticsSnapshotBackgroundService>();
-        builder.Services.AddHostedService<AnalyticsAuditCleanupBackgroundService>();
-        builder.Services.AddHostedService<AnalyticsConnectionCleanupBackgroundService>();
+        builder.Services.AddHostedService<AdminAuditCleanupBackgroundService>();
+        builder.Services.AddHostedService<AdminConnectionCleanupBackgroundService>();
         
         // Add cache services
         builder.Services.AddScoped<ICacheService, CacheService>();
-        builder.Services.AddScoped<IAnalyticsCacheService, AnalyticsCacheService>();
+        builder.Services.AddScoped<IAnalyticsCacheService, ClientAnalyticsCacheService>();
         builder.Services.AddScoped<ISubscriptionManagementService, SubscriptionManagementService>();
         builder.Services.AddScoped<IApplicationLogger, ApplicationLogger>();
         builder.Services.AddScoped<IDatabaseErrorLogger, DatabaseErrorLogger>();
         builder.Services.AddScoped<IAdminMessageService, AdminMessageService>();
 
         // Add analytics audit service
-        builder.Services.AddScoped<IAnalyticsAuditService, AnalyticsAuditService>();
+        builder.Services.AddScoped<IAnalyticsAuditService, AdminAnalyticsAuditService>();
 
         // Add analytics monitoring and observability services
-        builder.Services.AddScoped<IAnalyticsPerformanceMonitor, AnalyticsPerformanceMonitor>();
-        builder.Services.AddScoped<IAnalyticsErrorTracker, AnalyticsErrorTracker>();
-        builder.Services.AddScoped<IAnalyticsUsageTracker, AnalyticsUsageTracker>();
+        builder.Services.AddScoped<IAnalyticsPerformanceMonitor, AdminPerformanceMonitorService>();
+        builder.Services.AddScoped<IAnalyticsErrorTracker, AdminErrorTrackerService>();
+        builder.Services.AddScoped<IAnalyticsUsageTracker, AdminUsageTrackerService>();
         
         // Add analytics error handling service
         builder.Services.AddScoped<IAnalyticsErrorHandler, AnalyticsErrorHandler>();
 
         // Add analytics export and sharing services
-        builder.Services.AddScoped<IAnalyticsExportService, AnalyticsExportService>();
+        builder.Services.AddScoped<IAnalyticsExportService, ClientAnalyticsExportService>();
 
         // Add real-time analytics services
-        builder.Services.AddScoped<IRealTimeAnalyticsService, RealTimeAnalyticsService>();
-        builder.Services.AddHostedService<RealTimeAnalyticsBackgroundService>();
+        builder.Services.AddScoped<IRealTimeAnalyticsService, ClientRealTimeAnalyticsService>();
+        builder.Services.AddHostedService<ClientRealTimeBackgroundService>();
 
         // Add missing service registrations
         builder.Services.AddScoped<IAdvancedAnalyticsService, AdvancedAnalyticsService>();
@@ -223,7 +225,7 @@ public class Program
         // Add health checks
         builder.Services.AddHealthChecks()
             .AddDbContextCheck<ApplicationDbContext>("database")
-            .AddCheck<AnalyticsHealthCheck>("analytics");
+            .AddCheck<AdminAnalyticsHealthCheckService>("analytics");
 
         // Add caching services
         builder.Services.AddMemoryCache();

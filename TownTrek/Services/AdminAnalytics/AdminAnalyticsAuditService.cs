@@ -6,14 +6,14 @@ using TownTrek.Models;
 
 namespace TownTrek.Services.AdminAnalytics
 {
-    public class AnalyticsAuditService(
+    public class AdminAnalyticsAuditService(
         ApplicationDbContext context,
         IHttpContextAccessor httpContextAccessor,
-        ILogger<AnalyticsAuditService> logger) : IAnalyticsAuditService
+        ILogger<AdminAnalyticsAuditService> logger) : IAnalyticsAuditService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
-        private readonly ILogger<AnalyticsAuditService> _logger = logger;
+        private readonly ILogger<AdminAnalyticsAuditService> _logger = logger;
 
         public async Task LogAnalyticsAccessAsync(string userId, string action, string? businessId = null, string? platform = null)
         {

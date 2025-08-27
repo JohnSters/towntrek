@@ -10,12 +10,12 @@ namespace TownTrek.Services.Analytics
     /// <summary>
     /// Service responsible for data access operations for analytics
     /// </summary>
-    public class AnalyticsDataService(
+    public class ClientAnalyticsDataService(
         ApplicationDbContext context,
-        ILogger<AnalyticsDataService> logger) : IAnalyticsDataService
+        ILogger<ClientAnalyticsDataService> logger) : IAnalyticsDataService
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly ILogger<AnalyticsDataService> _logger = logger;
+        private readonly ILogger<ClientAnalyticsDataService> _logger = logger;
 
         public async Task<List<Business>> GetUserBusinessesAsync(string userId)
         {
