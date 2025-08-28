@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TownTrek.Attributes;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {
     [Authorize(Policy = "PaidClientAccess")]
+    [RequireActiveSubscription(allowFreeTier: false)]
     [Route("Client/[controller]/[action]")]
     public class AdvancedAnalyticsController : Controller
     {

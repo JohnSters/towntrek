@@ -4,12 +4,14 @@ using Microsoft.AspNetCore.RateLimiting;
 
 using System.Security.Claims;
 
+using TownTrek.Attributes;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Client
 {
     [Authorize(Policy = "PaidClientAccess")] // Only allow paid clients (Basic, Standard, Premium) + Admin
+    [RequireActiveSubscription(allowFreeTier: false)]
     [Route("Client/Analytics/[action]")]
     public class ClientAnalyticsController(
         IClientAnalyticsService analyticsService,

@@ -9,18 +9,21 @@ using TownTrek.Models.ViewModels;
 namespace TownTrek.Controllers.Client
 {
     [Authorize(Policy = "PaidClientAccess")] // Only allow paid clients (Basic, Standard, Premium) + Admin
+    [RequireActiveSubscription(allowFreeTier: false)]
     [Route("Client/[controller]/[action]")]
     public class BusinessAnalyticsController(
         IClientAnalyticsService analyticsService,
         IBusinessService businessService,
         IAnalyticsUsageTracker usageTracker,
         IComparativeAnalysisService comparativeAnalysisService,
+        ISubscriptionAuthService subscriptionAuthService,
         ILogger<BusinessAnalyticsController> logger) : Controller
     {
         private readonly IClientAnalyticsService _analyticsService = analyticsService;
         private readonly IBusinessService _businessService = businessService;
         private readonly IAnalyticsUsageTracker _usageTracker = usageTracker;
         private readonly IComparativeAnalysisService _comparativeAnalysisService = comparativeAnalysisService;
+        private readonly ISubscriptionAuthService _subscriptionAuthService = subscriptionAuthService;
         private readonly ILogger<BusinessAnalyticsController> _logger = logger;
 
         // Category benchmarks
