@@ -4,7 +4,7 @@ using TownTrek.Data;
 using TownTrek.Models;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.ClientAnalytics
 {
     /// <summary>
     /// Service for managing analytics snapshots and historical data

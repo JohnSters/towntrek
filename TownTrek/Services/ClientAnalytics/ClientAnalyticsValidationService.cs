@@ -5,7 +5,7 @@ using TownTrek.Data;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.ClientAnalytics
 {
     /// <summary>
     /// Service responsible for validating analytics parameters and requests

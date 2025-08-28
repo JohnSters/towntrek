@@ -4,7 +4,7 @@ using TownTrek.Models.Exceptions;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.ClientAnalytics
 {
     /// <summary>
     /// Service for comparative analysis functionality

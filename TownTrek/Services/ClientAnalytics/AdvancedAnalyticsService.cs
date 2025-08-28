@@ -5,7 +5,7 @@ using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.ClientAnalytics
 {
     /// <summary>
     /// Service for advanced analytics features including predictive analytics, anomaly detection, and custom metrics

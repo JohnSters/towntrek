@@ -1,19 +1,20 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
+using Serilog;
+
+using System.Threading.RateLimiting;
+
 using TownTrek.Data;
-using TownTrek.Services;
-using TownTrek.Services.Interfaces;
+using TownTrek.Middleware;
 using TownTrek.Models;
 using TownTrek.Options;
-using TownTrek.Middleware;
-using Serilog;
-using System.Threading.RateLimiting;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using TownTrek.Services.Analytics;
-using TownTrek.Services.ClientAnalytics;
+using TownTrek.Services;
 using TownTrek.Services.AdminAnalytics;
-using TownTrek.Services.SharedAnalytics;
+using TownTrek.Services.ClientAnalytics;
 using TownTrek.Services.ClientAnalytics.RealTime;
+using TownTrek.Services.Interfaces;
+using TownTrek.Services.SharedAnalytics;
 
 namespace TownTrek;
 

@@ -16,7 +16,7 @@ using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.ClientAnalytics
 {
     public class ClientAnalyticsExportService(
         ApplicationDbContext context,

@@ -4,7 +4,7 @@ using TownTrek.Models.ViewModels;
 using TownTrek.Options;
 using TownTrek.Services.Interfaces;
 
-namespace TownTrek.Services.Analytics
+namespace TownTrek.Services.ClientAnalytics
 {
     /// <summary>
     /// Analytics cache service implementation with specialized caching strategies
