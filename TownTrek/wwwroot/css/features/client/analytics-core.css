@@ -728,103 +728,7 @@
     color: var(--text-primary);
 }
 
-/* ==========================================================================
-   Performance Insights Section
-   ========================================================================== */
-.performance-insights {
-    margin-bottom: 2rem;
-}
 
-.insights-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-.insight-card {
-    background: var(--white);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-    display: flex;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-.insight-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.insight-card.success {
-    border-left: 4px solid var(--success-color);
-}
-
-.insight-card.warning {
-    border-left: 4px solid var(--warning-color);
-}
-
-.insight-card.info {
-    border-left: 4px solid var(--info-color);
-}
-
-.insight-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-    flex-shrink: 0;
-}
-
-.insight-card.success .insight-icon {
-    background: rgba(40, 167, 69, 0.1);
-    color: var(--success-color);
-}
-
-.insight-card.warning .insight-icon {
-    background: rgba(255, 193, 7, 0.1);
-    color: var(--warning-color);
-}
-
-.insight-card.info .insight-icon {
-    background: rgba(23, 162, 184, 0.1);
-    color: var(--info-color);
-}
-
-.insight-content {
-    flex: 1;
-}
-
-.insight-content h4 {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 0.5rem 0;
-}
-
-.insight-content p {
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    margin: 0 0 0.75rem 0;
-    line-height: 1.5;
-}
-
-.insight-action {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    background: var(--light-gray);
-    padding: 0.5rem;
-    border-radius: var(--radius-sm);
-}
-
-.insight-action strong {
-    color: var(--text-primary);
-}
 
 /* ==========================================================================
    Advanced Features Section
@@ -925,6 +829,134 @@
     background: var(--light-gray);
     border-radius: var(--radius-sm);
     text-align: center;
+}
+
+/* ==========================================================================
+   Premium Upgrade and Empty States
+   ========================================================================== */
+.premium-upgrade {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover-color) 100%);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    color: var(--white);
+    margin-top: 1.5rem;
+}
+
+.upgrade-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.upgrade-icon {
+    flex-shrink: 0;
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.upgrade-icon svg {
+    width: 40px;
+    height: 40px;
+    color: var(--white);
+}
+
+.upgrade-text {
+    flex: 1;
+}
+
+.upgrade-text h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--white);
+}
+
+.upgrade-text p {
+    font-size: 1rem;
+    margin: 0 0 1rem 0;
+    opacity: 0.9;
+}
+
+.upgrade-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.5rem;
+}
+
+.upgrade-features li {
+    font-size: 0.875rem;
+    opacity: 0.9;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.upgrade-features li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--hunyadi-yellow);
+    font-weight: bold;
+}
+
+.upgrade-action {
+    flex-shrink: 0;
+}
+
+.upgrade-action .btn-primary {
+    background: var(--white);
+    color: var(--primary-color);
+    border-color: var(--white);
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+}
+
+.upgrade-action .btn-primary:hover {
+    background: var(--light-gray);
+    color: var(--primary-color);
+    border-color: var(--light-gray);
+}
+
+.premium-empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--white);
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    margin-top: 1.5rem;
+}
+
+.premium-empty-state .empty-icon {
+    margin-bottom: 1.5rem;
+}
+
+.premium-empty-state .empty-icon svg {
+    color: var(--text-muted);
+}
+
+.premium-empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1rem 0;
+}
+
+.premium-empty-state p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* ==========================================================================

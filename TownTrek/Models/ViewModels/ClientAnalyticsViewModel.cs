@@ -23,8 +23,7 @@ namespace TownTrek.Models.ViewModels
         public List<ViewsOverTimeData> ViewsOverTime { get; set; } = new();
         public List<ReviewsOverTimeData> ReviewsOverTime { get; set; } = new();
         
-        // Performance insights
-        public List<BusinessPerformanceInsight> PerformanceInsights { get; set; } = new();
+
         
         // Comparison data (Premium only)
         public CategoryBenchmarkData? CategoryBenchmarks { get; set; }
@@ -139,28 +138,7 @@ namespace TownTrek.Models.ViewModels
         public string BusinessName { get; set; } = string.Empty;
     }
 
-    public class BusinessPerformanceInsight
-    {
-        public int BusinessId { get; set; }
-        public string BusinessName { get; set; } = string.Empty;
-        public string InsightType { get; set; } = string.Empty; // "opportunity", "warning", "success"
-        public string Title { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public string ActionRecommendation { get; set; } = string.Empty;
-        public int Priority { get; set; } // 1-5, 5 being highest
-        public string Insight { get; set; } = string.Empty; // Alias for Description
-        public double PerformanceRating { get; set; }
-        public string Trend { get; set; } = string.Empty; // "up", "down", "stable"
-        
-        // Additional properties needed by ClientAnalyticsService
-        public string Category { get; set; } = string.Empty;
-        public double EngagementScore { get; set; }
-        public double ViewsGrowthRate { get; set; }
-        public double ReviewsGrowthRate { get; set; }
-        public double FavoritesGrowthRate { get; set; }
-        public double RatingGrowthRate { get; set; }
-        public List<string> Recommendations { get; set; } = new();
-    }
+
 
     // Premium-only features
     public class CategoryBenchmarkData
@@ -190,7 +168,6 @@ namespace TownTrek.Models.ViewModels
         
         // Additional properties needed by ClientAnalyticsService
         public List<CompetitorInsight> TopPerformers { get; set; } = new();
-        public List<string> PerformanceInsights { get; set; } = new();
     }
 
     public class BenchmarkMetric
@@ -270,7 +247,6 @@ namespace TownTrek.Models.ViewModels
         
         // Additional properties needed by ClientAnalyticsService
         public List<CompetitorInsight> TopPerformers { get; set; } = new();
-        public List<string> PerformanceInsights { get; set; } = new();
     }
 
 

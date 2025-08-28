@@ -91,21 +91,7 @@
                     </div>
                 </div>
 
-                @if (Model.AnalyticsData.PerformanceInsights != null && Model.AnalyticsData.PerformanceInsights.Count > 0)
-                {
-                    <div class="performance-insights">
-                        <h2>Performance Insights</h2>
-                        <div class="insights-list">
-                            @foreach (var insight in Model.AnalyticsData.PerformanceInsights.Take(5))
-                            {
-                                <div class="insight-item">
-                                    <div class="insight-icon">💡</div>
-                                    <div class="insight-text">@insight.Insight</div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
+
             </div>
         }
         else if (Model.DashboardType == "competitors")

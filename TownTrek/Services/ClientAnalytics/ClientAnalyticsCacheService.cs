@@ -105,17 +105,7 @@ namespace TownTrek.Services.ClientAnalytics
             }, expiration);
         }
 
-        public async Task<List<BusinessPerformanceInsight>?> GetPerformanceInsightsAsync(string userId)
-        {
-            var cacheKey = $"performance_insights:{userId}";
-            var expiration = TimeSpan.FromMinutes(_cacheOptions.AnalyticsExpirationMinutes);
 
-            return await _cacheService.GetOrSetAsync(cacheKey, async () =>
-            {
-                _statistics.DashboardCacheMisses++;
-                return await _analyticsService.GetPerformanceInsightsAsync(userId);
-            }, expiration);
-        }
 
         public async Task<CategoryBenchmarkData?> GetCategoryBenchmarksAsync(string userId, string category)
         {
@@ -152,7 +142,7 @@ namespace TownTrek.Services.ClientAnalytics
                     $"reviews_chart:{userId}:*",
                     $"views_over_time:{userId}:*",
                     $"reviews_over_time:{userId}:*",
-                    $"performance_insights:{userId}",
+    
                     $"category_benchmarks:{userId}:*",
                     $"competitor_insights:{userId}"
                 };
@@ -227,8 +217,7 @@ namespace TownTrek.Services.ClientAnalytics
                     warmUpTasks.Add(GetReviewsChartDataAsync(userId, 30));
                     warmUpTasks.Add(GetReviewsChartDataAsync(userId, 7));
                     
-                    // Warm up performance insights
-                    warmUpTasks.Add(GetPerformanceInsightsAsync(userId));
+                    
                 }
 
                 await Task.WhenAll(warmUpTasks);

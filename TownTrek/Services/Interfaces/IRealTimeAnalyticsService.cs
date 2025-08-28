@@ -33,9 +33,7 @@ namespace TownTrek.Services.Interfaces
         Task SendAnalyticsNotificationAsync(string userId, string title, string message, string type = "info");
 
         /// <summary>
-        /// Send real-time update for performance insights
-        /// </summary>
-        Task SendPerformanceInsightsUpdateAsync(string userId, List<BusinessPerformanceInsight> insights);
+
 
         /// <summary>
         /// Send real-time update for competitor insights

@@ -147,10 +147,7 @@ class AnalyticsRealtime {
             this.handleReviewsChartUpdate(chartData);
         });
 
-        this.addEventListener('ReceivePerformanceInsightsUpdate', (insights) => {
-            this.lastActivity = Date.now();
-            this.handlePerformanceInsightsUpdate(insights);
-        });
+
 
         this.addEventListener('ReceiveCompetitorInsightsUpdate', (insights) => {
             this.lastActivity = Date.now();
@@ -246,16 +243,7 @@ class AnalyticsRealtime {
         }
     }
 
-    handlePerformanceInsightsUpdate(insights) {
-        console.log('Received performance insights update:', insights);
-        this.updatePerformanceInsights(insights);
-        
-        if (this.analyticsCore) {
-            this.analyticsCore.trackFeatureUsage('real-time-update', 'performance-insights', { 
-                insightCount: insights.length 
-            });
-        }
-    }
+
 
     handleCompetitorInsightsUpdate(insights) {
         console.log('Received competitor insights update:', insights);
@@ -361,28 +349,7 @@ class AnalyticsRealtime {
         }
     }
 
-    updatePerformanceInsights(insights) {
-        const insightsContainer = document.querySelector('.performance-insights');
-        if (!insightsContainer) return;
 
-        insightsContainer.innerHTML = '';
-
-        insights.forEach(insight => {
-            const insightElement = document.createElement('div');
-            insightElement.className = 'insight-card';
-            insightElement.innerHTML = `
-                <div class="insight-header">
-                    <h4>${insight.title}</h4>
-                    <span class="insight-type ${insight.type}">${insight.type}</span>
-                </div>
-                <p>${insight.description}</p>
-                <div class="insight-metrics">
-                    <span class="metric">${insight.metric}</span>
-                </div>
-            `;
-            insightsContainer.appendChild(insightElement);
-        });
-    }
 
     updateCompetitorInsights(insights) {
         const competitorsContainer = document.querySelector('.competitor-insights');

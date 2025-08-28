@@ -87,7 +87,6 @@
 }
 
 .business-performance,
-.performance-insights,
 .competitors-dashboard {
     background: #f8fafc;
     border: 1px solid #e2e8f0;
@@ -97,7 +96,6 @@
 }
 
 .business-performance h2,
-.performance-insights h2,
 .competitors-dashboard h2 {
     font-size: 1.5rem;
     font-weight: 600;
@@ -366,7 +364,6 @@
     }
     
     .business-performance,
-    .performance-insights,
     .competitors-dashboard {
         padding: 1rem;
     }

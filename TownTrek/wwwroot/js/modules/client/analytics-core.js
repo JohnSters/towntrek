@@ -141,7 +141,7 @@ class AnalyticsCore {
     }
 
     setupCardHoverEffects() {
-        const cards = document.querySelectorAll('.overview-card, .performance-card, .insight-card, .premium-card');
+        const cards = document.querySelectorAll('.overview-card, .performance-card, .premium-card');
         
         cards.forEach(card => {
             card.addEventListener('mouseenter', () => {

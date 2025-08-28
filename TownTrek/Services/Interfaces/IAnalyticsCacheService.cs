@@ -38,9 +38,7 @@ namespace TownTrek.Services.Interfaces
         Task<List<ReviewsOverTimeData>?> GetReviewsOverTimeAsync(string userId, int days);
 
         /// <summary>
-        /// Get or set performance insights data
-        /// </summary>
-        Task<List<BusinessPerformanceInsight>?> GetPerformanceInsightsAsync(string userId);
+
 
         /// <summary>
         /// Get or set category benchmarks data

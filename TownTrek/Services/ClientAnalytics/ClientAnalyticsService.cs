@@ -64,7 +64,6 @@ namespace TownTrek.Services.ClientAnalytics
                 var overview = await GetAnalyticsOverviewAsync(userId, businessAnalytics);
                 var viewsOverTime = await GetViewsOverTimeAsync(userId, AnalyticsConstants.DefaultAnalyticsDays);
                 var reviewsOverTime = await GetReviewsOverTimeAsync(userId, AnalyticsConstants.DefaultAnalyticsDays);
-                var performanceInsights = await GetPerformanceInsightsAsync(userId);
 
                 var model = new ClientAnalyticsViewModel
                 {
@@ -77,8 +76,7 @@ namespace TownTrek.Services.ClientAnalytics
                     BusinessAnalytics = businessAnalytics,
                     Overview = overview,
                     ViewsOverTime = viewsOverTime,
-                    ReviewsOverTime = reviewsOverTime,
-                    PerformanceInsights = performanceInsights
+                    ReviewsOverTime = reviewsOverTime
                 };
 
                 // Premium features
@@ -271,28 +269,7 @@ namespace TownTrek.Services.ClientAnalytics
             }
         }
 
-        public async Task<List<BusinessPerformanceInsight>> GetPerformanceInsightsAsync(string userId)
-        {
-            try
-            {
-                // Record analytics access event
-                await _eventService.RecordAnalyticsAccessEventAsync(userId, "PerformanceInsights");
 
-                var businesses = await _dataService.GetUserBusinessesAsync(userId);
-                if (!businesses.Any()) return new List<BusinessPerformanceInsight>();
-
-                var businessIds = businesses.Select(b => b.Id).ToList();
-                var businessAnalytics = await GetBusinessAnalyticsBatchAsync(businessIds, userId);
-
-                return GeneratePerformanceInsights(businessAnalytics);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting performance insights for UserId {UserId}", userId);
-                await _eventService.RecordAnalyticsErrorEventAsync(userId, "GetPerformanceInsights", ex.Message, new { UserId = userId });
-                throw;
-            }
-        }
 
         public async Task<CategoryBenchmarkData?> GetCategoryBenchmarksAsync(string userId, string category)
         {
@@ -544,18 +521,7 @@ namespace TownTrek.Services.ClientAnalytics
             return result;
         }
 
-        private List<BusinessPerformanceInsight> GeneratePerformanceInsights(List<BusinessAnalyticsData> businessAnalytics)
-        {
-            // Implementation would generate performance insights
-            return businessAnalytics.Select(b => new BusinessPerformanceInsight
-            {
-                BusinessId = b.BusinessId,
-                BusinessName = b.BusinessName,
-                Insight = $"Business {b.BusinessName} has {b.TotalViews} total views",
-                PerformanceRating = b.PerformanceRating,
-                Trend = "stable"
-            }).ToList();
-        }
+
 
         private CategoryBenchmarkData CalculateCategoryBenchmarks(List<Business> userBusinesses, List<Business> categoryBusinesses)
         {

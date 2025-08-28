@@ -105,20 +105,7 @@ namespace TownTrek.Services.ClientAnalytics.RealTime
             }
         }
 
-        public async Task SendPerformanceInsightsUpdateAsync(string userId, List<BusinessPerformanceInsight> insights)
-        {
-            try
-            {
-                await _hubContext.Clients.Group($"analytics_{userId}")
-                    .SendAsync("ReceivePerformanceInsightsUpdate", insights);
-                
-                _logger.LogInformation("Sent performance insights update to user {UserId}", userId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error sending performance insights update to user {UserId}", userId);
-            }
-        }
+
 
         public async Task SendCompetitorInsightsUpdateAsync(string userId, List<CompetitorInsight> insights)
         {
