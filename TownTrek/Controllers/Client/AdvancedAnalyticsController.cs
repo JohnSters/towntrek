@@ -11,15 +11,18 @@ namespace TownTrek.Controllers.Client
     {
         private readonly IAdvancedAnalyticsService _advancedAnalyticsService;
         private readonly ITrialService _trialService;
+        private readonly ISubscriptionAuthService _subscriptionAuthService;
         private readonly ILogger<AdvancedAnalyticsController> _logger;
 
         public AdvancedAnalyticsController(
             IAdvancedAnalyticsService advancedAnalyticsService,
             ITrialService trialService,
+            ISubscriptionAuthService subscriptionAuthService,
             ILogger<AdvancedAnalyticsController> logger)
         {
             _advancedAnalyticsService = advancedAnalyticsService;
             _trialService = trialService;
+            _subscriptionAuthService = subscriptionAuthService;
             _logger = logger;
         }
 
@@ -32,6 +35,14 @@ namespace TownTrek.Controllers.Client
                 if (string.IsNullOrEmpty(userId))
                 {
                     return Unauthorized();
+                }
+
+                // Check if user has AdvancedAnalytics feature access (Premium tier only)
+                var hasAdvancedAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
+                if (!hasAdvancedAnalyticsAccess)
+                {
+                    TempData["ErrorMessage"] = "Advanced Analytics is only available with a Premium subscription. Please upgrade to access this feature.";
+                    return RedirectToAction("Index", "Subscription");
                 }
 
                 // Get basic advanced analytics data
@@ -66,6 +77,13 @@ namespace TownTrek.Controllers.Client
                     return Unauthorized();
                 }
 
+                // Check if user has AdvancedAnalytics feature access (Premium tier only)
+                var hasAdvancedAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
+                if (!hasAdvancedAnalyticsAccess)
+                {
+                    return BadRequest(new { error = "Advanced Analytics is only available with a Premium subscription." });
+                }
+
                 var result = await _advancedAnalyticsService.GetPredictiveAnalyticsAsync(userId, forecastDays);
                 return Json(result);
             }
@@ -88,6 +106,13 @@ namespace TownTrek.Controllers.Client
                     return Unauthorized();
                 }
 
+                // Check if user has AdvancedAnalytics feature access (Premium tier only)
+                var hasAdvancedAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
+                if (!hasAdvancedAnalyticsAccess)
+                {
+                    return BadRequest(new { error = "Advanced Analytics is only available with a Premium subscription." });
+                }
+
                 var result = await _advancedAnalyticsService.GetPredictiveAnalyticsAsync(userId, forecastDays);
                 return Json(result);
             }
@@ -99,7 +124,7 @@ namespace TownTrek.Controllers.Client
         }
 
         [HttpGet]
-        public async Task<IActionResult> Anomalies(int analysisDays = 30)
+        public async Task<IActionResult> Anomalies()
         {
             try
             {
@@ -109,13 +134,20 @@ namespace TownTrek.Controllers.Client
                     return Unauthorized();
                 }
 
-                var result = await _advancedAnalyticsService.DetectAnomaliesAsync(userId, analysisDays);
+                // Check if user has AdvancedAnalytics feature access (Premium tier only)
+                var hasAdvancedAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
+                if (!hasAdvancedAnalyticsAccess)
+                {
+                    return BadRequest(new { error = "Advanced Analytics is only available with a Premium subscription." });
+                }
+
+                var result = await _advancedAnalyticsService.DetectAnomaliesAsync(userId);
                 return Json(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error detecting anomalies");
-                return BadRequest(new { error = "Failed to detect anomalies" });
+                _logger.LogError(ex, "Error getting anomalies");
+                return BadRequest(new { error = "Failed to get anomalies" });
             }
         }
 
@@ -128,6 +160,13 @@ namespace TownTrek.Controllers.Client
                 if (string.IsNullOrEmpty(userId))
                 {
                     return Unauthorized();
+                }
+
+                // Check if user has AdvancedAnalytics feature access (Premium tier only)
+                var hasAdvancedAnalyticsAccess = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
+                if (!hasAdvancedAnalyticsAccess)
+                {
+                    return BadRequest(new { error = "Advanced Analytics is only available with a Premium subscription." });
                 }
 
                 var result = await _advancedAnalyticsService.GetCustomMetricsAsync(userId);

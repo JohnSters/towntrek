@@ -30,11 +30,54 @@ This document captures the end‑to‑end process to integrate transactional ema
   - Passphrase: keep empty or match in both PayFast and app exactly
   - URLs must be public (notify uses POST from PayFast)
 
+## Configuration Verification Commands
+
+### Check Current Configuration
+```powershell
+# View all user secrets
+dotnet user-secrets list
+
+# Check specific configurations
+dotnet user-secrets list | findstr "BaseUrl"
+dotnet user-secrets list | findstr "Email:"
+dotnet user-secrets list | findstr "PayFast:"
+```
+
+### Verify ngrok Status
+```powershell
+# Check if ngrok is running and get current tunnel
+ngrok status
+
+# Alternative: Check ngrok web interface
+start http://127.0.0.1:4040
+```
+
+### Test Configuration Endpoints
+```powershell
+# Test if your app is accessible via ngrok
+curl https://17c27bca69ea.ngrok-free.app
+
+# Test email configuration (replace with your actual ngrok URL)
+curl "https://17c27bca69ea.ngrok-free.app/Api/Email/TestWelcome?to=test@example.com&firstName=Test"
+
+# Test PayFast configuration
+curl "https://17c27bca69ea.ngrok-free.app/Api/Payment/DebugFields"
+```
+
+### Update Configuration When ngrok URL Changes
+```powershell
+# When ngrok restarts and gives you a new URL, update BaseUrl
+dotnet user-secrets set "BaseUrl" "https://NEW_NGROK_ID.ngrok-free.app"
+
+# Verify the update
+dotnet user-secrets list | findstr "BaseUrl"
+```
+
 ## Development configuration (user‑secrets)
 
 ```powershell
-# Base URL (public dev URL)
-dotnet user-secrets set "BaseUrl" "https://<id>.ngrok-free.app"
+# Base URL (public dev URL) - UPDATE WITH YOUR CURRENT NGROK URL
+dotnet user-secrets set "BaseUrl" "https://17c27bca69ea.ngrok-free.app"
 
 # Mailtrap SMTP
 dotnet user-secrets set "Email:Host" "sandbox.smtp.mailtrap.io"
@@ -109,7 +152,7 @@ Notes
 ## Test via Postman / curl
 
 ```bash
-curl -X POST "https://<id>.ngrok-free.app/Api/Payment/Notify" \
+curl -X POST "https://17c27bca69ea.ngrok-free.app/Api/Payment/Notify" \
   -H "Content-Type: application/x-www-form-urlencoded" \
   --data "m_payment_id=33&payment_status=COMPLETE&token=DEV-TOKEN"
 ```
@@ -121,16 +164,48 @@ GET /Api/Email/TestWelcome?to=<mail>
 GET /Api/Email/TestPaymentSuccess?to=<mail>
 ```
 
-## Sample test URLs (replace <id> and parameters)
+## Complete Integration Testing
+
+### 1. Test Email Configuration
+```powershell
+# Test welcome email
+curl "https://17c27bca69ea.ngrok-free.app/Api/Email/TestWelcome?to=your-email@example.com&firstName=Test"
+
+# Test payment success email
+curl "https://17c27bca69ea.ngrok-free.app/Api/Email/TestPaymentSuccess?to=your-email@example.com"
+```
+
+### 2. Test PayFast Configuration
+```powershell
+# Check PayFast debug fields
+curl "https://17c27bca69ea.ngrok-free.app/Api/Payment/DebugFields"
+
+# Test PayFast notify endpoint
+curl "https://17c27bca69ea.ngrok-free.app/Api/Payment/NotifyDev?paymentId=33"
+```
+
+### 3. Test Complete Registration Flow
+1. Register a new business owner at: `https://17c27bca69ea.ngrok-free.app/Auth/Register`
+2. Check Mailtrap inbox for welcome email
+3. Complete payment flow via PayFast
+4. Verify subscription activation and success email
+
+### 4. Monitor ngrok Traffic
+```powershell
+# Open ngrok web interface to monitor requests
+start http://127.0.0.1:4040
+```
+
+## Sample test URLs (using your current ngrok URL)
 
 - PayFast auto‑post (server‑side):
-  - `https://<id>.ngrok-free.app/Api/Payment/Process?subscriptionId=33`
+  - `https://17c27bca69ea.ngrok-free.app/Api/Payment/Process?subscriptionId=33`
 - Email confirmation flow:
-  - Resend: `https://<id>.ngrok-free.app/Auth/ResendConfirmation?email=tester@example.com`
+  - Resend: `https://17c27bca69ea.ngrok-free.app/Auth/ResendConfirmation?email=tester@example.com`
   - Confirm: link from Mailtrap points to `/Auth/ConfirmEmail?userId={guid}&token={token}`
 - Direct email tests (dev only):
-  - Welcome: `https://<id>.ngrok-free.app/Api/Email/TestWelcome?to=tester@example.com&firstName=Tester`
-  - Payment success: `https://<id>.ngrok-free.app/Api/Email/TestPaymentSuccess?to=tester@example.com`
+  - Welcome: `https://17c27bca69ea.ngrok-free.app/Api/Email/TestWelcome?to=tester@example.com&firstName=Tester`
+  - Payment success: `https://17c27bca69ea.ngrok-free.app/Api/Email/TestPaymentSuccess?to=tester@example.com`
 
 ## Verifying signature locally
 
@@ -160,6 +235,9 @@ ngrok http http://localhost:5220 --host-header=rewrite --region=eu
 # Alternate:
 ngrok http https://localhost:44316 --host-header=rewrite
 
+# Check ngrok status and current tunnel
+ngrok status
+
 # Inspect live traffic UI
 start http://127.0.0.1:4040
 
@@ -167,8 +245,13 @@ start http://127.0.0.1:4040
 
 # After tunnel starts, set BaseUrl to the forwarding URL
 # Example:
-dotnet user-secrets set "BaseUrl" "https://<id>.ngrok-free.app"
-dotnet user-secrets list
+dotnet user-secrets set "BaseUrl" "https://17c27bca69ea.ngrok-free.app"
+
+# Verify configuration
+dotnet user-secrets list | findstr "BaseUrl"
+
+# Test if your app is accessible via ngrok
+curl https://17c27bca69ea.ngrok-free.app
 ```
 
 Tips

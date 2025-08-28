@@ -50,10 +50,10 @@ namespace TownTrek.Services.ClientAnalytics
                 var user = await _dataService.GetUserAsync(userId);
                 if (user == null) throw new ArgumentException("User not found", nameof(userId));
 
-                // All non-trial users get the same analytics experience.
+                // Check subscription-based analytics access
                 var authResult = await _subscriptionAuthService.ValidateUserSubscriptionAsync(userId);
-                var hasBasicAnalytics = true;
-                var hasAdvancedAnalytics = true;
+                var hasBasicAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "BasicAnalytics");
+                var hasAdvancedAnalytics = await _subscriptionAuthService.CanAccessFeatureAsync(userId, "AdvancedAnalytics");
 
                 var businesses = await _dataService.GetUserBusinessesAsync(userId);
 
