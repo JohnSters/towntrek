@@ -1,5 +1,5 @@
-using TownTrek.Services.Interfaces;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 
 namespace TownTrek.Services.ClientAnalytics.RealTime
 {

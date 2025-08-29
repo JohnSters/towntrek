@@ -2,6 +2,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
 using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.AdminAnalytics;
 
 namespace TownTrek.Services.AdminAnalytics;
 

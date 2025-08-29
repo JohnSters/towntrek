@@ -1,9 +1,10 @@
 using System.Net;
 using System.Text.Json;
+
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services;
-using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.AdminAnalytics;
 
 namespace TownTrek.Middleware;
 

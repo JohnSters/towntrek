@@ -7,6 +7,7 @@ using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services;
 using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.AdminAnalytics;
 
 
 namespace TownTrek.Controllers.Admin

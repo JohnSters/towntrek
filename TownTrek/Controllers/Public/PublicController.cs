@@ -6,6 +6,7 @@ using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 using TownTrek.Data;
 using Microsoft.EntityFrameworkCore;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 
 namespace TownTrek.Controllers.Public
 {

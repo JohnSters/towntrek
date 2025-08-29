@@ -1,6 +1,6 @@
 using TownTrek.Models.ViewModels;
 
-namespace TownTrek.Services.Interfaces
+namespace TownTrek.Services.Interfaces.ClientAnalytics
 {
     /// <summary>
     /// Specialized cache service for analytics data with appropriate expiration strategies

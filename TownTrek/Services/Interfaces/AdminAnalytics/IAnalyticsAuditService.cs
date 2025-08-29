@@ -1,6 +1,6 @@
 using TownTrek.Models;
 
-namespace TownTrek.Services.Interfaces
+namespace TownTrek.Services.Interfaces.AdminAnalytics
 {
     /// <summary>
     /// Service for auditing analytics access and data exports for security and compliance

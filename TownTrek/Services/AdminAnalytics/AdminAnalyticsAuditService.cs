@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TownTrek.Data;
-using TownTrek.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using TownTrek.Models;
+using TownTrek.Services.Interfaces.AdminAnalytics;
 
 namespace TownTrek.Services.AdminAnalytics
 {

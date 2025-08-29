@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using TownTrek.Services.Interfaces;
+
 using System.Security.Claims;
 using System.Text.Json;
+
 using TownTrek.Models.ViewModels;
+using TownTrek.Services.Interfaces.AdminAnalytics;
 
 namespace TownTrek.Controllers.Admin;
 

@@ -14,6 +14,8 @@ using TownTrek.Services.AdminAnalytics;
 using TownTrek.Services.ClientAnalytics;
 using TownTrek.Services.ClientAnalytics.RealTime;
 using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.AdminAnalytics;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 using TownTrek.Services.SharedAnalytics;
 
 namespace TownTrek;
@@ -179,7 +181,6 @@ public class Program
         builder.Services.AddScoped<IAnalyticsDataService, ClientAnalyticsDataService>();
         builder.Services.AddScoped<IAnalyticsValidationService, ClientAnalyticsValidationService>();
         builder.Services.AddScoped<IAnalyticsEventService, AnalyticsEventService>();
-        builder.Services.AddScoped<IClientAnalyticsService, ClientAnalyticsService>();
         builder.Services.AddScoped<IClientAnalyticsService, ClientAnalyticsService>();
         builder.Services.AddScoped<IBusinessMetricsService, BusinessMetricsService>();
         builder.Services.AddScoped<IChartDataService, ChartDataService>();

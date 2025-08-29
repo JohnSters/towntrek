@@ -1,6 +1,6 @@
 using TownTrek.Models.ViewModels;
 
-namespace TownTrek.Services.Interfaces
+namespace TownTrek.Services.Interfaces.ClientAnalytics
 {
     public interface IAnalyticsExportService
     {

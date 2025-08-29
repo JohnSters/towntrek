@@ -5,6 +5,8 @@ using TownTrek.Attributes;
 using TownTrek.Services.Interfaces;
 using Microsoft.AspNetCore.RateLimiting;
 using TownTrek.Models.ViewModels;
+using TownTrek.Services.Interfaces.ClientAnalytics;
+using TownTrek.Services.Interfaces.AdminAnalytics;
 
 namespace TownTrek.Controllers.Client
 {

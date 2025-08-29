@@ -1,4 +1,4 @@
-using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 
 namespace TownTrek.Middleware
 {

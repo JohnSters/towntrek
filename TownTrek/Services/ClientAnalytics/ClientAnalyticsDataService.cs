@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using TownTrek.Constants;
 using TownTrek.Data;
 using TownTrek.Models;
-using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 
 namespace TownTrek.Services.ClientAnalytics
 {

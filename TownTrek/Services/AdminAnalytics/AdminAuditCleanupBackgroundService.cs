@@ -1,4 +1,4 @@
-using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.AdminAnalytics;
 
 namespace TownTrek.Services.AdminAnalytics
 {

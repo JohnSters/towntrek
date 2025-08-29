@@ -1,5 +1,6 @@
 using TownTrek.Models.Exceptions;
-using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.AdminAnalytics;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 
 namespace TownTrek.Services.SharedAnalytics;
 

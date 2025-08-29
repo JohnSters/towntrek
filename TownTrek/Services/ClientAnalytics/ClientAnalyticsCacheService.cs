@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using TownTrek.Models.ViewModels;
 using TownTrek.Options;
 using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 
 namespace TownTrek.Services.ClientAnalytics
 {

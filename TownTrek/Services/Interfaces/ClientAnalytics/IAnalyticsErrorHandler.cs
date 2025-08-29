@@ -1,6 +1,6 @@
 using TownTrek.Models.Exceptions;
 
-namespace TownTrek.Services.Interfaces;
+namespace TownTrek.Services.Interfaces.ClientAnalytics;
 
 /// <summary>
 /// Interface for standardized analytics error handling

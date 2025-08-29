@@ -1,6 +1,6 @@
 using TownTrek.Models;
 
-namespace TownTrek.Services.Interfaces
+namespace TownTrek.Services.Interfaces.ClientAnalytics
 {
     /// <summary>
     /// Service for managing dashboard customization features

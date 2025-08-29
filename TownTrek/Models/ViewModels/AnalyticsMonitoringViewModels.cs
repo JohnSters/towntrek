@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
-using TownTrek.Services.Interfaces;
+
+using TownTrek.Services.Interfaces.AdminAnalytics;
 
 namespace TownTrek.Models.ViewModels
 {

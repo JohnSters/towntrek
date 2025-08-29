@@ -15,6 +15,7 @@ using TownTrek.Models.Exceptions;
 using TownTrek.Models.ViewModels;
 using TownTrek.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 
 namespace TownTrek.Services.ClientAnalytics
 {

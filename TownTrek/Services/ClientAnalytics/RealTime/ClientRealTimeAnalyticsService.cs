@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.SignalR;
 
 using TownTrek.Hubs;
 using TownTrek.Models.ViewModels;
-using TownTrek.Services.Interfaces;
+using TownTrek.Services.Interfaces.ClientAnalytics;
 
 namespace TownTrek.Services.ClientAnalytics.RealTime
 {

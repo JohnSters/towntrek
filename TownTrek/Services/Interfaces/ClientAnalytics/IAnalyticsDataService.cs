@@ -1,7 +1,7 @@
 using TownTrek.Models;
 using TownTrek.Models.ViewModels;
 
-namespace TownTrek.Services.Interfaces
+namespace TownTrek.Services.Interfaces.ClientAnalytics
 {
     /// <summary>
     /// Service responsible for data access operations for analytics

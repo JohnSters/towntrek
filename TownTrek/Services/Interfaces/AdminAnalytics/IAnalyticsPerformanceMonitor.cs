@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace TownTrek.Services.Interfaces;
+namespace TownTrek.Services.Interfaces.AdminAnalytics;
 
 public interface IAnalyticsPerformanceMonitor
 {
