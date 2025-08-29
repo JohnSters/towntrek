@@ -175,6 +175,7 @@ public class Program
         // Register image service before business services that depend on it
         builder.Services.AddScoped<IImageService, ImageService>();
         builder.Services.AddScoped<IBusinessService, Services.BusinessService>();
+        builder.Services.AddScoped<IAdminBusinessService, AdminBusinessService>();
         builder.Services.AddScoped<IClientService, ClientService>();
         builder.Services.AddScoped<IMemberService, MemberService>();
         // Add analytics architecture services

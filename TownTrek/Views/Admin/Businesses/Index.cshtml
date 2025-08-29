@@ -95,9 +95,9 @@
         </div>
     </div>
     
+    @Html.AntiForgeryToken()
     @if (Model.Any())
     {
-        @Html.AntiForgeryToken()
         <div class="table-container">
             <table class="admin-table" data-table>
                 <thead>

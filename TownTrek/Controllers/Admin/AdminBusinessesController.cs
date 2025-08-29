@@ -1,31 +1,24 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-using TownTrek.Data;
+using TownTrek.Services.Interfaces;
 
 namespace TownTrek.Controllers.Admin
 {
     [Authorize(Roles = "Admin")]
     public class AdminBusinessesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IAdminBusinessService _adminBusinessService;
 
-        public AdminBusinessesController(ApplicationDbContext context)
+        public AdminBusinessesController(IAdminBusinessService adminBusinessService)
         {
-            _context = context;
+            _adminBusinessService = adminBusinessService;
         }
 
         // GET: /AdminBusinesses/Index
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var businesses = await _context.Businesses
-                .Include(b => b.Town)
-                .Include(b => b.User)
-                .OrderByDescending(b => b.CreatedAt)
-                .ToListAsync();
-
+            var businesses = await _adminBusinessService.GetAllBusinessesForAdminAsync();
             return View(businesses);
         }
 
@@ -34,19 +27,17 @@ namespace TownTrek.Controllers.Admin
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int id)
         {
-            var business = await _context.Businesses.FindAsync(id);
-            if (business == null)
+            var result = await _adminBusinessService.ApproveBusinessAsync(id, User.Identity?.Name ?? "Unknown");
+            
+            if (result.IsSuccess)
             {
-                return NotFound();
+                TempData["SuccessMessage"] = "Business has been approved and is now live!";
             }
-
-            business.Status = "Active";
-            business.ApprovedAt = DateTime.UtcNow;
-            business.ApprovedBy = User.Identity?.Name;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = $"Business '{business.Name}' has been approved and is now live!";
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+            }
+            
             return RedirectToAction(nameof(Index));
         }
 
@@ -55,18 +46,17 @@ namespace TownTrek.Controllers.Admin
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int id)
         {
-            var business = await _context.Businesses.FindAsync(id);
-            if (business == null)
+            var result = await _adminBusinessService.RejectBusinessAsync(id);
+            
+            if (result.IsSuccess)
             {
-                return NotFound();
+                TempData["SuccessMessage"] = "Business has been rejected.";
             }
-
-            business.Status = "Inactive";
-            business.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = $"Business '{business.Name}' has been rejected.";
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+            }
+            
             return RedirectToAction(nameof(Index));
         }
 
@@ -75,18 +65,17 @@ namespace TownTrek.Controllers.Admin
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Suspend(int id)
         {
-            var business = await _context.Businesses.FindAsync(id);
-            if (business == null)
+            var result = await _adminBusinessService.SuspendBusinessAsync(id);
+            
+            if (result.IsSuccess)
             {
-                return NotFound();
+                TempData["SuccessMessage"] = "Business has been suspended.";
             }
-
-            business.Status = "Suspended";
-            business.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = $"Business '{business.Name}' has been suspended.";
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+            }
+            
             return RedirectToAction(nameof(Index));
         }
 
@@ -95,18 +84,17 @@ namespace TownTrek.Controllers.Admin
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
-            var business = await _context.Businesses.FindAsync(id);
-            if (business == null)
+            var result = await _adminBusinessService.DeleteBusinessAsync(id);
+            
+            if (result.IsSuccess)
             {
-                return NotFound();
+                TempData["SuccessMessage"] = "Business has been deleted.";
             }
-
-            business.Status = "Deleted";
-            business.UpdatedAt = DateTime.UtcNow;
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = $"Business '{business.Name}' has been deleted.";
+            else
+            {
+                TempData["ErrorMessage"] = result.ErrorMessage;
+            }
+            
             return RedirectToAction(nameof(Index));
         }
     }

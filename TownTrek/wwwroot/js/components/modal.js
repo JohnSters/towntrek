@@ -98,7 +98,14 @@ class ConfirmationModal {
 
     document.body.insertAdjacentHTML('beforeend', html);
     const modal = document.getElementById(modalId);
-    const close = () => modal?.remove();
+    
+    // Add the 'open' class to make the modal visible
+    setTimeout(() => modal?.classList.add('open'), 10);
+    
+    const close = () => {
+      modal?.classList.remove('open');
+      setTimeout(() => modal?.remove(), 300);
+    };
     modal.querySelector('[data-close]')?.addEventListener('click', close);
     modal.querySelector('[data-cancel]')?.addEventListener('click', close);
     modal.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
@@ -142,16 +149,16 @@ class ConfirmationModal {
 // Legacy compatibility helpers
 window.showConfirmationModal = (config) => ConfirmationModal.show(config);
 window.confirmApproveBusiness = (name, id) => ConfirmationModal.show({
-  title: 'Approve Business',
-  message: `Are you sure you want to approve "${name}"?`,
-  details: 'This business will become live and visible to users.',
-  confirmText: 'Approve',
-  iconType: 'success',
-  confirmButtonType: 'success',
-  formAction: '/AdminBusinesses/Approve',
-  formMethod: 'post',
-  formData: { id }
-});
+    title: 'Approve Business',
+    message: `Are you sure you want to approve "${name}"?`,
+    details: 'This business will become live and visible to users.',
+    confirmText: 'Approve',
+    iconType: 'success',
+    confirmButtonType: 'success',
+    formAction: '/AdminBusinesses/Approve',
+    formMethod: 'post',
+    formData: { id }
+  });
 window.confirmRejectBusiness = (name, id) => ConfirmationModal.show({
   title: 'Reject Business',
   message: `Are you sure you want to reject "${name}"?`,
